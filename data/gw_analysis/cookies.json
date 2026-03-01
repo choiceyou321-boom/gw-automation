@@ -1,0 +1,52 @@
+[
+  {
+    "name": "oAuthToken",
+    "value": "gcmsAmaranth36068%7C2922%7CwAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+    "domain": "gw.glowseoul.co.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "signKey",
+    "value": "95233990162914950487395159959680005262700721",
+    "domain": "gw.glowseoul.co.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "BIZCUBE_AT",
+    "value": "gcmsAmaranth36068%7C2922%7CwAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+    "domain": "gw.glowseoul.co.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "BIZCUBE_HK",
+    "value": "95233990162914950487395159959680005262700721",
+    "domain": "gw.glowseoul.co.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "BIZCUBE_TYPE",
+    "value": "WEB",
+    "domain": "gw.glowseoul.co.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]

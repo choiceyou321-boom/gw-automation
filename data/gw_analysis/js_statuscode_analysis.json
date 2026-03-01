@@ -1,0 +1,112 @@
+[
+  {
+    "type": "save_func",
+    "pos": 632337,
+    "snippet": ")({},t),{},{coCd:e.props.formDataParam.companyCode})}))},(function(){e.state.gridR.readData()}))},e.handleSaveButtonClick=function(){e.isChanged()?e.validateNotNullFields()&&e.setState({saveButtonConfirmOpen:!0}):(e.onSave(),e.setState({isOpenSnackbar:!0,snackbarMessage:Ne.OrbitInternalLangPack.getText(\"WE000034402\",\"\\uc800\\uc7a5\\ud560 \\ub370\\uc774\\ud130\\uac00 \\uc5c6\\uc2b5\\ub2c8\\ub2e4.\"),snackbarType:Mn.a.Type.info}))},e.handleConfirmOkBtnClick=function(){var t=Object(S.a)(T.a.mark((function t(n){var r;return T.a.wrap((function(t){for(;;)switch(t.prev=t.next){case 0:if(!e.validateNotNullFields"
+  },
+  {
+    "type": "save_func",
+    "pos": 632453,
+    "snippet": "Click=function(){e.isChanged()?e.validateNotNullFields()&&e.setState({saveButtonConfirmOpen:!0}):(e.onSave(),e.setState({isOpenSnackbar:!0,snackbarMessage:Ne.OrbitInternalLangPack.getText(\"WE000034402\",\"\\uc800\\uc7a5\\ud560 \\ub370\\uc774\\ud130\\uac00 \\uc5c6\\uc2b5\\ub2c8\\ub2e4.\"),snackbarType:Mn.a.Type.info}))},e.handleConfirmOkBtnClick=function(){var t=Object(S.a)(T.a.mark((function t(n){var r;return T.a.wrap((function(t){for(;;)switch(t.prev=t.next){case 0:if(!e.validateNotNullFields()){t.next=21;break}return e.state.gridDataR.forEach((function(e,t){e.columnSq=t+1})),t.prev=2,r=e.props.formDataPar"
+  },
+  {
+    "type": "save_func",
+    "pos": 633293,
+    "snippet": "(function(t){return e.setState({createExcelConfirmOpen:!1},(function(){return t()}))}));case 8:if(e.onSave(),\"saveButton\"!==n){t.next=12;break}return e.setState({gridDataOrigin:JSON.parse(JSON.stringify(e.state.gridDataR)),isOpenSnackbar:!0,snackbarType:Mn.a.Type.success,snackbarMessage:Ne.OrbitInternalLangPack.getText(\"WE000001294\",\"\\uc800\\uc7a5\\ub418\\uc5c8\\uc2b5\\ub2c8\\ub2e4.\"),saveButtonConfirmOpen:!1}),t.abrupt(\"return\");case 12:e.onClose(),t.next=19;break;case 15:t.prev=15,t.t0=t.catch(2),console.error(t.t0),e.setState({createExcelConfirmOpen:!1,saveButtonConfirmOpen:!1,isOpenRequredAlert:"
+  },
+  {
+    "type": "save_func",
+    "pos": 634145,
+    "snippet": "nd\":return t.stop()}}),t,null,[[2,15]])})));return function(e){return t.apply(this,arguments)}}(),e.handleSaveConfirmCancelClick=function(){e.setState({saveButtonConfirmOpen:!1})},e.handleCreateExcelConfirmCancelClick=function(){e.setState({createExcelConfirmOpen:!1},(function(){e.onClose()}))},e.handleClose=function(){e.isChanged()?e.setState({createExcelConfirmOpen:!0}):e.onClose()},e.handleSplitButtonClick=function(t){t.target,t.event;var n=t.key;1===n?e.handleNewWrite():2===n&&e.handleNewWriteNotnull()},e.renderComponent=function(){return p.createElement(p.Fragment,null,p.createElement(\"di"
+  },
+  {
+    "type": "save_func",
+    "pos": 635768,
+    "snippet": "ype:tn.b.default,labelText:Ne.OrbitInternalLangPack.getText(\"WE000000739\",\"\\uc800\\uc7a5\"),onClick:e.handleSaveButtonClick,className:Sr.saveButton}),p.createElement(ps.a,{value:[{key:0,labelText:Ne.OrbitInternalLangPack.getText(\"WE000022669\",\"\\uc0c8\\ub85c\\uc791\\uc131\")},{key:1,labelText:Ne.OrbitInternalLangPack.getText(\"WE000022669\",\"\\uc0c8\\ub85c\\uc791\\uc131\")},{key:2,labelText:Ne.OrbitInternalLangPack.getText(\"WE000022670\",\"\\ud544\\uc218\\ud56d\\ubaa9\\uc73c\\ub85c \\uc0c8\\ub85c\\uc791\\uc131\")}],type:ps.a.Type.default,onClick:e.handleSplitButtonClick}),p.createElement(tn.c,{className:Sr.arrowBtn,imag"
+  },
+  {
+    "type": "save_func",
+    "pos": 638818,
+    "snippet": "c2b5\\ub2c8\\uae4c?\"),onConfirm:function(){return e.handleConfirmOkBtnClick(\"saveButton\")},onCancel:e.handleSaveConfirmCancelClick}):p.createElement(p.Fragment,null),!0===e.state.isOpenRequredAlert?p.createElement(Bn.a,{title:\"\",labelText:e.state.alertMessage,onClose:function(){return e.setState({isOpenRequredAlert:!1})},type:Bn.a.Type.error}):p.createElement(p.Fragment,null),p.createElement(Mn.a,{key:e.state.snackbarMessage,labelText:e.state.snackbarMessage,type:\"success\"===e.state.snackbarType?Mn.a.Type.success:Mn.a.Type.info,open:e.state.isOpenSnackbar,onChange:function(t){return e.setState({"
+  },
+  {
+    "type": "save_func",
+    "pos": 639373,
+    "snippet": "kbar,onChange:function(t){return e.setState({isOpenSnackbar:!1})}}))},e}return Object(s.a)(n,[{key:\"onSave\",value:function(){B.k.invokeEvent(this.props.onSave,new B.d.EventArgs(this))}},{key:\"onClose\",value:function(){B.k.invokeEvent(this.props.onClose,new B.d.EventArgs(this))}},{key:\"onCreate\",value:function(){B.k.invokeEvent(this.props.onCreate,new B.d.EventArgs(this))}},{key:\"initializeGridL\",value:function(){var e=this;return new K.a(\"gridL\",{gridType:K.a.GridType.gridView,editable:!1,appendable:!1,checkable:!0,indicator:!1,headerCheckVisible:!0}).setColumns([{name:\"columnKorDc\",header:Ne."
+  },
+  {
+    "type": "save_func",
+    "pos": 639425,
+    "snippet": "nackbar:!1})}}))},e}return Object(s.a)(n,[{key:\"onSave\",value:function(){B.k.invokeEvent(this.props.onSave,new B.d.EventArgs(this))}},{key:\"onClose\",value:function(){B.k.invokeEvent(this.props.onClose,new B.d.EventArgs(this))}},{key:\"onCreate\",value:function(){B.k.invokeEvent(this.props.onCreate,new B.d.EventArgs(this))}},{key:\"initializeGridL\",value:function(){var e=this;return new K.a(\"gridL\",{gridType:K.a.GridType.gridView,editable:!1,appendable:!1,checkable:!0,indicator:!1,headerCheckVisible:!0}).setColumns([{name:\"columnKorDc\",header:Ne.OrbitInternalLangPack.getText(\"WE000022658\",\"\\ud56d\\"
+  },
+  {
+    "type": "save_func",
+    "pos": 646493,
+    "snippet": "\\uc5d0 \\uc2dc\\ud2b8 \\uc774\\ub984\\uc744 \\uc124\\uc815\\ud560 \\uc218 \\uc788\\uc2b5\\ub2c8\\ub2e4.\"},{name:\"onSave\",type:B.c.function,optional:!0,parameters:{name:\"e\",type:B.c.any,description:\"\\uc774\\ubca4\\ud2b8\\uac00 \\ubc1c\\uc0dd\\ud55c \\ucef4\\ud3ec\\ub10c\\ud2b8\\uc758 instance\"},description:\"\\ub2e4\\uc774\\uc5bc\\ub85c\\uadf8\\uc5d0\\uc11c \\uc800\\uc7a5 \\ubc84\\ud2bc \\ud074\\ub9ad \\uc2dc \\ubc1c\\uc0dd\\ud558\\ub294 Callback \\ud568\\uc218\\uc785\\ub2c8\\ub2e4.\"},{name:\"onClose\",type:B.c.function,optional:!0,parameters:{name:\"e\",type:B.c.any,description:\"\\uc774\\ubca4\\ud2b8\\uac00 \\ubc1c\\uc0dd\\ud55c \\ucef4\\ud3ec\\ub10c\\ud2"
+  },
+  {
+    "type": "save_func",
+    "pos": 1135078,
+    "snippet": " \\uc720\\ud6a8\\ud558\\uc9c0 \\uc54a\\uc2b5\\ub2c8\\ub2e4.\"});case 2:case\"end\":return t.stop()}}),t)}))),e.handleSaveButtonClicked=Object(i.a)(o.a.mark((function t(){var n,r;return o.a.wrap((function(t){for(;;)switch(t.prev=t.next){case 0:if(n=new String(e.state.fileName||\"\").trim()){t.next=6;break}return t.next=4,e.props.snackbar({type:E.a.Type.warning,labelText:D.h.getText(\"WE000063595\",\"\\ud30c\\uc77c\\uba85\\uc744 \\uc785\\ub825\\ud574 \\uc8fc\\uc138\\uc694.\")});case 4:return e.fileNameRef.current&&e.fileNameRef.current.focus(),t.abrupt(\"return\");case 6:if(jt(n)){t.next=10;break}return t.next=9,e.showWrong"
+  },
+  {
+    "type": "save_func",
+    "pos": 1136210,
+    "snippet": "tomLayoutProcessor.makeCurrentGridSettingFileContents(n)){t.next=21;break}throw new Error(\"Error in handleSaveButtonClicked: fileContents is null\");case 21:return e.userCustomLayoutProcessor.saveFileData(n,r),t.next=24,e.props.fetch.post(\"/system/orbit/saveGridSettingFile\",{menuCode:e.props.menuItem.pageCode,gridId:e.props.targetGrid.id,fileName:n,empSeq:e.props.userInfo.ucUserInfo.erpEmpSeq,jsonData:JSON.stringify(r),path:e.props.menuItem.key,clientKey:null},{contextType:\"application/json\"});case 24:return e.setState({fileName:null}),t.next=27,e.userCustomLayoutProcessor.syncSaveFileToLocalSt"
+  },
+  {
+    "type": "save_func",
+    "pos": 1152726,
+    "snippet": "0\\uc7a5\"}),x.a.createElement(re.c,{labelText:D.h.getText(\"WE000004653\",\"\\uc800\\uc7a5\"),onClick:this.handleSaveButtonClicked,theme:re.c.Theme.blue})),x.a.createElement(\"div\",Object.assign({},{dock:te.a.Dock.bottom}),x.a.createElement(ne.a,{width:\"100%\",labelTextAlign:ne.a.Align.right,disabled:!1},x.a.createElement(\"colgroup\",null,x.a.createElement(\"col\",{width:\"20%\"}),x.a.createElement(\"col\",null)),x.a.createElement(\"tbody\",null,x.a.createElement(\"tr\",null,x.a.createElement(\"th\",null,D.h.getText(\"WE000017637\",\"\\uc774\\ub984\")),x.a.createElement(\"td\",null,x.a.createElement(O.a,{ref:this.fileNameR"
+  },
+  {
+    "type": "save_func",
+    "pos": 1961771,
+    "snippet": "bject(a.a)(this,n),(e=t.apply(this,arguments)).state={newColor:e.props.value,open:!1,hasError:!1},e.onSave=function(){e.setState({open:!1},(function(){e.handleChange(e.state.newColor),e.props.onDialogClosed&&e.props.onDialogClosed()}))},e.onClose=function(){e.setState({open:!1,newColor:e.props.value},(function(){e.props.onDialogClosed&&e.props.onDialogClosed()}))},e.handleButtonClick=function(){e.setState({open:!0,newColor:e.props.value},(function(){p.k.invokeEvent(e.props.onButtonClick,new p.d.EventArgs(Object(i.a)(e)))}))},e.renderComponent=function(){return c.createElement(c.Fragment,null,c"
+  },
+  {
+    "type": "save_func",
+    "pos": 1963240,
+    "snippet": "815\"),width:\"280px\",height:\"435px\",type:O.a.Type.small,open:e.state.open,buttons:[O.a.Button.Save(e.onSave),{key:\"close\",onClick:e.onClose,labelText:S.OrbitInternalLangPack.getText(\"WE000001970\",\"\\ub2eb\\uae30\"),visible:!1,isClose:!0}]},c.createElement(\"div\",{className:M.dialog},c.createElement(w,{onButtonClick:function(t){return e.handleButtonClick()},color:e.state.newColor,onChange:function(t){e.setState({newColor:t})}}))))))},e}return Object(o.a)(n,[{key:\"handleChange\",value:function(e){this.props.onChange(e)}},{key:\"render\",value:function(){return c.createElement(T.a,{owner:this,render:this"
+  },
+  {
+    "type": "save_func",
+    "pos": 3029530,
+    "snippet": "ase\"end\":return e.stop()}}),e,this)})));return function(){return e.apply(this,arguments)}}()},{key:\"onSaveFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t,n){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamber\",[t,n]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t,n){return e.apply(this,arguments)}}()},{key:\"allFileSaveMailToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t"
+  },
+  {
+    "type": "save_func",
+    "pos": 3029762,
+    "snippet": "ev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamber\",[t,n]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t,n){return e.apply(this,arguments)}}()},{key:\"allFileSaveMailToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"allFileSaveMailToOnechamber\",[t]);case 3:return e.abrupt(\"return\",e.sent);case 4:ca"
+  },
+  {
+    "type": "save_func",
+    "pos": 3030362,
+    "snippet": "se\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"onSaveFileToOnechamberMulti\",value:function(){var e=Object(i.a)(o.a.mark((function e(t){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamberMulti\",[t]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"saveCheckedFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function"
+  },
+  {
+    "type": "save_func",
+    "pos": 3030597,
+    "snippet": "ev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamberMulti\",[t]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"saveCheckedFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t,n,r){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"saveCheckedFileToOnechamber\",[t,n,r]);case 3:return e.abrupt(\"return\",e.sent);"
+  },
+  {
+    "type": "save_func",
+    "pos": 3145637,
+    "snippet": "ase\"end\":return e.stop()}}),e,this)})));return function(){return e.apply(this,arguments)}}()},{key:\"onSaveFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t,n){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamber\",t,n);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t,n){return e.apply(this,arguments)}}()},{key:\"saveCheckFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(){ret"
+  },
+  {
+    "type": "save_func",
+    "pos": 3145869,
+    "snippet": "ev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamber\",t,n);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t,n){return e.apply(this,arguments)}}()},{key:\"saveCheckFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"saveCheckFileToOnechamber\");case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":ret"
+  },
+  {
+    "type": "save_func",
+    "pos": 3146875,
+    "snippet": "se\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"onSaveFileToOnechamberMulti\",value:function(){var e=Object(i.a)(o.a.mark((function e(t){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamberMulti\",[t]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"saveCheckedFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function"
+  },
+  {
+    "type": "save_func",
+    "pos": 3147110,
+    "snippet": "ev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"onSaveFileToOnechamberMulti\",[t]);case 3:return e.abrupt(\"return\",e.sent);case 4:case\"end\":return e.stop()}}),e,this)})));return function(t){return e.apply(this,arguments)}}()},{key:\"saveCheckedFileToOnechamber\",value:function(){var e=Object(i.a)(o.a.mark((function e(t,n,r){return o.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(!this.myRef.current){e.next=4;break}return e.next=3,this.myRef.current.invoke(\"saveCheckedFileToOnechamber\",[t,n,r]);case 3:return e.abrupt(\"return\",e.sent);"
+  }
+]

@@ -1,0 +1,321 @@
+[
+  {
+    "text": "문서목록",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton_",
+    "rect": {
+      "x": 1544,
+      "y": 105,
+      "w": 66,
+      "h": 27
+    }
+  },
+  {
+    "text": "다시쓰기",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton_",
+    "rect": {
+      "x": 1614,
+      "y": 105,
+      "w": 66,
+      "h": 27
+    }
+  },
+  {
+    "text": "결재상신",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton_",
+    "rect": {
+      "x": 1694,
+      "y": 105,
+      "w": 86,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG OBTPa",
+    "rect": {
+      "x": 1791,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+    "rect": {
+      "x": 1819,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+    "rect": {
+      "x": 1847,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+    "rect": {
+      "x": 1875,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1224,
+      "y": 206,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "선택",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1208,
+      "y": 246,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "선택",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+    "rect": {
+      "x": 1865,
+      "y": 246,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1224,
+      "y": 288,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+    "rect": {
+      "x": 1322,
+      "y": 373,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+    "rect": {
+      "x": 1353,
+      "y": 373,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "카드사용내역",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1384,
+      "y": 373,
+      "w": 88,
+      "h": 27
+    }
+  },
+  {
+    "text": "계산서내역",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1476,
+      "y": 373,
+      "w": 77,
+      "h": 27
+    }
+  },
+  {
+    "text": "현금영수증",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1557,
+      "y": 373,
+      "w": 77,
+      "h": 27
+    }
+  },
+  {
+    "text": "EXCEL",
+    "id": "",
+    "className": "LS_btn",
+    "rect": {
+      "x": 1638,
+      "y": 373,
+      "w": 51,
+      "h": 27
+    }
+  },
+  {
+    "text": "열기",
+    "id": "",
+    "className": "LS_btn",
+    "rect": {
+      "x": 1690,
+      "y": 373,
+      "w": 16,
+      "h": 27
+    }
+  },
+  {
+    "text": "예금주실명",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1710,
+      "y": 373,
+      "w": 77,
+      "h": 27
+    }
+  },
+  {
+    "text": "추가",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1808,
+      "y": 373,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "삭제",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1856,
+      "y": 373,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1864,
+      "y": 859,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 876,
+      "y": 900,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1010,
+      "y": 900,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "실명",
+    "id": "",
+    "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+    "rect": {
+      "x": 1753,
+      "y": 899,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1010,
+      "y": 943,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1437,
+      "y": 943,
+      "w": 27,
+      "h": 20
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1865,
+      "y": 940,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1010,
+      "y": 986,
+      "w": 27,
+      "h": 20
+    }
+  }
+]

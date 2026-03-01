@@ -1,0 +1,2140 @@
+[
+  {
+    "tableIndex": 0,
+    "className": "data-tbl1 t1",
+    "id": "",
+    "rowCount": 13,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "프로필",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사인",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "전태규인",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "프로필명",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "전태규열기프로필명(영어)프로필명(일본어)프로필명(중국어)전태규전태규전태규",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사원명",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "전태규열기사원명(영어)사원명(일본어)사원명(중국어)Taegyu Jeon",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "로그인ID",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "tgjeon",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "메일아이디",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "tgjeon",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "로그인비밀번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "로그인 비밀번호변경",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "결재비밀번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "결재 비밀번호변경",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "성별",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "남성",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사용언어",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "한국어",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 5,
+        "cells": [
+          {
+            "text": "개인메일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "휴대전화",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "010-9067-1690",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 6,
+        "cells": [
+          {
+            "text": "전화번호(집)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "010-9067-1690",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "비상연락망(HP)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "(모) 010-3417-5333",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 7,
+        "cells": [
+          {
+            "text": "개인주소",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "(05507)   서울 송파구 올림픽로 435 (신천동, 파크리오) 227동 2304호열기",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 8,
+        "cells": [
+          {
+            "text": "생년월일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "1997-06-08 (양력)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "결혼기념일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "미혼",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 9,
+        "cells": [
+          {
+            "text": "기본로그인회사설정",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주식회사 글로우서울",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 10,
+        "cells": [
+          {
+            "text": "SNS",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 11,
+        "cells": [
+          {
+            "text": "커리어",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 12,
+        "cells": [
+          {
+            "text": "개인공유문서 등록 시 프로필에 노출됩니다.개인공유문서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "업로드된 파일이 없습니다.",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 1,
+    "className": "OBTFormPanel_table__2SRd1",
+    "id": "",
+    "rowCount": 14,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "프로필사진등록",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사진 등록이미지삭제",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사인등록",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "이전전태규인전태규인전태규인전태규인전태규49X49사인등록이미지삭제다음",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "4139608e-2ab9-49bc-9b87-1289ef03ec9c",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "adf0094e-6eee-43ac-8a0a-352a19f5dbae",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "da6170f2-5dc4-4c52-907f-00821d9b643b",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "f94e7800-261a-45ec-a66e-64eea5e494c6",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "438e0f06-aa18-4f87-b84f-edc215cf1685",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "b8bec220-18d9-41e9-a530-df6181a6907b",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "조직도 및 프로필에 표시되는 이름입니다.프로필명",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "사용자의 실제 이름입니다. ERP 등 관리자 메뉴에서 사용됩니다.(증명서 발급 등)사원명",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "프로필 표시여부를 설정할 수 있습니다.로그인ID",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "메일아이디",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입력값에 대한 추가 설명을 입력할 수 있습니다.",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "로그인비밀번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "로그인비밀번호변경",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "결재비밀번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "결재 비밀번호변경",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "성별",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "여성남성",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "ab2712a5-81a4-4ad3-ae76-471905017989",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "ab2712a5-81a4-4ad3-ae76-471905017989",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "사용언어",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "한국어",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 5,
+        "cells": [
+          {
+            "text": "프로필 표시여부를 설정할 수 있습니다.개인메일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "@직접입력",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "프로필 표시여부를 설정할 수 있습니다.휴대전화",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입력값에 대한 추가 설명을 입력할 수 있습니다.",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 6,
+        "cells": [
+          {
+            "text": "'프로필 개인정보 항목 표시 설정' 옵션에서 '미사용' 설정된 항목은 프로필 표시여부를 설",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입력값에 대한 추가 설명을 입력할 수 있습니다.",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "'프로필 개인정보 항목 표시 설정' 옵션에서 '미사용' 설정된 항목은 프로필 표시여부를 설",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입력값에 대한 추가 설명을 입력할 수 있습니다.",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 7,
+        "cells": [
+          {
+            "text": "개인주소",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          },
+          {
+            "text": "열기* 영문 주소를 입력 할 수 있습니다.",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 8,
+        "cells": [
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 9,
+        "cells": [
+          {
+            "text": "프로필 표시여부를 설정할 수 있습니다.생년월일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "음력양력",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "22b66911-670a-4936-86ba-1d3aa6828df7",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "22b66911-670a-4936-86ba-1d3aa6828df7",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "결혼기념일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "미혼기혼",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "24e7f9f8-be29-43d4-855d-1d77ca24d628",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "24e7f9f8-be29-43d4-855d-1d77ca24d628",
+                "id": "",
+                "type": "radio",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 10,
+        "cells": [
+          {
+            "text": "기본로그인회사설정",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주식회사 글로우서울",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 11,
+        "cells": [
+          {
+            "text": "'프로필 개인정보 항목 표시 설정' 옵션에서 '미사용' 설정된 항목은 프로필 표시여부를 설",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 12,
+        "cells": [
+          {
+            "text": "'프로필 개인정보 항목 표시 설정' 옵션에서 '미사용' 설정된 항목은 프로필 표시여부를 설",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "textarea",
+                "name": "",
+                "id": "",
+                "type": "textarea",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 13,
+        "cells": [
+          {
+            "text": "개인공유문서 등록 시 프로필에 노출됩니다.개인공유문서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 2,
+    "className": "data-tbl1 t1",
+    "id": "",
+    "rowCount": 8,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "회사/부서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주식회사 글로우서울>주식회사 글로우서울>대표이사>PO총괄>PO본부>PM팀",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "사원번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "GS251105",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "부서기준",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주부서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "직급",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "대리",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "직책",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "팀원",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "재직구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "재직",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "직무",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "담당업무",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 5,
+        "cells": [
+          {
+            "text": "최초입사일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2025-11-17",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입사일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2025-11-17",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 6,
+        "cells": [
+          {
+            "text": "전화번호(사무실)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "회사팩스",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 7,
+        "cells": [
+          {
+            "text": "회사주소",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "열기",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 3,
+    "className": "OBTFormPanel_table__2SRd1",
+    "id": "",
+    "rowCount": 9,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "회사/부서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주식회사 글로우서울>주식회사 글로우서울>대표이사>PO총괄>PO본부>PM팀",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "사원번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "GS251105",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "부서기준",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주부서",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "직급",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "대리",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "직책",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "팀원",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "재직구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "재직",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "직무",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "담당업무",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 5,
+        "cells": [
+          {
+            "text": "최초입사일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2025-11-17",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입사일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2025-11-17",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 6,
+        "cells": [
+          {
+            "text": "전화번호(사무실)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "text": "회사팩스",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 7,
+        "cells": [
+          {
+            "text": "회사주소",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          },
+          {
+            "text": "열기* 영문 주소를 입력 할 수 있습니다.",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              },
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rowIndex": 8,
+        "cells": [
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": [
+              {
+                "tag": "input",
+                "name": "",
+                "id": "",
+                "type": "text",
+                "visible": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 4,
+    "className": "data-tbl1 t1",
+    "id": "",
+    "rowCount": 5,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "사원코드",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "사원명",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "소속",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          },
+          {
+            "text": "주식회사 글로우서울",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "프로젝트",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "내·외국인 구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "주민등록번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "성별",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "외국인등록번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "생년월일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "양·음력구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "주소",
+            "colspan": 1,
+            "rowspan": 2,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "전화번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "핸드폰번호",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "",
+            "colspan": 3,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "비상연락망(HP)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "이메일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 5,
+    "className": "data-tbl1 t1",
+    "id": "",
+    "rowCount": 4,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "채용구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "입사구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "병역구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "복무기간포함",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "취미",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "특기",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "세대주여부",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "장애인구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "종교",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "직급",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "국적(관리용)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "거주자구분",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "직책",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "직무",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "국적(신고용)",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "거주지국",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tableIndex": 6,
+    "className": "",
+    "id": "",
+    "rowCount": 6,
+    "rows": [
+      {
+        "rowIndex": 0,
+        "cells": [
+          {
+            "text": "일",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "월",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "화",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "수",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "목",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "금",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "토",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 1,
+        "cells": [
+          {
+            "text": "1",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "3",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "4",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "5",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "6",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "7",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 2,
+        "cells": [
+          {
+            "text": "8",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "9",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "10",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "11",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "12",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "13",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "14",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 3,
+        "cells": [
+          {
+            "text": "15",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "16",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "17",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "18",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "19",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "20",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "21",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 4,
+        "cells": [
+          {
+            "text": "22",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "23",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "24",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "25",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "26",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "27",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "28",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      },
+      {
+        "rowIndex": 5,
+        "cells": [
+          {
+            "text": "29",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "30",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "31",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "1",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "2",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "3",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          },
+          {
+            "text": "4",
+            "colspan": 1,
+            "rowspan": 1,
+            "inputs": []
+          }
+        ]
+      }
+    ]
+  }
+]

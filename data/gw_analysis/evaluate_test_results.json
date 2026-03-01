@@ -1,0 +1,62 @@
+{
+  "rs121A01": {
+    "api": "rs121A01",
+    "status": 401,
+    "method": "xhr",
+    "response": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  "rs121A05": {
+    "api": "rs121A05",
+    "status": 401,
+    "response": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  "rs121A14": {
+    "api": "rs121A14",
+    "status": 401,
+    "response": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  "rs121A49": {
+    "api": "rs121A49",
+    "status": 401,
+    "response": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  "rs121A11_params": {
+    "companyInfo": {
+      "compSeq": "1000",
+      "groupSeq": "gcmsAmaranth36068",
+      "deptSeq": "2017",
+      "emailAddr": "tgjeon",
+      "emailDomain": "glowseoul.co.kr"
+    },
+    "langCode": "kr",
+    "resSeq": "45",
+    "seqNum": "",
+    "resIdx": "",
+    "reqText": "테스트 미팅",
+    "startDate": "202603021000",
+    "endDate": "202603021100",
+    "createDate": "20260301195906",
+    "schmSeq": "",
+    "apprYn": "N",
+    "alldayYn": "N",
+    "useYn": "Y",
+    "contents": "",
+    "attdList": []
+  }
+}

@@ -1,0 +1,39 @@
+# 환경 변수 (민감 정보)
+config/.env
+.env
+
+# 사용자 데이터
+data/users.db
+data/session_state.json
+data/sessions/
+data/chatbot/chat_history.db
+data/chatbot/logs/
+data/chatbot/uploads/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 이전 작업 폴더 (대용량)
+이전/
+
+# Playwright
+playwright-report/
+
+# 로그
+logs/*.log

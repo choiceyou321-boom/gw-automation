@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사용자 관리 - GW 자동화</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    .admin-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      min-height: 100vh;
+    }
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .admin-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .admin-header .back-btn {
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .admin-header .back-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    .user-count {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .user-table th,
+    .user-table td {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+    .user-table th {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .user-table td {
+      color: var(--text-primary);
+    }
+    .user-table tr:last-child td {
+      border-bottom: none;
+    }
+    .user-table tr:hover td {
+      background: var(--bg-hover);
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-admin {
+      background: rgba(124, 106, 247, 0.2);
+      color: var(--accent);
+    }
+    .badge-incomplete {
+      background: rgba(255, 165, 0, 0.15);
+      color: #ffa500;
+    }
+    .delete-btn {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      border-radius: var(--radius-sm);
+      color: #ff6b6b;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .delete-btn:hover {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: #ff6b6b;
+    }
+    .delete-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .edit-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      padding: 4px 8px;
+      font-size: 12px;
+      width: 80px;
+      font-family: var(--font);
+    }
+    .edit-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .save-btn {
+      padding: 4px 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 11px;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .save-btn:hover {
+      background: var(--accent-hover);
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    .toast.error {
+      border-color: rgba(255, 107, 107, 0.5);
+      color: #ff6b6b;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+    @media (max-width: 768px) {
+      .admin-container { padding: 20px 12px; }
+      .user-table th, .user-table td { padding: 8px 10px; font-size: 12px; }
+      .edit-input { width: 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>사용자 관리</h1>
+      <a href="/" class="back-btn">채팅으로 돌아가기</a>
+    </div>
+    <div class="user-count" id="userCount"></div>
+    <div id="content">
+      <div class="loading">불러오는 중...</div>
+    </div>
+  </div>
+
+  <script>
+    const BASE = '';
+
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${BASE}/admin/users`, { credentials: 'same-origin' });
+        if (res.status === 401) {
+          location.href = '/';
+          return;
+        }
+        if (res.status === 403) {
+          document.getElementById('content').innerHTML =
+            '<div class="loading" style="color:#ff6b6b;">관리자 권한이 필요합니다.</div>';
+          return;
+        }
+        const data = await res.json();
+        renderUsers(data.users);
+      } catch (e) {
+        document.getElementById('content').innerHTML =
+          '<div class="loading" style="color:#ff6b6b;">서버 연결 실패</div>';
+      }
+    }
+
+    function renderUsers(users) {
+      document.getElementById('userCount').textContent = `총 ${users.length}명`;
+      const html = `
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>GW ID</th>
+              <th>이름</th>
+              <th>직급</th>
+              <th>empSeq</th>
+              <th>deptSeq</th>
+              <th>가입일</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr id="row-${u.gw_id}">
+                <td>
+                  ${u.gw_id}
+                  ${u.gw_id === 'tgjeon' ? ' <span class="badge badge-admin">관리자</span>' : ''}
+                </td>
+                <td>${u.name}</td>
+                <td>${u.position || '-'}</td>
+                <td>
+                  <input class="edit-input" id="emp-${u.gw_id}" value="${u.emp_seq || ''}" placeholder="미설정" />
+                  <button class="save-btn" onclick="saveProfile('${u.gw_id}')">저장</button>
+                  ${!u.emp_seq ? '<span class="badge badge-incomplete">미설정</span>' : ''}
+                </td>
+                <td>${u.dept_seq || '-'}</td>
+                <td>${u.created_at ? u.created_at.split('T')[0] : '-'}</td>
+                <td>
+                  ${u.gw_id === 'tgjeon'
+                    ? '<button class="delete-btn" disabled>삭제 불가</button>'
+                    : `<button class="delete-btn" onclick="deleteUser('${u.gw_id}', '${u.name}')">삭제</button>`
+                  }
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      document.getElementById('content').innerHTML = html;
+    }
+
+    async function deleteUser(gwId, name) {
+      if (!confirm(`"${name}" (${gwId}) 사용자를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+
+      try {
+        const res = await fetch(`${BASE}/admin/users/${gwId}`, {
+          method: 'DELETE',
+          credentials: 'same-origin',
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || '삭제 완료');
+          loadUsers();
+        } else {
+          showToast(data.detail || '삭제 실패', true);
+        }
+      } catch (e) {
+        showToast('서버 오류', true);
+      }
+    }
+
+    async function saveProfile(gwId) {
+      const empSeq = document.getElementById(`emp-${gwId}`).value.trim();
+
+      try {
+        const res = await fetch(`${BASE}/admin/users/${gwId}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emp_seq: empSeq }),
+          credentials: 'same-origin',
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`${gwId} empSeq 저장 완료`);
+          loadUsers();
+        } else {
+          showToast(data.detail || '저장 실패', true);
+        }
+      } catch (e) {
+        showToast('서버 오류', true);
+      }
+    }
+
+    function showToast(msg, isError = false) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+
+      const el = document.createElement('div');
+      el.className = `toast${isError ? ' error' : ''}`;
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

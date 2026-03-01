@@ -1,0 +1,112 @@
+[
+  {
+    "resSeq": "45",
+    "resName": "1번 회의실",
+    "attrSeq": "2",
+    "location": "",
+    "color": "#748ffc",
+    "raw": {
+      "apprYn": "N",
+      "color": "#748ffc",
+      "modifyDate": "202509011625",
+      "attrSeq": "2",
+      "orderNum": 1,
+      "createSeq": "1",
+      "groupSeq": "gcmsAmaranth36068",
+      "resSeq": "45",
+      "resName": "1번 회의실",
+      "modifySeq": "1",
+      "compSeq": "1000",
+      "attrName": "회의실",
+      "createDate": "202403281111"
+    }
+  },
+  {
+    "resSeq": "46",
+    "resName": "2번 회의실",
+    "attrSeq": "2",
+    "location": "",
+    "color": "#FF8787",
+    "raw": {
+      "apprYn": "N",
+      "color": "#FF8787",
+      "modifyDate": "202509011625",
+      "attrSeq": "2",
+      "orderNum": 2,
+      "createSeq": "1",
+      "groupSeq": "gcmsAmaranth36068",
+      "resSeq": "46",
+      "resName": "2번 회의실",
+      "modifySeq": "1",
+      "compSeq": "1000",
+      "attrName": "회의실",
+      "createDate": "202403281123"
+    }
+  },
+  {
+    "resSeq": "47",
+    "resName": "3번 회의실",
+    "attrSeq": "2",
+    "location": "",
+    "color": "#FFA94D",
+    "raw": {
+      "apprYn": "N",
+      "color": "#FFA94D",
+      "modifyDate": "202509011625",
+      "attrSeq": "2",
+      "orderNum": 3,
+      "createSeq": "1",
+      "groupSeq": "gcmsAmaranth36068",
+      "resSeq": "47",
+      "resName": "3번 회의실",
+      "modifySeq": "1",
+      "compSeq": "1000",
+      "attrName": "회의실",
+      "createDate": "202403281154"
+    }
+  },
+  {
+    "resSeq": "48",
+    "resName": "4번 회의실",
+    "attrSeq": "2",
+    "location": "",
+    "color": "#FFD43B",
+    "raw": {
+      "apprYn": "N",
+      "color": "#FFD43B",
+      "modifyDate": "202509011626",
+      "attrSeq": "2",
+      "orderNum": 4,
+      "createSeq": "1",
+      "groupSeq": "gcmsAmaranth36068",
+      "resSeq": "48",
+      "resName": "4번 회의실",
+      "modifySeq": "1",
+      "compSeq": "1000",
+      "attrName": "회의실",
+      "createDate": "202403281156"
+    }
+  },
+  {
+    "resSeq": "49",
+    "resName": "5번 회의실",
+    "attrSeq": "2",
+    "location": "",
+    "color": "#20C997",
+    "raw": {
+      "apprYn": "N",
+      "color": "#20C997",
+      "modifyDate": "202509011626",
+      "attrSeq": "2",
+      "orderNum": 5,
+      "createSeq": "1",
+      "groupSeq": "gcmsAmaranth36068",
+      "resSeq": "49",
+      "resName": "5번 회의실",
+      "modifySeq": "1",
+      "compSeq": "1000",
+      "attrName": "회의실",
+      "createDate": "202403281157"
+    }
+  }
+]

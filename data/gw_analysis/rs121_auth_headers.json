@@ -1,0 +1,12 @@
+{
+  "sec-ch-ua-platform": "\"Windows\"",
+  "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+  "timestamp": "1772312819",
+  "referer": "https://gw.glowseoul.co.kr/",
+  "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+  "transaction-id": "40c1a7d089519b1ed558a5d0eae80b99",
+  "sec-ch-ua-mobile": "?0",
+  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+  "content-type": "application/json",
+  "wehago-sign": "YBc6nJ+i1iVhGAMl4o2Qj/94qEIZifQsAJXJcVEH/ew="
+}

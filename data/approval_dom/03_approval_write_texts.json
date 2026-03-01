@@ -1,0 +1,1045 @@
+[
+  {
+    "tag": "li",
+    "text": "예산관리",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "예산관리",
+    "id": "",
+    "className": "module-link BM",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "임직원업무관리",
+    "id": "",
+    "className": "module-item selected",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "임직원업무관리",
+    "id": "",
+    "className": "module-link HR",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "전자결재",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "전자결재",
+    "id": "",
+    "className": "module-link EA",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "메일",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "메일",
+    "id": "",
+    "className": "module-link ML",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "일정",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "일정",
+    "id": "",
+    "className": "module-link CL",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "자원",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "자원",
+    "id": "",
+    "className": "module-link RM",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "게시판",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "게시판",
+    "id": "",
+    "className": "module-link BD",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "업무관리",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "업무관리",
+    "id": "",
+    "className": "module-link KS",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "ONEFFICE",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "ONEFFICE",
+    "id": "",
+    "className": "module-link OF",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "ONECHAMBER",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "ONECHAMBER",
+    "id": "",
+    "className": "module-link OC",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "오피스케어",
+    "id": "",
+    "className": "module-item",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "오피스케어",
+    "id": "",
+    "className": "module-link UT",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "위로",
+    "id": "",
+    "className": "arrow-item up disabled",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "위로",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "아래로",
+    "id": "",
+    "className": "arrow-item down disabled",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "아래로",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "부가서비스더존TV",
+    "id": "",
+    "className": "gnbService",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "부가서비스",
+    "id": "",
+    "className": "module-link SERVICE",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "더존TV",
+    "id": "",
+    "className": "douzonetv",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "개인인사정보조회",
+    "id": "",
+    "className": "module-name",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "해당 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "해당 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "해당 탭 제외 다른 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "해당 탭 제외 다른 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "모든 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "모든 탭 닫기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "전자결재전자결재전자결재해당 탭 닫기해당 탭 제외 다른 탭 닫기모든 탭 닫기",
+    "id": "",
+    "className": "tab-item",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "전태규주식회사 글로우서울 PM팀",
+    "id": "userInfoPopupBtn",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "전태규",
+    "id": "",
+    "className": "name_txt",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "주식회사 글로우서울 PM팀",
+    "id": "",
+    "className": "divi_txt",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "검색",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "49",
+    "id": "",
+    "className": "btnCnt",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "조직도",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "서비스공지",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "이용가이드",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "더보기",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "마이페이지",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "내정보관리개인인사정보조회기본정보수정인사정보변경신청인증기기 설정노트",
+    "id": "",
+    "className": "nav-item step-2 nav-item-open ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "내정보관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "개인인사정보조회",
+    "id": "",
+    "className": "nav-item step-3 selected",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "기본정보수정",
+    "id": "",
+    "className": "nav-item step-3 ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "기본정보수정",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "인사정보변경신청",
+    "id": "",
+    "className": "nav-item step-3 ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "인사정보변경신청",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "인증기기 설정",
+    "id": "",
+    "className": "nav-item step-3 ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "인증기기 설정",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "노트",
+    "id": "",
+    "className": "nav-item step-3 ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "노트",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "업무보고",
+    "id": "",
+    "className": "nav-item step-2 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "업무보고",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "이력관리",
+    "id": "",
+    "className": "nav-item step-2 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "이력관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "주소록",
+    "id": "",
+    "className": "nav-item step-2 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "주소록",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "주소록관리",
+    "id": "",
+    "className": "nav-item step-2 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "주소록관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "근태관리",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "근태관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "인사관리",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "인사관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "급여관리",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "급여관리",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "경비청구",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "경비청구",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "지출결의/계산서",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "지출결의/계산서",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "개인지출결의서",
+    "id": "",
+    "className": "nav-item step-1 nav-item-close ",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "개인지출결의서",
+    "id": "",
+    "className": "nav-text",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "사용자기본정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "사용자기본정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "사용자기본정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "인사정보조회",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "인사정보조회",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "인사정보조회",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "li",
+    "text": "상세정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "상세정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "상세정보",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "수정",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "수정",
+    "id": "",
+    "className": "OBTButton_labelText__1s2qO",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "프로필",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "사인",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "전태규인",
+    "id": "",
+    "className": "ac",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "프로필명",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "전태규열기프로필명(영어)프로필명(일본어)프로필명(중국어)전태규전태규전태규",
+    "id": "",
+    "className": "languages-area",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "사원명",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "전태규열기사원명(영어)사원명(일본어)사원명(중국어)Taegyu Jeon",
+    "id": "",
+    "className": "languages-area",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "로그인ID",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "tgjeon",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "메일아이디",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "로그인비밀번호",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "로그인 비밀번호변경",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "로그인 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "로그인 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_labelText__1s2qO",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "결재비밀번호",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "결재 비밀번호변경",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "button",
+    "text": "결재 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "href": ""
+  },
+  {
+    "tag": "span",
+    "text": "결재 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_labelText__1s2qO",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "성별",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "남성",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "사용언어",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "한국어",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "개인메일",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "휴대전화",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "010-9067-1690",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "전화번호(집)",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "비상연락망(HP)",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "(모) 010-3417-5333",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "개인주소",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "생년월일",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "1997-06-08 (양력)",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "결혼기념일",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "미혼",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "기본로그인회사설정",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "주식회사 글로우서울",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "SNS",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "커리어",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "개인공유문서 등록 시 프로필에 노출됩니다.개인공유문서",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "업로드된 파일이 없습니다.",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "회사/부서",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "주식회사 글로우서울>주식회사 글로우서울>대표이사>PO총괄>PO본부>PM팀",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "사원번호",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "GS251105",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "부서기준",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "주부서",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "직급",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "대리",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "직책",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "팀원",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "재직구분",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "재직",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "직무",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "담당업무",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "최초입사일",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "2025-11-17",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "입사일",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "전화번호(사무실)",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "회사팩스",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "th",
+    "text": "회사주소",
+    "id": "",
+    "className": "",
+    "href": ""
+  },
+  {
+    "tag": "td",
+    "text": "열기",
+    "id": "",
+    "className": "languages-area",
+    "href": ""
+  }
+]

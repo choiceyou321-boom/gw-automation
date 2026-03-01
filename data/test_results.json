@@ -1,0 +1,82 @@
+[
+  {
+    "at": 6,
+    "payload": {
+      "resSeq": "45",
+      "seqNum": "",
+      "resIdx": "1",
+      "reqText": "API 단위 테스트 - 20:58:31",
+      "apprYn": "N",
+      "alldayYn": "N",
+      "startDatePk": "20260302",
+      "createDatePk": "",
+      "startDate": "202603021400",
+      "endDate": "202603021500",
+      "descText": "자동화 테스트",
+      "uidList": "",
+      "repeatType": "10",
+      "repeatEndDay": "",
+      "repeatByDay": "",
+      "resName": "1번 회의실",
+      "resSubscriberList": [
+        {
+          "groupSeq": "gcmsAmaranth36068",
+          "compSeq": "1000",
+          "deptSeq": "2017",
+          "empSeq": 2922
+        }
+      ]
+    },
+    "resp": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "resultCode": 500,
+        "resultMsg": "FAIL",
+        "resultData": null
+      }
+    }
+  },
+  {
+    "at": 7,
+    "payload": {
+      "resSeq": "45",
+      "seqNum": "",
+      "resIdx": "1",
+      "reqText": "API 단위 테스트 - 20:58:31",
+      "apprYn": "N",
+      "alldayYn": "N",
+      "startDatePk": "20260302",
+      "createDatePk": "",
+      "startDate": "202603021400",
+      "endDate": "202603021500",
+      "descText": "자동화 테스트",
+      "uidList": "",
+      "repeatType": "10",
+      "repeatEndDay": "",
+      "repeatByDay": "",
+      "resName": "1번 회의실",
+      "resSubscriberList": [
+        {
+          "groupSeq": "gcmsAmaranth36068",
+          "compSeq": "1000",
+          "deptSeq": "2017",
+          "empSeq": "2922",
+          "empName": "전태규",
+          "deptName": "PM팀",
+          "ownerYn": "Y",
+          "viewYn": "Y"
+        }
+      ]
+    },
+    "resp": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "resultCode": 500,
+        "resultMsg": "FAIL",
+        "resultData": null
+      }
+    }
+  }
+]

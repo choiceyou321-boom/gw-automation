@@ -1,0 +1,206 @@
+[
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A38",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "d3c633344102386a8d549dadee426eb0",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "KGHnSsMN6ryvxzXOhP28tvvDchlu5EcTZUYfV6ZMKag="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A24",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "a3d18ba03bc8d164b872700e22a9f189",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "y0zid8vklhEJBQTWnXcQHCZtznz6JjqlbeMlVnEbO2I="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"menuAuth\":\"USER\",\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A28",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "3201c98d3f774ab11235af0c545da8f7",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "esXcOqKTFhrmH55lD62OvsZSqWg6bKGMVIGZso6GCOc="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A29",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "f69ca6d708e6cbc306928748ec37b879",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "fYo/jN8tTUcKwq+IVMwldc3ClhAgSbNFot46Iq6OXF4="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"visableOnly\":\"Y\",\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A45",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "ac9b9a6f583381c36ba3ab5beedaa10f",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "wfjSCMeux+53/VCk9jTVHSmkkn7P/GgDWJPJOf1Su9w="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"startDate\":\"20260301\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A46",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365060",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "96515546949200becd195c7fdcfa3ac5",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "SNz7FDE5Wu6D0l3m3hfZqoTMAJPZigFraiJaLOiZuKM="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"startDate\":\"20260301\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A01",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "69d92b5c8d17c017ef961326fff44e41",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "OLg+bNhrie17V+ZNXbUVQi6dj5vOH67p5sGcpt++2I0="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"searchText\":\"\",\"attrUseYn\":\"\",\"attrList\":[\"2\",\"4\",\"3\",\"8\",\"5\",\"ETC\"],\"propList\":[],\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A01",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "6ac688b1216d7b84fcba4bead232f8f1",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "RljAg77ANYdBWpeOW4o0y9+9y2h1eFqJcOXQuKMBXRs="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"searchText\":\"\",\"attrUseYn\":\"\",\"attrList\":[\"ETC\"],\"propList\":[],\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A49",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "c05e813c7780b94a3ab2717b700eafdb",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "rkvsKBZwCINngJ+q0FAiU5wnMKe+kH+fdqMaVMaqxJQ="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"}}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A05",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "279e07340c16e5b54da5472dd1c7f5dd",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "y2rlbFeTFxLDAcRKZbuWnOxtSMgeqKHEGHHH5euHfJI="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"startDate\":\"20260301\",\"endDate\":\"20260301\",\"statusType\":[\"10\",\"20\"],\"resList\":[{\"resSeq\":\"45\"},{\"resSeq\":\"46\"},{\"resSeq\":\"47\"},{\"resSeq\":\"48\"},{\"resSeq\":\"49\"},{\"resSeq\":\"50\"},{\"resSeq\":\"51\"},{\"resSeq\":\"52\"},{\"resSeq\":\"53\"},{\"resSeq\":\"82\"},{\"resSeq\":\"86\"},{\"resSeq\":\"87\"},{\"resSeq\":\"73\"},{\"resSeq\":\"77\"},{\"resSeq\":\"78\"},{\"resSeq\":\"79\"},{\"resSeq\":\"80\"},{\"resSeq\":\"83\"},{\"resSeq\":\"84\"},{\"resSeq\":\"85\"},{\"resSeq\":\"54\"}],\"statusCode\":\"\",\"menuAuth\":\"USER\",\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A05",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "8e859390d12cf56c8396a1284bbe1b3c",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "0in72OvIoJzEejIjeY4pRC6HQVqvE8zTjzXpyR6M+i0="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"startDate\":\"20260301\",\"endDate\":\"20260301\",\"statusType\":[\"10\",\"20\"],\"resList\":[{\"resSeq\":\"45\"},{\"resSeq\":\"46\"},{\"resSeq\":\"47\"},{\"resSeq\":\"48\"},{\"resSeq\":\"49\"},{\"resSeq\":\"50\"},{\"resSeq\":\"51\"},{\"resSeq\":\"52\"},{\"resSeq\":\"53\"},{\"resSeq\":\"82\"},{\"resSeq\":\"86\"},{\"resSeq\":\"87\"},{\"resSeq\":\"73\"},{\"resSeq\":\"77\"},{\"resSeq\":\"78\"},{\"resSeq\":\"79\"},{\"resSeq\":\"80\"},{\"resSeq\":\"83\"},{\"resSeq\":\"84\"},{\"resSeq\":\"85\"},{\"resSeq\":\"54\"}],\"statusCode\":\"\",\"menuAuth\":\"USER\",\"langCode\":\"kr\"}"
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/schres/rs121A05",
+    "method": "POST",
+    "headers": {
+      "sec-ch-ua-platform": "\"Windows\"",
+      "authorization": "Bearer gcmsAmaranth36068|2922|wAgC3PYkqN3SlTVCqijvEkXYCh02uD",
+      "timestamp": "1772365061",
+      "referer": "https://gw.glowseoul.co.kr/",
+      "sec-ch-ua": "\"Not:A-Brand\";v=\"99\", \"HeadlessChrome\";v=\"145\", \"Chromium\";v=\"145\"",
+      "transaction-id": "dd5a8fdef0cd88dc7a8c3e0f5c0ef84c",
+      "sec-ch-ua-mobile": "?0",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+      "content-type": "application/json",
+      "wehago-sign": "u7VBwztlKBh6z+eW1zaJC7RT1RJFe3WRT9gb5TaxhPs="
+    },
+    "body": "{\"companyInfo\":{\"compSeq\":\"1000\",\"groupSeq\":\"gcmsAmaranth36068\",\"deptSeq\":\"2017\",\"emailAddr\":\"tgjeon\",\"emailDomain\":\"glowseoul.co.kr\"},\"startDate\":\"20260301\",\"endDate\":\"20260301\",\"statusType\":[\"10\",\"20\"],\"resList\":[{\"resSeq\":\"45\"},{\"resSeq\":\"46\"},{\"resSeq\":\"47\"},{\"resSeq\":\"48\"},{\"resSeq\":\"49\"},{\"resSeq\":\"50\"},{\"resSeq\":\"51\"},{\"resSeq\":\"52\"},{\"resSeq\":\"53\"},{\"resSeq\":\"82\"},{\"resSeq\":\"86\"},{\"resSeq\":\"87\"},{\"resSeq\":\"73\"},{\"resSeq\":\"77\"},{\"resSeq\":\"78\"},{\"resSeq\":\"79\"},{\"resSeq\":\"80\"},{\"resSeq\":\"83\"},{\"resSeq\":\"84\"},{\"resSeq\":\"85\"},{\"resSeq\":\"54\"}],\"statusCode\":\"\",\"menuAuth\":\"USER\",\"langCode\":\"kr\"}"
+  }
+]

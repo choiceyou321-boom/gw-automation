@@ -1,0 +1,760 @@
+"""
+Google Gemini 연동 + 의도 분석 에이전트
+- 사용자 메시지와 첨부파일을 분석해 자동화 작업 라우팅
+- Function calling 패턴으로 자동화 함수 호출
+"""
+
+import os
+import base64
+import json
+from pathlib import Path
+from typing import Optional
+from google import genai
+from google.genai import types
+
+# Gemini 클라이언트 초기화
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+MODEL_ID = "gemini-2.5-flash"
+
+# 자동화 도구 정의 (function calling)
+AUTOMATION_TOOLS = [
+    types.Tool(function_declarations=[
+        types.FunctionDeclaration(
+            name="reserve_meeting_room",
+            description="회의실 예약을 처리합니다. 사용자가 회의실 예약, 미팅 룸 예약, 회의 잡기 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "date": types.Schema(type="STRING", description="예약 날짜 (YYYY-MM-DD 형식)"),
+                    "start_time": types.Schema(type="STRING", description="시작 시간 (HH:MM 형식)"),
+                    "end_time": types.Schema(type="STRING", description="종료 시간 (HH:MM 형식)"),
+                    "room_name": types.Schema(type="STRING", description="회의실 이름 (없으면 빈 문자열)"),
+                    "title": types.Schema(type="STRING", description="회의 제목"),
+                    "participants": types.Schema(type="STRING", description="참석자 목록 (쉼표 구분)"),
+                },
+                required=["date", "start_time", "end_time", "title"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="submit_expense_approval",
+            description="지출결의서/경비 결재를 작성합니다. 사용자가 '경비 결재', '지출결의', '비용 처리', '결재 신청' 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "project": types.Schema(type="STRING", description="프로젝트명"),
+                    "title": types.Schema(type="STRING", description="결재 제목 (예: '3월 교통비 정산')"),
+                    "amount": types.Schema(type="NUMBER", description="총 금액 (원)"),
+                    "date": types.Schema(type="STRING", description="지출일 (YYYY-MM-DD 형식)"),
+                    "description": types.Schema(type="STRING", description="적요/내용 설명"),
+                    "items": types.Schema(
+                        type="ARRAY",
+                        description="지출 항목 리스트",
+                        items=types.Schema(
+                            type="OBJECT",
+                            properties={
+                                "item": types.Schema(type="STRING", description="항목명"),
+                                "amount": types.Schema(type="NUMBER", description="금액"),
+                                "note": types.Schema(type="STRING", description="비고"),
+                            },
+                        ),
+                    ),
+                    "payee": types.Schema(type="STRING", description="지급처"),
+                    "action": types.Schema(type="STRING", description="실행 액션: 'confirm'이면 확인 후 작성, 'draft'이면 바로 임시저장. 기본값 'confirm'"),
+                },
+                required=["title", "description"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="summarize_mail",
+            description="메일 요약을 처리합니다. 사용자가 메일 요약, 이메일 정리, 받은 메일 확인 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "period": types.Schema(type="STRING", description="요약할 기간 (오늘, 이번 주, 최근 N일 등)"),
+                    "filter_keyword": types.Schema(type="STRING", description="필터 키워드 (없으면 빈 문자열)"),
+                },
+                required=["period"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="check_reservation_status",
+            description="회의실 예약 현황을 조회합니다. 사용자가 '오늘 예약 현황', '내일 회의실 상황', '지금 예약 뭐 있어?', '3월 5일 회의실 예약 확인' 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "date": types.Schema(type="STRING", description="조회할 날짜 (YYYY-MM-DD 형식). 오늘이면 오늘 날짜."),
+                    "room_name": types.Schema(type="STRING", description="특정 회의실만 보려면 지정 (예: '1번 회의실'). 전체 조회는 빈 문자열."),
+                },
+                required=["date"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="check_available_rooms",
+            description="빈 회의실과 사용 가능한 시간대를 조회합니다. 사용자가 '빈 회의실', '남는 회의실', '어디 비어있어?', '회의실 가능한 시간', '1시간짜리 회의실 있어?' 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "date": types.Schema(type="STRING", description="조회할 날짜 (YYYY-MM-DD 형식). 오늘이면 오늘 날짜."),
+                    "room_name": types.Schema(type="STRING", description="특정 회의실만 보려면 지정. 전체 조회는 빈 문자열."),
+                    "duration_minutes": types.Schema(type="NUMBER", description="필요한 시간 (분 단위). 기본 60분. '1시간'=60, '30분'=30, '2시간'=120."),
+                },
+                required=["date"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="cancel_meeting_reservation",
+            description="회의실 예약을 취소합니다. 사용자가 '예약 취소', '예약 삭제', '회의 취소해줘', '예약 빼줘' 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "date": types.Schema(type="STRING", description="취소할 예약의 날짜 (YYYY-MM-DD 형식)."),
+                    "title": types.Schema(type="STRING", description="취소할 예약의 제목 (부분 일치 가능). 없으면 빈 문자열."),
+                    "room_name": types.Schema(type="STRING", description="취소할 예약의 회의실 이름. 없으면 빈 문자열."),
+                    "start_time": types.Schema(type="STRING", description="취소할 예약의 시작 시간 (HH:MM 형식). 없으면 빈 문자열."),
+                },
+                required=["date"],
+            ),
+        ),
+    ])
+]
+
+# 시스템 프롬프트
+SYSTEM_PROMPT = """당신은 회사 업무 자동화를 돕는 AI 어시스턴트입니다.
+사용자의 요청을 분석하여 적절한 자동화 도구를 사용하거나, 일반적인 질문에 답변합니다.
+
+## 핵심 원칙
+- 사용자는 비개발자입니다. 편하게 말하는 자연어를 이해해야 합니다.
+- 정보가 충분하면 바로 도구를 호출하세요. 불필요하게 되묻지 마세요.
+- 정보가 부족할 때만 간단하고 친근하게 물어보세요.
+
+## 보안 및 프라이버시 (매우 중요)
+- 다른 사용자의 계정 로그인 정보나 비밀번호 등 민감한 인증 정보를 묻는 질문에는 절대 답변하지 마세요.
+- 단, 원활한 업무 협업을 위해 팀원들의 일정(회의실 예약 현황 등) 조회가 가능합니다. 누가 어느 회의실을 예약했는지는 알려주어도 됩니다.
+- 타인의 예약을 임의로 취소하거나 다른 사람 이름으로 결재를 올리는 등 타인의 권한이 필요한 '생성/수정/삭제' 요청은 단호하게 거절하세요.
+
+## 자연어 해석 규칙
+오늘 날짜: {today}
+
+날짜 변환:
+- "오늘" → 오늘 날짜
+- "내일" → 내일 날짜
+- "모레" → 모레 날짜
+- "이번주 금요일", "다음주 월요일" → 해당 날짜 계산
+- "3월 5일" → 올해 3월 5일
+
+시간 변환:
+- "오후 2시" → 14:00
+- "오전 10시 반" → 10:30
+- "2시부터 3시까지" → start 14:00, end 15:00
+- "1시간" (종료 시간 없으면) → 시작 시간 + 1시간
+
+회의실:
+- "5번 회의실", "대회의실", "3층 회의실" → 그대로 전달
+- 회의실 지정 없으면 빈 문자열로 (자동 배정)
+
+제목:
+- "팀 미팅", "주간회의", "면접" 등 맥락에서 추출
+- 명시 안 하면 "회의"로 기본값
+
+참석자:
+- 없으면 빈 문자열
+
+## 예시
+- "내일 오후 2시에 3시까지 5번 회의실 팀미팅 잡아줘" → 바로 예약 실행
+- "모레 오전 10시 회의실 하나 잡아줘 1시간짜리" → 바로 예약 실행
+- "회의실 예약해줘" (정보 없음) → "언제, 몇 시에 예약할까요?" 정도만 물어보기
+
+## 도구 사용
+- 회의실 예약: reserve_meeting_room
+- 예약 현황 조회: check_reservation_status (오늘/특정 날짜 예약 확인)
+- 빈 회의실 확인: check_available_rooms (남는 회의실/시간대 검색)
+- 예약 취소: cancel_meeting_reservation (예약 취소 처리)
+- 경비/결재: submit_expense_approval
+- 메일 요약: summarize_mail
+- 그 외: 도구 없이 직접 답변
+
+## 경비 결재 흐름
+사용자가 경비 결재를 요청하면:
+1. 먼저 submit_expense_approval(action="confirm")으로 확인 메시지 생성
+2. 사용자가 '확인', '맞아', '작성해줘' 등으로 승인하면
+3. submit_expense_approval(action="draft")으로 실제 작성 실행
+4. 정보가 부족하면 친근하게 물어보기 (제목, 금액, 내용 등)
+
+## 예약 조회 예시
+- "오늘 회의실 예약 현황 보여줘" → check_reservation_status
+- "내일 3번 회의실 예약 있어?" → check_reservation_status (room_name="3번 회의실")
+- "지금 빈 회의실 어디야?" → check_available_rooms
+- "내일 오후에 2시간짜리 회의실 있어?" → check_available_rooms (duration_minutes=120)
+- "1번 회의실 언제 비어?" → check_available_rooms (room_name="1번 회의실")
+
+## 예약 취소 흐름
+사용자가 예약 취소를 요청하면:
+1. 먼저 해당 날짜의 본인 예약 현황을 보여주고 어떤 예약을 취소할지 물어봐야 합니다
+2. 사용자가 특정 예약을 지정하면(제목, 회의실, 시간 등) 취소를 실행합니다
+
+예시:
+- "내일 예약 취소하고 싶어" → 먼저 check_reservation_status로 내일 예약 현황을 보여주고, "어떤 예약을 취소할까요?"라고 물어보기
+- "내일 3시 팀미팅 취소해줘" → 정보가 충분하면 바로 cancel_meeting_reservation 실행
+- "방금 말한 거 취소해줘" → 대화 맥락에서 파악하여 cancel_meeting_reservation 실행
+
+응답은 항상 한국어로 친절하게 작성합니다. 존댓말을 사용하세요."""
+
+
+# 자동화 모듈 실행 함수들
+
+def _get_api_for_user(user_context: dict = None):
+    """
+    사용자 컨텍스트에 따라 적절한 API 인스턴스 생성.
+    user_context 있으면 session_manager 사용, 없으면 기존 방식.
+    """
+    if user_context and user_context.get("gw_id"):
+        from src.auth.session_manager import create_api
+        return create_api(user_context["gw_id"])
+    else:
+        from src.meeting.reservation_api import create_api_with_session
+        return create_api_with_session(headless=True)
+
+
+def handle_reserve_meeting_room(params: dict, user_context: dict = None) -> str:
+    """
+    회의실 예약 처리 - MeetingRoomAPI (reservation_api.py) 연동.
+    기존 UI 자동화(reservation.py) 대신 rs121A API 직접 호출 방식 사용.
+    """
+    date       = params.get("date", "미정")
+    start_time = params.get("start_time", "미정")
+    end_time   = params.get("end_time", "미정")
+    title      = params.get("title", "회의")
+    room       = params.get("room_name", "1번 회의실")  # 미지정 시 1번 회의실 기본
+    participants = params.get("participants", "")
+
+    room_info = f"'{room}' 회의실" if room else "1번 회의실"
+    part_info = f"\n- 참석자: {participants}" if participants else ""
+
+    try:
+        import concurrent.futures
+
+        def _run_reservation():
+            """별도 스레드에서 sync Playwright + MeetingRoomAPI 실행"""
+            api, cleanup = _get_api_for_user(user_context)
+            try:
+                result = api.make_reservation(
+                    room_name=room,
+                    date=date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    title=title,
+                    description=f"참석자: {participants}" if participants else "",
+                )
+                return result  # {"success": bool, "message": str, "data": dict}
+            finally:
+                cleanup()
+
+        # async 루프 밖에서 sync Playwright 실행 (ThreadPoolExecutor 사용)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(_run_reservation)
+            result = future.result(timeout=120)  # API 방식이 빠르므로 충분
+
+        if result.get("success"):
+            return (
+                f"회의실 예약이 완료되었습니다!\n\n"
+                f"예약 내용:\n"
+                f"- 제목: {title}\n"
+                f"- 일시: {date} {start_time}~{end_time}\n"
+                f"- 장소: {room_info}"
+                f"{part_info}"
+            )
+        else:
+            # make_reservation이 반환한 상세 실패 메시지 포함
+            reason = result.get("message", "알 수 없는 오류")
+            return (
+                f"회의실 예약에 실패했습니다.\n"
+                f"사유: {reason}\n\n"
+                f"요청 내용:\n"
+                f"- 제목: {title}\n"
+                f"- 일시: {date} {start_time}~{end_time}\n"
+                f"- 장소: {room_info}"
+            )
+
+    except Exception as e:
+        return (
+            f"회의실 예약 중 오류가 발생했습니다: {str(e)}\n\n"
+            f"요청 내용:\n"
+            f"- 제목: {title}\n"
+            f"- 일시: {date} {start_time}~{end_time}\n"
+            f"- 장소: {room_info}"
+            f"{part_info}"
+        )
+
+
+def handle_check_reservation_status(params: dict, user_context: dict = None) -> str:
+    """예약 현황 조회 - MeetingRoomAPI.get_reservations() 연동"""
+    date = params.get("date", "")
+    room_name = params.get("room_name", "")
+
+    try:
+        import concurrent.futures
+
+        def _run_check():
+            api, cleanup = _get_api_for_user(user_context)
+            try:
+                reservations = api.get_reservations(date)
+                return reservations
+            finally:
+                cleanup()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(_run_check)
+            reservations = future.result(timeout=120)
+
+        # 특정 회의실 필터링
+        if room_name:
+            reservations = [
+                r for r in reservations
+                if room_name in r.get("resName", "") or r.get("resName", "") in room_name
+            ]
+
+        if not reservations:
+            room_info = f" ({room_name})" if room_name else ""
+            return f"{date}{room_info} 예약이 없습니다. 모든 회의실이 비어 있습니다."
+
+        lines = [f"📋 {date} 예약 현황 ({len(reservations)}건):\n"]
+        for r in reservations:
+            lines.append(
+                f"• [{r.get('resName', '?')}] {r.get('start_time', '?')}~{r.get('end_time', '?')} "
+                f"- {r.get('reqText', '(제목 없음)')} ({r.get('booker', '?')})"
+            )
+        return "\n".join(lines)
+
+    except Exception as e:
+        return f"예약 현황 조회 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_check_available_rooms(params: dict, user_context: dict = None) -> str:
+    """빈 회의실/시간대 조회 - MeetingRoomAPI.find_available_slots() 연동"""
+    date = params.get("date", "")
+    room_name = params.get("room_name", "")
+    duration = int(params.get("duration_minutes", 60))
+
+    try:
+        import concurrent.futures
+
+        def _run_check():
+            api, cleanup = _get_api_for_user(user_context)
+            try:
+                slots = api.find_available_slots(
+                    date=date,
+                    room_name=room_name or None,
+                    duration_minutes=duration,
+                )
+                return slots
+            finally:
+                cleanup()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(_run_check)
+            slots = future.result(timeout=120)
+
+        if not slots:
+            room_info = f" ({room_name})" if room_name else ""
+            return f"{date}{room_info}에 {duration}분 이상 사용 가능한 시간대가 없습니다."
+
+        # 회의실별로 그룹핑
+        from collections import defaultdict
+        by_room = defaultdict(list)
+        for s in slots:
+            by_room[s["resName"]].append(s)
+
+        lines = [f"🕐 {date} 빈 시간대 ({duration}분 기준):\n"]
+        for rname, rslots in by_room.items():
+            time_strs = [f"{s['start_time']}~{s['end_time']}" for s in rslots]
+            lines.append(f"• {rname}: {', '.join(time_strs)}")
+
+        return "\n".join(lines)
+
+    except Exception as e:
+        return f"빈 회의실 조회 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_cancel_meeting_reservation(params: dict, user_context: dict = None) -> str:
+    """
+    예약 취소 - MeetingRoomAPI.cancel_reservation() 연동.
+    예약한 본인만 취소 가능 (GW 서버 권한 체크 + 클라이언트 필터링).
+    """
+    date = params.get("date", "")
+    title = params.get("title", "")
+    room_name = params.get("room_name", "")
+    start_time = params.get("start_time", "")
+
+    # 현재 사용자 정보 (로그인된 사용자)
+    current_name = (user_context or {}).get("name", "")
+    current_gw_id = (user_context or {}).get("gw_id", "")
+
+    try:
+        import concurrent.futures
+
+        def _run_cancel():
+            api, cleanup = _get_api_for_user(user_context)
+            try:
+                # 1단계: 해당 날짜 예약 조회
+                reservations = api.get_reservations(date)
+
+                # 본인 예약만 필터 (로그인 사용자 기준)
+                # 예약한 사람만 취소할 수 있으므로 본인 예약만 표시
+                booker_names = {current_name, current_gw_id} - {""}
+                if not booker_names:
+                    # user_context 없으면 전체 표시 (하위 호환)
+                    booker_names = None
+
+                if booker_names:
+                    my_reservations = [
+                        r for r in reservations
+                        if r.get("booker", "") in booker_names
+                    ]
+                else:
+                    my_reservations = reservations
+
+                if not my_reservations:
+                    return {"success": False, "message": f"{date}에 본인 예약이 없습니다."}
+
+                # 2단계: 조건으로 필터링
+                candidates = my_reservations
+                if title:
+                    filtered = [r for r in candidates if title in r.get("reqText", "")]
+                    if filtered:
+                        candidates = filtered
+                if room_name:
+                    filtered = [r for r in candidates if room_name in r.get("resName", "") or r.get("resName", "") in room_name]
+                    if filtered:
+                        candidates = filtered
+                if start_time:
+                    clean_time = start_time.replace(":", "")
+                    filtered = [r for r in candidates if clean_time in r.get("start_time", "").replace(":", "")]
+                    if filtered:
+                        candidates = filtered
+
+                if len(candidates) == 0:
+                    return {"success": False, "message": f"{date}에 조건에 맞는 예약을 찾을 수 없습니다."}
+
+                if len(candidates) > 1:
+                    # 여러 건이면 목록 반환
+                    lines = [f"{date}에 조건에 맞는 예약이 {len(candidates)}건 있습니다:\n"]
+                    for i, r in enumerate(candidates, 1):
+                        lines.append(
+                            f"{i}. [{r.get('resName', '?')}] {r.get('start_time', '?')}~{r.get('end_time', '?')} "
+                            f"- {r.get('reqText', '(제목 없음)')}"
+                        )
+                    lines.append("\n더 구체적으로 알려주시면 취소해드리겠습니다. (예: 제목, 회의실, 시간)")
+                    return {"success": False, "message": "\n".join(lines)}
+
+                # 3단계: 취소 실행
+                target = candidates[0]
+                raw = target.get("raw", {})
+                result = api.cancel_reservation(
+                    schm_seq=target.get("schmSeq", ""),
+                    seq_num=target.get("seqNum", ""),
+                    res_seq=target.get("resSeq", ""),
+                    res_idx=str(raw.get("resIdx", "1")),
+                    req_text=target.get("reqText", ""),
+                    start_date=target.get("startDate", ""),
+                    end_date=target.get("endDate", ""),
+                    create_date=str(raw.get("createDate", "")),
+                    res_name=target.get("resName", ""),
+                )
+                if result.get("success"):
+                    return {
+                        "success": True,
+                        "message": (
+                            f"예약이 취소되었습니다.\n\n"
+                            f"취소된 예약:\n"
+                            f"- 제목: {target.get('reqText', '?')}\n"
+                            f"- 일시: {date} {target.get('start_time', '?')}~{target.get('end_time', '?')}\n"
+                            f"- 장소: {target.get('resName', '?')}"
+                        )
+                    }
+                else:
+                    return {"success": False, "message": result.get("message", "취소 실패")}
+            finally:
+                cleanup()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(_run_cancel)
+            result = future.result(timeout=120)
+
+        return result.get("message", "처리 완료")
+
+    except Exception as e:
+        return f"예약 취소 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_submit_expense_approval(params: dict, user_context: dict = None) -> str:
+    """
+    지출결의서 작성 처리
+    - action='confirm': 확인 메시지 반환 (사용자가 '확인' 후 실행)
+    - action='draft': Playwright로 실제 폼 작성 + 임시저장
+    """
+    title = params.get("title", "")
+    description = params.get("description", "")
+    amount = params.get("amount")
+    date = params.get("date", "")
+    project = params.get("project", "")
+    items = params.get("items", [])
+    payee = params.get("payee", "")
+    action = params.get("action", "confirm")
+
+    # 항목 정보 포맷
+    amount_str = f"{int(amount):,}원" if amount else "미정"
+    items_str = ""
+    if items:
+        for i, item in enumerate(items, 1):
+            item_amount = f"{int(item.get('amount', 0)):,}원" if item.get('amount') else ""
+            items_str += f"\n  {i}. {item.get('item', '?')} {item_amount}"
+
+    if action != "draft":
+        # 확인 단계: 사용자에게 내용 보여주고 확인 요청
+        confirm_msg = (
+            f"다음 내용으로 지출결의서를 작성합니다:\n\n"
+            f"- 제목: {title}\n"
+            f"- 프로젝트: {project or '미지정'}\n"
+            f"- 지출일: {date or '미지정'}\n"
+            f"- 금액: {amount_str}\n"
+            f"- 내용: {description}"
+        )
+        if items_str:
+            confirm_msg += f"\n- 항목:{items_str}"
+        if payee:
+            confirm_msg += f"\n- 지급처: {payee}"
+        confirm_msg += "\n\n맞으면 '확인' 또는 '작성해줘'라고 말씀해주세요."
+        return confirm_msg
+
+    # 실제 작성 단계
+    try:
+        import concurrent.futures
+
+        def _run_approval():
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context, close_session
+            from src.auth.user_db import get_decrypted_password
+            from src.approval.approval_automation import ApprovalAutomation
+
+            gw_id = (user_context or {}).get("gw_id")
+            if not gw_id:
+                return {"success": False, "message": "로그인 정보가 없습니다."}
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                return {"success": False, "message": "비밀번호를 찾을 수 없습니다."}
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                page.set_viewport_size({"width": 1920, "height": 1080})
+
+                automation = ApprovalAutomation(page, context)
+                result = automation.create_expense_report({
+                    "title": title,
+                    "date": date,
+                    "description": description,
+                    "items": items,
+                    "total_amount": amount,
+                })
+
+                close_session(browser)
+                return result
+            finally:
+                pw.stop()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(_run_approval)
+            result = future.result(timeout=180)
+
+        if result.get("success"):
+            return f"지출결의서가 결재상신되었습니다!\n\n제목: {title}\n금액: {amount_str}"
+        else:
+            return f"지출결의서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+
+    except Exception as e:
+        return f"지출결의서 작성 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_summarize_mail(params: dict, user_context: dict = None) -> str:
+    """메일 요약 처리 (실제 모듈 연동 준비 중)"""
+    period = params.get("period", "오늘")
+    keyword = params.get("filter_keyword", "")
+
+    keyword_info = f" (키워드: '{keyword}')" if keyword else ""
+
+    return (
+        f"메일 요약 요청을 접수했습니다.\n\n"
+        f"요청 내용:\n"
+        f"- 기간: {period}{keyword_info}\n\n"
+        f"그룹웨어 연동 후 메일 자동 요약이 가능합니다. (현재 준비 중)"
+    )
+
+
+# 도구 이름 → 핸들러 매핑
+TOOL_HANDLERS = {
+    "reserve_meeting_room": handle_reserve_meeting_room,
+    "check_reservation_status": handle_check_reservation_status,
+    "check_available_rooms": handle_check_available_rooms,
+    "cancel_meeting_reservation": handle_cancel_meeting_reservation,
+    "submit_expense_approval": handle_submit_expense_approval,
+    "summarize_mail": handle_summarize_mail,
+}
+
+
+def build_message_parts(text: str, files: list[dict]) -> list:
+    """텍스트 + 첨부파일로 Gemini 메시지 parts 구성"""
+    parts = []
+
+    # 첨부 파일 처리
+    for f in files:
+        file_type = f.get("type", "")
+        file_data = f.get("data", "")  # base64
+        file_name = f.get("name", "file")
+
+        if file_type.startswith("image/"):
+            # 이미지 첨부
+            parts.append(types.Part.from_bytes(
+                data=base64.b64decode(file_data),
+                mime_type=file_type,
+            ))
+        elif file_type == "application/pdf":
+            # PDF 첨부
+            parts.append(types.Part.from_bytes(
+                data=base64.b64decode(file_data),
+                mime_type="application/pdf",
+            ))
+
+    # 사용자 텍스트 추가
+    if text:
+        parts.append(types.Part.from_text(text=text))
+
+    return parts if parts else [types.Part.from_text(text=text or "안녕하세요")]
+
+
+def _convert_history(conversation_history: list[dict]) -> list[types.Content]:
+    """대화 히스토리를 Gemini 형식으로 변환"""
+    contents = []
+    for msg in conversation_history:
+        role = "user" if msg["role"] == "user" else "model"
+        text = msg["content"] if isinstance(msg["content"], str) else str(msg["content"])
+        contents.append(types.Content(
+            role=role,
+            parts=[types.Part.from_text(text=text)],
+        ))
+    return contents
+
+
+async def analyze_and_route(
+    user_message: str,
+    files: list[dict] = None,
+    conversation_history: list[dict] = None,
+    user_context: dict = None,
+) -> dict:
+    """
+    사용자 메시지 분석 후 적절한 자동화 모듈 라우팅
+
+    Returns:
+        {
+            "response": str,
+            "action": str | None,
+            "action_result": str | None
+        }
+    """
+    if files is None:
+        files = []
+    if conversation_history is None:
+        conversation_history = []
+
+    # 메시지 parts 구성 (파일 포함)
+    user_parts = build_message_parts(user_message, files)
+
+    # 대화 히스토리 변환 + 현재 메시지
+    contents = _convert_history(conversation_history)
+    contents.append(types.Content(role="user", parts=user_parts))
+
+    # 오늘 날짜를 시스템 프롬프트에 삽입
+    from datetime import datetime
+    today = datetime.now().strftime("%Y-%m-%d (%A)")
+    system_with_date = SYSTEM_PROMPT.replace("{today}", today)
+
+    # Gemini API 호출 (function calling)
+    response = client.models.generate_content(
+        model=MODEL_ID,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=system_with_date,
+            tools=AUTOMATION_TOOLS,
+            temperature=0.7,
+        ),
+    )
+
+    # 응답 처리
+    result = {
+        "response": "",
+        "action": None,
+        "action_result": None
+    }
+
+    # function call 확인
+    function_call = None
+    text_parts = []
+
+    if response.candidates and response.candidates[0].content:
+        for part in response.candidates[0].content.parts:
+            if part.function_call:
+                function_call = part.function_call
+            elif part.text:
+                text_parts.append(part.text)
+
+    if function_call:
+        # 도구 실행
+        tool_name = function_call.name
+        tool_input = dict(function_call.args) if function_call.args else {}
+        handler = TOOL_HANDLERS.get(tool_name)
+
+        if handler:
+            action_result = handler(tool_input, user_context=user_context)
+        else:
+            action_result = f"'{tool_name}' 모듈이 준비 중입니다."
+
+        result["action"] = tool_name
+        result["action_result"] = action_result
+
+        # 도구 결과로 최종 응답 생성
+        contents.append(response.candidates[0].content)
+        contents.append(types.Content(
+            role="user",
+            parts=[types.Part.from_function_response(
+                name=tool_name,
+                response={"result": action_result},
+            )],
+        ))
+
+        final_response = client.models.generate_content(
+            model=MODEL_ID,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_with_date,
+                tools=AUTOMATION_TOOLS,
+                temperature=0.7,
+            ),
+        )
+
+        if final_response.candidates and final_response.candidates[0].content:
+            final_texts = [
+                p.text for p in final_response.candidates[0].content.parts if p.text
+            ]
+            result["response"] = "\n".join(final_texts)
+        else:
+            result["response"] = action_result
+    else:
+        # 일반 텍스트 응답
+        result["response"] = "\n".join(text_parts) if text_parts else "죄송합니다, 응답을 생성하지 못했습니다."
+
+    return result

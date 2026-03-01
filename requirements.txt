@@ -1,0 +1,23 @@
+# GW 자동화 프로젝트 의존성
+
+# AI
+anthropic>=0.84.0
+
+# 웹 프레임워크
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.12
+
+# 환경 변수
+python-dotenv>=1.0.0
+
+# 기타 (기존 모듈 사용)
+playwright>=1.49.0
+requests>=2.32.0
+
+# 다중 사용자 인증
+cryptography>=42.0.0
+PyJWT>=2.8.0
+
+# 텔레그램 연동
+python-telegram-bot>=21.0

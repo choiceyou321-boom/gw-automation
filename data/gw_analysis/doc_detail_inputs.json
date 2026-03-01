@@ -1,0 +1,162 @@
+[
+  {
+    "tag": "INPUT",
+    "id": "rpTextClone",
+    "name": "",
+    "type": "text",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "mention",
+    "name": "mentionSpan",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "uploadFile",
+    "name": "uploadFile",
+    "type": "file",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "test",
+    "name": "",
+    "type": "file",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "ContentsMention",
+    "name": "mentionSpan",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "uploadFile",
+    "name": "uploadFile",
+    "type": "file",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "ContentsMention",
+    "name": "mentionSpan",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "file",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "value": "",
+    "placeholder": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "uploadFile",
+    "name": "uploadFile",
+    "type": "file",
+    "value": "",
+    "placeholder": ""
+  }
+]

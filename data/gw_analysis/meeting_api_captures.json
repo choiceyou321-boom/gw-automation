@@ -1,0 +1,1313 @@
+[
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "method": "POST",
+    "status": 200,
+    "req_body": {},
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": "겸직 전체 GNB메뉴리스트 조회 완료",
+      "resultData": [
+        {
+          "menuGubun": "BN",
+          "menuNmKr": "예산관리",
+          "menuNo": 401000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "임직원업무관리",
+          "menuNo": 406000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "업무보고",
+          "menuNo": 406000600
+        },
+        {
+          "menuGubun": "UB",
+          "menuNmKr": "전자결재",
+          "menuNo": 1000000
+        },
+        {
+          "menuGubun": "UD",
+          "menuNmKr": "메일",
+          "menuNo": 7000000
+        },
+        {
+          "menuGubun": "UE",
+          "menuNmKr": "일정",
+          "menuNo": 2000000
+        },
+        {
+          "menuGubun": "UF",
+          "menuNmKr": "게시판",
+          "menuNo": 3000000
+        },
+        {
+          "menuGubun": "UG",
+          "menuNmKr": "업무관리",
+          "menuNo": 4000000
+        },
+        {
+          "menuGubun": "UK",
+          "menuNmKr": "자원",
+          "menuNo": 10000000
+        },
+        {
+          "menuGubun": "UO",
+          "menuNmKr": "ONEFFICE",
+          "menuNo": 9000000
+        },
+        {
+          "menuGubun": "UQ",
+          "menuNmKr": "ONECHAMBER",
+          "menuNo": 8000000
+        },
+        {
+          "menuGubun": "UT",
+          "menuNmKr": "오피스케어",
+          "menuNo": 16000000
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw114A14",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "startDate": "20260301",
+      "endDate": "20260404"
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": "정상",
+      "resultData": [
+        {
+          "comp_seq": "0",
+          "h_day": "20260301",
+          "title": "삼일절"
+        },
+        {
+          "comp_seq": "0",
+          "h_day": "20260302",
+          "title": "대체공휴일(삼일절)"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw114A51",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "year": "2026",
+      "startDt": "0301",
+      "endDt": "0331",
+      "today": ""
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": "생일자 조회 성공",
+      "resultData": {
+        "bdayPersonList": [
+          {
+            "positionName": "대리",
+            "deptSeq": "2016",
+            "picFileId": "f4e9338a-956d-4f3c-baa3-155da43b871b_jpg",
+            "bday": "03-02",
+            "compSeq": "1000",
+            "empName": "이준기A",
+            "empSeq": "2871",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "주임",
+            "deptSeq": "2792",
+            "picFileId": "029f6e67-3d67-4ed9-9c1f-f12116811046_jpeg",
+            "bday": "03-07",
+            "compSeq": "1000",
+            "empName": "최수안",
+            "empSeq": "2813",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "과장",
+            "deptSeq": "2761",
+            "picFileId": "9981760a-0d9a-4f2c-9763-6fd787e0ff09_jpg",
+            "bday": "03-08",
+            "compSeq": "1000",
+            "empName": "권소라",
+            "empSeq": "2834",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "주임",
+            "deptSeq": "2173",
+            "picFileId": "20b3d972-d4ed-492c-ac1b-19af480d070b_jpeg",
+            "bday": "03-09",
+            "compSeq": "2024",
+            "empName": "김지웅",
+            "empSeq": "2462",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "대리",
+            "deptSeq": "2173",
+            "picFileId": "e448f301-213a-4261-94f4-63acac109512_jpg",
+            "bday": "03-10",
+            "compSeq": "2024",
+            "empName": "허남진",
+            "empSeq": "2576",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "부대표",
+            "deptSeq": "2005",
+            "picFileId": "2345f7db-09d7-4c18-b296-1936afa26897_jpg",
+            "bday": "03-13",
+            "compSeq": "1000",
+            "empName": "강성구",
+            "empSeq": "2055",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀장"
+          },
+          {
+            "positionName": "차장",
+            "deptSeq": "2019",
+            "picFileId": "d1cbf9ab-78f4-4c6f-9df9-8cd71e9cab61_png",
+            "bday": "03-13",
+            "compSeq": "1000",
+            "empName": "김효섭",
+            "empSeq": "2073",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "대리",
+            "deptSeq": "2173",
+            "picFileId": "13023212-2f52-478f-85d7-f41bdd31f4ff_jpg",
+            "bday": "03-15",
+            "compSeq": "2024",
+            "empName": "오세한",
+            "empSeq": "2579",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "차장",
+            "deptSeq": "2017",
+            "picFileId": "3fb4d029-5369-4e67-ad25-ab9d8e7362c8_png",
+            "bday": "03-16",
+            "compSeq": "1000",
+            "empName": "이영롱",
+            "empSeq": "2062",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "실장",
+            "deptSeq": "2019",
+            "picFileId": "8f9d882e-0475-430d-abed-84998edc57c7_jpg",
+            "bday": "03-22",
+            "compSeq": "1000",
+            "empName": "노유리",
+            "empSeq": "2128",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀장"
+          },
+          {
+            "positionName": "과장",
+            "deptSeq": "2005",
+            "picFileId": "17cac2c0-7d27-4fae-bc22-054fe1aba540_jpg",
+            "bday": "03-23",
+            "compSeq": "1000",
+            "empName": "윤한영",
+            "empSeq": "2690",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "대리",
+            "deptSeq": "2005",
+            "picFileId": "a4a4562a-7dae-430e-a8a6-a9892c64dc02_jpg",
+            "bday": "03-25",
+            "compSeq": "1000",
+            "empName": "김민주",
+            "empSeq": "2201",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "대리",
+            "deptSeq": "2173",
+            "picFileId": "74a1d59b-30f9-426d-bfaf-1f70593c58bf_jpg",
+            "bday": "03-27",
+            "compSeq": "2024",
+            "empName": "김다혜",
+            "empSeq": "2901",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "과장",
+            "deptSeq": "2020",
+            "picFileId": "1af6c5b8-715f-4f34-acda-b609fc8f0f51_jpg",
+            "bday": "03-27",
+            "compSeq": "1000",
+            "empName": "이재명",
+            "empSeq": "2847",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          },
+          {
+            "positionName": "대리",
+            "deptSeq": "2792",
+            "picFileId": "10d00ec8-2b78-471c-a866-371f78c61b0b_jpg",
+            "bday": "03-31",
+            "compSeq": "1000",
+            "empName": "이연수",
+            "empSeq": "2806",
+            "mainDeptYn": "Y",
+            "messengerUseYn": "Y",
+            "mainCompYn": "Y",
+            "groupSeq": "gcmsAmaranth36068",
+            "dutyName": "팀원"
+          }
+        ],
+        "optionValue": "0"
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw114A11",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "startDate": "20260301",
+      "endDate": "20260404",
+      "calSeq": "special",
+      "scheduleType": "special",
+      "mcalSeq": ""
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": {
+        "special": "[{\"empName\":\"이영롱\",\"empSeq\":\"2062\",\"anniversary\":\"03-16\",\"gubun\":\"b\"},{\"empName\":\"김효섭\",\"empSeq\":\"2073\",\"anniversary\":\"03-13\",\"gubun\":\"b\"},{\"empName\":\"노유리\",\"empSeq\":\"2128\",\"anniversary\":\"03-22\",\"gubun\":\"b\"},{\"empName\":\"김민주\",\"empSeq\":\"2201\",\"anniversary\":\"03-25\",\"gubun\":\"b\"},{\"empName\":\"김지웅\",\"empSeq\":\"2462\",\"anniversary\":\"03-09\",\"gubun\":\"b\"},{\"empName\":\"허남진\",\"empSeq\":\"2576\",\"anniversary\":\"03-10\",\"gubun\":\"b\"},{\"empName\":\"오세한\",\"empSeq\":\"2579\",\"anniversary\":\"03-15\",\"gubun\":\"b\"},{\"empName\":\"윤한영\",\"empSeq\":\"2690\",\"anniversary\":\"03-23\",\"gubun\":\"b\"},{\"empName\":\"이연수\",\"empSeq\":\"2806\",\"anniversary\":\"03-31\",\"gubun\":\"b\"},{\"empName\":\"최수안\",\"empSeq\":\"2813\",\"anniversary\":\"03-07\",\"gubun\":\"b\"},{\"empName\":\"권소라\",\"empSeq\":\"2834\",\"anniversary\":\"03-08\",\"gubun\":\"b\"},{\"empName\":\"이재명\",\"empSeq\":\"2847\",\"anniversary\":\"03-27\",\"gubun\":\"b\"},{\"empName\":\"이준기A\",\"empSeq\":\"2871\",\"anniversary\":\"03-02\",\"gubun\":\"b\"},{\"empName\":\"김다혜\",\"empSeq\":\"2901\",\"anniversary\":\"03-27\",\"gubun\":\"b\"},{\"empName\":\"정영주\",\"empSeq\":\"2926\",\"anniversary\":\"03-16\",\"gubun\":\"b\"},{\"empName\":\"강성구\",\"empSeq\":\"2055\",\"anniversary\":\"03-13\",\"gubun\":\"b\"},{\"empName\":\"조성민\",\"empSeq\":\"2087\",\"anniversary\":\"04-02\",\"gubun\":\"b\"},{\"empName\":\"박동희\",\"empSeq\":\"3032\",\"anniversary\":\"03-26\",\"gubun\":\"w\"}]"
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "method": "POST",
+    "status": 200,
+    "req_body": {},
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": "겸직 전체 GNB메뉴리스트 조회 완료",
+      "resultData": [
+        {
+          "menuGubun": "BN",
+          "menuNmKr": "예산관리",
+          "menuNo": 401000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "임직원업무관리",
+          "menuNo": 406000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "업무보고",
+          "menuNo": 406000600
+        },
+        {
+          "menuGubun": "UB",
+          "menuNmKr": "전자결재",
+          "menuNo": 1000000
+        },
+        {
+          "menuGubun": "UD",
+          "menuNmKr": "메일",
+          "menuNo": 7000000
+        },
+        {
+          "menuGubun": "UE",
+          "menuNmKr": "일정",
+          "menuNo": 2000000
+        },
+        {
+          "menuGubun": "UF",
+          "menuNmKr": "게시판",
+          "menuNo": 3000000
+        },
+        {
+          "menuGubun": "UG",
+          "menuNmKr": "업무관리",
+          "menuNo": 4000000
+        },
+        {
+          "menuGubun": "UK",
+          "menuNmKr": "자원",
+          "menuNo": 10000000
+        },
+        {
+          "menuGubun": "UO",
+          "menuNmKr": "ONEFFICE",
+          "menuNo": 9000000
+        },
+        {
+          "menuGubun": "UQ",
+          "menuNmKr": "ONECHAMBER",
+          "menuNo": 8000000
+        },
+        {
+          "menuGubun": "UT",
+          "menuNmKr": "오피스케어",
+          "menuNo": 16000000
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "method": "POST",
+    "status": 200,
+    "req_body": {},
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": "겸직 전체 GNB메뉴리스트 조회 완료",
+      "resultData": [
+        {
+          "menuGubun": "BN",
+          "menuNmKr": "예산관리",
+          "menuNo": 401000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "임직원업무관리",
+          "menuNo": 406000000
+        },
+        {
+          "menuGubun": "HP",
+          "menuNmKr": "업무보고",
+          "menuNo": 406000600
+        },
+        {
+          "menuGubun": "UB",
+          "menuNmKr": "전자결재",
+          "menuNo": 1000000
+        },
+        {
+          "menuGubun": "UD",
+          "menuNmKr": "메일",
+          "menuNo": 7000000
+        },
+        {
+          "menuGubun": "UE",
+          "menuNmKr": "일정",
+          "menuNo": 2000000
+        },
+        {
+          "menuGubun": "UF",
+          "menuNmKr": "게시판",
+          "menuNo": 3000000
+        },
+        {
+          "menuGubun": "UG",
+          "menuNmKr": "업무관리",
+          "menuNo": 4000000
+        },
+        {
+          "menuGubun": "UK",
+          "menuNmKr": "자원",
+          "menuNo": 10000000
+        },
+        {
+          "menuGubun": "UO",
+          "menuNmKr": "ONEFFICE",
+          "menuNo": 9000000
+        },
+        {
+          "menuGubun": "UQ",
+          "menuNmKr": "ONECHAMBER",
+          "menuNo": 8000000
+        },
+        {
+          "menuGubun": "UT",
+          "menuNmKr": "오피스케어",
+          "menuNo": 16000000
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw999A03",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "moduleCode": "UK",
+      "upperMenuNo": "10000000",
+      "dynamicYn": "N",
+      "menuType": null,
+      "level": 1,
+      "forceAdminMode": true
+    },
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "get2DepthLowerMenuList Success",
+      "resultData": []
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/GW015A37",
+    "method": "POST",
+    "status": 200,
+    "req_body": "uploadMode=U&groupSeq=gcmsAmaranth36068&pathSeq=1300&moduleGbn=RESOURCE",
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "SUCCESS",
+      "resultData": {
+        "blockExtention": "",
+        "buildType": "build",
+        "viewType": "List",
+        "pathSeq": "1300",
+        "showPath": "0",
+        "downloadType": "0",
+        "uploadMode": "U",
+        "allowExtention": "",
+        "params": {
+          "uploadMode": "U",
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "1300",
+          "moduleGbn": "RESOURCE",
+          "langCode": "kr",
+          "DB_NEOS": "neos_36068",
+          "osType": "linux",
+          "absolPath": "/home/upload/gcmsAmaranth36068/report",
+          "optionId": "pathSeq1819",
+          "compSeq": "1432",
+          "licenseType": "CM",
+          "licenseInfo": "|PRO|"
+        },
+        "fileVolumeInfo": {
+          "totalCapac": "0",
+          "availCapac": "0",
+          "limitFileCount": "0"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/GW015A37",
+    "method": "POST",
+    "status": 200,
+    "req_body": "uploadMode=D&groupSeq=gcmsAmaranth36068&pathSeq=1300&moduleGbn=RESOURCE",
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "SUCCESS",
+      "resultData": {
+        "activxYn": "N",
+        "buildType": "build",
+        "viewType": "List",
+        "pathSeq": "1300",
+        "showPath": "0",
+        "downloadType": "0",
+        "uploadMode": "D",
+        "params": {
+          "uploadMode": "D",
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "1300",
+          "moduleGbn": "RESOURCE",
+          "langCode": "kr",
+          "DB_NEOS": "neos_36068",
+          "osType": "linux",
+          "absolPath": "/home/upload/gcmsAmaranth36068/report",
+          "optionId": "pathSeq1819",
+          "compSeq": "1432",
+          "licenseType": "CM",
+          "licenseInfo": "|PRO|"
+        },
+        "fileVolumeInfo": {
+          "totalCapac": "0",
+          "availCapac": "0",
+          "limitFileCount": "0"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw096A24",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "header": {},
+      "body": {
+        "menuInfoList": [
+          {
+            "menuNo": "8000000",
+            "menuGubun": "UQ"
+          }
+        ]
+      }
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": [
+        {
+          "menuGubun": "UQ",
+          "menuNo": 8000000,
+          "upperMenuNo": 0,
+          "menuOrdr": 1100,
+          "useYn": "Y",
+          "urlGubun": null,
+          "urlPath": "UQA0000",
+          "ssoUseYn": "N",
+          "menuDepth": 1,
+          "menuImgPath": null,
+          "menuImgClass": "module-link OC",
+          "menuType": null,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "publicYn": "Y",
+          "deleteYn": "N",
+          "userDeleteYn": "N",
+          "modifyAuthUseYn": "N",
+          "deleteAuthUseYn": "N",
+          "printAuthUseYn": "N",
+          "openMenuNo": 8000100,
+          "menuCode": "UQA",
+          "dynamicYn": "N",
+          "treeShowYn": "Y",
+          "etc1": "[{\"label_kr\":\"ONEFFICE 바로가기\",\"label_en\":\"ONEFFICE 바로가기\",\"label_cn\":\"ONEFFICE 바로가기\",\"label_jp\":\"ONEFFICE 바로가기\",\"type\":\"page\",\"moduleCode\":\"UO\",\"menuCode\":\"UOA\",\"pageCode\":\"OFA1000\",\"useYn\":\"Y\"}]",
+          "etc2": "",
+          "etc3": "OnechamberSide",
+          "etc4": null,
+          "dynamicPageCode": null,
+          "specialContentsUrl": "UQ/UQA/UQA0000",
+          "menuAuthType": "USER",
+          "exMenuYn": "Y",
+          "expertModuleYn": "N",
+          "searchYn": "N",
+          "microModuleCode": "ecm",
+          "componentModuleCode": "UQ",
+          "modifyAuthYn": "Y",
+          "deleteAuthYn": "N",
+          "printAuthYn": "N",
+          "searchAuthType": "M|C",
+          "menuNmKr": "ONECHAMBER",
+          "menuNmEn": "ONECHAMBER",
+          "menuNmJp": "ONECHAMBER",
+          "menuNmCn": "ONECHAMBER",
+          "menuNmEx": "ONECHAMBER",
+          "menuDcM": null,
+          "singleTabYn": "N",
+          "licenseTp": "WT",
+          "oneUrl": null,
+          "menuNoPath": "8000000"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw096A24",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "header": {},
+      "body": {
+        "menuInfoList": [
+          {
+            "menuNo": "8000000",
+            "menuGubun": "UQ"
+          }
+        ]
+      }
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": [
+        {
+          "menuGubun": "UQ",
+          "menuNo": 8000000,
+          "upperMenuNo": 0,
+          "menuOrdr": 1100,
+          "useYn": "Y",
+          "urlGubun": null,
+          "urlPath": "UQA0000",
+          "ssoUseYn": "N",
+          "menuDepth": 1,
+          "menuImgPath": null,
+          "menuImgClass": "module-link OC",
+          "menuType": null,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "publicYn": "Y",
+          "deleteYn": "N",
+          "userDeleteYn": "N",
+          "modifyAuthUseYn": "N",
+          "deleteAuthUseYn": "N",
+          "printAuthUseYn": "N",
+          "openMenuNo": 8000100,
+          "menuCode": "UQA",
+          "dynamicYn": "N",
+          "treeShowYn": "Y",
+          "etc1": "[{\"label_kr\":\"ONEFFICE 바로가기\",\"label_en\":\"ONEFFICE 바로가기\",\"label_cn\":\"ONEFFICE 바로가기\",\"label_jp\":\"ONEFFICE 바로가기\",\"type\":\"page\",\"moduleCode\":\"UO\",\"menuCode\":\"UOA\",\"pageCode\":\"OFA1000\",\"useYn\":\"Y\"}]",
+          "etc2": "",
+          "etc3": "OnechamberSide",
+          "etc4": null,
+          "dynamicPageCode": null,
+          "specialContentsUrl": "UQ/UQA/UQA0000",
+          "menuAuthType": "USER",
+          "exMenuYn": "Y",
+          "expertModuleYn": "N",
+          "searchYn": "N",
+          "microModuleCode": "ecm",
+          "componentModuleCode": "UQ",
+          "modifyAuthYn": "Y",
+          "deleteAuthYn": "N",
+          "printAuthYn": "N",
+          "searchAuthType": "M|C",
+          "menuNmKr": "ONECHAMBER",
+          "menuNmEn": "ONECHAMBER",
+          "menuNmJp": "ONECHAMBER",
+          "menuNmCn": "ONECHAMBER",
+          "menuNmEx": "ONECHAMBER",
+          "menuDcM": null,
+          "singleTabYn": "N",
+          "licenseTp": "WT",
+          "oneUrl": null,
+          "menuNoPath": "8000000"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/GW015A31",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "moduleGbnCode": "resource",
+      "moduleSeq": "",
+      "commentType": "",
+      "highGbnCode": "",
+      "middleGbnCode": "",
+      "compFilter": "",
+      "bizFilter": "",
+      "deptFilter": "",
+      "empFilter": "",
+      "dutyFilter": "",
+      "posiFilter": "",
+      "excludeYn": "N",
+      "compFilterMen": "",
+      "bizFilterMen": "",
+      "deptFilterMen": "",
+      "empFilterMen": "",
+      "dutyFilterMen": "",
+      "posiFilterMen": "",
+      "regYn": "Y",
+      "modYn": "Y",
+      "delYn": "Y",
+      "attachYn": "Y",
+      "mentionYn": "Y",
+      "printYn": "N",
+      "imgPreYn": "",
+      "sort": "A",
+      "searchWay": "D",
+      "rpyYn": "Y",
+      "adminAuthYn": "N",
+      "styleTp": "type1",
+      "eventInfo": {
+        "eventType": "RESOURCE",
+        "eventSubType": "RS007",
+        "eventData": {}
+      },
+      "param": "",
+      "replyClass": "reply_set",
+      "textAreaFixYn": "N",
+      "confirmClassName": "",
+      "authYn": "Y",
+      "mentionRequireYn": "N",
+      "atchFileRequireYn": "N",
+      "commentRequireYn": "N",
+      "fileInfoYn": "N",
+      "pannelYn": "N",
+      "fileDownYn": "N",
+      "anonymousYn": "N",
+      "menAllUseYn": "Y",
+      "autoMentionItem": [],
+      "contentsShowYn": "Y",
+      "insertCallBackUseYn": "N",
+      "eventSendYn": "Y",
+      "allRecvFilterYn": "N",
+      "inputFieldUseYn": "Y",
+      "includeSubDeptYn": "N"
+    },
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "SUCCESS",
+      "resultData": {
+        "activxYn": "N",
+        "groupPathInfo": {
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "1300",
+          "pathName": "업무보고",
+          "osType": "linux",
+          "absolPath": "/home/upload/gcmsAmaranth36068/report",
+          "availCapac": "0",
+          "totalCapac": "0",
+          "moduleCapac": null,
+          "limitFileCount": 0,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "drmUseYn": null,
+          "drmUpload": null,
+          "drmDownload": null,
+          "drmFileExtsn": null
+        },
+        "blockExtention": "",
+        "viewType": "comment",
+        "downloadType": "0",
+        "profilePath": "/upload/img/profile/gcmsAmaranth36068",
+        "allowExtention": "",
+        "params": {
+          "moduleGbnCode": "resource",
+          "moduleSeq": "",
+          "commentType": "",
+          "highGbnCode": "",
+          "middleGbnCode": "",
+          "compFilter": "",
+          "bizFilter": "",
+          "deptFilter": "",
+          "empFilter": "",
+          "dutyFilter": "",
+          "posiFilter": "",
+          "excludeYn": "N",
+          "compFilterMen": "",
+          "bizFilterMen": "",
+          "deptFilterMen": "",
+          "empFilterMen": "",
+          "dutyFilterMen": "",
+          "posiFilterMen": "",
+          "regYn": "Y",
+          "modYn": "Y",
+          "delYn": "Y",
+          "attachYn": "Y",
+          "mentionYn": "Y",
+          "printYn": "N",
+          "imgPreYn": "Y",
+          "sort": "A",
+          "searchWay": "D",
+          "rpyYn": "Y",
+          "adminAuthYn": "N",
+          "styleTp": "type1",
+          "eventInfo": {
+            "eventType": "RESOURCE",
+            "eventSubType": "RS007",
+            "eventData": {}
+          },
+          "param": "",
+          "replyClass": "reply_set",
+          "textAreaFixYn": "N",
+          "confirmClassName": "",
+          "authYn": "Y",
+          "mentionRequireYn": "N",
+          "atchFileRequireYn": "N",
+          "commentRequireYn": "N",
+          "fileInfoYn": "N",
+          "pannelYn": "N",
+          "fileDownYn": "N",
+          "anonymousYn": "N",
+          "menAllUseYn": "Y",
+          "autoMentionItem": [],
+          "contentsShowYn": "Y",
+          "insertCallBackUseYn": "N",
+          "eventSendYn": "Y",
+          "allRecvFilterYn": "N",
+          "inputFieldUseYn": "Y",
+          "includeSubDeptYn": "N",
+          "userInfo": {
+            "groupSeq": "gcmsAmaranth36068",
+            "loginId": "tgjeon",
+            "empSeq": "2922",
+            "empName": "전태규",
+            "empRealName": "전태규",
+            "langCode": "kr",
+            "userSe": "USER|AT|ADMIN",
+            "emailAdd": "tgjeon",
+            "emailDomain": "glowseoul.co.kr",
+            "eaType": "eap",
+            "picFileId": "1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+            "clientIp": "114.205.203.16",
+            "compSeq": "1000",
+            "compCd": "1000",
+            "compName": "주식회사 글로우서울",
+            "bizSeq": "1000",
+            "bizName": "주식회사 글로우서울",
+            "deptSeq": "2017",
+            "deptCd": "GH10330",
+            "deptName": "PM팀",
+            "positionCode": "010",
+            "positionName": "대리",
+            "dutyCode": "007",
+            "dutyName": "팀원",
+            "jobCode": "EMPTY",
+            "jobName": "",
+            "authorCode": null,
+            "erpCompSeq": "1000",
+            "erpBizSeq": "1000",
+            "erpDeptSeq": "GH10330",
+            "erpEmpSeq": "GS251105",
+            "deptPathNm": "주식회사 글로우서울|주식회사 글로우서울|대표이사|PO총괄|PO본부|PM팀",
+            "deptPath": "2001|2022|2618|2017",
+            "compMailUrl": "https://gw.glowseoul.co.kr/mail/",
+            "compRegistNum": "4518801049",
+            "deptManagerSeq": null,
+            "mobileId": "glowseoul",
+            "appType": "",
+            "etc1": "",
+            "etc2": "",
+            "etc3": "",
+            "mailUseYn": "Y",
+            "osType": "",
+            "useYn": "Y",
+            "mobileUseYn": "Y",
+            "messengerUseYn": "Y",
+            "verificationMobileTelNum": "",
+            "ocUserInfo": {
+              "userUID": "5722FD3a18c85c675c66Daa6eGDc4e53",
+              "groupFullPathName": "주식회사 글로우서울>주식회사 글로우서울>대표이사>PO총괄>PO본부>PM팀",
+              "shortCutGroupName": "PO본부>PM팀",
+              "companyUID": "1D32GFB4Ba5F52237ac9491F9636aDaG",
+              "companyGroupUID": "FB64aa7BcGaFG8BD9528a44a71B15Dca",
+              "groupUID": "2Ba2c493aD5DD2eGFG449cG9GGe251B8",
+              "parentUID": "7c433ecD61Fc75G473c9599565ccB55e",
+              "useParentGroup": false,
+              "myPrivateFolderUID": "eF7BaDGD86B6158659BcG3a6aG5cDFaB",
+              "myGroupFolderUID": "2Ba2c493aD5DD2eGFG449cG9GGe251B8",
+              "myLinkFolderUID": "4DD48Ba94e94a2B198FB31e2B1D8F69c",
+              "flagMonitoring": false,
+              "alertType": null,
+              "flagOneChamberManager": false
+            },
+            "workStatus": "999",
+            "licenseType": "CM",
+            "licenseInfo": "|PRO|",
+            "functionInfo": "|A|A_001|A_002|A_003|A_004|BL|BN|BS|CM_001|CM_012|H|H_001|MEET|MOB|MSG|PO|UB|UD|UE|UF|UG|UK|UO|UQ|",
+            "ocSearchYn": "N",
+            "oneAiYn": "N",
+            "webhwpUseYn": "N",
+            "oneStudioYn": "N",
+            "oneNewsYn": "N",
+            "oneAiPeYn": "N",
+            "oauth_token": "",
+            "crmYn": "N",
+            "compLangCode": "kr",
+            "externalJobName": "",
+            "useLanguages": [
+              {
+                "langCode": "kr",
+                "langName": "한국어",
+                "iso6391": "ko"
+              },
+              {
+                "langCode": "en",
+                "langName": "영어",
+                "iso6391": "en"
+              },
+              {
+                "langCode": "cn",
+                "langName": "중국어",
+                "iso6391": "zh"
+              },
+              {
+                "langCode": "jp",
+                "langName": "일본어",
+                "iso6391": "ja"
+              }
+            ],
+            "userAuthCodeList": null,
+            "licenseOptionMenuInfo": {
+              "unlicenseExcludeMenuList": [],
+              "licenseMenuTypeList": [
+                "HP",
+                "UC",
+                "ERP"
+              ],
+              "licenseOnlyExposureMenuList": []
+            }
+          },
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "1300",
+          "osType": "linux",
+          "langCode": "kr",
+          "DB_NEOS": "neos_36068",
+          "absolPath": "/home/upload/gcmsAmaranth36068/comment",
+          "optionId": "cm1751_resource"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/GW015A37",
+    "method": "POST",
+    "status": 200,
+    "req_body": "uploadMode=U&groupSeq=&pathSeq=&moduleGbn=COMMENT",
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "SUCCESS",
+      "resultData": {
+        "blockExtention": "",
+        "buildType": "build",
+        "viewType": "Thumbnail",
+        "pathSeq": "0",
+        "showPath": "0",
+        "downloadType": "-1",
+        "uploadMode": "U",
+        "allowExtention": "",
+        "params": {
+          "uploadMode": "U",
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "0",
+          "moduleGbn": "COMMENT",
+          "langCode": "kr",
+          "osType": "linux",
+          "DB_NEOS": "neos_36068",
+          "absolPath": "/home/upload/gcmsAmaranth36068",
+          "optionId": "",
+          "licenseType": "CM",
+          "licenseInfo": "|PRO|"
+        },
+        "groupSeq": "gcmsAmaranth36068",
+        "fileVolumeInfo": {
+          "totalCapac": "0",
+          "availCapac": "0",
+          "limitFileCount": "0"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw096A24",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "header": {},
+      "body": {
+        "menuInfoList": [
+          {
+            "menuNo": "8000000",
+            "menuGubun": "UQ"
+          }
+        ]
+      }
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": [
+        {
+          "menuGubun": "UQ",
+          "menuNo": 8000000,
+          "upperMenuNo": 0,
+          "menuOrdr": 1100,
+          "useYn": "Y",
+          "urlGubun": null,
+          "urlPath": "UQA0000",
+          "ssoUseYn": "N",
+          "menuDepth": 1,
+          "menuImgPath": null,
+          "menuImgClass": "module-link OC",
+          "menuType": null,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "publicYn": "Y",
+          "deleteYn": "N",
+          "userDeleteYn": "N",
+          "modifyAuthUseYn": "N",
+          "deleteAuthUseYn": "N",
+          "printAuthUseYn": "N",
+          "openMenuNo": 8000100,
+          "menuCode": "UQA",
+          "dynamicYn": "N",
+          "treeShowYn": "Y",
+          "etc1": "[{\"label_kr\":\"ONEFFICE 바로가기\",\"label_en\":\"ONEFFICE 바로가기\",\"label_cn\":\"ONEFFICE 바로가기\",\"label_jp\":\"ONEFFICE 바로가기\",\"type\":\"page\",\"moduleCode\":\"UO\",\"menuCode\":\"UOA\",\"pageCode\":\"OFA1000\",\"useYn\":\"Y\"}]",
+          "etc2": "",
+          "etc3": "OnechamberSide",
+          "etc4": null,
+          "dynamicPageCode": null,
+          "specialContentsUrl": "UQ/UQA/UQA0000",
+          "menuAuthType": "USER",
+          "exMenuYn": "Y",
+          "expertModuleYn": "N",
+          "searchYn": "N",
+          "microModuleCode": "ecm",
+          "componentModuleCode": "UQ",
+          "modifyAuthYn": "Y",
+          "deleteAuthYn": "N",
+          "printAuthYn": "N",
+          "searchAuthType": "M|C",
+          "menuNmKr": "ONECHAMBER",
+          "menuNmEn": "ONECHAMBER",
+          "menuNmJp": "ONECHAMBER",
+          "menuNmCn": "ONECHAMBER",
+          "menuNmEx": "ONECHAMBER",
+          "menuDcM": null,
+          "singleTabYn": "N",
+          "licenseTp": "WT",
+          "oneUrl": null,
+          "menuNoPath": "8000000"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw096A24",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "header": {},
+      "body": {
+        "menuInfoList": [
+          {
+            "menuNo": "8000000",
+            "menuGubun": "UQ"
+          }
+        ]
+      }
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": [
+        {
+          "menuGubun": "UQ",
+          "menuNo": 8000000,
+          "upperMenuNo": 0,
+          "menuOrdr": 1100,
+          "useYn": "Y",
+          "urlGubun": null,
+          "urlPath": "UQA0000",
+          "ssoUseYn": "N",
+          "menuDepth": 1,
+          "menuImgPath": null,
+          "menuImgClass": "module-link OC",
+          "menuType": null,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "publicYn": "Y",
+          "deleteYn": "N",
+          "userDeleteYn": "N",
+          "modifyAuthUseYn": "N",
+          "deleteAuthUseYn": "N",
+          "printAuthUseYn": "N",
+          "openMenuNo": 8000100,
+          "menuCode": "UQA",
+          "dynamicYn": "N",
+          "treeShowYn": "Y",
+          "etc1": "[{\"label_kr\":\"ONEFFICE 바로가기\",\"label_en\":\"ONEFFICE 바로가기\",\"label_cn\":\"ONEFFICE 바로가기\",\"label_jp\":\"ONEFFICE 바로가기\",\"type\":\"page\",\"moduleCode\":\"UO\",\"menuCode\":\"UOA\",\"pageCode\":\"OFA1000\",\"useYn\":\"Y\"}]",
+          "etc2": "",
+          "etc3": "OnechamberSide",
+          "etc4": null,
+          "dynamicPageCode": null,
+          "specialContentsUrl": "UQ/UQA/UQA0000",
+          "menuAuthType": "USER",
+          "exMenuYn": "Y",
+          "expertModuleYn": "N",
+          "searchYn": "N",
+          "microModuleCode": "ecm",
+          "componentModuleCode": "UQ",
+          "modifyAuthYn": "Y",
+          "deleteAuthYn": "N",
+          "printAuthYn": "N",
+          "searchAuthType": "M|C",
+          "menuNmKr": "ONECHAMBER",
+          "menuNmEn": "ONECHAMBER",
+          "menuNmJp": "ONECHAMBER",
+          "menuNmCn": "ONECHAMBER",
+          "menuNmEx": "ONECHAMBER",
+          "menuDcM": null,
+          "singleTabYn": "N",
+          "licenseTp": "WT",
+          "oneUrl": null,
+          "menuNoPath": "8000000"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/GW015A37",
+    "method": "POST",
+    "status": 200,
+    "req_body": "uploadMode=U&groupSeq=gcmsAmaranth36068&pathSeq=1300&moduleGbn=COMMENT",
+    "resp_body": {
+      "resultCode": 200,
+      "resultMsg": "SUCCESS",
+      "resultData": {
+        "blockExtention": "",
+        "buildType": "build",
+        "viewType": "List",
+        "pathSeq": "1300",
+        "showPath": "0",
+        "downloadType": "0",
+        "uploadMode": "U",
+        "allowExtention": "",
+        "params": {
+          "uploadMode": "U",
+          "groupSeq": "gcmsAmaranth36068",
+          "pathSeq": "1300",
+          "moduleGbn": "COMMENT",
+          "langCode": "kr",
+          "DB_NEOS": "neos_36068",
+          "osType": "linux",
+          "absolPath": "/home/upload/gcmsAmaranth36068/report",
+          "optionId": "pathSeq1811",
+          "compSeq": "1432",
+          "licenseType": "CM",
+          "licenseInfo": "|PRO|"
+        },
+        "fileVolumeInfo": {
+          "totalCapac": "0",
+          "availCapac": "0",
+          "limitFileCount": "0"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://gw.glowseoul.co.kr/gw/gw096A24",
+    "method": "POST",
+    "status": 200,
+    "req_body": {
+      "header": {},
+      "body": {
+        "menuInfoList": [
+          {
+            "menuNo": "8000000",
+            "menuGubun": "UQ"
+          }
+        ]
+      }
+    },
+    "resp_body": {
+      "resultCode": 0,
+      "resultMsg": null,
+      "resultData": [
+        {
+          "menuGubun": "UQ",
+          "menuNo": 8000000,
+          "upperMenuNo": 0,
+          "menuOrdr": 1100,
+          "useYn": "Y",
+          "urlGubun": null,
+          "urlPath": "UQA0000",
+          "ssoUseYn": "N",
+          "menuDepth": 1,
+          "menuImgPath": null,
+          "menuImgClass": "module-link OC",
+          "menuType": null,
+          "createSeq": null,
+          "createDate": null,
+          "modifySeq": null,
+          "modifyDate": null,
+          "publicYn": "Y",
+          "deleteYn": "N",
+          "userDeleteYn": "N",
+          "modifyAuthUseYn": "N",
+          "deleteAuthUseYn": "N",
+          "printAuthUseYn": "N",
+          "openMenuNo": 8000100,
+          "menuCode": "UQA",
+          "dynamicYn": "N",
+          "treeShowYn": "Y",
+          "etc1": "[{\"label_kr\":\"ONEFFICE 바로가기\",\"label_en\":\"ONEFFICE 바로가기\",\"label_cn\":\"ONEFFICE 바로가기\",\"label_jp\":\"ONEFFICE 바로가기\",\"type\":\"page\",\"moduleCode\":\"UO\",\"menuCode\":\"UOA\",\"pageCode\":\"OFA1000\",\"useYn\":\"Y\"}]",
+          "etc2": "",
+          "etc3": "OnechamberSide",
+          "etc4": null,
+          "dynamicPageCode": null,
+          "specialContentsUrl": "UQ/UQA/UQA0000",
+          "menuAuthType": "USER",
+          "exMenuYn": "Y",
+          "expertModuleYn": "N",
+          "searchYn": "N",
+          "microModuleCode": "ecm",
+          "componentModuleCode": "UQ",
+          "modifyAuthYn": "Y",
+          "deleteAuthYn": "N",
+          "printAuthYn": "N",
+          "searchAuthType": "M|C",
+          "menuNmKr": "ONECHAMBER",
+          "menuNmEn": "ONECHAMBER",
+          "menuNmJp": "ONECHAMBER",
+          "menuNmCn": "ONECHAMBER",
+          "menuNmEx": "ONECHAMBER",
+          "menuDcM": null,
+          "singleTabYn": "N",
+          "licenseTp": "WT",
+          "oneUrl": null,
+          "menuNoPath": "8000000"
+        }
+      ]
+    }
+  }
+]

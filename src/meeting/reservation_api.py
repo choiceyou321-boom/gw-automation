@@ -121,10 +121,11 @@ class MeetingRoomAPI:
     # 내부 유틸 메서드
     # ─────────────────────────────────────────
 
-    def call_api(self, endpoint: str, body: dict) -> dict:
+    def call_api(self, endpoint: str, body: dict, _retry: bool = True) -> dict:
         """
         httpx로 rs121A API 직접 호출.
         wehago-sign 헤더를 자동 생성하여 첨부.
+        세션 만료(401/403) 시 자동 재인증 후 1회 재시도.
 
         반환: {"status": int, "ok": bool, "data": dict} 또는 {"error": str}
         """
@@ -146,6 +147,23 @@ class MeetingRoomAPI:
             logger.error(f"API 호출 실패 [{endpoint}]: {e}")
             return {"status": 0, "ok": False, "error": str(e)}
 
+        # 세션 만료 감지: HTTP 401/403 또는 resultCode가 인증 오류인 경우
+        if _retry and self._is_auth_error(result, data):
+            logger.warning(f"세션 만료 감지 [{endpoint}]: HTTP {result['status']} → 재인증 시도")
+            refreshed = self._refresh_session()
+            if refreshed:
+                # 새 쿠키/토큰으로 재시도 (재귀 방지: _retry=False)
+                return self.call_api(endpoint, body, _retry=False)
+            else:
+                logger.error("재인증 실패 - 사용자가 다시 로그인해야 합니다.")
+                return {
+                    "status": result["status"],
+                    "ok": False,
+                    "data": data,
+                    "error": "세션이 만료되었습니다. 다시 로그인해주세요.",
+                    "auth_expired": True,
+                }
+
         if not result["ok"]:
             rc = data.get("resultCode", "N/A") if isinstance(data, dict) else "N/A"
             msg = data.get("resultMsg", "") if isinstance(data, dict) else ""
@@ -158,6 +176,59 @@ class MeetingRoomAPI:
             logger.info(f"API 성공 [{endpoint}]: resultCode={rc}")
 
         return result
+
+    @staticmethod
+    def _is_auth_error(result: dict, data: dict) -> bool:
+        """세션 만료/인증 오류 여부 판단"""
+        # HTTP 401 Unauthorized / 403 Forbidden
+        if result.get("status") in (401, 403):
+            return True
+        # resultCode가 인증 오류를 나타내는 경우
+        if isinstance(data, dict):
+            rc = str(data.get("resultCode", ""))
+            msg = str(data.get("resultMsg", "")).lower()
+            if rc in ("401", "403", "-1", "9001", "9002"):
+                return True
+            if any(kw in msg for kw in ["token", "session", "auth", "login", "expire", "unauthorized"]):
+                return True
+        return False
+
+    def _refresh_session(self) -> bool:
+        """
+        세션 재인증 플로우.
+        gw_id가 설정되어 있으면 session_manager를 통해 쿠키를 갱신한다.
+        성공 시 self.oauth_token, self.sign_key, self.cookies, self.client 갱신.
+        """
+        gw_id = getattr(self, "_gw_id", None)
+        if not gw_id:
+            logger.warning("_gw_id 미설정 - 세션 재인증 불가")
+            return False
+
+        try:
+            from src.auth.session_manager import refresh_session
+
+            # 캐시 무효화 + 재로그인 (session_manager public API 사용)
+            new_session = refresh_session(gw_id)
+
+            # 토큰 및 쿠키 교체
+            import urllib.parse as _urlparse
+            self.oauth_token = _urlparse.unquote(new_session.oauth_token)
+            self.sign_key = new_session.sign_key
+            self.cookies = new_session.cookies
+
+            # httpx 클라이언트 쿠키 갱신
+            self.client.close()
+            self.client = httpx.Client(
+                base_url=API_BASE_URL,
+                cookies=self.cookies,
+                timeout=30.0,
+                verify=False,
+            )
+            logger.info(f"세션 재인증 성공: {gw_id}")
+            return True
+        except Exception as e:
+            logger.error(f"세션 재인증 중 오류: {e}")
+            return False
 
     def _find_room(self, room_name: str) -> dict | None:
         """

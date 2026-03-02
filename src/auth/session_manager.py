@@ -105,11 +105,26 @@ def create_api(gw_id: str, company_info: dict = None):
         cookies=session.cookies,
         company_info=company_info,
     )
+    # 세션 재인증에 필요한 gw_id 주입
+    api._gw_id = gw_id
 
     def cleanup():
         api.close()
 
     return api, cleanup
+
+
+def refresh_session(gw_id: str) -> CachedSession:
+    """
+    캐시 무효화 후 재로그인하여 새 세션 반환 (public API).
+    reservation_api._refresh_session() 등 외부에서 사용.
+    """
+    from src.auth.user_db import get_decrypted_password
+    invalidate_cache(gw_id)
+    gw_pw = get_decrypted_password(gw_id)
+    if not gw_pw:
+        raise RuntimeError(f"사용자 '{gw_id}'의 비밀번호를 찾을 수 없습니다.")
+    return _login_and_cache(gw_id, gw_pw)
 
 
 def invalidate_cache(gw_id: str):

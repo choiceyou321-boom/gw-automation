@@ -18,17 +18,23 @@ NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 NOTION_PAGE_ID = os.getenv("NOTION_PAGE_ID")
 NOTION_VERSION = "2022-06-28"
 
-HEADERS = {
-    "Authorization": f"Bearer {NOTION_API_KEY}",
-    "Content-Type": "application/json",
-    "Notion-Version": NOTION_VERSION,
-}
+
+def _get_headers() -> dict:
+    """요청 시점에 API 키를 읽어 헤더 생성 (모듈 로드 시점 None 방지)."""
+    key = os.getenv("NOTION_API_KEY") or NOTION_API_KEY
+    return {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "Notion-Version": NOTION_VERSION,
+    }
 
 
 def append_to_page(page_id: str, blocks: list[dict]) -> dict:
     """Notion 페이지에 블록 추가"""
+    if not (os.getenv("NOTION_API_KEY") or NOTION_API_KEY):
+        raise RuntimeError("NOTION_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
     url = f"https://api.notion.com/v1/blocks/{page_id}/children"
-    resp = httpx.patch(url, headers=HEADERS, json={"children": blocks}, timeout=30)
+    resp = httpx.patch(url, headers=_get_headers(), json={"children": blocks}, timeout=30)
     resp.raise_for_status()
     logger.info(f"Notion 블록 {len(blocks)}개 추가 완료")
     return resp.json()
@@ -86,6 +92,9 @@ def save_mail_summaries(mails: list[dict], page_id: str = None):
     target_page = page_id or NOTION_PAGE_ID
     if not target_page:
         logger.error("NOTION_PAGE_ID가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        return
+    if not (os.getenv("NOTION_API_KEY") or NOTION_API_KEY):
+        logger.error("NOTION_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
         return
 
     all_blocks = []

@@ -21,6 +21,53 @@
 """
 
 # ─────────────────────────────────────────
+# 공통 상수
+# ─────────────────────────────────────────
+
+DEFAULT_APPROVAL_LINE = {
+    "drafter": "auto",      # 기안자 (로그인 사용자 자동)
+    "agree": "신동관",       # 검토자
+    "final": "최기영",       # 최종 승인자
+}
+
+SIMPLE_APPROVAL_LINE = {
+    "drafter": "auto",
+    "final": "최기영",
+}
+
+# 결재선 프리셋 — 사용자가 자연어로 지정 가능
+# 예: "부서장 결재로 해줘" → APPROVAL_PRESETS["부서장"]
+APPROVAL_PRESETS = {
+    "기본": DEFAULT_APPROVAL_LINE,
+    "default": DEFAULT_APPROVAL_LINE,
+    "간단": SIMPLE_APPROVAL_LINE,
+    "simple": SIMPLE_APPROVAL_LINE,
+    "2단계": SIMPLE_APPROVAL_LINE,
+    "3단계": DEFAULT_APPROVAL_LINE,
+    "부서장": {
+        "drafter": "auto",
+        "final": "최기영",
+        # 부서장 결재 = 직속 상위자만
+    },
+    "직속상관": {
+        "drafter": "auto",
+        "final": "신동관",
+    },
+    "팀장": {
+        "drafter": "auto",
+        "final": "신동관",
+    },
+}
+
+# 수신참조 프리셋
+CC_PRESETS = {
+    "재무": ["재무전략팀", "재무회계팀"],
+    "재무팀": ["재무전략팀", "재무회계팀"],
+    "경영지원": ["경영지원팀"],
+    "인사": ["인사팀"],
+}
+
+# ─────────────────────────────────────────
 # 양식 정의
 # ─────────────────────────────────────────
 
@@ -70,6 +117,18 @@ FORM_TEMPLATES = {
             "expense_grid": {
                 "type": "grid",
                 "columns": ["용도", "내용", "거래처", "공급가액", "부가세", "합계액", "증빙", "증빙번호"],
+                "item_keys": {
+                    # agent.py items 키 → 그리드 컬럼 매핑
+                    "usage": "용도",
+                    "content": "내용",
+                    "vendor": "거래처",
+                    "supply_amount": "공급가액",
+                    "tax_amount": "부가세",
+                    # 호환 키 (agent.py 기존 형식)
+                    "item": "내용",
+                    "amount": "공급가액",
+                    "note": "내용",
+                },
                 "buttons": {
                     "add": "추가",
                     "delete": "삭제",
@@ -116,11 +175,7 @@ FORM_TEMPLATES = {
             "doc_list": "문서목록",
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "agree": "신동관",
-            "final": "최기영",
-        },
+        "approval_line": DEFAULT_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -129,11 +184,12 @@ FORM_TEMPLATES = {
     "거래처등록": {
         "search_keyword": "거래처등록",
         "display_name": "[회계팀] 국내 거래처등록 신청서",
+        "form_id": "196",
         "aliases": [
             "국내 거래처등록", "거래처 등록", "거래처 신규", "거래처등록 신청",
             "신규 거래처", "업체 등록", "협력사 등록", "거래처 추가",
         ],
-        "status": "template_only",  # DOM 탐색 필요
+        "status": "verified",  # Phase 0 DOM 탐색 완료 (2026-03-02)
 
         "fields": {
             "title": {
@@ -231,11 +287,17 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "agree": "신동관",
-            "final": "최기영",
+        "cc_recipients": ["재무전략팀", "재무회계팀"],  # 수신참조 필수
+
+        "editor_type": "dzEditor",  # 본문이 contentEditable (표준 input 아님)
+
+        "actions": {
+            "preview": "미리보기",
+            "save_draft": "보관",
+            "submit": "상신",
         },
+
+        "approval_line": SIMPLE_APPROVAL_LINE,  # 2단계: 전태규→최기영
     },
 
     # ═══════════════════════════════════════
@@ -249,6 +311,10 @@ FORM_TEMPLATES = {
             "증빙 신청", "세금계산서 신청", "영수증 발행",
             "세금계산서", "증빙발행 신청",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - 전자결재 결재작성 → "증빙발행" 검색 → "[회계팀] 증빙발행 신청서" 발견됨
+        # - formId 미확인 (검색 결과 선택 시 URL에 formId 미노출)
+        # - 추가 탐색 필요: Enter 후 팝업 URL에서 formId 확인
         "status": "template_only",
 
         "fields": {
@@ -323,11 +389,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "agree": "신동관",
-            "final": "최기영",
-        },
+        "approval_line": DEFAULT_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -336,11 +398,18 @@ FORM_TEMPLATES = {
     "선급금요청": {
         "search_keyword": "선급금 요청서",
         "display_name": "[본사]선급금 요청서",
+        "form_id": "181",  # Phase 0 탐색 확인 (2026-03-02) — 지출결의서 변형 양식
         "aliases": [
             "선급금", "선급금 요청", "선금 요청", "선급금요청서",
             "선급 요청", "계약금 요청", "착수금 요청",
             "선급금 지급 요청", "업체 선급금",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - 전자결재 결재작성 → "선급금 요청서" 검색 → "[본사]선급금 요청서" 발견
+        # - formId=181 (URL에서 확인)
+        # - 열기 방식: 인라인 (지출결의서와 동일한 지출결의서작성 화면으로 로드)
+        # - 필드 구조: 지출결의서와 유사 (그리드 포함), inputs=20개
+        # - 프로젝트코드도움, 금융기관코드도움, 거래처계좌번호, 업무용차량코드도움 placeholder 확인
         "status": "template_only",
 
         "fields": {
@@ -411,11 +480,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "agree": "신동관",
-            "final": "최기영",
-        },
+        "approval_line": DEFAULT_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -428,6 +493,11 @@ FORM_TEMPLATES = {
             "선급금 정산", "선금 정산", "선급금정산서",
             "선급 정산", "계약금 정산", "착수금 정산",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - 전자결재 결재작성 → "선급금 정산서" 검색 → "[본사]선급금 정산서" 발견
+        # - formId 미확인 (URL에 미노출) — 선급금요청(181)과 유사한 구조
+        # - 열기 방식: 인라인 (지출결의서작성 화면으로 로드, inputs=20개)
+        # - 왼쪽 양식목록에 "[본사]선급금 정산서" 항목 표시됨 확인
         "status": "template_only",
 
         "fields": {
@@ -491,11 +561,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "agree": "신동관",
-            "final": "최기영",
-        },
+        "approval_line": DEFAULT_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -504,11 +570,19 @@ FORM_TEMPLATES = {
     "연장근무": {
         "search_keyword": "연장근무신청서",
         "display_name": "연장근무신청서",
+        "form_id": "43",  # Phase 0 탐색 확인 (2026-03-02)
         "aliases": [
             "연장근무", "야근 신청", "초과근무", "연장근무 신청",
             "야근", "잔업", "OT 신청", "시간외 근무",
             "연장근무신청", "초과근무 신청",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - ★ 전자결재 양식이 아닌 근태관리 모듈(근태신청서) 화면으로 열림
+        # - URL: formId=43 (결재작성 검색 URL 기준)
+        # - 실제 신청 경로: 근태관리 > 근태신청 > 연장근무신청서 선택
+        # - 신청정보 필드: 근무구분(조기근무/연장근무/휴일근무), 작성기준, 연장근무시작일, 시작/종료시간, 비고
+        # - 버튼: 연장근무, 야간근무, 법정근무, 추가신청, 신청완료
+        # - inputs=14개 (visible)
         "status": "template_only",
 
         "fields": {
@@ -546,10 +620,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "final": "최기영",
-        },
+        "approval_line": SIMPLE_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -558,11 +629,19 @@ FORM_TEMPLATES = {
     "외근신청": {
         "search_keyword": "외근신청서",
         "display_name": "외근신청서(당일)",
+        "form_id": "41",  # Phase 0 탐색 확인 (2026-03-02)
         "aliases": [
             "외근", "외근 신청", "외출", "외근신청서",
             "현장 방문", "외부 미팅", "출장", "외근신청",
             "외근 나가기", "현장 출근",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - ★ 전자결재 양식이 아닌 근태관리 모듈(근태신청서) 화면으로 열림
+        # - URL: formId=41 (결재작성 검색 URL 기준)
+        # - 실제 신청 경로: 근태관리 > 근태신청 > 외근신청서(당일) 선택
+        # - 신청정보 필드: 외근구분(종일외근/외근후출근/출근후외근), 외근기간, 시작/종료시간, 교통수단, 방문처, 대상자, 업무내용
+        # - 버튼: 일정등록, 삭제
+        # - inputs=13개 (visible)
         "status": "template_only",
 
         "fields": {
@@ -605,10 +684,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "final": "최기영",
-        },
+        "approval_line": SIMPLE_APPROVAL_LINE,
     },
 
     # ═══════════════════════════════════════
@@ -622,6 +698,10 @@ FORM_TEMPLATES = {
             "추천비 요청", "추천비 지급", "사내추천비 지급",
             "추천비 자금", "사내추천비 자금 요청",
         ],
+        # Phase 0 탐색 결과 (2026-03-02):
+        # - 전자결재 결재작성 → "사내추천비" 검색 → "사내추천비 지급 요청서" 발견
+        # - formId 미확인 (검색 결과 표시 후 Enter 시 팝업 미발생, URL 변경 없음)
+        # - 추가 탐색 필요: 양식 선택 후 실제 작성 화면 URL 확인
         "status": "template_only",
 
         "fields": {
@@ -665,10 +745,7 @@ FORM_TEMPLATES = {
             },
         },
 
-        "approval_line": {
-            "drafter": "auto",
-            "final": "최기영",
-        },
+        "approval_line": SIMPLE_APPROVAL_LINE,
     },
 }
 
@@ -677,32 +754,8 @@ FORM_TEMPLATES = {
 # 유틸 함수
 # ─────────────────────────────────────────
 
-def get_template(form_name: str) -> dict | None:
-    """양식 템플릿 반환 (이름, 별칭, 부분 일치 모두 지원)"""
-    # 정확한 키 매칭
-    if form_name in FORM_TEMPLATES:
-        return FORM_TEMPLATES[form_name]
-
-    # 별칭(aliases) 매칭
-    for key, tmpl in FORM_TEMPLATES.items():
-        aliases = tmpl.get("aliases", [])
-        if form_name in aliases:
-            return tmpl
-
-    # 부분 매칭 (검색어, display_name, 키 이름)
-    for key, tmpl in FORM_TEMPLATES.items():
-        search_kw = tmpl.get("search_keyword", "")
-        display = tmpl.get("display_name", "")
-        if (form_name in key or key in form_name
-                or form_name in search_kw or search_kw in form_name
-                or form_name in display or display in form_name):
-            return tmpl
-
-    return None
-
-
-def get_template_key(form_name: str) -> str | None:
-    """양식 키 반환 (이름, 별칭, 부분 일치 모두 지원)"""
+def _find_template_key(form_name: str) -> str | None:
+    """양식 키 검색 (정확→별칭→부분 일치 순)"""
     # 정확한 키 매칭
     if form_name in FORM_TEMPLATES:
         return form_name
@@ -713,7 +766,7 @@ def get_template_key(form_name: str) -> str | None:
         if form_name in aliases:
             return key
 
-    # 부분 매칭
+    # 부분 매칭 (검색어, display_name, 키 이름)
     for key, tmpl in FORM_TEMPLATES.items():
         search_kw = tmpl.get("search_keyword", "")
         display = tmpl.get("display_name", "")
@@ -723,6 +776,17 @@ def get_template_key(form_name: str) -> str | None:
             return key
 
     return None
+
+
+def get_template(form_name: str) -> dict | None:
+    """양식 템플릿 반환 (이름, 별칭, 부분 일치 모두 지원)"""
+    key = _find_template_key(form_name)
+    return FORM_TEMPLATES[key] if key else None
+
+
+def get_template_key(form_name: str) -> str | None:
+    """양식 키 반환 (이름, 별칭, 부분 일치 모두 지원)"""
+    return _find_template_key(form_name)
 
 
 def get_required_fields(form_name: str) -> list[str]:
@@ -759,3 +823,74 @@ def list_form_names() -> list[dict]:
         }
         for key, tmpl in FORM_TEMPLATES.items()
     ]
+
+
+def resolve_approval_line(custom_line: dict | str | None, form_name: str = None) -> dict:
+    """
+    결재선 딕셔너리 반환.
+
+    Args:
+        custom_line: 사용자가 지정한 결재선 (딕셔너리 또는 프리셋 이름 문자열)
+        form_name: 양식명 (미지정 시 양식 기본값 사용 불가)
+
+    Returns:
+        결재선 딕셔너리 {"drafter": ..., "agree": ...(선택), "final": ...}
+
+    사용 예:
+        resolve_approval_line(None, "지출결의서")   # 양식 기본값
+        resolve_approval_line("간단")               # 프리셋
+        resolve_approval_line({"final": "홍길동"}) # 커스텀
+    """
+    # 1. 딕셔너리면 그대로 사용 (drafter 기본값 보완)
+    if isinstance(custom_line, dict):
+        result = {"drafter": "auto", **custom_line}
+        return result
+
+    # 2. 문자열이면 프리셋에서 찾기
+    if isinstance(custom_line, str):
+        preset = APPROVAL_PRESETS.get(custom_line)
+        if preset:
+            return dict(preset)
+        # 부분 매칭
+        for key, val in APPROVAL_PRESETS.items():
+            if custom_line in key or key in custom_line:
+                return dict(val)
+
+    # 3. 양식 기본값 사용
+    if form_name:
+        tmpl = get_template(form_name)
+        if tmpl and "approval_line" in tmpl:
+            return dict(tmpl["approval_line"])
+
+    # 4. 전역 기본값
+    return dict(DEFAULT_APPROVAL_LINE)
+
+
+def resolve_cc_recipients(cc_input: list | str | None, form_name: str = None) -> list[str]:
+    """
+    수신참조 목록 반환.
+
+    Args:
+        cc_input: 수신참조 목록 또는 프리셋 이름
+        form_name: 양식명 (양식 기본 cc 사용)
+
+    Returns:
+        수신참조 이름 리스트
+    """
+    if isinstance(cc_input, list):
+        return cc_input
+
+    if isinstance(cc_input, str):
+        preset = CC_PRESETS.get(cc_input)
+        if preset:
+            return list(preset)
+        # 단일 이름이면 리스트로 변환
+        return [cc_input]
+
+    # 양식 기본 cc
+    if form_name:
+        tmpl = get_template(form_name)
+        if tmpl:
+            return list(tmpl.get("cc_recipients", []))
+
+    return []

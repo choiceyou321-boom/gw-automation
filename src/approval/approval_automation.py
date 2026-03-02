@@ -676,7 +676,8 @@ class ApprovalAutomation:
             invoice_amount = data.get("invoice_amount")
             invoice_date = data.get("invoice_date", "") or data.get("date", "")
             if _is_invoice_type and (invoice_vendor or invoice_amount):
-                # 팝업이 열렸을 때만 선택 시도
+                # 팝업 열림 대기 (버튼 클릭 후 팝업이 느리게 열릴 수 있음)
+                page.wait_for_timeout(800)
                 self._select_invoice_from_popup(
                     vendor=invoice_vendor,
                     amount=invoice_amount,

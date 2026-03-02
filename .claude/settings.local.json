@@ -4,7 +4,9 @@
       "WebSearch",
       "WebFetch(domain:www.sharedit.co.kr)",
       "WebFetch(domain:www.wishket.com)",
-      "Bash(watch:*)"
+      "Bash(watch:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)"
     ]
   }
 }

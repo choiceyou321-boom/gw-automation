@@ -1,5 +1,5 @@
 """
-임시보관문서 열기 + 결재상신 DOM 확인 테스트
+임시보관문서 열기 + 결재상신 DOM 확인 테스트 (v2)
 - 임시보관문서함에서 문서 1건 클릭 → 팝업으로 열기
 - 열린 문서의 DOM 구조 캡처 (스크린샷, HTML, 버튼 목록)
 - 결재상신 버튼 selector 확인 (클릭하지 않음!)
@@ -142,7 +142,7 @@ def dump_action_buttons(page, name):
     """결재 관련 액션 버튼만 추출"""
     info = page.evaluate("""() => {
         const result = [];
-        const keywords = ['보관', '상신', '결재상신', '임시저장', '미리보기', '결재선', '취소', '닫기', '삭제', '수정', '반려'];
+        const keywords = ['보관', '상신', '결재상신', '임시저장', '미리보기', '결재선', '취소', '닫기', '삭제', '수정', '반려', '일괄'];
         document.querySelectorAll('button, [role="button"], a').forEach(el => {
             const text = el.textContent.trim();
             if (keywords.some(k => text.includes(k)) && el.offsetParent !== null) {
@@ -190,6 +190,13 @@ def run():
                 pass
     page.on("response", handle_response)
 
+    # 새 페이지(팝업) 감지 핸들러
+    new_pages = []
+    def handle_new_page(new_page):
+        logger.info(f"새 페이지 열림: {new_page.url[:120]}")
+        new_pages.append(new_page)
+    context.on("page", handle_new_page)
+
     try:
         # ============================================================
         # 1단계: 임시보관문서함 이동
@@ -199,13 +206,18 @@ def run():
         logger.info("="*60)
 
         page.goto(DRAFT_URL, wait_until="domcontentloaded", timeout=30000)
-        time.sleep(8)
+        # 사이드바 + 문서 리스트 로드 대기 (첫 번째 문서 행 또는 최대 10초)
+        try:
+            page.wait_for_selector("table tbody tr, [class*='subject'], [class*='docTitle']", timeout=10000)
+        except Exception:
+            page.wait_for_timeout(5000)
 
-        # 팝업 닫기
+        # 팝업 닫기 (로그인 후 자동 팝업)
         for p in context.pages:
             if "popup" in p.url and p != page:
                 try:
                     p.close()
+                    logger.info(f"팝업 닫기: {p.url[:60]}")
                 except Exception:
                     pass
 
@@ -219,61 +231,69 @@ def run():
         logger.info("[2/5] 문서 클릭 (첫 번째 문서)")
         logger.info("="*60)
 
-        # 문서 제목이 포함된 행을 찾아 클릭
-        # 세션 V에서 확인한 문서 제목: "GS-25-0088. [종로] 메디빌더 음향공사..."
         doc_clicked = False
 
-        # 방법 1: 그리드 셀에서 문서 제목 텍스트 찾기
-        for keyword in ["GS-25-0088", "메디빌더", "지출결의서"]:
+        # 방법 1: 문서 제목 텍스트로 직접 클릭 (리스트 뷰에서 제목이 보임)
+        for keyword in [
+            "음향공사 대금 지급",
+            "GS-25-0088",
+            "메디빌더 음향공사",
+        ]:
             try:
-                links = page.locator(f"text={keyword}").all()
-                for link in links:
-                    if link.is_visible():
-                        logger.info(f"문서 발견: '{keyword}' → 클릭")
-                        link.click()
-                        doc_clicked = True
-                        break
-                if doc_clicked:
+                el = page.locator(f"text={keyword}").first
+                if el.is_visible(timeout=3000):
+                    logger.info(f"문서 발견: '{keyword}' → 클릭")
+                    el.click()
+                    doc_clicked = True
                     break
             except Exception:
                 continue
 
-        # 방법 2: 그리드 행에서 첫 번째 문서 클릭
+        # 방법 2: 리스트 아이템에서 제목 영역 클릭
         if not doc_clicked:
             try:
-                # OBT 그리드 행 클릭
-                grid_rows = page.locator("[class*='OBTGrid'] [class*='row'], table tbody tr").all()
-                logger.info(f"그리드 행 수: {len(grid_rows)}")
-                for i, row in enumerate(grid_rows[:10]):
+                # 임시보관문서 리스트의 문서 항목 (제목 영역)
+                # 스크린샷에서 보면 "제목" 칼럼 아래에 문서 제목이 나열됨
+                items = page.locator("[class*='subject'], [class*='title'], [class*='docTitle']").all()
+                logger.info(f"제목 요소 수: {len(items)}")
+                for item in items:
                     try:
-                        text = row.inner_text(timeout=2000).strip()
-                        if "GS-" in text or "메디빌더" in text or len(text) > 20:
-                            logger.info(f"행[{i}] 클릭: {text[:60]}")
-                            row.click()
+                        text = item.text_content(timeout=2000)
+                        if "GS-" in text or "메디빌더" in text:
+                            item.click()
                             doc_clicked = True
+                            logger.info(f"제목 요소 클릭: {text[:60]}")
                             break
                     except Exception:
                         continue
             except Exception as e:
-                logger.warning(f"그리드 행 탐색 실패: {e}")
+                logger.warning(f"제목 요소 탐색 실패: {e}")
 
-        # 방법 3: 더블클릭 시도 (일부 그리드는 더블클릭으로 열림)
+        # 방법 3: 리스트의 첫 번째 행 영역을 좌표로 클릭
+        # 스크린샷 기준: 첫 번째 문서는 y~210 영역
         if not doc_clicked:
             try:
-                first_cell = page.locator("[class*='OBTGrid'] [class*='cell']").first
-                if first_cell.is_visible():
-                    first_cell.dblclick()
-                    doc_clicked = True
-                    logger.info("그리드 첫 셀 더블클릭")
-            except Exception:
-                pass
+                # 문서 행 클릭 — 리스트 뷰에서 문서 제목 영역 좌표
+                page.mouse.click(600, 215)
+                doc_clicked = True
+                logger.info("좌표 클릭 (600, 215) — 첫 번째 문서 행")
+            except Exception as e:
+                logger.warning(f"좌표 클릭 실패: {e}")
 
         if not doc_clicked:
             logger.error("문서를 클릭할 수 없습니다!")
             save_screenshot(page, "02_click_failed")
             return
 
-        time.sleep(5)
+        # 팝업 열림 대기 (새 페이지 감지 또는 URL 변경까지 최대 8초)
+        logger.info("문서 팝업 열림 대기...")
+        try:
+            page.wait_for_function(
+                "() => window.__popup_detected || document.querySelectorAll('iframe').length > 0",
+                timeout=5000
+            )
+        except Exception:
+            page.wait_for_timeout(3000)
         save_screenshot(page, "02_after_click")
 
         # ============================================================
@@ -283,32 +303,62 @@ def run():
         logger.info("[3/5] 팝업 문서 감지")
         logger.info("="*60)
 
-        # 새 페이지(팝업) 열림 감지
         all_pages = context.pages
         logger.info(f"열린 페이지 수: {len(all_pages)}")
         for i, p in enumerate(all_pages):
             logger.info(f"  page[{i}]: {p.url[:120]}")
 
         # 결재 문서 팝업 찾기
+        # 임시보관문서 클릭 시 팝업 URL 패턴:
+        #   /#/popup?MicroModuleCode=eap&docAuth=0&docID=XXXXX&formId=XXX&callComp=UBAP001
         doc_page = None
         for p in all_pages:
+            if p == page:
+                continue
             url_lower = p.url.lower()
-            # APB: 결재작성, eap: 전자결재 관련
-            if any(kw in url_lower for kw in ["apb", "eap1", "eap0", "document", "view"]):
-                if p != page:
+            # 결재 문서 팝업 (docID 또는 formId 포함)
+            if "docid" in url_lower or "formid" in url_lower:
+                doc_page = p
+                logger.info(f"결재 문서 팝업 매칭: {p.url[:120]}")
+                break
+
+        # 새로 열린 페이지 중에서 docID/formId 포함 팝업 찾기
+        if not doc_page and new_pages:
+            for p in new_pages:
+                url_lower = p.url.lower()
+                if "docid" in url_lower or "formid" in url_lower:
                     doc_page = p
+                    logger.info(f"새 페이지에서 결재 문서 팝업 매칭: {p.url[:120]}")
                     break
 
-        # 팝업이 없으면 원래 페이지에서 문서가 열렸을 수 있음
-        if doc_page:
+        # 그래도 없으면 eap 모듈 관련 팝업
+        if not doc_page:
+            for p in all_pages:
+                if p == page:
+                    continue
+                if "micromodulecode=eap" in p.url.lower():
+                    doc_page = p
+                    logger.info(f"eap 모듈 팝업 매칭: {p.url[:120]}")
+                    break
+
+        if doc_page and doc_page != page:
             logger.info(f"문서 팝업 발견! URL: {doc_page.url[:120]}")
             doc_page.set_viewport_size({"width": 1920, "height": 1080})
             doc_page.bring_to_front()
-            time.sleep(3)
+            # 팝업 내 폼 로드 대기 (th 라벨 또는 제목 필드)
+            try:
+                doc_page.wait_for_selector("th, input[type='text']", timeout=8000)
+            except Exception:
+                doc_page.wait_for_timeout(2000)
         else:
-            logger.info("별도 팝업 없음 — 원래 페이지에서 문서 열림 (인라인)")
+            logger.info("별도 팝업 없음 — 원래 페이지에서 문서 열림 확인")
             doc_page = page
-            time.sleep(3)
+            logger.info(f"현재 URL: {doc_page.url}")
+            # 문서 컨텐츠 로드 대기
+            try:
+                doc_page.wait_for_selector("th, input[type='text']", timeout=5000)
+            except Exception:
+                doc_page.wait_for_timeout(2000)
 
         save_screenshot(doc_page, "03_document_opened")
 
@@ -347,6 +397,42 @@ def run():
         except Exception as e:
             logger.warning(f"텍스트 저장 실패: {e}")
 
+        # 프레임 분석
+        frames_info = []
+        for i, frame in enumerate(doc_page.frames):
+            try:
+                input_count = frame.locator("input").count()
+                url = frame.url
+            except Exception:
+                input_count = -1
+                url = "error"
+            frames_info.append({"index": i, "name": frame.name, "url": url[:200], "input_count": input_count})
+        (OUTPUT_DIR / "frames_info.json").write_text(
+            json.dumps(frames_info, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        logger.info(f"프레임 {len(frames_info)}개")
+        for fi in frames_info:
+            logger.info(f"  frame[{fi['index']}] name={fi['name']} inputs={fi['input_count']} url={fi['url'][:80]}")
+
+        # 양식 프레임이 있으면 별도 캡처
+        for fi, frame in enumerate(doc_page.frames):
+            try:
+                input_count = frame.locator("input").count()
+                if input_count > 5 and frame != doc_page.main_frame:
+                    logger.info(f"양식 프레임 발견: frame[{fi}] (input {input_count}개)")
+                    dump_inputs(frame, "form_frame")
+                    dump_buttons(frame, "form_frame")
+                    dump_tables(frame, "form_frame")
+                    try:
+                        fhtml = frame.content()
+                        if len(fhtml) < 3_000_000:
+                            (OUTPUT_DIR / "form_frame.html").write_text(fhtml, encoding="utf-8")
+                    except Exception:
+                        pass
+                    break
+            except Exception:
+                continue
+
         # ============================================================
         # 5단계: 결재상신 버튼 확인 (클릭하지 않음!)
         # ============================================================
@@ -354,27 +440,40 @@ def run():
         logger.info("[5/5] 결재상신 버튼 확인 (클릭 안 함!)")
         logger.info("="*60)
 
-        # 결재상신 버튼 존재 확인
         submit_selectors = [
             "button:has-text('결재상신')",
             "text=결재상신",
             "[class*='submit']",
             "button:has-text('상신')",
+            "button:has-text('수정 후 상신')",
         ]
+        found_submit = False
         for sel in submit_selectors:
             try:
                 btn = doc_page.locator(sel).first
                 if btn.is_visible(timeout=3000):
                     box = btn.bounding_box()
                     text = btn.text_content()
-                    logger.info(f"결재상신 버튼 발견! selector='{sel}' text='{text}' box={box}")
+                    logger.info(f"결재상신 버튼 발견! selector='{sel}' text='{text[:40]}' box={box}")
+                    found_submit = True
                 else:
-                    logger.info(f"  selector '{sel}' → 미발견 (hidden)")
+                    logger.info(f"  selector '{sel}' → hidden/미발견")
             except Exception:
                 logger.info(f"  selector '{sel}' → 미발견")
 
+        if not found_submit:
+            logger.warning("결재상신 버튼을 찾지 못했습니다!")
+
         # 최종 스크린샷
         save_screenshot(doc_page, "04_final")
+
+        # 스크롤 다운 후 추가 스크린샷
+        try:
+            doc_page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
+            time.sleep(1)
+            save_screenshot(doc_page, "05_scrolled")
+        except Exception:
+            pass
 
         # API 데이터 저장
         if api_data:

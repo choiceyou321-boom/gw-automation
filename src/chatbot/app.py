@@ -354,9 +354,10 @@ async def chat(request_body: ChatRequest, request: Request):
                 title += "..."
             update_session_title(gw_id, session_id, title)
 
-        # 결과를 로컬 파일로 저장 (이중 백업)
+        # 결과를 로컬 파일로 저장 (이중 백업) — 파일 데이터(base64)는 제외
         timestamp = datetime.now().isoformat()
-        save_chat_log(session_id, request_body.message, result, timestamp, files, gw_id)
+        files_meta = [{"name": f.get("name"), "type": f.get("type"), "size": len(f.get("data", ""))} for f in files]
+        save_chat_log(session_id, request_body.message, result, timestamp, files_meta, gw_id)
 
         return ChatResponse(
             response=result["response"],

@@ -2,6 +2,7 @@
 텔레그램 - 그룹웨어 업무 자동화 (텔레그램 채널)
 - /start, /login, /register 명령어
 - /clear - 대화 내역 지우기 (로그인 유지)
+- /mailcheck - 안 읽은 메일 요약 수신 + Notion 저장
 - 이미지/PDF 파일 첨부 지원
 - 인메모리 대화 히스토리 (단순 유지)
 """
@@ -50,6 +51,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "`/login [아이디] [비밀번호]`\n"
         "예시: `/login tgjeon mypass123`\n\n"
         "기타 명령어:\n"
+        "`/mail` (또는 `/mailcheck`) - 안 읽은 메일 AI 요약 + Notion 저장\n"
         "`/clear` - 대화 내역 지우기 (로그인 유지)"
     )
     await update.message.reply_text(welcome_text, parse_mode='Markdown')
@@ -147,6 +149,52 @@ async def clear_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     tg_sessions[tg_user_id]["history"] = []
     await update.message.reply_text("대화 내역이 지워졌습니다. 새로운 대화를 시작하세요.")
+
+
+async def mailcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    /mailcheck — 안 읽은 메일 요약 → 텔레그램 응답 + Notion 저장.
+    Playwright(동기)를 asyncio 블로킹 없이 executor에서 실행.
+    """
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+
+    if not session:
+        await update.message.reply_text(
+            "먼저 로그인을 해주세요.\n`/login [아이디] [비밀번호]`", parse_mode='Markdown'
+        )
+        return
+
+    await update.message.reply_text("메일함을 확인하는 중입니다. 잠시 기다려주세요...")
+    await context.bot.send_chat_action(
+        chat_id=update.effective_chat.id, action='typing'
+    )
+
+    try:
+        from src.mail.summarizer import run_mail_push_for_user
+        gw_id = session.get("gw_id", "")
+        chat_id = update.effective_chat.id
+
+        result = await run_mail_push_for_user(
+            gw_id=gw_id,
+            bot_token=TELEGRAM_TOKEN,
+            chat_id=chat_id,
+            max_count=5,
+        )
+
+        if result["count"] == 0:
+            # 새 메일 없음 - run_mail_push_for_user가 텔레그램으로 보내지 않으므로 직접 응답
+            await update.message.reply_text("현재 안 읽은 새로운 메일이 없습니다.")
+        elif not result["success"]:
+            # 메일은 수집했지만 푸시 전송 실패 → 메시지는 이미 answer로 전송
+            await update.message.reply_text(
+                f"메일 {result['count']}건을 수집했으나 전송에 실패했습니다. ({result['message']})"
+            )
+        # 성공 시 run_mail_push_for_user 내부에서 텔레그램 전송 완료
+
+    except Exception as e:
+        logger.error(f"mailcheck 실패: {e}", exc_info=True)
+        await update.message.reply_text(f"메일 확인 중 오류가 발생했습니다: {str(e)[:200]}")
 
 
 def _check_login(tg_user_id: int) -> dict | None:
@@ -331,6 +379,8 @@ def main():
     app.add_handler(CommandHandler("login", login))
     app.add_handler(CommandHandler("register", register_user))
     app.add_handler(CommandHandler("clear", clear_chat))
+    app.add_handler(CommandHandler("mailcheck", mailcheck))
+    app.add_handler(CommandHandler("mail", mailcheck))  # /mail 단축 별칭
 
     # 메시지 핸들러
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-03-02 (세션 VI — Task #20 통폐합 완료)
+> 마지막 업데이트: 2026-03-04 (세션 X — OBT 위젯 대응 패턴 추가)
 > 새 세션 시작 시 `PROJECT_STATUS.md`와 함께 참고.
 
 ---
@@ -24,6 +24,21 @@
 - 작업 기록 전담 에이전트 1개 운영
 - 기존 내용 유지, 신규 섹션만 추가/갱신
 - 한국어로 작성
+
+### 레코더 자동 업데이트 규칙 (★ 필수)
+> **모든 작업 완료/보고 시 레코더 에이전트가 아래 마크다운 파일을 자동 업데이트해야 한다.**
+> 이 규칙은 모든 세션, 모든 팀 작업에 항상 적용된다.
+
+| 파일 | 업데이트 내용 |
+|------|-------------|
+| `PROJECT_STATUS.md` | 새 세션 섹션 추가, 완료 항목 기록, 현재 상태 요약 갱신 |
+| `DEVELOPER_GUIDE.md` | 새 기술 패턴, API 발견, 구현 규칙 추가 |
+| `MEMORY.md` (auto-memory) | 새 파일 경로, 메서드, 발견사항 반영 |
+
+- 작업 중간에도 주요 마일스톤 달성 시 문서 업데이트
+- 팀 작업 시 레코더 에이전트를 별도 배치하거나, 마지막 에이전트가 레코더 역할 수행
+- 기존 내용은 유지하고 신규 섹션만 추가/갱신 (덮어쓰기 금지)
+- 팀 작업 마무리 시 마지막 태스크로 문서 갱신을 포함할 것
 
 ---
 
@@ -74,10 +89,11 @@ Playwright 로그인 → 페이지 이동 → DOM 조작으로 폼 채우기
 ### 새 기능 개발 순서 (전자결재 기준)
 1. **Phase 0**: Playwright로 대상 페이지 열기 → 스크린샷 + HTML + JSON 저장
 2. **selector 확정**: 실제 DOM 구조에서 안정적인 selector 결정
-3. **스크립트 작성**: `scripts/` 폴더에 탐색/테스트 스크립트 작성
+3. **스크립트 작성**: 탐색 스크립트 작성 (완료 후 `scripts/archive/`로 이동)
 4. **모듈 구현**: `src/` 폴더에 프로덕션 모듈 작성
 5. **에이전트 연결**: `agent.py` 핸들러에 연결
-6. **통합 테스트**: 챗봇 → 에이전트 → 모듈 end-to-end
+6. **통합 테스트**: `scripts/full_test.py`에 새 테스트 메서드 추가 (T번호)
+7. **문서 갱신**: PROJECT_STATUS.md, DEVELOPER_GUIDE.md, MEMORY.md 업데이트
 
 ### 로그인 패턴
 - 2단계: ID(`#reqLoginId`) → Enter → PW(`#reqLoginPw`) → Enter
@@ -141,12 +157,12 @@ Base64(HMAC-SHA256(signKey, oAuthToken + transactionId + timestamp + pathname))
 |------|------|--------|-----------|------|
 | 지출결의서 | verified | 255 | 30건 (1위) | 그리드 입력 포함 |
 | 거래처등록 | verified (E2E 완료) | 196 | 26건 (2위) | 팝업 창, dzEditor API, 보관 검증됨 |
-| 연장근무 | template_only | - | 3건 | DOM 탐색 미완료 |
-| 증빙발행 | template_only | - | - | DOM 탐색 미완료 |
-| 선급금요청 | template_only | - | - | DOM 탐색 미완료 |
-| 선급금정산 | template_only | - | - | DOM 탐색 미완료 |
-| 외근신청 | template_only | - | - | DOM 탐색 미완료 |
-| 사내추천비 | template_only | - | - | DOM 탐색 미완료 |
+| 선급금요청 | template_only | 181 | - | formId 확인됨 (Task #21) |
+| 연장근무 | template_only | 43 | 3건 | 근태관리 모듈 별도 — formId 확인됨 (Task #21) |
+| 외근신청 | template_only | 41 | - | 근태관리 모듈 별도 — formId 확인됨 (Task #21) |
+| 증빙발행 | template_only | - | - | formId 미확인 |
+| 선급금정산 | template_only | - | - | formId 미확인 |
+| 사내추천비 | template_only | - | - | formId 미확인 |
 
 ### 양식 열기 방식
 - **지출결의서**: 추천양식 직접 클릭 → 같은 페이지에서 양식 로드
@@ -173,6 +189,52 @@ popup (frame[0]) → URL: /#/popup?MicroModuleCode=eap&formId=196&callComp=UBAP0
 ### 결재선 구조
 - 지출결의서: 기안자(전태규) → 신동관(합의) → 최기영(최종) — 3단계
 - 거래처등록: 기안자(전태규) → 최기영(최종) — 2단계
+
+### 임시보관문서 상신 패턴 (`approval_automation.py`, Task #1)
+- 진입점: `open_draft_and_submit(doc_title, dry_run=True)`
+- 문서 클릭: `_click_draft_document(doc_title)` — 텍스트→selector→좌표 3단계 폴백
+- 팝업 감지: docid/formid/micromodulecode=eap 키워드, 최대 15초 대기
+- 상신 버튼: `_find_submit_button()` → `div.topBtn:has-text('상신')`
+- **dry_run=True(기본값)**: 버튼 확인만, 실제 클릭 안 함 (안전장치)
+- 테스트: `full_test.py` T13 (dry_run 모드) — 원본 `scripts/archive/test_draft_submit_e2e.py`
+
+### 지출결의서 22단계 자동화 (`_fill_expense_fields`, 세션 VIII)
+
+`_fill_expense_fields(data)` 하나의 메서드로 전체 22단계를 처리:
+
+| Step | 내용 | data 키 |
+|------|------|---------|
+| 1 | 프로젝트 코드도움 (상단, y≈292) | `project` |
+| 2~3 | 제목 입력 | `title` |
+| 4 | 지출내역 그리드 입력 | `items` |
+| 5 | 증빙유형 버튼 클릭 | `evidence_type` |
+| 5-1 | 세금계산서 팝업 검색 | `invoice_vendor`, `invoice_amount`, `invoice_date` |
+| 6 | 증빙일자 입력 (하단, y=857) | `receipt_date` |
+| 7 | 프로젝트 코드도움 (하단) | `project` |
+| 8 | 첨부파일 업로드 | `attachment_path` |
+| 9 | 예실대비현황 스크린샷 캡처 | `auto_capture_budget` |
+| 10~11 | 용도코드 입력 + 동적 필드 대기 | `usage_code` |
+| 12~17 | 예산과목 선택 (budget_helpers) | `budget_keyword`, `budget_project` |
+| 18~19 | 지급요청일 선택 | `payment_request_date` |
+| 20~21 | 회계처리일자 변경 | `accounting_date` |
+| 22 | 검증결과 확인 (적합/부적합 + 툴팁) | 자동 |
+
+### 예산과목 선택 패턴 (`budget_helpers.py`, 세션 VIII)
+
+- 모듈: `src/approval/budget_helpers.py`
+- 함수: `select_budget_code(page, project_keyword, budget_keyword)`
+- 반환: `{"success": bool, "budget_code": str, "budget_name": str, "message": str}`
+- 플로우:
+  1. 예산과목 필드(placeholder="예산과목") 클릭 → "공통 예산잔액 조회" 모달
+  2. 모달 내 프로젝트 입력(placeholder="사업코드도움") → 자동완성 선택
+  3. 예산과목 입력(placeholder="예산과목코드도움") → 코드도움 아이콘 → 서브 팝업
+  4. 서브 팝업에서 **2로 시작하는 코드만** 선택 (4xxx 제외)
+  5. 서브 팝업 확인 → 모달 확인 → 메인 폼 반영
+
+### 검증결과 부적합 시 툴팁 확인 (세션 VIII)
+- 검증결과 셀에서 "부적합" 감지 시 `page.hover()` → 툴팁 텍스트 추출
+- title 속성 우선, 없으면 동적 tooltip div 탐색
+- 로그에 `logger.warning`으로 미비 사항 기록
 
 ### 양식 추가 절차
 1. `form_templates.py`에 필드 구조 정의 (`template_only`)
@@ -249,16 +311,24 @@ popup (frame[0]) → URL: /#/popup?MicroModuleCode=eap&formId=196&callComp=UBAP0
 - python-telegram-bot 라이브러리
 - 인메모리 세션 (`tg_sessions: dict`, 최근 40개, 재시작 시 소실)
 - `/clear` 명령어로 대화 지우기 (로그인 유지), DB 연동 없음
+- `/mailcheck` 명령어 (Task #8): 로그인 확인 → `run_for_chatbot()` → Notion 저장 + 텔레그램 응답 (최대 4000자)
 
-### Gemini Function Calling 도구 목록 (`agent.py`)
+### 메일 요약 + Notion 저장 패턴 (Task #8)
+- `src/mail/summarizer.py`: `run_for_chatbot(user_context)` — 메일 수집 + Notion 저장 + 결과 반환
+- `src/notion/client.py`: `append_to_page()`, `save_mail_summaries()` — Notion API 연동
+- 환경 변수: `NOTION_API_KEY`, `NOTION_PAGE_ID` (`config/.env`)
+- Notion 저장 형식: 날짜 헤더 + 발신자/제목/요약 블록
+
+### Gemini Function Calling 도구 목록 (`agent.py`) — 9개
 - `reserve_meeting_room` — 회의실 예약
 - `cancel_meeting_reservation` — 예약 취소
 - `check_reservation_status` — 예약 조회
 - `check_available_rooms` — 빈 시간 검색
-- `create_expense_report` — 지출결의서 작성
-- `create_vendor_registration` — 거래처등록 작성
+- `submit_expense_approval` — 지출결의서 작성 (22단계, usage_code/budget_keyword/payment_request_date/accounting_date)
+- `submit_approval_form` — 전자결재 대화형 플로우 (거래처등록 등 범용)
+- `search_project_code` — 프로젝트 코드 검색 (자동완성 확인)
 - `get_mail_summary` — 메일 요약
-- `submit_approval_form` — 전자결재 대화형 플로우 (세션 VI: 단계별 질문, 프로젝트 자동완성, 세금계산서 매칭)
+- 도구 8+1개: submit_expense_approval과 submit_approval_form은 양식별 분리
 
 ### 파일 첨부 처리 패턴 (`build_message_parts()`, line 821~852)
 - 첨부파일 앞에 `[첨부파일: 파일명]` 텍스트 힌트 삽입 → Gemini 문서 종류 인식 향상
@@ -291,6 +361,8 @@ data/
 ├── gw_analysis/                # GW API 분석 데이터
 ├── approval_dom_v2/            # 지출결의서 Phase 0 DOM 탐색 결과
 ├── approval_dom_vendor/        # 거래처등록 Phase 0 DOM 탐색 결과
+├── approval_dom_remaining/     # 6개 양식 Phase 0 DOM 탐색 결과
+├── approval_dom_invoice/       # 세금계산서 팝업 DOM 탐색 결과
 └── approval_drafts/            # 임시보관문서 캡쳐 결과
 ```
 
@@ -318,4 +390,90 @@ data/
 | 조직도 | `/gw/APIHandler/gw018A05` |
 | 결재함 | `/gw/gw050A24` |
 | 메일 | `/mail/api/mail019A01` |
+
+---
+
+## 12. 작업 패턴 (★ 세션 X 갱신)
+
+### 프로젝트 디렉토리 구조
+
+```
+scripts/
+├── full_test.py              # 통합 테스트 라이브러리 (T1~T13)
+└── archive/                  # 일회성 탐색/분석 스크립트 보관 (42개)
+
+src/
+├── auth/                     # 로그인, 세션 관리, 사용자 DB
+├── approval/                 # 전자결재 자동화
+│   ├── approval_automation.py  # 메인 (Playwright 폼 자동화)
+│   ├── budget_helpers.py       # 예산과목 팝업 헬퍼
+│   └── form_templates.py       # 양식 필드 정의
+├── chatbot/                  # 웹 챗봇 + 텔레그램 봇 + Gemini 에이전트
+├── mail/                     # 메일 요약 + Notion 연동
+├── meeting/                  # 회의실 예약 API (reservation_api.py)
+└── notion/                   # Notion API 클라이언트
+```
+
+### 파일 관리 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| **스크립트 관리** | 탐색/분석 스크립트는 완료 후 `scripts/archive/`로 이동 |
+| **테스트 통합** | 새 테스트는 `scripts/full_test.py`에 메서드로 추가 (별도 파일 생성 금지) |
+| **데드코드 삭제** | 대체된 모듈은 즉시 삭제 (예: reservation.py → reservation_api.py) |
+| **빈 패키지 금지** | 사용하지 않는 `__init__.py`만 있는 디렉토리는 삭제 |
+| **동일 파일 동시 편집 금지** | 팀 작업 시 같은 파일을 두 에이전트가 동시에 수정하지 않음 |
+
+### 통합 테스트 (`scripts/full_test.py`)
+
+| ID | 테스트 | 카테고리 | skip 옵션 |
+|----|--------|---------|-----------|
+| T1 | GW 로그인 | 인증 | - |
+| T2 | 회의실 목록 조회 | 회의실 | `--skip-meeting` |
+| T3 | 빈 회의실 검색 | 회의실 | `--skip-meeting` |
+| T4 | 회의실 예약 생성+취소 | 회의실 | `--skip-meeting` |
+| T5 | 프로젝트 코드 검색 | 결재 | `--skip-approval` |
+| T6 | 지출결의서 임시보관 | 결재 | `--skip-approval` |
+| T7 | 거래처등록 임시보관 | 결재 | `--skip-approval` |
+| T8 | 메일 요약 | 메일 | `--skip-mail` |
+| T9 | 챗봇 라우팅 (Gemini) | 챗봇 | - |
+| T10 | 지출결의서 22단계 전체 | 결재 | `--skip-approval` |
+| T11 | 챗봇 예약 취소 (자연어) | 챗봇+회의실 | `--skip-meeting` |
+| T12 | 챗봇 다중 턴 대화 | 챗봇+회의실 | `--skip-meeting` |
+| T13 | 임시보관문서 상신 E2E | 결재 | `--skip-approval` |
+
+**테스트 추가 방법**: `FullTestRunner` 클래스에 `_test_xxx()` 메서드 추가 → `_phase2_tests()` 리스트에 등록
+
+### 코드 정리 판단 기준
+
+| 판단 | 조치 |
+|------|------|
+| 아무 데서도 import 안 되는 src/ 모듈 | 삭제 |
+| 대체된 이전 버전 모듈 (예: v1→v2) | 삭제 |
+| 일회성 탐색 스크립트 | `scripts/archive/` 이동 |
+| 반복 사용 가능한 테스트 | `full_test.py` 통합 |
+| data/ 폴더 탐색 아티팩트 | 보수적 유지 (참고용) |
+| 빈 패키지 (`__init__.py`만 존재) | 삭제 |
+
+### OBT 위젯 대응 패턴 (★ 세션 X 추가)
+
+| OBT 위젯 | 특성 | 대응 방법 |
+|-----------|------|-----------|
+| **OBTGrid** | canvas 기반, DOM 행 없음, RealGrid API도 window에 없음 | 모달 제목 기준 상대 좌표 클릭/더블클릭 |
+| **OBTDialog2** | dimClicker 오버레이가 뒤쪽 요소 차단 | JS로 dialog 컨테이너 내부 요소 직접 탐색 |
+| **OBTAutoComplete** | 입력 → 드롭다운 → Tab으로 확정 | `type()` → `wait_for_selector('.autocomplete')` → `press('Tab')` |
+| **OBTDatePicker** | 날짜 input + 캘린더 팝업 | `fill(date)` → `press('Tab')` (캘린더 우회) |
+| **OBTCheckBox** | 커스텀 div 체크박스, input[type=checkbox] 아님 | `[class*='Checkbox']`, `[role='checkbox']` 셀렉터 사용 |
+
+**풀스크린 좌표 규칙**: 하드코딩 좌표 사용 금지. 반드시 동적 기준점(텍스트 라벨, 모달 제목, 헤더) bounding_box 기준 상대 좌표 사용.
+
+**force=True 주의**: OBT 이벤트 핸들러를 우회하므로 모달이 열리지 않는 등 부작용 발생. 꼭 필요한 경우만 사용.
+
+### 세션 마무리 체크리스트
+
+1. `PROJECT_STATUS.md` — 새 세션 섹션 추가, 현재 상태 요약 갱신
+2. `DEVELOPER_GUIDE.md` — 새 기술 패턴/API/규칙 추가
+3. `MEMORY.md` — 새 파일 경로, 발견사항, 세션 참조 갱신
+4. 탐색 스크립트가 남아있으면 `scripts/archive/`로 이동
+5. 새 테스트가 있으면 `full_test.py`에 통합 여부 확인
 

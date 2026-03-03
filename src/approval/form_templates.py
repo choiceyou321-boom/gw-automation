@@ -101,12 +101,26 @@ FORM_TEMPLATES = {
                 "type": "date",
                 "class": "OBTDatePickerRebuild_inputYMD",
                 "required": False,
+                "note": "상단 회계처리일자 변경 (세금계산서 발행월과 일치 필요)",
             },
             "project": {
                 "label": "프로젝트",
                 "placeholder": "프로젝트코드도움",
                 "type": "code_help",
                 "required": False,
+            },
+            "usage_code": {
+                "label": "용도코드",
+                "type": "code_help",
+                "default": "5020",
+                "required": False,
+                "note": "그리드 용도 셀 숫자코드 (예: 5020=외주공사비)",
+            },
+            "budget_keyword": {
+                "label": "예산과목 검색어",
+                "type": "text",
+                "required": False,
+                "note": "예산과목코드도움 검색어 (예: 경량). 2로 시작하는 코드만 선택",
             },
             "title": {
                 "label": "제목",
@@ -147,7 +161,9 @@ FORM_TEMPLATES = {
             "payment_request_date": {
                 "label": "지급요청일",
                 "type": "date",
+                "class": "OBTDatePickerRebuild_inputYMD",
                 "required": False,
+                "note": "하단 날짜 피커 (YYYY-MM-DD)",
             },
             "employee": {
                 "label": "사원",

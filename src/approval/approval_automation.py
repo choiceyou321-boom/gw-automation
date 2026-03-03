@@ -384,7 +384,13 @@ class ApprovalAutomation:
 
     def create_expense_report(self, data: dict) -> dict:
         """
-        지출결의서 작성 + 보관(임시저장) (재시도 포함)
+        지출결의서 작성 (인라인 폼 기반, 재시도 포함)
+
+        GW에서 지출결의서는 인라인 폼으로만 열리며 (팝업 아님),
+        인라인 폼에는 '보관' 버튼이 없고 '결재상신' 버튼만 존재합니다.
+        이 메서드는 필드 채우기까지 수행하고, save_mode에 따라 동작합니다:
+        - save_mode="verify" (기본): 필드 작성 검증만 수행, 실제 저장/상신 안 함
+        - save_mode="submit": 결재상신 실행 (실제 결재 상신됨, 주의)
 
         Args:
             data: {
@@ -401,9 +407,10 @@ class ApprovalAutomation:
                         "vendor": "거래처명",     # 선택
                     }
                 ],
-                "evidence_type": "세금계산서",    # 증빙유형: 세금계산서|계산서내역|카드사용내역|현금영수증
-                "attachment_path": "/path.pdf",   # 첨부파일 경로 (선택, 수동 지정)
+                "evidence_type": "세금계산서",    # 증빙유형
+                "attachment_path": "/path.pdf",   # 첨부파일 경로 (선택)
                 "auto_capture_budget": True,      # 예실대비현황 스크린샷 자동 캡처+첨부 (선택)
+                "save_mode": "verify",            # "verify" | "submit"
             }
         Returns:
             {"success": bool, "message": str}
@@ -417,15 +424,22 @@ class ApprovalAutomation:
         if not self._check_session_valid():
             return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
 
+        save_mode = data.get("save_mode", "draft")
+
+        # draft 모드: 팝업 기반 보관 흐름 (인라인 폼에는 보관 버튼이 없음)
+        if save_mode == "draft":
+            return self._create_expense_report_via_popup(data)
+
+        # submit / verify: 기존 인라인 폼 흐름
         last_error = None
         for attempt in range(1, MAX_RETRIES + 1):
             try:
                 self._close_popups()
 
-                # 1. 전자결재 모듈 → 결재 HOME 이동
+                # 1. 전자결재 HOME 이동
                 self._navigate_to_approval_home()
 
-                # 2. 추천양식에서 "[프로젝트]지출결의서" 클릭
+                # 2. 추천양식에서 지출결의서 클릭 (인라인 폼)
                 self._click_expense_form()
 
                 # 3. 양식 로드 대기
@@ -434,25 +448,30 @@ class ApprovalAutomation:
                 # 4. 필드 채우기
                 self._fill_expense_fields(data)
 
-                # 4-1. 결재선 커스텀 설정 (data에 approval_line 키 있을 때)
+                # 4-1. 결재선 커스텀 설정
                 if data.get("approval_line"):
                     resolved_line = resolve_approval_line(data["approval_line"], "지출결의서")
                     self.set_approval_line(self.page, resolved_line)
 
-                # 4-2. 수신참조 설정 (data에 cc 키 있을 때)
+                # 4-2. 수신참조 설정
                 if data.get("cc"):
                     resolved_cc = resolve_cc_recipients(data["cc"], "지출결의서")
                     self.set_cc_recipients(self.page, resolved_cc)
 
-                # 5. 보관 (임시저장)
-                return self._save_draft()
+                # 5. 저장/검증
+                if save_mode == "submit":
+                    result = self._submit_inline_form()
+                else:
+                    # verify: 필드 작성 검증만 (실제 저장 없음)
+                    result = self._verify_expense_fields(data)
+
+                return result
 
             except PlaywrightTimeout as e:
                 last_error = e
                 logger.warning(f"지출결의서 작성 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
                 _save_debug(self.page, f"error_timeout_attempt{attempt}")
                 if attempt < MAX_RETRIES:
-                    # 세션 재확인
                     if not self._check_session_valid():
                         return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
                     self._close_popups()
@@ -465,9 +484,386 @@ class ApprovalAutomation:
                 if attempt < MAX_RETRIES:
                     time.sleep(RETRY_DELAY)
 
-        # 모든 재시도 실패
         _save_debug(self.page, "error_final")
         return {"success": False, "message": f"지출결의서 작성 실패 ({MAX_RETRIES}회 시도): {str(last_error)}"}
+
+    def _create_expense_report_via_popup(self, data: dict) -> dict:
+        """
+        지출결의서 보관 흐름 (인라인 폼 → 결재상신 → 팝업 → 보관)
+
+        지출결의서는 결재작성에서 인라인 폼으로 열리므로:
+        1. 전자결재 HOME → 추천양식 클릭 → 인라인 폼 로드
+        2. _fill_expense_fields(data)로 22단계 필드 채우기
+        3. 결재선/수신참조 설정
+        4. 결재상신 클릭 → 새 팝업 감지
+        5. 팝업에서 보관 버튼 클릭
+        """
+        if not self.context:
+            return {"success": False, "message": "BrowserContext가 필요합니다. (팝업 기반 보관)"}
+
+        last_error = None
+        for attempt in range(1, MAX_RETRIES + 1):
+            popup_page = None
+            try:
+                self._close_popups()
+
+                # 1. 전자결재 HOME 이동
+                self._navigate_to_approval_home()
+
+                # 2. 추천양식에서 지출결의서 클릭 → 인라인 폼 로드
+                self._click_expense_form()
+                self._wait_for_form_load()
+
+                # 3. 인라인 폼 필드 채우기 (22단계)
+                self._fill_expense_fields(data)
+                _save_debug(self.page, "expense_draft_01_fields_filled")
+
+                # 4. 결재선 커스텀 설정
+                if data.get("approval_line"):
+                    resolved_line = resolve_approval_line(data["approval_line"], "지출결의서")
+                    self.set_approval_line(self.page, resolved_line)
+
+                # 5. 수신참조 설정
+                if data.get("cc"):
+                    resolved_cc = resolve_cc_recipients(data["cc"], "지출결의서")
+                    self.set_cc_recipients(self.page, resolved_cc)
+
+                # 6. 검증결과 확인 (부적합이면 결재상신 팝업이 열리지 않음)
+                try:
+                    validation_cell = self.page.locator("text=적합").first
+                    if validation_cell.is_visible(timeout=2000):
+                        cell_text = validation_cell.inner_text().strip()
+                        if "부적합" in cell_text:
+                            logger.warning("검증결과 '부적합' — 결재상신 팝업이 열리지 않을 수 있습니다")
+                            _save_debug(self.page, "error_validation_fail")
+                        else:
+                            logger.info(f"검증결과 확인: {cell_text}")
+                except Exception:
+                    logger.info("검증결과 셀 미발견 (계속 진행)")
+
+                # 7. 결재상신 클릭 → 팝업 대기
+                # dialog 핸들러: GW가 confirm/alert를 띄울 수 있음
+                dialog_messages = []
+
+                def _handle_dialog(dialog):
+                    msg = dialog.message
+                    dialog_messages.append(msg)
+                    logger.info(f"결재상신 dialog 감지: {msg[:100]}")
+                    dialog.accept()
+
+                self.page.on("dialog", _handle_dialog)
+
+                submit_btn = self.page.locator("button:has-text('결재상신')").first
+                submit_btn.wait_for(state="visible", timeout=5000)
+
+                # expect_page로 팝업 감지 (결재상신 → 새 창)
+                # 알림 팝업(art_seq_no, boardNo)은 제외해야 함
+                def _is_approval_popup(p_url: str) -> bool:
+                    """결재상신 팝업인지 판별 (알림 팝업 제외)"""
+                    if not p_url or p_url == "about:blank":
+                        return False
+                    if "art_seq_no" in p_url or "boardNo" in p_url:
+                        return False  # 알림/게시판 팝업
+                    if "MicroModuleCode=eap" in p_url or "formId" in p_url:
+                        return True  # 결재 양식 팝업
+                    if "popup" in p_url and "eap" in p_url:
+                        return True
+                    return True  # 기타 팝업도 일단 허용
+
+                popup_page = None
+                pages_before = set(id(p) for p in self.context.pages)
+                submit_btn.click(force=True)
+                logger.info("결재상신 클릭 → 팝업 대기")
+
+                # 최대 15초 대기하며 새 결재 팝업 감지
+                for _ in range(30):
+                    time.sleep(0.5)
+                    for p in self.context.pages:
+                        try:
+                            if id(p) in pages_before or p.is_closed():
+                                continue
+                            p_url = p.url or ""
+                            if _is_approval_popup(p_url):
+                                popup_page = p
+                                logger.info(f"결재상신 팝업 감지: {p_url[:100]}")
+                                break
+                            else:
+                                logger.debug(f"알림 팝업 건너뜀: {p_url[:80]}")
+                                pages_before.add(id(p))  # 다음 루프에서 무시
+                        except Exception:
+                            continue
+                    if popup_page:
+                        break
+
+                # dialog 핸들러 제거
+                self.page.remove_listener("dialog", _handle_dialog)
+
+                if not popup_page:
+                    _save_debug(self.page, "error_expense_no_popup_after_submit")
+                    # dialog 메시지가 있으면 검증 오류로 판단
+                    if dialog_messages:
+                        return {"success": False, "message": f"결재상신 검증 오류: {'; '.join(dialog_messages[:3])}"}
+                    # 부적합 오류 모달 확인 ("검증결과가 부적합인" 텍스트)
+                    try:
+                        error_modal = self.page.locator("text=부적합").first
+                        if error_modal.is_visible(timeout=2000):
+                            # 오류 내용 추출
+                            error_text = self.page.evaluate("""() => {
+                                const els = document.querySelectorAll('div, span, li, p');
+                                const errors = [];
+                                for (const el of els) {
+                                    const t = el.textContent?.trim() || '';
+                                    if (t.includes('입력해주세요') || t.includes('오류 내용')) {
+                                        errors.push(t.substring(0, 80));
+                                    }
+                                }
+                                return errors.slice(0, 10).join('; ');
+                            }""")
+                            # 닫기 버튼 클릭
+                            try:
+                                close_btn = self.page.locator("button:has-text('닫기')").first
+                                if close_btn.is_visible(timeout=1000):
+                                    close_btn.click()
+                            except Exception:
+                                pass
+                            return {"success": False, "message": f"검증 부적합: {error_text[:200]}"}
+                    except Exception:
+                        pass
+                    # 일반 모달 오류 확인
+                    try:
+                        modal_text = self.page.evaluate("""() => {
+                            let text = '';
+                            document.querySelectorAll('[class*="modal"], [class*="dialog"], [role="dialog"]').forEach(el => {
+                                if (el.offsetParent !== null) {
+                                    text = el.textContent?.trim()?.substring(0, 300) || '';
+                                }
+                            });
+                            return text;
+                        }""")
+                        if modal_text:
+                            return {"success": False, "message": f"결재상신 오류 모달: {modal_text[:150]}"}
+                    except Exception:
+                        pass
+                    return {"success": False, "message": "결재상신 후 팝업이 열리지 않았습니다."}
+
+                # 팝업 로드 대기
+                try:
+                    popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
+                except Exception:
+                    time.sleep(3)
+                popup_page.on("dialog", lambda d: d.accept())
+                logger.info(f"결재상신 팝업 열림: {popup_page.url[:100]}")
+                _save_debug(popup_page, "expense_draft_02_popup_opened")
+
+                # 8. 팝업에서 보관 버튼 클릭
+                result = self._save_draft_in_popup(popup_page)
+                return result
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"지출결의서 보관 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                if popup_page:
+                    _save_debug(popup_page, f"error_expense_popup_timeout{attempt}")
+                if attempt < MAX_RETRIES:
+                    if not self._check_session_valid():
+                        return {"success": False, "message": "세션이 만료되었습니다."}
+                    self._close_popups()
+                    time.sleep(RETRY_DELAY)
+            except RuntimeError as e:
+                return {"success": False, "message": str(e)}
+            except Exception as e:
+                last_error = e
+                logger.error(f"지출결의서 보관 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                if popup_page:
+                    _save_debug(popup_page, f"error_expense_popup_{attempt}")
+                if attempt < MAX_RETRIES:
+                    self._close_popups()
+                    time.sleep(RETRY_DELAY)
+            finally:
+                # 팝업 정리 (실패 시)
+                if popup_page and not popup_page.is_closed():
+                    try:
+                        popup_page.close()
+                    except Exception:
+                        pass
+
+        return {"success": False, "message": f"지출결의서 보관 실패 ({MAX_RETRIES}회 시도): {str(last_error)}"}
+
+    def _fill_expense_popup_title(self, popup_page, title: str):
+        """팝업 지출결의서 제목 입력"""
+        try:
+            inputs = popup_page.locator("input[type='text']:visible, input:not([type]):visible").all()
+            for inp in inputs:
+                val = inp.input_value()
+                # 기본 제목 패턴: "[지출결의서]PM팀_전태규_"
+                if "[지출결의서]" in val or "지출결의서" in val:
+                    inp.click()
+                    inp.fill(title)
+                    logger.info(f"팝업 제목 입력: {title}")
+                    return
+            # 패턴 매칭 실패 시 4번째 input 시도 (제목 필드 위치)
+            if len(inputs) >= 4:
+                inp = inputs[3]
+                inp.click()
+                inp.fill(title)
+                logger.info(f"팝업 제목 입력 (인덱스): {title}")
+        except Exception as e:
+            logger.warning(f"팝업 제목 입력 실패: {e}")
+
+    def _fill_expense_popup_body(self, popup_page, data: dict):
+        """
+        팝업 지출결의서 dzEditor 본문 필드 채우기
+
+        mapping_key로 식별되는 dze_external_data_area 입력 필드의 value 속성을
+        HTML 문자열 교체 방식으로 수정
+        """
+        import re
+
+        # 에디터 HTML 가져오기
+        current_html = ""
+        for _ in range(10):
+            try:
+                current_html = popup_page.evaluate(
+                    "(n) => { try { return getEditorHTMLCodeIframe(n); } catch(e) { return ''; } }", 0
+                )
+            except Exception:
+                current_html = ""
+            if current_html and len(current_html) >= 100:
+                break
+            time.sleep(1)
+
+        if not current_html or len(current_html) < 100:
+            logger.warning("에디터 HTML 로드 실패, 본문 필드 건너뜀")
+            return
+
+        logger.info(f"에디터 HTML 가져옴: {len(current_html)} chars")
+        modified = current_html
+
+        # mapping_key별 value 교체 헬퍼
+        def replace_mapping_value(html, key, new_value):
+            """mapping_key="key" 인 input의 value 속성을 교체"""
+            pattern = rf'(mapping_key\s*=\s*"{re.escape(key)}"[^>]*\s+value\s*=\s*")[^"]*(")'
+            result = re.sub(pattern, lambda m: m.group(1) + str(new_value) + m.group(2), html, count=1)
+            # value가 mapping_key보다 앞에 올 수도 있음
+            if result == html:
+                pattern2 = rf'(value\s*=\s*")[^"]*("[^>]*mapping_key\s*=\s*"{re.escape(key)}")'
+                result = re.sub(pattern2, lambda m: m.group(1) + str(new_value) + m.group(2), html, count=1)
+            return result
+
+        # 기본정보 필드 (자동 매핑 — 프로젝트만 수동 설정)
+        project = data.get("project", "")
+        if project:
+            modified = replace_mapping_value(modified, "pjtName", project)
+            logger.info(f"프로젝트(pjtName): {project}")
+
+        # 총합계
+        total = data.get("total_amount", 0)
+        if total:
+            total_str = f"{int(total):,}"
+            modified = replace_mapping_value(modified, "sumAm", total_str)
+            modified = replace_mapping_value(modified, "totSumAm", total_str)
+            modified = replace_mapping_value(modified, "totSupAm", total_str)
+            logger.info(f"총합계(sumAm): {total_str}")
+
+        # 용도별합계 그리드 (첫 행)
+        items = data.get("items", [])
+        if items:
+            item = items[0]
+            amount = item.get("amount", 0)
+            item_name = item.get("item", "")
+            amount_str = f"{int(amount):,}" if amount else ""
+
+            modified = replace_mapping_value(modified, "summarySeq", "1")
+            modified = replace_mapping_value(modified, "rmkDc", item_name)
+            modified = replace_mapping_value(modified, "supAm", amount_str)
+
+            # 용도별합계 행의 합계
+            grid_sum_key = "sumAm"  # 그리드 행의 합계 (기본정보와 동명)
+            # 그리드 합계는 두 번째 occurrence이므로 직접 교체
+            # → 이미 기본정보에서 교체됨, 그리드 행은 별도 처리
+            logger.info(f"그리드 항목: {item_name}, 금액: {amount_str}")
+
+        # 설명 (description)
+        desc = data.get("description", "")
+        # description은 본문 하단 비고 영역에 기입 가능하지만 생략 가능
+
+        # HTML 설정
+        if modified != current_html:
+            try:
+                popup_page.evaluate(
+                    "(args) => { setEditorHTMLCodeIframe(args[0], args[1]); }",
+                    [modified, 0]
+                )
+                logger.info("에디터 HTML 설정 완료")
+            except Exception as e:
+                logger.warning(f"setEditorHTMLCodeIframe 실패: {e}")
+        else:
+            logger.info("에디터 HTML 변경 없음")
+
+    def _verify_expense_fields(self, data: dict) -> dict:
+        """인라인 폼 필드 작성 검증 (save_mode="verify" 전용, 실제 저장 없음)"""
+        page = self.page
+        _save_debug(page, "04_before_verify")
+
+        # 제목 필드 검증
+        try:
+            title_th = page.locator("th").filter(has_text="제목").first
+            title_td = title_th.locator("xpath=following-sibling::td").first
+            title_inp = title_td.locator("input").first
+            actual_title = title_inp.input_value()
+            expected_title = data.get("title", "")
+            if expected_title and expected_title in actual_title:
+                logger.info(f"제목 검증 OK: {actual_title}")
+            else:
+                logger.warning(f"제목 불일치: expected={expected_title}, actual={actual_title}")
+        except Exception as e:
+            logger.warning(f"제목 검증 실패: {e}")
+
+        # 페이지 이탈 검증 (HP URL 유지)
+        if "/HP/" not in page.url:
+            _save_debug(page, "error_page_escaped")
+            return {"success": False, "message": f"페이지 이탈 감지: {page.url[:80]}"}
+
+        _save_debug(page, "05_verify_complete")
+        logger.info("지출결의서 작성 검증 완료 (인라인 모드)")
+        return {"success": True, "message": "지출결의서 작성 완료 (인라인 폼, 보관은 팝업에서만 가능)"}
+
+    def _submit_inline_form(self) -> dict:
+        """인라인 폼에서 결재상신 실행"""
+        page = self.page
+        _save_debug(page, "04_before_submit")
+
+        submit_btn = page.locator("button:has-text('결재상신')").first
+        try:
+            submit_btn.wait_for(state="visible", timeout=5000)
+        except Exception:
+            return {"success": False, "message": "결재상신 버튼을 찾을 수 없습니다."}
+
+        submit_btn.click(force=True)
+        logger.info("결재상신 클릭")
+        time.sleep(3)
+
+        # 검증 오류 모달 확인
+        try:
+            # z-index 높은 모달 텍스트 확인
+            modal_text = page.evaluate("""() => {
+                let text = '';
+                document.querySelectorAll('*').forEach(el => {
+                    const z = parseInt(getComputedStyle(el).zIndex) || 0;
+                    if (z > 1000 && z < 5000 && el.offsetParent !== null) {
+                        text = el.textContent?.trim()?.substring(0, 300) || '';
+                    }
+                });
+                return text;
+            }""")
+            if modal_text and '확인' in modal_text:
+                logger.warning(f"결재상신 검증 오류: {modal_text[:100]}")
+                return {"success": False, "message": f"결재상신 검증 오류: {modal_text[:100]}"}
+        except Exception:
+            pass
+
+        _save_debug(page, "05_after_submit")
+        return {"success": True, "message": "결재상신 완료"}
 
     def _navigate_to_approval_home(self):
         """전자결재 모듈 HOME으로 이동 (세션 확인 포함)"""
@@ -477,9 +873,12 @@ class ApprovalAutomation:
         if not self._check_session_valid():
             raise RuntimeError("세션이 만료되었습니다.")
 
+        # 로그인 직후 팝업이 열리는 시간 대기
+        time.sleep(2)
         self._close_popups()
 
         # 전자결재 모듈 아이콘 클릭 (span.module-link.EA)
+        navigated = False
         ea_link = page.locator("span.module-link.EA").first
         try:
             if ea_link.is_visible(timeout=5000):
@@ -488,32 +887,72 @@ class ApprovalAutomation:
             else:
                 raise PlaywrightTimeout("전자결재 모듈 링크 미발견")
         except PlaywrightTimeout:
-            # 대안: text로 찾기
             try:
                 page.locator("text=전자결재").first.click(force=True)
             except Exception:
-                raise RuntimeError("전자결재 모듈을 찾을 수 없습니다. 그룹웨어 메인 페이지인지 확인해주세요.")
+                pass
         except Exception:
-            page.locator("text=전자결재").first.click(force=True)
+            try:
+                page.locator("text=전자결재").first.click(force=True)
+            except Exception:
+                pass
 
         # 결재 HOME 확인 (클릭 후 페이지 로드 대기)
         try:
             page.wait_for_selector("text=결재 HOME", timeout=12000)
             logger.info("결재 HOME 도달")
+            navigated = True
         except Exception:
-            # 로그인 페이지 리다이렉트 확인
             if not self._check_session_valid():
                 raise RuntimeError("세션이 만료되었습니다.")
-            logger.warning("결재 HOME 텍스트 미발견, 계속 진행")
+            logger.warning("결재 HOME 텍스트 미발견")
+
+        # 폴백: URL 직접 네비게이션
+        if not navigated:
+            try:
+                page.goto(f"{GW_URL}/#/app/approval", wait_until="domcontentloaded", timeout=15000)
+                time.sleep(2)
+                logger.info("전자결재 URL 직접 이동")
+                # 다시 한번 확인
+                try:
+                    page.wait_for_selector("text=결재 HOME", timeout=5000)
+                    logger.info("결재 HOME 도달 (URL 폴백)")
+                except Exception:
+                    logger.warning("결재 HOME 텍스트 미발견 (URL 폴백)")
+            except Exception as e:
+                logger.warning(f"전자결재 URL 이동 실패: {e}")
 
         self._close_popups()
         _save_debug(page, "01_approval_home")
 
-    def _click_expense_form(self):
-        """추천양식에서 지출결의서 클릭"""
+    def _click_write_approval(self):
+        """결재작성 버튼 클릭 (결재 HOME → 결재작성 페이지)"""
         page = self.page
 
-        # 추천양식에서 "[프로젝트]지출결의서" 찾기
+        # 결재작성 버튼 (사이드바 상단 파란 버튼)
+        for selector in [
+            "button:has-text('결재작성')",
+            "a:has-text('결재작성')",
+            "div:has-text('결재작성') >> visible=true",
+            "text=결재작성",
+        ]:
+            try:
+                btn = page.locator(selector).first
+                if btn.is_visible(timeout=3000):
+                    btn.click(force=True)
+                    logger.info("결재작성 버튼 클릭")
+                    time.sleep(1)
+                    return
+            except Exception:
+                continue
+
+        logger.warning("결재작성 버튼 미발견, 현재 페이지에서 양식 검색 시도")
+
+    def _click_expense_form(self):
+        """결재작성 → 지출결의서 양식 선택 (인라인 폼)"""
+        page = self.page
+
+        # 1차: 현재 페이지에서 양식 바로 찾기
         for keyword in ["[프로젝트]지출결의서", "프로젝트]지출", "지출결의서"]:
             try:
                 links = page.locator(f"text={keyword}").all()
@@ -525,6 +964,22 @@ class ApprovalAutomation:
             except Exception:
                 continue
 
+        # 2차: 결재작성 버튼 클릭 후 양식 검색
+        logger.info("현재 페이지에 양식 없음 → 결재작성 클릭")
+        self._click_write_approval()
+
+        for keyword in ["[프로젝트]지출결의서", "프로젝트]지출", "지출결의서"]:
+            try:
+                links = page.locator(f"text={keyword}").all()
+                for link in links:
+                    if link.is_visible():
+                        link.click(force=True)
+                        logger.info(f"양식 클릭 (결재작성 경유): '{keyword}'")
+                        return
+            except Exception:
+                continue
+
+        _save_debug(page, "error_expense_form_not_found")
         raise Exception("지출결의서 양식을 찾을 수 없습니다.")
 
     def _wait_for_form_load(self):
@@ -626,6 +1081,13 @@ class ApprovalAutomation:
         - evidence_type: 증빙유형 ('세금계산서'|'계산서내역'|'카드사용내역'|'현금영수증')
         - attachment_path: 첨부파일 경로 (로컬 파일 또는 스크린샷)
         - auto_capture_budget: True이면 예실대비현황 스크린샷 캡처 후 첨부파일로 자동 업로드
+
+        22단계 확장 (세션 VIII):
+        - usage_code: 용도코드 (예: "5020"=외주공사비, 그리드 용도 셀)
+        - budget_keyword: 예산과목 검색어 (예: "경량", 2xxx 코드만 선택)
+        - payment_request_date: 지급요청일 (YYYY-MM-DD, 하단 날짜피커)
+        - accounting_date: 회계처리일자 (YYYY-MM-DD, 세금계산서 발행월 일치 필요)
+        - 검증결과 "적합" 확인 (부적합 시 툴팁으로 미비사항 추출)
         """
         page = self.page
         title = data.get("title", "")
@@ -636,6 +1098,20 @@ class ApprovalAutomation:
         if project:
             self._fill_project_code(project, y_hint=292)
             _save_debug(page, "03a_after_project_top")
+
+            # 프로젝트 입력 후 페이지 이탈 검증 (Enter→예산관리 네비게이션 방지)
+            time.sleep(0.3)
+            current_url = page.url
+            if "/HP/" not in current_url:
+                logger.warning(f"프로젝트 입력 후 페이지 이탈 감지: {current_url}")
+                _save_debug(page, "03a_page_escaped")
+                # 결재 홈 → 양식 재진입 복구
+                try:
+                    page.goto("https://gw.glowseoul.co.kr/#/app/approval")
+                    page.wait_for_load_state("networkidle", timeout=10000)
+                    logger.info("결재 홈으로 복구 완료 — 양식 재작성 필요")
+                except Exception as e:
+                    logger.error(f"페이지 복구 실패: {e}")
 
         # 2. 제목 입력 (th="제목" → td > input)
         if title:
@@ -659,32 +1135,35 @@ class ApprovalAutomation:
 
         _save_debug(page, "03_after_title")
 
-        # 4. 지출내역 그리드 입력
-        if items:
+        # 4. 증빙유형 → 세금계산서 모달 (그리드 수동 입력보다 먼저!)
+        #    세금계산서 선택 시 그리드가 자동으로 채워짐
+        evidence_type = data.get("evidence_type", "")
+        invoice_selected = False
+        if evidence_type:
+            _is_invoice_type = evidence_type in ("세금계산서", "계산서", "계산서내역")
+            if _is_invoice_type:
+                # 계산서내역 버튼 → DOM 모달 ("매입(세금)계산서 내역") 열림
+                self._click_evidence_type_button(evidence_type)
+                time.sleep(1)
+                try:
+                    invoice_selected = self._select_invoice_in_modal(
+                        vendor=data.get("invoice_vendor", ""),
+                        amount=data.get("invoice_amount"),
+                        date_from=data.get("invoice_date", ""),
+                        date_to=data.get("invoice_date", ""),
+                    )
+                except Exception as e:
+                    logger.warning(f"세금계산서 모달 선택 실패: {e}")
+                _save_debug(page, "03c2_after_invoice_select")
+            else:
+                # 세금계산서가 아닌 증빙유형 (카드, 현금영수증 등) → 버튼만 클릭
+                self._click_evidence_type_button(evidence_type)
+                _save_debug(page, "03c_after_evidence")
+
+        # 5. 지출내역 그리드 수동 입력 (세금계산서 미선택 시만)
+        if items and not invoice_selected:
             self._fill_grid_items(items)
             _save_debug(page, "03b_after_grid")
-
-        # 5. 증빙유형 버튼 클릭 (그리드 상단 버튼: 계산서내역, 카드사용내역, 현금영수증)
-        evidence_type = data.get("evidence_type", "")
-        if evidence_type:
-            self._click_evidence_type_button(evidence_type)
-            _save_debug(page, "03c_after_evidence")
-
-            # 5-1. 세금계산서 팝업 검색: invoice 정보가 있을 때만 실행
-            _is_invoice_type = evidence_type in ("세금계산서", "계산서", "계산서내역")
-            invoice_vendor = data.get("invoice_vendor", "")
-            invoice_amount = data.get("invoice_amount")
-            invoice_date = data.get("invoice_date", "") or data.get("date", "")
-            if _is_invoice_type and (invoice_vendor or invoice_amount):
-                # 팝업 열림 대기 (버튼 클릭 후 팝업이 느리게 열릴 수 있음)
-                page.wait_for_timeout(800)
-                self._select_invoice_from_popup(
-                    vendor=invoice_vendor,
-                    amount=invoice_amount,
-                    date_from=invoice_date,
-                    date_to=invoice_date,
-                )
-                _save_debug(page, "03c2_after_invoice_select")
 
         # 6. 증빙일자 입력 (하단 테이블, y=857)
         receipt_date = data.get("receipt_date", "") or data.get("date", "")
@@ -708,6 +1187,337 @@ class ApprovalAutomation:
             self._capture_and_attach_budget_screenshot()
             _save_debug(page, "03f_after_budget_capture")
 
+        # ─────────────────────────────────────────
+        # 10~22. 용도코드 → 예산과목 → 날짜 → 검증결과 (22단계 확장)
+        # ─────────────────────────────────────────
+
+        # 10. 용도코드 입력 — 모든 그리드 행에 대해 (부적합 방지)
+        #     사용자 확인: 코드 입력 후 Enter로 자동완성, 모든 행 필수
+        usage_code = data.get("usage_code", "")
+        if usage_code:
+            try:
+                # RealGrid API로 행 수 확인 + 용도 컬럼 인덱스 파악
+                grid_info = page.evaluate("""() => {
+                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
+                    let gv = null;
+                    for (const name of gridNames) {
+                        if (window[name] && typeof window[name].getItemCount === 'function') {
+                            gv = window[name];
+                            break;
+                        }
+                    }
+                    if (!gv) return null;
+                    const rowCount = gv.getItemCount();
+                    // 컬럼 필드명 목록
+                    const cols = gv.getColumns().map(c => ({name: c.name, fieldName: c.fieldName, header: c.header?.text || ''}));
+                    return {rowCount, cols, gridName: gv.constructor.name};
+                }""")
+
+                if grid_info:
+                    row_count = grid_info["rowCount"]
+                    cols = grid_info["cols"]
+                    logger.info(f"그리드 행 수: {row_count}, 컬럼: {[c['header'] for c in cols[:10]]}")
+
+                    # 용도 컬럼 찾기
+                    usage_col = None
+                    for c in cols:
+                        if "용도" in c.get("header", "") or "usage" in c.get("name", "").lower():
+                            usage_col = c
+                            break
+
+                    if usage_col and row_count > 0:
+                        # 각 행에 용도코드 입력 (클릭 + 타이핑 + Enter)
+                        filled_count = 0
+                        for row_idx in range(row_count):
+                            try:
+                                # RealGrid API로 셀 포커스
+                                page.evaluate(f"""() => {{
+                                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
+                                    for (const name of gridNames) {{
+                                        if (window[name] && typeof window[name].setCurrent === 'function') {{
+                                            window[name].setCurrent({{ itemIndex: {row_idx}, column: '{usage_col["name"]}' }});
+                                            window[name].setFocus();
+                                            break;
+                                        }}
+                                    }}
+                                }}""")
+                                time.sleep(0.3)
+
+                                # 편집 input에 용도코드 입력
+                                page.keyboard.type(str(usage_code), delay=30)
+                                time.sleep(0.3)
+                                page.keyboard.press("Enter")
+                                time.sleep(0.3)
+                                filled_count += 1
+                            except Exception:
+                                continue
+
+                        logger.info(f"용도코드 '{usage_code}' 입력: {filled_count}/{row_count}행")
+                    else:
+                        logger.warning(f"용도 컬럼 미발견 (cols: {[c['header'] for c in cols[:5]]})")
+                else:
+                    # 폴백: 첫 행만 좌표 클릭
+                    page.mouse.click(465, 275)
+                    time.sleep(0.5)
+                    page.keyboard.type(str(usage_code), delay=50)
+                    page.keyboard.press("Enter")
+                    logger.info(f"용도코드 폴백 (1행만): {usage_code}")
+
+                _save_debug(page, "10_after_usage_code")
+            except Exception as e:
+                logger.warning(f"용도코드 입력 실패: {e}")
+
+        # 10-1. 지급요청일도 그리드 행별 입력 (부적합 "N번 행의 지급요청일등(값)" 방지)
+        payment_request_date = data.get("payment_request_date", "")
+        if payment_request_date and usage_code:
+            try:
+                clean_date = payment_request_date.replace("-", "")
+                grid_info = page.evaluate("""() => {
+                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
+                    let gv = null;
+                    for (const name of gridNames) {
+                        if (window[name] && typeof window[name].getItemCount === 'function') {
+                            gv = window[name]; break;
+                        }
+                    }
+                    if (!gv) return null;
+                    const rowCount = gv.getItemCount();
+                    const cols = gv.getColumns().map(c => ({name: c.name, fieldName: c.fieldName, header: c.header?.text || ''}));
+                    return {rowCount, cols};
+                }""")
+
+                if grid_info:
+                    # 지급요청일 컬럼 찾기
+                    pay_col = None
+                    for c in grid_info["cols"]:
+                        h = c.get("header", "").replace(" ", "")
+                        if "지급요청" in h or "지급일" in h or "payDate" in c.get("name", "").lower():
+                            pay_col = c
+                            break
+
+                    if pay_col and grid_info["rowCount"] > 0:
+                        filled_count = 0
+                        for row_idx in range(grid_info["rowCount"]):
+                            try:
+                                page.evaluate(f"""() => {{
+                                    const gn = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
+                                    for (const name of gn) {{
+                                        if (window[name] && typeof window[name].setCurrent === 'function') {{
+                                            window[name].setCurrent({{ itemIndex: {row_idx}, column: '{pay_col["name"]}' }});
+                                            window[name].setFocus();
+                                            break;
+                                        }}
+                                    }}
+                                }}""")
+                                time.sleep(0.2)
+                                page.keyboard.type(clean_date, delay=20)
+                                time.sleep(0.2)
+                                page.keyboard.press("Tab")
+                                time.sleep(0.2)
+                                filled_count += 1
+                            except Exception:
+                                continue
+                        logger.info(f"지급요청일 '{payment_request_date}' 그리드 입력: {filled_count}/{grid_info['rowCount']}행")
+                    else:
+                        logger.warning(f"지급요청일 컬럼 미발견")
+                _save_debug(page, "10_1_after_payment_date_grid")
+            except Exception as e:
+                logger.warning(f"지급요청일 그리드 입력 실패: {e}")
+
+        # 11. 용도코드 입력 후 동적 예산 필드 출현 대기
+        #     (용도코드 입력 시 하단에 예산과목/예산화계단위/예산프로젝트 필드 동적 생성)
+        budget_keyword = data.get("budget_keyword", "")
+        if usage_code and budget_keyword:
+            time.sleep(1.0)  # 동적 필드 렌더링 대기
+            _save_debug(page, "11_after_usage_code_dynamic_fields")
+
+            # 12~17. 예산과목 선택 (공통 예산잔액 조회 팝업)
+            try:
+                from src.approval.budget_helpers import select_budget_code
+                budget_result = select_budget_code(
+                    page=page,
+                    project_keyword=project.split(". ")[-1].split("]")[-1].strip() if project else "",
+                    budget_keyword=budget_keyword,
+                )
+                if budget_result["success"]:
+                    logger.info(f"예산과목 설정 완료: {budget_result['budget_code']}. {budget_result['budget_name']}")
+                else:
+                    logger.warning(f"예산과목 설정 실패: {budget_result['message']}")
+                _save_debug(page, "17_after_budget_code")
+            except Exception as e:
+                logger.error(f"예산과목 선택 예외: {e}")
+
+        # 18~19. 지급요청일 선택 (하단 날짜피커)
+        payment_request_date = data.get("payment_request_date", "")
+        if payment_request_date:
+            try:
+                clean_date = payment_request_date.replace("-", "")
+                # "지급요청일" 라벨 옆의 날짜 input 찾기
+                date_inputs = page.locator(
+                    "input.OBTDatePickerRebuild_inputYMD__PtxMy, "
+                    "input[class*='OBTDatePickerRebuild_inputYMD']"
+                ).all()
+                filled = False
+                for inp in date_inputs:
+                    try:
+                        if not inp.is_visible():
+                            continue
+                        box = inp.bounding_box()
+                        if not box:
+                            continue
+                        # 지급요청일: 증빙일자(y≈857)보다 오른쪽 또는 약간 아래 (x≈870~930, y≈855~870)
+                        # 증빙일자와 구분: x 위치로 판별 (지급요청일은 x>800)
+                        if box["y"] > 800 and box["x"] > 750:
+                            inp.click(force=True)
+                            inp.fill(clean_date)
+                            inp.press("Tab")
+                            logger.info(f"지급요청일 입력: {payment_request_date}")
+                            filled = True
+                            break
+                    except Exception:
+                        continue
+
+                if not filled:
+                    # 폴백: 캘린더 아이콘 직접 클릭 방식
+                    # "지급요청일" 텍스트 옆 캘린더 아이콘
+                    try:
+                        label = page.locator("th:has-text('지급요청일'), td:has-text('지급요청일')").first
+                        if label.is_visible(timeout=2000):
+                            cal_icon = label.locator("xpath=following::button[1]")
+                            if cal_icon.is_visible(timeout=1000):
+                                cal_icon.click()
+                                time.sleep(0.5)
+                                # 날짜 피커에서 날짜 선택 (오늘 날짜 또는 지정 날짜)
+                                # YYYY-MM-DD에서 일(day) 추출
+                                day = str(int(payment_request_date.split("-")[-1]))
+                                day_cell = page.locator(f"td:has-text('{day}')").first
+                                if day_cell.is_visible(timeout=3000):
+                                    day_cell.click()
+                                    logger.info(f"지급요청일 캘린더 선택: {payment_request_date}")
+                                    filled = True
+                    except Exception:
+                        pass
+
+                if not filled:
+                    logger.warning(f"지급요청일 입력 실패: {payment_request_date}")
+                _save_debug(page, "19_after_payment_request_date")
+            except Exception as e:
+                logger.warning(f"지급요청일 처리 중 오류: {e}")
+
+        # 20~21. 회계처리일자 변경 (상단, 세금계산서 발행월과 일치 필요)
+        accounting_date = data.get("accounting_date", "")
+        if accounting_date:
+            try:
+                clean_date = accounting_date.replace("-", "")
+                # 상단 "회계처리일자" 날짜 input (y<200 영역)
+                date_inputs = page.locator(
+                    "input.OBTDatePickerRebuild_inputYMD__PtxMy, "
+                    "input[class*='OBTDatePickerRebuild_inputYMD']"
+                ).all()
+                filled = False
+                for inp in date_inputs:
+                    try:
+                        if not inp.is_visible():
+                            continue
+                        box = inp.bounding_box()
+                        if not box:
+                            continue
+                        # 회계처리일자: 상단 영역 (y < 200)
+                        if box["y"] < 200:
+                            inp.click(force=True)
+                            inp.fill(clean_date)
+                            inp.press("Tab")
+                            logger.info(f"회계처리일자 변경: {accounting_date}")
+                            filled = True
+                            break
+                    except Exception:
+                        continue
+
+                if not filled:
+                    # 폴백: "회계처리일자" 라벨 기반
+                    try:
+                        label = page.locator(
+                            "th:has-text('회계처리일자'), "
+                            "td:has-text('회계처리일자'), "
+                            "span:has-text('회계처리일자')"
+                        ).first
+                        if label.is_visible(timeout=2000):
+                            date_inp = label.locator("xpath=following::input[1]")
+                            if date_inp.is_visible(timeout=1000):
+                                date_inp.click(force=True)
+                                date_inp.fill(clean_date)
+                                date_inp.press("Tab")
+                                logger.info(f"회계처리일자 변경 (라벨 폴백): {accounting_date}")
+                                filled = True
+                    except Exception:
+                        pass
+
+                if not filled:
+                    logger.warning(f"회계처리일자 변경 실패: {accounting_date}")
+
+                time.sleep(0.5)  # 검증결과 갱신 대기
+                _save_debug(page, "21_after_accounting_date")
+            except Exception as e:
+                logger.warning(f"회계처리일자 처리 중 오류: {e}")
+
+        # 22. 검증결과 확인 ("적합" / "부적합")
+        try:
+            time.sleep(0.5)  # 검증 결과 갱신 완료 대기
+            validation_text = ""
+            # 그리드 마지막 열 "검증결과" 셀 텍스트 확인
+            validation_selectors = [
+                "div[class*='rg-cell']:has-text('적합')",
+                "td:has-text('적합')",
+                "span:has-text('적합')",
+                "div[class*='rg-cell']:has-text('부적합')",
+                "td:has-text('부적합')",
+            ]
+            for sel in validation_selectors:
+                try:
+                    el = page.locator(sel).first
+                    if el.is_visible(timeout=2000):
+                        validation_text = el.inner_text(timeout=1000).strip()
+                        break
+                except Exception:
+                    continue
+
+            if "적합" in validation_text and "부적합" not in validation_text:
+                logger.info(f"검증결과: 적합 ✓")
+            elif "부적합" in validation_text:
+                # 부적합 시 셀 호버 → 툴팁으로 미비 사항 확인
+                tooltip_text = ""
+                try:
+                    el = page.locator(
+                        "div[class*='rg-cell']:has-text('부적합'), "
+                        "td:has-text('부적합'), "
+                        "span:has-text('부적합')"
+                    ).first
+                    if el.is_visible(timeout=1000):
+                        el.hover()
+                        time.sleep(0.5)
+                        # 툴팁 텍스트 추출 (title 속성 또는 동적 tooltip div)
+                        tooltip_text = el.get_attribute("title") or ""
+                        if not tooltip_text:
+                            tooltip_el = page.locator(
+                                "div[class*='tooltip'], "
+                                "div[class*='Tooltip'], "
+                                "div[role='tooltip']"
+                            ).first
+                            try:
+                                if tooltip_el.is_visible(timeout=2000):
+                                    tooltip_text = tooltip_el.inner_text(timeout=1000).strip()
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+                logger.warning(f"검증결과: 부적합 ✗ — {tooltip_text or '미비 사항 확인 필요'}")
+            else:
+                logger.info("검증결과 셀을 찾을 수 없음 (용도코드/예산과목 미입력 시 정상)")
+
+            _save_debug(page, "22_after_validation_check")
+        except Exception as e:
+            logger.debug(f"검증결과 확인 중 오류: {e}")
+
     # ─────────────────────────────────────────
     # 지출내역 그리드 입력
     # ─────────────────────────────────────────
@@ -719,27 +1529,25 @@ class ApprovalAutomation:
 
     def _fill_project_code(self, project: str, y_hint: float = None):
         """
-        프로젝트 코드도움 자동완성 입력.
+        프로젝트 코드도움 모달 기반 입력.
 
-        GW 자동완성 위젯 동작:
-        1. placeholder="프로젝트코드도움" input 클릭
-        2. 검색어 입력 (프로젝트 코드 또는 이름 일부)
-        3. 드롭다운 첫 번째 항목 Enter 또는 클릭으로 선택
-
-        DOM 좌표: x=838, y=292 (상단 테이블) / y=857 근처 (하단 테이블)
+        GW OBT 위젯 동작:
+        1. placeholder="프로젝트코드도움" input 클릭 → "프로젝트코드도움" 모달 열림
+        2. 모달 검색어 필드에 키워드 입력 → Enter 또는 돋보기 클릭
+        3. 필터된 결과에서 행 클릭 → 확인
 
         Args:
-            project: 프로젝트 코드 또는 이름 일부 (예: 'GS-25-0088')
+            project: 프로젝트 코드 또는 이름 일부 (예: '메디빌더', 'GS-25-0088')
             y_hint: 특정 y좌표 근처 input 선택 시 사용 (None이면 첫 번째 visible)
         """
         page = self.page
+
+        # 1. 프로젝트 input 클릭 → 모달 트리거
         try:
-            # placeholder로 input 목록 찾기
             all_proj_inputs = page.locator("input[placeholder='프로젝트코드도움']").all()
             proj_input = None
 
             if y_hint is not None:
-                # y 좌표 힌트에 가장 가까운 input 선택
                 best_dist = float("inf")
                 for inp in all_proj_inputs:
                     try:
@@ -752,7 +1560,6 @@ class ApprovalAutomation:
                     except Exception:
                         continue
             else:
-                # 첫 번째 visible input 사용
                 for inp in all_proj_inputs:
                     try:
                         if inp.is_visible(timeout=1000):
@@ -762,54 +1569,214 @@ class ApprovalAutomation:
                         continue
 
             if proj_input and proj_input.is_visible(timeout=3000):
-                proj_input.click(force=True)
-                proj_input.fill("")
-                proj_input.type(project, delay=60)  # delay=60ms: 자동완성 트리거
+                proj_input.click()
+                time.sleep(0.3)
+                proj_input.click(click_count=3)  # 전체 선택
+                time.sleep(0.2)
+                page.keyboard.type(project, delay=80)
                 logger.info(f"프로젝트 검색어 입력: {project}")
+        except Exception as e:
+            logger.warning(f"프로젝트 input 클릭 실패: {e}")
+            return False
 
-                # 자동완성 드롭다운 대기 (GW OBT 위젯 셀렉터 다수 시도)
-                dropdown_selectors = [
-                    "ul[class*='autocomplete'] li",
-                    "div[class*='OBTAutoComplete'] li",
-                    "div[class*='suggest'] li",
-                    "div[class*='dropdown'] li",
-                    "div[class*='list'] li",
-                    "li[class*='item']",
-                ]
-                for sel in dropdown_selectors:
-                    try:
-                        dropdown_item = page.locator(sel).first
-                        if dropdown_item.is_visible(timeout=1500):
-                            dropdown_item.click()
-                            logger.info(f"프로젝트 드롭다운 항목 클릭: {sel}")
-                            return True
-                    except Exception:
-                        continue
+        # 2. "프로젝트코드도움" 모달 대기
+        time.sleep(1)
+        modal_visible = False
+        try:
+            title_el = page.locator("text=프로젝트코드도움").first
+            if title_el.is_visible(timeout=3000):
+                modal_visible = True
+                logger.info("프로젝트코드도움 모달 열림")
+        except Exception:
+            pass
 
-                # 폴백: Enter 키로 첫 번째 항목 선택
+        if not modal_visible:
+            # 모달이 안 열린 경우 — input에서 Enter 시도
+            try:
                 proj_input.press("Enter")
-                logger.info("프로젝트 Enter 선택")
-                # Enter 후 값 확정 대기
+                time.sleep(1)
+                title_el = page.locator("text=프로젝트코드도움").first
+                if title_el.is_visible(timeout=3000):
+                    modal_visible = True
+            except Exception:
+                pass
+
+        if not modal_visible:
+            logger.warning("프로젝트코드도움 모달 미열림")
+            return False
+
+        # 3. 모달 내 검색어 확인 + 돋보기(조회) 버튼 클릭
+        try:
+            # JS로 모달 컨테이너 내부의 검색 input 찾기 (OBTDialog2 overlay 문제 회피)
+            modal_search_idx = page.evaluate("""() => {
+                // "프로젝트코드도움" 텍스트를 포함하는 다이얼로그 컨테이너 찾기
+                const allEls = document.querySelectorAll('[class*="OBTDialog"], [class*="modal"], [role="dialog"]');
+                for (const container of allEls) {
+                    if (!container.textContent.includes('프로젝트코드도움')) continue;
+                    const inputs = container.querySelectorAll('input:not([disabled])');
+                    for (const inp of inputs) {
+                        if (inp.type === 'text' || inp.type === '') {
+                            // 모달 전체 input 중 인덱스 반환
+                            const allInputs = [...document.querySelectorAll('input')];
+                            return allInputs.indexOf(inp);
+                        }
+                    }
+                }
+                // 폴백: "검색어" 라벨 근처 input
+                const labels = document.querySelectorAll('label, span, td');
+                for (const lbl of labels) {
+                    if (lbl.textContent.trim() === '검색어') {
+                        const parent = lbl.closest('tr') || lbl.parentElement;
+                        if (parent) {
+                            const inp = parent.querySelector('input:not([disabled])');
+                            if (inp) {
+                                const allInputs = [...document.querySelectorAll('input')];
+                                return allInputs.indexOf(inp);
+                            }
+                        }
+                    }
+                }
+                return -1;
+            }""")
+
+            modal_search = None
+            if modal_search_idx >= 0:
+                modal_search = page.locator("input").nth(modal_search_idx)
+                current_val = modal_search.input_value()
+                if project.lower() not in current_val.lower():
+                    modal_search.click(force=True)
+                    modal_search.fill(project)
+                logger.info(f"모달 검색어: {modal_search.input_value()}")
+            else:
+                logger.warning("모달 내 검색 input을 찾지 못함")
+
+            # 돋보기(조회) 버튼 클릭
+            # DOM 확인: OBTConditionPanel_searchButton 클래스, img[src*='search'] 포함
+            search_btn_clicked = False
+
+            # 방법 1: OBTConditionPanel_searchButton 클래스 (정확한 셀렉터)
+            try:
+                search_btn = page.locator("button[class*='searchButton']")
+                if search_btn.first.is_visible(timeout=2000):
+                    search_btn.first.click()
+                    search_btn_clicked = True
+                    logger.info("프로젝트 돋보기 클릭 (searchButton 클래스)")
+            except Exception:
+                pass
+
+            # 방법 2: 검색 아이콘 이미지를 포함하는 버튼
+            if not search_btn_clicked:
                 try:
-                    page.wait_for_load_state("networkidle", timeout=3000)
+                    icon_btn = page.locator("button:has(img[src*='search'])")
+                    if icon_btn.first.is_visible(timeout=1500):
+                        icon_btn.first.click()
+                        search_btn_clicked = True
+                        logger.info("프로젝트 돋보기 클릭 (img[src*='search'])")
                 except Exception:
                     pass
-                return True
-        except Exception as e:
-            logger.debug(f"프로젝트 코드도움 입력 실패 (selector): {e}")
 
-        # 폴백: 좌표 기반
-        fallback_y = y_hint if y_hint is not None else 292
-        fallback_x = 838
-        try:
-            page.mouse.click(fallback_x, fallback_y)
-            page.keyboard.type(project, delay=60)
-            page.keyboard.press("Enter")
-            logger.info(f"프로젝트 입력 (좌표 폴백 {fallback_x},{fallback_y}): {project}")
-            return True
+            # 방법 3: 검색 input과 같은 y에 있는 소형 버튼
+            if not search_btn_clicked and modal_search:
+                try:
+                    search_box = modal_search.bounding_box()
+                    if search_box:
+                        btns = page.locator("button").all()
+                        for btn in btns:
+                            box = btn.bounding_box()
+                            if not box:
+                                continue
+                            # 같은 y (±10px), 검색 input 오른쪽, 소형
+                            if (abs(box["y"] - search_box["y"]) < 15
+                                    and box["x"] > search_box["x"] + search_box["width"] - 10
+                                    and box["width"] < 40 and box["height"] < 40):
+                                btn.click()
+                                search_btn_clicked = True
+                                logger.info(f"프로젝트 돋보기 클릭 (input 옆, x={box['x']:.0f} y={box['y']:.0f})")
+                                break
+                except Exception:
+                    pass
+
+            if not search_btn_clicked and modal_search:
+                modal_search.press("Enter")
+                logger.info("프로젝트 검색 Enter 폴백")
+
+            time.sleep(1.5)
         except Exception as e:
-            logger.warning(f"프로젝트 코드도움 좌표 폴백도 실패: {e}")
-        return False
+            logger.warning(f"모달 검색 실패: {e}")
+
+        _save_debug(page, "proj_modal_search_result")
+
+        # 4. 검색 결과에서 첫 번째 데이터 행 더블클릭 (좌표 기반)
+        # OBTGrid는 canvas 기반이라 DOM 행 요소가 없음 → 모달 제목 기준 상대좌표 사용
+        selected = False
+        try:
+            title_box = page.locator("text=프로젝트코드도움").first.bounding_box()
+            if title_box:
+                # 모달 레이아웃: 제목(y) → 검색바(+35) → 헤더(+65) → 첫 데이터 행(+85)
+                first_row_x = title_box["x"] + 200  # 모달 중앙
+                first_row_y = title_box["y"] + 95    # 첫 데이터 행 중앙
+
+                # 더블클릭으로 행 선택 (사용자 확인: 더블클릭 = 선택 + 모달 닫기)
+                page.mouse.dblclick(first_row_x, first_row_y)
+                logger.info(f"프로젝트 첫 행 더블클릭: ({first_row_x:.0f}, {first_row_y:.0f})")
+                selected = True
+                time.sleep(1.0)
+        except Exception as e:
+            logger.warning(f"프로젝트 좌표 더블클릭 실패: {e}")
+
+        # 5. 모달이 아직 열려있으면 확인 버튼 클릭
+        if selected:
+            modal_still_open = False
+            try:
+                modal_still_open = page.locator("text=프로젝트코드도움").first.is_visible(timeout=1500)
+            except Exception:
+                pass
+
+            if modal_still_open:
+                # 확인 버튼 클릭
+                try:
+                    cancel_btns = page.locator("button:has-text('취소')").all()
+                    confirm_btns = page.locator("button:has-text('확인')").all()
+                    clicked = False
+                    for cb in cancel_btns:
+                        cb_box = cb.bounding_box()
+                        if not cb_box:
+                            continue
+                        for btn in confirm_btns:
+                            b_box = btn.bounding_box()
+                            if b_box and abs(b_box["y"] - cb_box["y"]) < 15:
+                                btn.click()
+                                logger.info(f"프로젝트 모달 확인 클릭 (y={b_box['y']:.0f})")
+                                clicked = True
+                                break
+                        if clicked:
+                            break
+                    if not clicked:
+                        page.locator("button:has-text('확인')").last.click()
+                        logger.info("프로젝트 모달 확인 클릭 (폴백)")
+                    time.sleep(0.5)
+                except Exception:
+                    pass
+            else:
+                logger.info("프로젝트 더블클릭으로 모달 자동 닫힘")
+        else:
+            try:
+                page.locator("button:has-text('취소')").last.click()
+                time.sleep(0.3)
+            except Exception:
+                pass
+            logger.warning("프로젝트 좌표 선택 실패")
+
+        # 6. 모달 닫힘 대기
+        for _ in range(10):
+            try:
+                if not page.locator("text=프로젝트코드도움").first.is_visible(timeout=200):
+                    break
+            except Exception:
+                break
+            time.sleep(0.3)
+
+        return selected
 
     def _click_evidence_type_button(self, evidence_type: str):
         """
@@ -845,20 +1812,58 @@ class ApprovalAutomation:
             "현금영수증": (1557, 373),
         }
 
-        # selector로 먼저 시도
+        # 방법 1: 텍스트 기반으로 모든 요소 타입 검색 (button, div, span, a 등)
+        # GW 탭은 button이 아닐 수 있음
+        selectors = [
+            f"text='{btn_text}'",
+            f"button:has-text('{btn_text}')",
+            f"div:has-text('{btn_text}')",
+            f"span:has-text('{btn_text}')",
+            f"a:has-text('{btn_text}')",
+        ]
+        # 지출내역 헤더 y 기준점 (fullscreen 호환)
+        grid_y_min, grid_y_max = 200, 600  # 넉넉한 기본 범위
         try:
-            btns = page.locator(f"button:has-text('{btn_text}')").all()
-            for btn in btns:
-                if btn.is_visible():
-                    box = btn.bounding_box()
-                    if box and 340 < box["y"] < 420:
-                        btn.click(force=True)
-                        logger.info(f"증빙유형 버튼 클릭: '{btn_text}'")
-                        return True
+            header_el = page.locator("text='지출내역'").first
+            if header_el.is_visible(timeout=1000):
+                hbox = header_el.bounding_box()
+                if hbox:
+                    grid_y_min = hbox["y"] - 10
+                    grid_y_max = hbox["y"] + 120
         except Exception:
             pass
 
-        # 폴백: 좌표 클릭
+        for sel in selectors:
+            try:
+                elements = page.locator(sel).all()
+                for el in elements:
+                    if el.is_visible():
+                        box = el.bounding_box()
+                        if not box:
+                            continue
+                        # 지출내역 탭 영역 + 크기 필터
+                        if grid_y_min < box["y"] < grid_y_max and box["width"] < 200:
+                            el_text = el.inner_text().strip()
+                            if btn_text in el_text:
+                                el.click()
+                                logger.info(f"증빙유형 버튼 클릭: '{btn_text}' (sel={sel}, y={box['y']:.0f})")
+                                return True
+            except Exception:
+                continue
+
+        # 방법 2: get_by_text (정확한 텍스트 매칭)
+        try:
+            el = page.get_by_text(btn_text, exact=True).first
+            if el.is_visible(timeout=2000):
+                box = el.bounding_box()
+                if box and box["y"] > 300:
+                    el.click()
+                    logger.info(f"증빙유형 버튼 클릭 (get_by_text): '{btn_text}' (y={box['y']:.0f})")
+                    return True
+        except Exception:
+            pass
+
+        # 방법 3: 좌표 폴백
         coords = coord_map.get(btn_text)
         if coords:
             try:
@@ -871,7 +1876,7 @@ class ApprovalAutomation:
         logger.warning(f"증빙유형 버튼 미발견: '{evidence_type}'")
         return False
 
-    def _select_invoice_from_popup(
+    def _select_invoice_in_modal(
         self,
         vendor: str = "",
         amount: float = None,
@@ -879,341 +1884,418 @@ class ApprovalAutomation:
         date_to: str = "",
     ) -> bool:
         """
-        계산서내역 팝업에서 세금계산서를 검색/선택하여 지출결의서에 연결.
+        계산서내역 DOM 모달("매입(세금)계산서 내역")에서 세금계산서를 검색/선택.
 
-        흐름:
-        1. 팝업이 열릴 때까지 대기 (계산서내역 버튼 클릭은 _fill_expense_fields에서 수행)
-        2. 기간 확장 설정 (date_from~date_to 또는 당월 ±3개월)
-        3. 거래처명 입력 후 검색
-        4. 결과 목록에서 vendor/amount 일치 항목 선택
-        5. 확인/선택 버튼 클릭 → 팝업 닫힘
-
-        Args:
-            vendor:    거래처명 (예: '주식회사 ABC'). 빈 문자열이면 전체 조회.
-            amount:    금액 (원). None이면 금액 매칭 건너뜀.
-            date_from: 조회 시작일 (YYYYMMDD 또는 YYYY-MM-DD). 빈 문자열이면 자동계산.
-            date_to:   조회 종료일 (YYYYMMDD 또는 YYYY-MM-DD). 빈 문자열이면 자동계산.
-
-        Returns:
-            True if 세금계산서 선택 성공
+        계산서내역 버튼 클릭 후 같은 페이지에 오버레이 모달이 열림 (window.open 아님).
+        모달 구조:
+        - 제목: "매입(세금)계산서 내역"
+        - 사업장, 작성일자 (시작~종료)
+        - 미반영/반영완료 탭
+        - 테이블: 작성일자, 거래처, 사업자번호, 수신메일, 공급가액, 세액, 합계금액, ...
+        - 체크박스로 행 선택
+        - 취소/확인 버튼
         """
         import datetime as _dt
 
         page = self.page
 
-        # 날짜 포맷 정규화 YYYYMMDD
-        def _norm_date(d: str) -> str:
+        def _norm(d: str) -> str:
             return d.replace("-", "")[:8]
 
-        # 기본 기간: 당월 기준 ±3개월
+        # 기본 기간: ±3개월
         today = _dt.date.today()
         if not date_from:
-            start = (today.replace(day=1) - _dt.timedelta(days=60)).replace(day=1)
+            start = (today.replace(day=1) - _dt.timedelta(days=90)).replace(day=1)
             date_from = start.strftime("%Y%m%d")
         else:
-            date_from = _norm_date(date_from)
-
+            date_from = _norm(date_from)
         if not date_to:
-            # 이번 달 말일
-            next_month = today.replace(day=28) + _dt.timedelta(days=4)
-            date_to = next_month.replace(day=1) - _dt.timedelta(days=1)
-            date_to = date_to.strftime("%Y%m%d")
+            next_m = today.replace(day=28) + _dt.timedelta(days=4)
+            date_to = (next_m.replace(day=1) - _dt.timedelta(days=1)).strftime("%Y%m%d")
         else:
-            date_to = _norm_date(date_to)
+            date_to = _norm(date_to)
 
-        logger.info(f"계산서내역 팝업 검색 — vendor='{vendor}' amount={amount} 기간={date_from}~{date_to}")
+        logger.info(f"계산서 모달 검색 — vendor='{vendor}' amount={amount} 기간={date_from}~{date_to}")
 
-        # 팝업 페이지 대기 (context.pages에 새 팝업 추가 또는 모달 레이어)
-        popup_page = None
-        if self.context:
-            pages_before = set(id(p) for p in self.context.pages)
-            for _ in range(20):  # 최대 5초 대기
-                current = self.context.pages
-                for p in current:
-                    if id(p) not in pages_before:
-                        popup_page = p
-                        break
-                if popup_page:
+        # ── 모달 표시 대기 ──
+        # "매입(세금)계산서 내역" 제목이 보일 때까지 대기
+        modal_visible = False
+        for _ in range(20):  # 최대 5초
+            try:
+                title_el = page.locator("text=매입(세금)계산서 내역").first
+                if title_el.is_visible(timeout=250):
+                    modal_visible = True
                     break
-                page.wait_for_timeout(250)
+            except Exception:
+                pass
+            time.sleep(0.25)
 
-        target = popup_page or page
+        if not modal_visible:
+            logger.warning("계산서 모달 미표시")
+            _save_debug(page, "invoice_modal_not_found")
+            return False
 
-        if popup_page:
+        logger.info("계산서 모달 표시 확인")
+
+        # ── 모달 내 날짜 설정 ──
+        # 모달의 "작성일자" 날짜 필드: "매입(세금)계산서 내역" 제목 아래 영역
+        # JavaScript로 모달 내 date input을 직접 찾아서 설정
+        try:
+            date_set = page.evaluate(f"""() => {{
+                // 모달 내 date input 찾기 (maxlength 8 또는 10, 모달 영역 내)
+                const allInputs = document.querySelectorAll('input[type="text"]');
+                const dateInputs = [];
+                for (const inp of allInputs) {{
+                    const rect = inp.getBoundingClientRect();
+                    // 모달 영역 (화면 중앙, y 100~250 근처)
+                    if (rect.y > 100 && rect.y < 300 && rect.x > 300 && rect.x < 900) {{
+                        const ml = inp.maxLength;
+                        const val = inp.value || '';
+                        // 날짜 형식 (YYYY-MM-DD 또는 YYYYMMDD)
+                        if ((ml == 8 || ml == 10 || ml == -1) && /\\d/.test(val)) {{
+                            dateInputs.push(inp);
+                        }}
+                    }}
+                }}
+                return dateInputs.length;
+            }}""")
+            logger.info(f"모달 내 날짜 input 수: {date_set}")
+        except Exception:
+            pass
+
+        # 날짜 입력: 모달 내 "작성일자" 레이블 옆 input들
+        try:
+            # "작성일자" 텍스트 근처의 날짜 input 찾기
+            date_label = page.locator("text=작성일자").first
+            if date_label.is_visible(timeout=2000):
+                # 작성일자 옆의 날짜 range — 부모 컨테이너 내 input 찾기
+                parent = date_label.locator("xpath=ancestor::div[1]")
+                date_inputs = parent.locator("input").all()
+                if not date_inputs or len(date_inputs) < 2:
+                    # 더 넓은 범위: 같은 행/div 내 input
+                    parent = date_label.locator("xpath=ancestor::div[2]")
+                    date_inputs = parent.locator("input").all()
+
+                if len(date_inputs) >= 2:
+                    # 시작일
+                    date_inputs[0].triple_click()
+                    date_inputs[0].fill(date_from)
+                    date_inputs[0].press("Tab")
+                    time.sleep(0.3)
+                    # 종료일
+                    date_inputs[1].triple_click()
+                    date_inputs[1].fill(date_to)
+                    date_inputs[1].press("Tab")
+                    logger.info(f"모달 기간 설정: {date_from}~{date_to}")
+                else:
+                    logger.warning(f"모달 날짜 input 부족: {len(date_inputs)}개")
+            else:
+                logger.warning("'작성일자' 레이블 미발견")
+        except Exception as e:
+            logger.warning(f"모달 날짜 설정 실패: {e}")
+
+        # ── 조회 버튼 클릭 ──
+        # 스크린샷에서 보면 돋보기 아이콘 버튼이 날짜 옆에 있음
+        search_clicked = False
+        try:
+            # 모달 내 검색 아이콘 (돋보기) — 날짜 입력 옆
+            search_btns = page.locator("button[class*='search'], button[class*='Search']").all()
+            for btn in search_btns:
+                try:
+                    box = btn.bounding_box()
+                    # 모달 영역 내 (y: 150~250)
+                    if box and 150 < box["y"] < 300 and 300 < box["x"] < 1200:
+                        btn.click(force=True)
+                        logger.info("모달 검색 버튼 클릭 (돋보기)")
+                        search_clicked = True
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if not search_clicked:
+            # 폴백: Enter 키
             try:
-                popup_page.wait_for_load_state("domcontentloaded", timeout=10000)
-                popup_page.on("dialog", lambda d: d.accept())
-                logger.info(f"계산서내역 팝업 열림: {popup_page.url[:80]}")
-            except Exception as e:
-                logger.warning(f"팝업 로드 대기 실패: {e}")
-        else:
-            logger.info("계산서내역 팝업 — 현재 페이지에서 모달 처리")
-            try:
-                target.wait_for_selector(
-                    "div[class*='modal'], div[class*='popup'], div[class*='layer']",
-                    timeout=5000,
-                    state="visible",
-                )
+                page.keyboard.press("Enter")
+                logger.info("모달 조회 — Enter 키")
             except Exception:
                 pass
 
-        # 기간 설정: 시작일
+        # 결과 로드 대기
+        time.sleep(2)
+        _save_debug(page, "invoice_modal_search_result")
+
+        # ── 미반영 탭 확인 ──
         try:
-            date_inputs = target.locator(
-                "input[class*='OBTDatePickerRebuild_inputYMD'], "
-                "input[class*='datepicker'], "
-                "input[type='text'][maxlength='8']"
-            ).all()
-            if len(date_inputs) >= 2:
-                # 첫 번째 = 시작일, 두 번째 = 종료일
-                date_inputs[0].click(force=True)
-                date_inputs[0].fill(date_from)
-                date_inputs[0].press("Tab")
-                logger.info(f"팝업 시작일 설정: {date_from}")
+            tab = page.locator("text=미반영").first
+            if tab.is_visible(timeout=1000):
+                tab.click(force=True)
+                time.sleep(0.5)
+        except Exception:
+            pass
 
-                date_inputs[1].click(force=True)
-                date_inputs[1].fill(date_to)
-                date_inputs[1].press("Tab")
-                logger.info(f"팝업 종료일 설정: {date_to}")
-            elif len(date_inputs) == 1:
-                date_inputs[0].click(force=True)
-                date_inputs[0].fill(date_from)
-                date_inputs[0].press("Tab")
-        except Exception as e:
-            logger.warning(f"팝업 날짜 설정 실패: {e}")
-
-        # 거래처명 입력
-        if vendor:
-            try:
-                vendor_selectors = [
-                    "input[placeholder*='거래처']",
-                    "input[placeholder*='공급자']",
-                    "input[placeholder*='업체']",
-                    "input[placeholder*='검색']",
-                ]
-                for sel in vendor_selectors:
-                    try:
-                        inp = target.locator(sel).first
-                        if inp.is_visible(timeout=2000):
-                            inp.click(force=True)
-                            inp.fill(vendor)
-                            logger.info(f"팝업 거래처 입력: {vendor}")
-                            break
-                    except Exception:
-                        continue
-            except Exception as e:
-                logger.warning(f"팝업 거래처 입력 실패: {e}")
-
-        # 조회/검색 버튼 클릭
-        try:
-            search_selectors = [
-                "button:has-text('조회')",
-                "button:has-text('검색')",
-                "div.topBtn:has-text('조회')",
-                "div[class*='btn']:has-text('조회')",
-                "input[value='조회']",
-            ]
-            for sel in search_selectors:
-                try:
-                    btn = target.locator(sel).first
-                    if btn.is_visible(timeout=2000):
-                        btn.click(force=True)
-                        logger.info(f"팝업 조회 버튼 클릭: {sel}")
-                        break
-                except Exception:
-                    continue
-
-            # 조회 결과 로드 대기
-            try:
-                target.wait_for_load_state("networkidle", timeout=8000)
-            except Exception:
-                target.wait_for_timeout(2000)
-        except Exception as e:
-            logger.warning(f"팝업 조회 버튼 클릭 실패: {e}")
-
-        _save_debug(page, "invoice_popup_search_result")
-
-        # 결과 목록에서 일치 항목 선택
+        # ── 결과 테이블에서 행 선택 (체크박스 클릭) ──
+        # GW 모달의 체크박스는 커스텀 컴포넌트 (OBTCheckBox)일 수 있음
+        # → input[type=checkbox], div[class*='check'], label 등 다양한 셀렉터 시도
         selected = False
+
+        # 방법 1: JavaScript로 모달 영역 내 체크박스 요소 직접 탐색
+        checkbox_count = 0
         try:
-            # RealGrid 또는 테이블 행 탐색
-            row_selectors = [
-                "tr[class*='grid']",
-                "tr[class*='row']",
-                "div[class*='grid-row']",
-                "div[class*='gridRow']",
-                "table tbody tr",
-            ]
-            rows = []
-            for sel in row_selectors:
-                try:
-                    candidates = target.locator(sel).all()
-                    if candidates:
-                        rows = candidates
-                        logger.info(f"팝업 결과 행 발견: {sel} ({len(rows)}개)")
-                        break
-                except Exception:
-                    continue
+            checkbox_count = page.evaluate("""() => {
+                // 모달 영역(y < 650) 내 체크박스 역할 요소 찾기
+                let count = 0;
+                const elems = document.querySelectorAll(
+                    'input[type="checkbox"], [role="checkbox"], [class*="checkbox"], [class*="Checkbox"]'
+                );
+                for (const el of elems) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.y > 150 && rect.y < 650 && rect.x < 200) {
+                        count++;
+                    }
+                }
+                return count;
+            }""")
+            logger.info(f"JS 체크박스 탐지: {checkbox_count}개")
+        except Exception:
+            pass
 
-            if not rows:
-                logger.warning("팝업 결과 행 없음 — 첫 번째 행 선택 시도")
-                # 결과가 하나뿐이면 그냥 선택
-                try:
-                    first_row_sel = target.locator("table tbody tr").first
-                    if first_row_sel.is_visible(timeout=2000):
-                        first_row_sel.click(force=True)
-                        selected = True
-                except Exception:
-                    pass
-            else:
-                # vendor/amount 매칭
-                for row in rows[:30]:
+        # 방법 2: 다양한 체크박스 셀렉터 시도
+        cb_selectors = [
+            "input[type='checkbox']",
+            "[role='checkbox']",
+            "div[class*='checkbox']",
+            "div[class*='Checkbox']",
+            "div[class*='check']",
+            "label[class*='check']",
+            "span[class*='check']",
+        ]
+        modal_checkboxes = []
+        for sel in cb_selectors:
+            try:
+                all_cbs = page.locator(sel).all()
+                for cb in all_cbs:
                     try:
-                        row_text = row.inner_text()
-                        # 거래처명 매칭
-                        vendor_match = (not vendor) or (vendor in row_text)
-                        # 금액 매칭 (쉼표/원 제거 후 비교)
-                        amount_match = True
-                        if amount is not None:
-                            import re as _re
-                            nums = _re.findall(r"[\d,]+", row_text)
-                            row_amounts = []
-                            for n in nums:
-                                try:
-                                    row_amounts.append(int(n.replace(",", "")))
-                                except ValueError:
-                                    pass
-                            # 공급가액 또는 합계 금액 매칭
-                            amount_int = int(amount)
-                            amount_match = any(
-                                abs(a - amount_int) < max(1000, amount_int * 0.01)
-                                for a in row_amounts
-                            )
-
-                        if vendor_match and amount_match:
-                            row.click(force=True)
-                            logger.info(f"계산서내역 행 선택: {row_text[:80]}")
-                            selected = True
-                            break
+                        box = cb.bounding_box()
+                        # 모달 영역 내 (y: 180~600, x: < 200)
+                        if box and 180 < box["y"] < 600 and box["x"] < 200:
+                            modal_checkboxes.append((box["y"], cb))
                     except Exception:
                         continue
-
-                if not selected and rows:
-                    # 매칭 실패 시 첫 번째 행 선택
-                    try:
-                        rows[0].click(force=True)
-                        logger.info("계산서내역 — 매칭 실패, 첫 번째 행 선택")
-                        selected = True
-                    except Exception:
-                        pass
-        except Exception as e:
-            logger.warning(f"팝업 결과 행 탐색 실패: {e}")
-
-        _save_debug(page, "invoice_popup_row_selected")
-
-        # 선택/확인 버튼 클릭
-        confirm_selectors = [
-            "button:has-text('선택')",
-            "button:has-text('확인')",
-            "button:has-text('적용')",
-            "div.topBtn:has-text('선택')",
-            "div.topBtn:has-text('확인')",
-            "div[class*='btn']:has-text('선택')",
-        ]
-        for sel in confirm_selectors:
-            try:
-                btn = target.locator(sel).first
-                if btn.is_visible(timeout=2000):
-                    btn.click(force=True)
-                    logger.info(f"팝업 확인 버튼 클릭: {sel}")
-                    # 팝업 닫힘 대기
-                    if popup_page:
-                        try:
-                            popup_page.wait_for_timeout(1000)
-                        except Exception:
-                            pass
-                    return selected
+                if modal_checkboxes:
+                    logger.info(f"체크박스 셀렉터 매칭: {sel} ({len(modal_checkboxes)}개)")
+                    break
             except Exception:
                 continue
 
-        # 확인 버튼 없으면 더블클릭으로 선택 (GW 팝업 패턴)
-        if selected and rows:
+        # 방법 3: 체크박스를 못 찾으면 모달 기준 상대 좌표로 폴백
+        if not modal_checkboxes:
+            logger.info("셀렉터로 체크박스 미발견 — 모달 기준 상대 좌표 클릭")
+            # "데이터가 존재하지 않습니다" 확인
             try:
-                rows[0].dblclick(force=True)
-                logger.info("팝업 행 더블클릭으로 선택")
-                return True
+                no_data = page.locator("text=데이터가 존재하지 않습니다").first
+                if no_data.is_visible(timeout=1000):
+                    logger.warning("계산서 모달: 데이터가 존재하지 않습니다")
+                    try:
+                        page.locator("button:has-text('취소')").last.click(force=True)
+                    except Exception:
+                        pass
+                    return False
             except Exception:
                 pass
 
-        logger.warning("계산서내역 팝업 확인 버튼 미발견")
+            # 건수 확인
+            try:
+                count_text = page.evaluate("""() => {
+                    const all = document.querySelectorAll('*');
+                    for (const e of all) {
+                        const t = e.textContent?.trim() || '';
+                        const rect = e.getBoundingClientRect();
+                        if (/^\\d+건$/.test(t) && rect.width < 80 && rect.height < 30) {
+                            return t;
+                        }
+                    }
+                    return '';
+                }""")
+                if count_text:
+                    logger.info(f"모달 건수: {count_text}")
+            except Exception:
+                pass
+
+            # 모달 제목 위치 기준으로 상대 좌표 계산
+            # 제목 "매입(세금)계산서 내역" 위치를 기준점으로 사용
+            try:
+                title_box = page.locator("text=매입(세금)계산서 내역").first.bounding_box()
+                if title_box:
+                    modal_x = title_box["x"]  # 모달 왼쪽 x
+                    modal_top = title_box["y"]  # 모달 상단 y
+                    # 첫 데이터 행 체크박스: 제목으로부터 약 +215px 아래, 모달 좌측 +10px
+                    # ★ +185는 헤더 전체선택 체크박스 → +215로 첫 데이터 행만 선택
+                    cb_x = modal_x + 10
+                    cb_y = modal_top + 215
+                    page.mouse.click(cb_x, cb_y)
+                    time.sleep(0.3)
+                    _save_debug(page, "invoice_modal_coord_click")
+                    logger.info(f"체크박스 상대 좌표 클릭 (1건): ({cb_x:.0f}, {cb_y:.0f}) (제목 기준)")
+                    selected = True
+                else:
+                    raise ValueError("모달 제목 위치 미확인")
+            except Exception as e:
+                # 최종 폴백: JavaScript로 첫 번째 테이블 행 찾기
+                logger.warning(f"상대 좌표 실패: {e}, JS 폴백 시도")
+                try:
+                    first_row = page.evaluate("""() => {
+                        const trs = document.querySelectorAll('tr');
+                        for (const tr of trs) {
+                            const rect = tr.getBoundingClientRect();
+                            const text = tr.textContent || '';
+                            if (rect.height > 20 && rect.height < 50 && text.includes('20') && rect.y > 200) {
+                                return {x: rect.x + 15, y: rect.y + rect.height/2};
+                            }
+                        }
+                        return null;
+                    }""")
+                    if first_row:
+                        page.mouse.click(first_row["x"], first_row["y"])
+                        logger.info(f"체크박스 JS 폴백 클릭: ({first_row['x']:.0f}, {first_row['y']:.0f})")
+                        selected = True
+                except Exception:
+                    pass
+                if not selected:
+                    _save_debug(page, "invoice_modal_coord_click")
+                    logger.warning("계산서 체크박스 클릭 실패")
+        else:
+            # 체크박스 정렬 (y 순서)
+            modal_checkboxes.sort(key=lambda x: x[0])
+
+            # 헤더 체크박스 제외 (첫 번째와 두 번째 y 차이가 15px 이상이면 헤더)
+            data_checkboxes = [cb for _, cb in modal_checkboxes]
+            if len(modal_checkboxes) > 1 and (modal_checkboxes[1][0] - modal_checkboxes[0][0]) > 15:
+                data_checkboxes = [cb for _, cb in modal_checkboxes[1:]]
+                logger.info(f"헤더 제외 → 데이터 체크박스 {len(data_checkboxes)}개")
+
+            # vendor/amount 매칭
+            for cb in data_checkboxes:
+                try:
+                    row = cb.locator("xpath=ancestor::tr[1]")
+                    rt = row.inner_text().strip()
+                    if "데이터가 존재하지 않습니다" in rt or rt.startswith("합계"):
+                        continue
+                    vendor_ok = (not vendor) or (vendor in rt)
+                    amount_ok = True
+                    if amount is not None:
+                        import re as _re
+                        nums = [int(n.replace(",", "")) for n in _re.findall(r"[\d,]+", rt)
+                                if n.replace(",", "").isdigit() and len(n.replace(",", "")) >= 3]
+                        amount_ok = any(abs(a - int(amount)) < max(1000, int(amount) * 0.01) for a in nums)
+                    if vendor_ok and amount_ok:
+                        cb.click(force=True)
+                        logger.info(f"계산서 체크박스 선택: {rt[:60]}")
+                        selected = True
+                        break
+                except Exception:
+                    continue
+            if not selected and data_checkboxes:
+                try:
+                    data_checkboxes[0].click(force=True)
+                    logger.info("계산서 첫 행 체크박스 선택")
+                    selected = True
+                except Exception as e:
+                    logger.warning(f"첫 행 체크박스 선택 실패: {e}")
+
+        _save_debug(page, "invoice_modal_row_selected")
+
+        if not selected:
+            logger.warning("계산서 모달에서 선택할 행이 없습니다")
+            try:
+                page.locator("button:has-text('취소')").last.click(force=True)
+            except Exception:
+                pass
+            return False
+
+        # ── 확인 버튼 클릭 ──
+        # 모달 하단의 "확인" 버튼 (파란색) — 모달 제목 기준 상대 위치
+        confirmed = False
+        try:
+            # "취소"와 "확인" 버튼은 나란히 있음. 취소 옆의 확인 버튼 찾기
+            cancel_btn = page.locator("button:has-text('취소')").all()
+            for cb in cancel_btn:
+                try:
+                    cb_box = cb.bounding_box()
+                    if not cb_box:
+                        continue
+                    # 모달 하단의 취소 버튼 (제목과 같은 x 영역)
+                    confirm_btns = page.locator("button:has-text('확인')").all()
+                    for btn in confirm_btns:
+                        b_box = btn.bounding_box()
+                        if b_box and abs(b_box["y"] - cb_box["y"]) < 10:
+                            # 같은 행의 확인 버튼
+                            btn.click()
+                            logger.info(f"모달 확인 버튼 클릭 (y={b_box['y']:.0f})")
+                            confirmed = True
+                            break
+                    if confirmed:
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if not confirmed:
+            # 폴백: 모달 내 마지막 확인 버튼 (force 없이)
+            try:
+                page.locator("button:has-text('확인')").last.click()
+                logger.info("모달 확인 버튼 클릭 (last 폴백)")
+                confirmed = True
+            except Exception:
+                pass
+
+        # 모달 닫힘 대기 (제목이 사라질 때까지, 최대 10초)
+        modal_closed = False
+        for _ in range(20):
+            try:
+                title_el = page.locator("text=매입(세금)계산서 내역").first
+                if not title_el.is_visible(timeout=200):
+                    modal_closed = True
+                    break
+            except Exception:
+                modal_closed = True
+                break
+            time.sleep(0.5)
+
+        if modal_closed:
+            logger.info("계산서 모달 닫힘 확인")
+        else:
+            logger.warning("계산서 모달이 아직 열려있음 — X 버튼으로 닫기 시도")
+            try:
+                # X 닫기 버튼 클릭
+                close_btn = page.locator("button:has-text('×'), button[class*='close']").first
+                if close_btn.is_visible(timeout=1000):
+                    close_btn.click(force=True)
+                    time.sleep(1)
+            except Exception:
+                pass
+
+        # 그리드 반영 대기
+        time.sleep(2)
+        _save_debug(page, "03c3_after_invoice_applied")
+        logger.info("계산서 모달 → 그리드 반영 완료")
         return selected
 
     def _fill_project_code_bottom(self, project: str) -> bool:
         """
         하단 테이블(테이블 7) 프로젝트 코드도움 입력.
 
-        지출결의서 하단 테이블에는 두 번째 프로젝트 코드도움 필드가 있음.
-        상단(y≈292)과 달리 y≈857~950 근처에 위치.
+        상단 _fill_project_code와 동일한 모달 기반 방식 사용.
+        y_hint=900으로 하단 input을 타겟합니다.
 
         Args:
             project: 프로젝트 코드 또는 이름 일부
         Returns:
             True if 입력 성공
         """
-        page = self.page
-        try:
-            # 하단 테이블 프로젝트 input 탐색 (y > 800)
-            all_proj_inputs = page.locator("input[placeholder='프로젝트코드도움']").all()
-            bottom_input = None
-            for inp in all_proj_inputs:
-                try:
-                    box = inp.bounding_box()
-                    if box and box["y"] > 800:
-                        bottom_input = inp
-                        break
-                except Exception:
-                    continue
-
-            if bottom_input and bottom_input.is_visible(timeout=2000):
-                bottom_input.click(force=True)
-                bottom_input.fill("")
-                bottom_input.type(project, delay=60)
-                logger.info(f"하단 프로젝트 코드도움 입력: {project}")
-
-                # 드롭다운 선택
-                dropdown_selectors = [
-                    "ul[class*='autocomplete'] li",
-                    "div[class*='OBTAutoComplete'] li",
-                    "div[class*='suggest'] li",
-                    "div[class*='dropdown'] li",
-                    "li[class*='item']",
-                ]
-                for sel in dropdown_selectors:
-                    try:
-                        item = page.locator(sel).first
-                        if item.is_visible(timeout=1500):
-                            item.click()
-                            logger.info(f"하단 프로젝트 드롭다운 선택: {sel}")
-                            return True
-                    except Exception:
-                        continue
-
-                bottom_input.press("Enter")
-                logger.info("하단 프로젝트 Enter 선택")
-                return True
-        except Exception as e:
-            logger.debug(f"하단 프로젝트 코드도움 입력 실패: {e}")
-
-        # 폴백: 좌표 기반 (하단 테이블 프로젝트 필드 y≈920)
-        try:
-            page.mouse.click(838, 920)
-            page.keyboard.type(project, delay=60)
-            page.keyboard.press("Enter")
-            logger.info(f"하단 프로젝트 입력 (좌표 폴백 838,920): {project}")
-            return True
-        except Exception as e:
-            logger.warning(f"하단 프로젝트 좌표 폴백도 실패: {e}")
-        return False
+        return self._fill_project_code(project, y_hint=900)
 
     def search_project_codes(self, keyword: str, max_results: int = 10) -> list[dict]:
         """
@@ -1853,66 +2935,112 @@ class ApprovalAutomation:
             return False
 
     def _save_draft(self) -> dict:
-        """보관(임시저장) 클릭 — 상신하지 않고 임시보관문서에 저장"""
+        """보관(임시저장) — 인라인 보관 버튼 또는 결재상신→팝업→보관 흐름"""
         page = self.page
 
         self._close_popups()
 
-        # 보관 버튼 찾기 (div.topBtn)
+        # ── 1차: 인라인 보관 버튼 찾기 ──
         save_btn = None
         for selector in [
             "div.topBtn:has-text('보관')",
             "button:has-text('보관')",
-            "text=보관",
         ]:
             try:
                 candidates = page.locator(selector).all()
                 for candidate in candidates:
-                    if candidate.is_visible(timeout=2000):
-                        # "임시보관" 등 다른 텍스트와 구분
+                    if candidate.is_visible(timeout=1500):
                         btn_text = candidate.inner_text().strip()
                         if btn_text == "보관":
                             save_btn = candidate
-                            logger.info(f"보관 버튼 발견: {selector}")
+                            logger.info(f"인라인 보관 버튼 발견: {selector}")
                             break
                 if save_btn:
                     break
             except Exception:
                 continue
 
-        # 보관 버튼 못 찾으면 결재상신 버튼도 시도하지 않고 실패
-        if not save_btn:
-            # 일부 양식(신규 지출결의서)에는 보관 버튼이 없을 수 있음
-            # 그 경우 "결재상신" 버튼 옆에 보관이 없으므로 안내
+        if save_btn:
+            # 인라인 보관 (기존 흐름)
+            _save_debug(page, "04_before_save")
+            save_btn.click(force=True)
+            return self._wait_save_result(page)
+
+        # ── 2차: 결재상신 클릭 → 팝업 열림 → 팝업에서 보관 ──
+        logger.info("인라인 보관 버튼 없음 — 결재상신→팝업→보관 흐름 시도")
+        submit_btn = None
+        for selector in [
+            "button:has-text('결재상신')",
+            "div.topBtn:has-text('결재상신')",
+            "button:has-text('상신')",
+        ]:
+            try:
+                candidates = page.locator(selector).all()
+                for candidate in candidates:
+                    if candidate.is_visible(timeout=1500):
+                        submit_btn = candidate
+                        logger.info(f"결재상신 버튼 발견: {selector}")
+                        break
+                if submit_btn:
+                    break
+            except Exception:
+                continue
+
+        if not submit_btn:
             _save_debug(page, "error_no_save_btn")
-            return {"success": False, "message": "보관 버튼을 찾을 수 없습니다. 이 양식에서는 보관이 지원되지 않을 수 있습니다."}
+            return {"success": False, "message": "보관/결재상신 버튼을 찾을 수 없습니다."}
 
-        _save_debug(page, "04_before_save")
+        _save_debug(page, "04_before_submit_popup")
 
-        save_btn.click(force=True)
-
-        # 보관 후 결과 대기
+        # 결재상신 클릭 → 팝업 대기
+        context = page.context
+        popup_page = None
         try:
-            page.wait_for_load_state("networkidle", timeout=15000)
+            with context.expect_page(timeout=10000) as popup_info:
+                submit_btn.click(force=True)
+            popup_page = popup_info.value
+            popup_page.wait_for_load_state("domcontentloaded", timeout=10000)
+            logger.info(f"결재상신 팝업 열림: {popup_page.url[:80]}")
+        except Exception as e:
+            logger.warning(f"팝업 대기 실패: {e}")
+            # 팝업이 안 열리면 context.pages에서 찾기
+            time.sleep(2)
+            for p in context.pages:
+                if p != page and "popup" in p.url:
+                    popup_page = p
+                    break
+
+        if not popup_page:
+            _save_debug(page, "error_no_popup")
+            return {"success": False, "message": "결재상신 팝업이 열리지 않았습니다."}
+
+        _save_debug(popup_page, "04b_popup_opened")
+
+        # 팝업에서 보관 버튼 클릭
+        return self._save_draft_in_popup(popup_page)
+
+    def _wait_save_result(self, target_page) -> dict:
+        """보관 클릭 후 결과 대기 (공통)"""
+        try:
+            target_page.wait_for_load_state("networkidle", timeout=15000)
         except PlaywrightTimeout:
             logger.warning("보관 후 네트워크 대기 타임아웃")
             time.sleep(3)
         except Exception:
             time.sleep(3)
 
-        # 에러 다이얼로그/메시지 확인
+        # 에러 다이얼로그 확인
         try:
-            error_msg = page.locator("div.alert-message, div.error-message, .OBTAlert_message").first
+            error_msg = target_page.locator("div.alert-message, div.error-message, .OBTAlert_message").first
             if error_msg.is_visible(timeout=2000):
                 text = error_msg.inner_text()
                 logger.error(f"보관 에러 메시지: {text}")
-                _save_debug(page, "error_save_response")
+                _save_debug(target_page, "error_save_response")
                 return {"success": False, "message": f"보관 중 오류가 발생했습니다: {text}"}
         except Exception:
-            pass  # 에러 메시지 없음 = 정상
+            pass
 
-        _save_debug(page, "05_after_save")
-
+        _save_debug(target_page, "05_after_save")
         logger.info("보관(임시저장) 완료")
         return {"success": True, "message": "임시보관문서에 저장되었습니다. (상신 전 상태)"}
 
@@ -2176,9 +3304,20 @@ class ApprovalAutomation:
 
         _save_debug(page, "vendor_02_search_result")
 
-        # 4. 검색 결과에서 첫 번째 항목 클릭
+        # 4. 검색 결과에서 항목 클릭 (search_term 기반)
         result_clicked = False
-        for keyword in ["[회계팀] 국내 거래처등록 신청서", "국내 거래처등록", "거래처등록"]:
+        click_keywords = [search_term]
+        # search_term에서 부분 키워드 추출 (예: "[프로젝트]지출결의서" → "지출결의서")
+        if "]" in search_term:
+            click_keywords.append(search_term.split("]")[-1])
+        # 거래처등록 호환성 유지
+        if "거래처" in search_term:
+            click_keywords.extend(["[회계팀] 국내 거래처등록 신청서", "국내 거래처등록", "거래처등록"])
+        # 지출결의서 키워드 추가 (검색 시 "[프로젝트]지출결의서" 등 결과 대응)
+        if "지출결의서" in search_term:
+            click_keywords.extend(["[프로젝트]지출결의서", "지출결의서"])
+
+        for keyword in click_keywords:
             try:
                 results = page.locator(f"text={keyword}").all()
                 for result in results:
@@ -2193,7 +3332,7 @@ class ApprovalAutomation:
                 continue
 
         if not result_clicked:
-            _save_debug(page, "error_vendor_no_search_result")
+            _save_debug(page, "error_no_search_result")
             raise RuntimeError(f"검색 결과에서 양식을 찾을 수 없습니다: '{search_term}'")
 
         time.sleep(1)

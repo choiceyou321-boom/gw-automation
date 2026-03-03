@@ -6,7 +6,14 @@
       "WebFetch(domain:www.wishket.com)",
       "Bash(watch:*)",
       "Bash(python:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(do head:*)",
+      "Bash(do echo:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)"
     ]
   }
 }

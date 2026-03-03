@@ -66,6 +66,10 @@ AUTOMATION_TOOLS = [
                     "invoice_amount": types.Schema(type="NUMBER", description="세금계산서 공급가액 (원). evidence_type='세금계산서'일 때 팝업 매칭에 사용."),
                     "invoice_date": types.Schema(type="STRING", description="세금계산서 발행일 (YYYY-MM-DD). evidence_type='세금계산서'일 때 조회 기간 설정에 사용."),
                     "auto_capture_budget": types.Schema(type="BOOLEAN", description="예실대비현황 스크린샷 자동 캡처 후 첨부파일로 업로드 여부. 사용자가 '예실대비 첨부', '예산 현황 캡처' 등을 요청할 때 True."),
+                    "usage_code": types.Schema(type="STRING", description="용도 코드 (예: '5020'=외주공사비, '5010'=시공재료비). 기본값 '5020'. 그리드 용도 셀에 입력."),
+                    "budget_keyword": types.Schema(type="STRING", description="예산과목 검색어 (예: '경량', '음향'). 예산과목코드도움 팝업에서 2로 시작하는 코드만 선택."),
+                    "payment_request_date": types.Schema(type="STRING", description="지급요청일 (YYYY-MM-DD). 하단 날짜 피커에 입력."),
+                    "accounting_date": types.Schema(type="STRING", description="회계처리일자 (YYYY-MM-DD). 세금계산서 발행월과 일치해야 검증결과 '적합'. 미지정 시 세금계산서 발행일 기준 자동계산."),
                     "action": types.Schema(type="STRING", description="실행 액션: 'confirm'이면 확인 후 작성, 'draft'이면 바로 임시저장. 기본값 'confirm'"),
                 },
                 required=["title", "description"],
@@ -660,6 +664,10 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
     invoice_amount = params.get("invoice_amount")
     invoice_date = params.get("invoice_date", "")
     auto_capture_budget = params.get("auto_capture_budget", False)
+    usage_code = params.get("usage_code", "5020")
+    budget_keyword = params.get("budget_keyword", "")
+    payment_request_date = params.get("payment_request_date", "")
+    accounting_date = params.get("accounting_date", "")
     action = params.get("action", "confirm")
 
     # 항목 정보 포맷
@@ -766,6 +774,14 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                     confirm_msg += "\n  (세금계산서 팝업: 거래처/금액 지정 없으면 목록 첫 번째 선택)"
         if auto_capture_budget:
             confirm_msg += "\n- 예실대비현황 스크린샷 자동 첨부: 예"
+        if usage_code and usage_code != "5020":
+            confirm_msg += f"\n- 용도코드: {usage_code}"
+        if budget_keyword:
+            confirm_msg += f"\n- 예산과목: {budget_keyword}"
+        if payment_request_date:
+            confirm_msg += f"\n- 지급요청일: {payment_request_date}"
+        if accounting_date:
+            confirm_msg += f"\n- 회계처리일자: {accounting_date}"
         confirm_msg += "\n\n맞으면 '확인' 또는 '작성해줘'라고 말씀해주세요."
         return confirm_msg
 
@@ -845,6 +861,14 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                     expense_data["invoice_date"] = invoice_date
                 if auto_capture_budget:
                     expense_data["auto_capture_budget"] = True
+                if usage_code:
+                    expense_data["usage_code"] = usage_code
+                if budget_keyword:
+                    expense_data["budget_keyword"] = budget_keyword
+                if payment_request_date:
+                    expense_data["payment_request_date"] = payment_request_date
+                if accounting_date:
+                    expense_data["accounting_date"] = accounting_date
                 result = automation.create_expense_report(expense_data)
 
                 close_session(browser)
@@ -864,9 +888,22 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
             result = future.result(timeout=180)
 
         if result.get("success"):
-            return f"지출결의서가 임시보관되었습니다! (상신 전 상태)\n\n제목: {title}\n금액: {amount_str}\n\n그룹웨어 임시보관문서에서 확인 후 직접 상신해주세요."
+            msg = f"지출결의서가 임시보관되었습니다! (상신 전 상태)\n\n제목: {title}\n금액: {amount_str}"
+            # 검증결과 표시
+            validation = result.get("validation_result", "")
+            if validation:
+                msg += f"\n검증결과: {validation}"
+            tooltip = result.get("validation_tooltip", "")
+            if tooltip:
+                msg += f"\n미비사항: {tooltip}"
+            msg += "\n\n그룹웨어 임시보관문서에서 확인 후 직접 상신해주세요."
+            return msg
         else:
-            return f"지출결의서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+            err_msg = f"지출결의서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+            tooltip = result.get("validation_tooltip", "")
+            if tooltip:
+                err_msg += f"\n미비사항: {tooltip}"
+            return err_msg
 
     except concurrent.futures.TimeoutError:
         return "지출결의서 작성 시간이 초과되었습니다 (3분). 네트워크 상태를 확인하고 다시 시도해주세요."

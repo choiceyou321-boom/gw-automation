@@ -98,12 +98,14 @@
   - httpx API 호출 (REST 방식): 브라우저를 실제 보이지 않게 띄워 마우스를 조작하는 대신,
     컴퓨터끼리 규칙된 서버 주소 및 코드로만 데이터를 직접 대화하듯 교환하는 방식으로 매우 빠릅니다.
 
-### [ ] Task 10. 안전한 클라우드 배포 (Deployment) 및 HTTPS 통신 보안 적용
-- 상세 내용:
-  현재는 http://localhost:51749 라는 로컬 환경에서만 접속하고 있습니다.
-  텔레그램을 비롯하여 외부에서도 자유롭게 챗봇을 이용하려면
-  해당 봇을 24시간 도는 외부 클라우드 컴퓨터에 올리고(Deploy),
-  암호가 중간에 탈취당하지 않도록 HTTPS 망 으로 보안 포장하는 작업이 필수입니다.
+### [x] Task 10. 안전한 클라우드 배포 (Deployment) 및 HTTPS 통신 보안 적용 ✅ (세션 XIII 완료)
+- **완료 내용**:
+  - `Dockerfile`: Python 3.12 + Playwright/Chromium + 한글 폰트, 비-root 실행
+  - `docker-compose.yml`: app(챗봇) + nginx(HTTPS 역방향 프록시)
+  - `nginx/nginx.conf`: TLS 1.2/1.3, 보안 헤더(HSTS/X-Frame/XSS), WebSocket, 300초 타임아웃
+  - `config/.env.example`: 환경변수 템플릿 (API 키, JWT, 암호화 키)
+  - `deploy.sh`: start/stop/update/ssl-test/ssl-prod 명령
+- **남은 작업**: 클라우드 서버(AWS/GCP/Oracle Free Tier 등) 계정 필요, 도메인 구매 후 Let's Encrypt 인증서 발급
 
 ---
 

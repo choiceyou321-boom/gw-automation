@@ -211,21 +211,18 @@
   - 필요 시 세금계산서 모달처럼 별도 처리 로직 추가
 - **우선순위**: 중간
 
-### [ ] Task 21. 챗봇 첨부파일 → 지출결의서 자동 첨부 연동
-- **현재 상태**: Gemini 파일 분석은 있으나, GW 지출결의서 첨부파일 업로드와 미연결
-- **문제**: 사용자가 영수증 사진을 챗봇에 전송해도 GW 결재에 자동 첨부 불가
-- **필요 작업**:
-  - `agent.py` handle_submit_expense_approval()에 `attachment_path` 파라미터 지원
-  - 텔레그램/웹 챗봇에서 받은 파일을 임시 저장 후 `_upload_attachment()` 호출
-- **우선순위**: 중간
+### [x] Task 21. 챗봇 첨부파일 → 지출결의서 자동 첨부 연동 ✅ (세션 XIII 완료)
+- **완료 내용**:
+  - `agent.py`: `analyze_and_route(attachment_path=)` 파라미터 추가, 결재 도구 호출 시 주입
+  - `telegram_bot.py`: `handle_photo()/handle_document()` → `data/tmp/` 저장 → `session["pending_attachment_path"]` → 결재 요청 시 전달 후 삭제
+  - `app.py`: `ChatRequest.attachment_path` 필드 추가, `/upload` 응답에 `attachment_path` 포함
 
-### [ ] Task 22. 증빙일자/그리드 추가 버튼 좌표 의존 제거
-- **현재 상태**: `approval_automation.py` 내 고정 좌표 11개 잔존
-  - 증빙일자: `click(763, 857)` (line 2677)
-  - 그리드 추가: `click(1865, 246)` (line 2730)
-  - 하단 프로젝트 입력: `click(1808, 373)` (line 2878) 등
-- **필요 작업**: placeholder/텍스트 기반 셀렉터로 점진적 교체
-- **우선순위**: 중간 (배포 후 환경 호환성 위험)
+### [x] Task 22. 증빙일자/그리드 추가 버튼 좌표 의존 제거 ✅ (세션 XIII 완료)
+- **완료 내용**: 고정 좌표 3개 → 셀렉터 우선 시도 + 폴백 패턴 적용
+  - `(763, 857)` 증빙일자: 5개 셀렉터 추가
+  - `(1865, 246)` 파일선택: 7개 셀렉터 추가
+  - `(1808, 373)` 그리드 추가: 6개 셀렉터 + 동적 y범위 계산
+  - 나머지 8개: 동적 좌표(bounding box 기반)이므로 유지
 
 ### [x] Task 23. 미지원 양식 에러 메시지 명확화 ✅ (세션 XIII 완료)
 - **완료 내용**: `agent.py` 미지원 양식 요청 시 지원 양식 목록 + E2E 완성 양식 안내 메시지로 개선

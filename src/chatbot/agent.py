@@ -934,6 +934,7 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
     budget_keyword = params.get("budget_keyword", "")
     payment_request_date = params.get("payment_request_date", "")
     accounting_date = params.get("accounting_date", "")
+    attachment_path = params.get("attachment_path", "")
     action = params.get("action", "confirm")
 
     # 항목 정보 포맷
@@ -1133,6 +1134,8 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                     expense_data["invoice_amount"] = invoice_amount
                 if invoice_date:
                     expense_data["invoice_date"] = invoice_date
+                if attachment_path:
+                    expense_data["attachment_path"] = attachment_path
                 if auto_capture_budget:
                     expense_data["auto_capture_budget"] = True
                 if usage_code:
@@ -1271,6 +1274,7 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
     fields = params.get("fields", {})
     approval_line = params.get("approval_line")
     cc = params.get("cc")
+    attachment_path = params.get("attachment_path", "")
     action = params.get("action", "confirm")
 
     # 양식 키 확인
@@ -1442,6 +1446,8 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
                 data["approval_line"] = resolved_line
                 if resolved_cc:
                     data["cc"] = resolved_cc
+                if attachment_path:
+                    data["attachment_path"] = attachment_path
                 result = automation.create_form(form_key, data)
 
                 close_session(browser)
@@ -1650,6 +1656,7 @@ async def analyze_and_route(
     files: list[dict] = None,
     conversation_history: list[dict] = None,
     user_context: dict = None,
+    attachment_path: str = None,
 ) -> dict:
     """
     사용자 메시지 분석 후 적절한 자동화 모듈 라우팅
@@ -1711,6 +1718,11 @@ async def analyze_and_route(
         # 도구 실행
         tool_name = function_call.name
         tool_input = dict(function_call.args) if function_call.args else {}
+
+        # 첨부파일 경로가 있으면 결재 도구에 주입 (챗봇에서 저장한 임시 파일 경로)
+        if attachment_path and tool_name in ("submit_expense_approval", "submit_approval_form"):
+            tool_input.setdefault("attachment_path", attachment_path)
+
         handler = TOOL_HANDLERS.get(tool_name)
 
         if handler:

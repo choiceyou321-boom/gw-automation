@@ -2740,8 +2740,28 @@ class ApprovalAutomation:
         except Exception as e:
             logger.debug(f"증빙일자 selector 입력 실패: {e}")
 
-        # 폴백: 좌표 기반 (x=763, y=857)
+        # 폴백 2: th="증빙일자" 인접 td 내 input 탐색 (뷰포트 크기 무관)
+        for sel in [
+            "th:has-text('증빙일자') + td input",
+            "th:has-text('증빙일자') ~ td input",
+            "td:has-text('증빙일자') input",
+            "input[placeholder*='일자']",
+            "input[class*='DatePicker']",
+        ]:
+            try:
+                el = page.locator(sel).first
+                if el.is_visible(timeout=1500):
+                    el.click(force=True)
+                    el.fill(clean_date)
+                    el.press("Tab")
+                    logger.info(f"증빙일자 입력 (셀렉터 폴백 '{sel}'): {date_str}")
+                    return True
+            except Exception:
+                continue
+
+        # 최종 폴백: 좌표 기반 (x=763, y=857)
         try:
+            logger.warning("증빙일자 셀렉터 모두 실패, 좌표 폴백: (763, 857)")
             page.mouse.click(763, 857)
             page.keyboard.type(clean_date)
             page.keyboard.press("Tab")
@@ -2791,10 +2811,32 @@ class ApprovalAutomation:
                         box = btn.bounding_box()
                         if box and 230 < box["y"] < 270:
                             btn.click(force=True)
+                            logger.info(f"첨부 '선택' 버튼 클릭 (y={box['y']:.0f})")
                             clicked = True
                             break
                 if not clicked:
-                    # 좌표 폴백
+                    # 추가 셀렉터 시도 (y 범위 확장 + 다른 텍스트)
+                    for extra_sel in [
+                        "button:has-text('선택')",
+                        "button:has-text('파일선택')",
+                        "button:has-text('첨부')",
+                        "[title='파일선택']",
+                        "[title='선택']",
+                        "input[type='file'] + button",
+                        "label[for='uploadFile']",
+                    ]:
+                        try:
+                            extra_btn = page.locator(extra_sel).first
+                            if extra_btn.is_visible(timeout=1500):
+                                extra_btn.click(force=True)
+                                logger.info(f"첨부 버튼 클릭 (확장 셀렉터 '{extra_sel}')")
+                                clicked = True
+                                break
+                        except Exception:
+                            continue
+                if not clicked:
+                    # 최종 폴백: 좌표 기반
+                    logger.warning("첨부 선택 버튼 셀렉터 모두 실패, 좌표 폴백: (1865, 246)")
                     page.mouse.click(1865, 246)
 
             file_chooser = fc_info.value
@@ -2923,26 +2965,60 @@ class ApprovalAutomation:
         """그리드 "추가" 버튼 클릭하여 새 행 추가"""
         page = self.page
 
-        # "추가" 버튼: 지출내역 영역 내 버튼
+        # 지출내역 헤더 y 기준으로 동적 범위 계산 (fullscreen 호환)
+        grid_y_min, grid_y_max = 300, 500  # 기본 범위
+        try:
+            header_el = page.locator("text='지출내역'").first
+            if header_el.is_visible(timeout=1000):
+                hbox = header_el.bounding_box()
+                if hbox:
+                    grid_y_min = hbox["y"] - 20
+                    grid_y_max = hbox["y"] + 150
+        except Exception:
+            pass
+
+        # 방법 1: 텍스트 기반 버튼 탐색 (y 범위 동적 적용)
         for selector in [
             "button:has-text('추가')",
+            "button:has-text('행추가')",
+            "[title='추가']",
+            "[title='행추가']",
+            "button.add-row",
             "text=추가",
         ]:
             try:
                 btns = page.locator(selector).all()
                 for btn in btns:
                     if btn.is_visible():
-                        # 지출내역 그리드 영역 근처 버튼만 (y ~ 373)
                         box = btn.bounding_box()
-                        if box and 340 < box["y"] < 420:
+                        if box and grid_y_min < box["y"] < grid_y_max:
                             btn.click(force=True)
-                            logger.info("그리드 '추가' 버튼 클릭")
+                            logger.info(f"그리드 '추가' 버튼 클릭 (sel='{selector}', y={box['y']:.0f})")
                             return True
             except Exception:
                 continue
 
-        # 폴백: DOM 데이터 기준 좌표 (x=1808, y=373)
+        # 방법 2: 지출내역 그리드 컨테이너 내 추가 버튼 탐색
+        for container_sel in [
+            "div.OBTDataGrid_grid__22Vfl",
+            "div[class*='OBTDataGrid']",
+            "div[class*='grid-container']",
+            "div[class*='gridContainer']",
+        ]:
+            try:
+                container = page.locator(container_sel).first
+                if container.is_visible(timeout=1000):
+                    add_btn = container.locator("button:has-text('추가'), button:has-text('행추가')").first
+                    if add_btn.is_visible(timeout=1000):
+                        add_btn.click(force=True)
+                        logger.info(f"그리드 '추가' 버튼 클릭 (컨테이너 내부 '{container_sel}')")
+                        return True
+            except Exception:
+                continue
+
+        # 최종 폴백: DOM 데이터 기준 좌표 (x=1808, y=373)
         try:
+            logger.warning("그리드 '추가' 버튼 셀렉터 모두 실패, 좌표 폴백: (1808, 373)")
             page.mouse.click(1808, 373)
             logger.info("그리드 '추가' 버튼 클릭 (좌표 폴백 x=1808, y=373)")
             return True

@@ -80,6 +80,7 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     files: Optional[list[dict]] = None  # [{name, type, data(base64)}]
+    attachment_path: Optional[str] = None  # GW 결재 첨부파일 경로 (data/tmp/ 하위)
 
 
 class ChatResponse(BaseModel):
@@ -363,6 +364,16 @@ async def chat(request_body: ChatRequest, request: Request):
     history_rows = get_session_history(gw_id, session_id, limit=40)
     history = [{"role": row["role"], "content": row["content"]} for row in history_rows]
 
+    # 첨부파일 경로 — data/tmp/ 하위 경로만 허용 (경로 트래버설 방지)
+    attachment_path = None
+    if request_body.attachment_path:
+        tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
+        candidate = Path(request_body.attachment_path).resolve()
+        if candidate.is_file() and str(candidate).startswith(str(tmp_dir.resolve())):
+            attachment_path = str(candidate)
+        else:
+            logger.warning(f"attachment_path 거부 (tmp 범위 외): {request_body.attachment_path}")
+
     try:
         # Gemini 에이전트로 처리 (user_context 전달)
         result = await analyze_and_route(
@@ -370,6 +381,7 @@ async def chat(request_body: ChatRequest, request: Request):
             files=files,
             conversation_history=history,
             user_context=user_context,
+            attachment_path=attachment_path,
         )
 
         # 메시지 DB 저장 (user + assistant)
@@ -387,6 +399,13 @@ async def chat(request_body: ChatRequest, request: Request):
             if len(request_body.message) > 50:
                 title += "..."
             update_session_title(gw_id, session_id, title)
+
+        # 결재 도구 실행 후 임시 첨부파일 삭제 (성공/실패 무관)
+        if attachment_path and result.get("action") in ("submit_expense_approval", "submit_approval_form"):
+            try:
+                Path(attachment_path).unlink(missing_ok=True)
+            except Exception:
+                pass
 
         # 결과를 로컬 파일로 저장 (이중 백업) — 파일 데이터(base64)는 제외
         timestamp = datetime.now().isoformat()
@@ -412,45 +431,59 @@ async def chat(request_body: ChatRequest, request: Request):
 async def upload_file(request: Request, file: UploadFile = File(...)):
     """
     파일 업로드 처리
-    - 이미지: base64 인코딩 후 반환
-    - PDF: 저장 후 경로 반환
+    - 이미지/PDF: base64 인코딩 후 반환 + data/tmp/ 에 저장 (GW 결재 첨부용)
+    - XLSX/DOCX: data/tmp/ 에 저장 (GW 결재 첨부 전용, base64 미반환)
+    반환값에 attachment_path 포함 — 이후 /chat 요청 시 전달하면 결재 첨부파일로 자동 업로드
     """
-    require_auth(request)  # 인증 필수
+    user = require_auth(request)
     if not file.filename:
         raise HTTPException(status_code=400, detail="파일 이름이 없습니다.")
 
-    # 파일 크기 제한 (10MB)
-    MAX_SIZE = 10 * 1024 * 1024
+    # 파일 크기 제한 (20MB)
+    MAX_SIZE = 20 * 1024 * 1024
     contents = await file.read()
     if len(contents) > MAX_SIZE:
-        raise HTTPException(status_code=413, detail="파일 크기가 10MB를 초과합니다.")
+        raise HTTPException(status_code=413, detail="파일 크기가 20MB를 초과합니다.")
 
     content_type = file.content_type or "application/octet-stream"
-    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"]
+    # Gemini 분석 가능 타입
+    gemini_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"]
+    # GW 첨부만 가능한 타입 (확장자 기준)
+    safe_name = Path(file.filename).name
+    ext = Path(safe_name).suffix.lower()
+    attachment_only_exts = {".xlsx", ".docx"}
 
-    if content_type not in allowed_types:
+    if content_type not in gemini_types and ext not in attachment_only_exts:
         raise HTTPException(
             status_code=415,
-            detail=f"지원하지 않는 파일 형식입니다. (지원: JPG, PNG, GIF, WebP, PDF)"
+            detail="지원하지 않는 파일 형식입니다. (지원: JPG, PNG, GIF, WebP, PDF, XLSX, DOCX)"
         )
 
-    # base64 인코딩
-    encoded = base64.b64encode(contents).decode("utf-8")
+    # data/tmp/ 에 저장 (GW 결재 첨부파일 경로로 반환)
+    tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    tmp_path = tmp_dir / f"{user['gw_id']}_{uuid.uuid4()}_{safe_name}"
+    tmp_path.write_bytes(contents)
 
-    # 업로드 파일 저장
+    # 기존 업로드 디렉토리에도 저장 (로그/백업)
     upload_dir = DATA_DIR / "uploads"
     upload_dir.mkdir(exist_ok=True)
-    safe_name = Path(file.filename).name  # 디렉토리 구분자 제거 (경로 트래버설 방지)
     save_path = upload_dir / f"{uuid.uuid4()}_{safe_name}"
     save_path.write_bytes(contents)
 
-    return JSONResponse({
+    response_data: dict = {
         "name": file.filename,
         "type": content_type,
-        "data": encoded,
         "size": len(contents),
-        "saved_path": str(save_path)
-    })
+        "saved_path": str(save_path),
+        "attachment_path": str(tmp_path),  # /chat 요청 시 이 값을 attachment_path로 전달
+    }
+
+    # Gemini 분석 가능 타입이면 base64도 반환
+    if content_type in gemini_types:
+        response_data["data"] = base64.b64encode(contents).decode("utf-8")
+
+    return JSONResponse(response_data)
 
 
 @app.get("/history/{session_id}")

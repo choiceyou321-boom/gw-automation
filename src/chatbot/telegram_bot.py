@@ -11,6 +11,7 @@ import os
 import sys
 import base64
 import logging
+import time
 from pathlib import Path
 
 from telegram import Update
@@ -37,6 +38,15 @@ from src.auth.user_db import verify_login, register as db_register, get_approval
 
 # 텔레그램 유저 ID → { user_context, history }
 tg_sessions: dict[int, dict] = {}
+
+# 임시 파일 저장 경로
+TMP_DIR = ROOT_DIR / "data" / "tmp"
+TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+# 지원 확장자
+ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".xlsx", ".docx"}
+# 파일 크기 제한 (20MB)
+MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -365,16 +375,27 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id=update.effective_chat.id, action='typing'
     )
 
+    # 세션에 보관된 임시 첨부파일 경로 확인 후 소비
+    pending_attachment = session.pop("pending_attachment_path", None)
+
     try:
         result = await analyze_and_route(
             user_message=user_message,
             files=[],
             conversation_history=list(session["history"]),
             user_context=_get_user_context(session),
+            attachment_path=pending_attachment or None,
         )
 
         _append_history(session, "user", user_message)
         _append_history(session, "assistant", result["response"])
+
+        # 결재 도구가 실행됐으면 첨부파일 삭제 (성공/실패 무관)
+        if pending_attachment and result.get("action") in ("submit_expense_approval", "submit_approval_form"):
+            try:
+                Path(pending_attachment).unlink(missing_ok=True)
+            except Exception:
+                pass
 
         response_text = result["response"]
         if len(response_text) > 4000:
@@ -406,12 +427,24 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         photo = update.message.photo[-1]
+
+        # 파일 크기 확인
+        if photo.file_size and photo.file_size > MAX_ATTACHMENT_SIZE:
+            await update.message.reply_text("파일 크기가 20MB를 초과합니다.")
+            return
+
         file = await context.bot.get_file(photo.file_id)
         photo_bytes = await file.download_as_bytearray()
         encoded = base64.b64encode(bytes(photo_bytes)).decode("utf-8")
 
         files = [{"name": "photo.jpg", "type": "image/jpeg", "data": encoded}]
         user_message = update.message.caption or "이 이미지를 분석해주세요."
+
+        # 지출결의서/결재 첨부용으로 임시 파일에도 저장
+        gw_id = session.get("gw_id", "unknown")
+        tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_photo.jpg"
+        tmp_path.write_bytes(bytes(photo_bytes))
+        session["pending_attachment_path"] = str(tmp_path)
 
         result = await analyze_and_route(
             user_message=user_message,
@@ -422,6 +455,14 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         _append_history(session, "user", f"[사진 첨부] {user_message}")
         _append_history(session, "assistant", result["response"])
+
+        # 결재 도구가 이번 메시지에서 바로 실행됐으면 첨부파일 삭제
+        if result.get("action") in ("submit_expense_approval", "submit_approval_form"):
+            try:
+                tmp_path.unlink(missing_ok=True)
+                session.pop("pending_attachment_path", None)
+            except Exception:
+                pass
 
         response_text = result["response"]
         if len(response_text) > 4000:
@@ -435,7 +476,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """문서(PDF 등) 첨부 메시지 처리"""
+    """문서(PDF, 이미지, xlsx, docx 등) 첨부 메시지 처리"""
     tg_user_id = update.effective_user.id
     session = _check_login(tg_user_id)
 
@@ -447,16 +488,23 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     doc = update.message.document
     mime = doc.mime_type or ""
-    supported = ("image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf")
+    file_name = doc.file_name or "file"
+    ext = Path(file_name).suffix.lower()
 
-    if mime not in supported:
+    # Gemini 분석 가능 타입 (이미지/PDF)
+    gemini_supported = ("image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf")
+    # 첨부파일 저장만 가능한 확장자 (xlsx, docx 등)
+    attachment_only = ext in ALLOWED_EXTENSIONS and mime not in gemini_supported
+
+    if mime not in gemini_supported and not attachment_only:
         await update.message.reply_text(
-            "지원하지 않는 파일 형식입니다.\n지원: JPG, PNG, GIF, WebP, PDF"
+            "지원하지 않는 파일 형식입니다.\n"
+            "지원: JPG, PNG, GIF, WebP, PDF (분석+첨부) / XLSX, DOCX (첨부만)"
         )
         return
 
-    if doc.file_size and doc.file_size > 10 * 1024 * 1024:
-        await update.message.reply_text("파일 크기가 10MB를 초과합니다.")
+    if doc.file_size and doc.file_size > MAX_ATTACHMENT_SIZE:
+        await update.message.reply_text("파일 크기가 20MB를 초과합니다.")
         return
 
     await context.bot.send_chat_action(
@@ -466,10 +514,25 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         file = await context.bot.get_file(doc.file_id)
         file_bytes = await file.download_as_bytearray()
-        encoded = base64.b64encode(bytes(file_bytes)).decode("utf-8")
 
-        files = [{"name": doc.file_name or "file", "type": mime, "data": encoded}]
-        user_message = update.message.caption or f"이 파일({doc.file_name})을 분석해주세요."
+        # 지출결의서/결재 첨부용으로 임시 파일 저장 (지원 확장자인 경우)
+        gw_id = session.get("gw_id", "unknown")
+        safe_name = Path(file_name).name
+        tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_{safe_name}"
+        tmp_path.write_bytes(bytes(file_bytes))
+        session["pending_attachment_path"] = str(tmp_path)
+
+        # Gemini 분석이 가능한 타입이면 base64로 전달, 아니면 빈 files 리스트
+        if mime in gemini_supported:
+            encoded = base64.b64encode(bytes(file_bytes)).decode("utf-8")
+            files = [{"name": file_name, "type": mime, "data": encoded}]
+            user_message = update.message.caption or f"이 파일({file_name})을 분석해주세요."
+        else:
+            files = []
+            user_message = (
+                update.message.caption
+                or f"파일({file_name})을 첨부했습니다. 이 파일을 결재 문서에 첨부해주세요."
+            )
 
         result = await analyze_and_route(
             user_message=user_message,
@@ -478,8 +541,16 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_context=_get_user_context(session),
         )
 
-        _append_history(session, "user", f"[파일: {doc.file_name}] {user_message}")
+        _append_history(session, "user", f"[파일: {file_name}] {user_message}")
         _append_history(session, "assistant", result["response"])
+
+        # 결재 도구가 이번 메시지에서 바로 실행됐으면 첨부파일 삭제
+        if result.get("action") in ("submit_expense_approval", "submit_approval_form"):
+            try:
+                tmp_path.unlink(missing_ok=True)
+                session.pop("pending_attachment_path", None)
+            except Exception:
+                pass
 
         response_text = result["response"]
         if len(response_text) > 4000:

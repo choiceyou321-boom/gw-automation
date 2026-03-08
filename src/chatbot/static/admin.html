@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/static/style.css" />
   <style>
     .admin-container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
       padding: 40px 24px;
       min-height: 100vh;
@@ -16,7 +16,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
     .admin-header h1 {
       font-size: 22px;
@@ -38,12 +38,35 @@
       background: var(--bg-hover);
       color: var(--text-primary);
     }
-    .user-count {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
+    /* 탭 */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
     }
-    .user-table {
+    .tab-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    /* 공통 테이블 */
+    .data-table {
       width: 100%;
       border-collapse: collapse;
       background: var(--bg-secondary);
@@ -51,14 +74,14 @@
       overflow: hidden;
       border: 1px solid var(--border);
     }
-    .user-table th,
-    .user-table td {
-      padding: 12px 16px;
+    .data-table th,
+    .data-table td {
+      padding: 12px 14px;
       text-align: left;
       font-size: 13px;
       border-bottom: 1px solid var(--border);
     }
-    .user-table th {
+    .data-table th {
       background: var(--bg-tertiary);
       color: var(--text-muted);
       font-weight: 600;
@@ -66,15 +89,9 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .user-table td {
-      color: var(--text-primary);
-    }
-    .user-table tr:last-child td {
-      border-bottom: none;
-    }
-    .user-table tr:hover td {
-      background: var(--bg-hover);
-    }
+    .data-table td { color: var(--text-primary); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg-hover); }
     .badge {
       display: inline-block;
       padding: 2px 8px;
@@ -82,13 +99,11 @@
       font-size: 11px;
       font-weight: 600;
     }
-    .badge-admin {
-      background: rgba(124, 106, 247, 0.2);
-      color: var(--accent);
-    }
-    .badge-incomplete {
-      background: rgba(255, 165, 0, 0.15);
-      color: #ffa500;
+    .badge-admin { background: rgba(124, 106, 247, 0.2); color: var(--accent); }
+    .badge-incomplete { background: rgba(255, 165, 0, 0.15); color: #ffa500; }
+    .badge-type {
+      background: rgba(80, 180, 255, 0.15);
+      color: #50b4ff;
     }
     .delete-btn {
       padding: 5px 12px;
@@ -100,14 +115,8 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .delete-btn:hover {
-      background: rgba(255, 107, 107, 0.15);
-      border-color: #ff6b6b;
-    }
-    .delete-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
+    .delete-btn:hover { background: rgba(255, 107, 107, 0.15); border-color: #ff6b6b; }
+    .delete-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .edit-input {
       background: var(--bg-input);
       border: 1px solid var(--border);
@@ -118,10 +127,7 @@
       width: 80px;
       font-family: var(--font);
     }
-    .edit-input:focus {
-      border-color: var(--accent);
-      outline: none;
-    }
+    .edit-input:focus { border-color: var(--accent); outline: none; }
     .save-btn {
       padding: 4px 10px;
       background: var(--accent);
@@ -132,8 +138,20 @@
       cursor: pointer;
       margin-left: 4px;
     }
-    .save-btn:hover {
-      background: var(--accent-hover);
+    .save-btn:hover { background: var(--accent-hover); }
+    .meta-row {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .msg-cell {
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .toast {
       position: fixed;
@@ -148,18 +166,11 @@
       z-index: 1000;
       animation: fadeIn 0.3s ease;
     }
-    .toast.error {
-      border-color: rgba(255, 107, 107, 0.5);
-      color: #ff6b6b;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-muted);
-    }
+    .toast.error { border-color: rgba(255, 107, 107, 0.5); color: #ff6b6b; }
+    .loading { text-align: center; padding: 40px; color: var(--text-muted); }
     @media (max-width: 768px) {
       .admin-container { padding: 20px 12px; }
-      .user-table th, .user-table td { padding: 8px 10px; font-size: 12px; }
+      .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
       .edit-input { width: 60px; }
     }
   </style>
@@ -167,37 +178,39 @@
 <body>
   <div class="admin-container">
     <div class="admin-header">
-      <h1>사용자 관리</h1>
+      <h1>관리자 페이지</h1>
       <a href="/" class="back-btn">채팅으로 돌아가기</a>
     </div>
-    <div class="user-count" id="userCount"></div>
-    <div id="content">
-      <div class="loading">불러오는 중...</div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="users">사용자 관리</button>
+      <button class="tab-btn" data-tab="unsupported">미지원 요청</button>
+    </div>
+
+    <!-- 탭1: 사용자 관리 -->
+    <div class="tab-pane active" id="tab-users">
+      <div class="meta-row">
+        <span id="userCount"></span>
+      </div>
+      <div id="usersContent">
+        <div class="loading">불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 탭2: 미지원 요청 -->
+    <div class="tab-pane" id="tab-unsupported">
+      <div class="meta-row">
+        <span id="unsupportedCount"></span>
+        <button class="delete-btn" id="clearAllBtn" style="margin-left:auto;">전체 삭제</button>
+      </div>
+      <div id="unsupportedContent">
+        <div class="loading">불러오는 중...</div>
+      </div>
     </div>
   </div>
 
   <script>
     const BASE = '';
-
-    async function loadUsers() {
-      try {
-        const res = await fetch(`${BASE}/admin/users`, { credentials: 'same-origin' });
-        if (res.status === 401) {
-          location.href = '/';
-          return;
-        }
-        if (res.status === 403) {
-          document.getElementById('content').innerHTML =
-            '<div class="loading" style="color:#ff6b6b;">관리자 권한이 필요합니다.</div>';
-          return;
-        }
-        const data = await res.json();
-        renderUsers(data.users);
-      } catch (e) {
-        document.getElementById('content').innerHTML =
-          '<div class="loading" style="color:#ff6b6b;">서버 연결 실패</div>';
-      }
-    }
 
     // HTML 특수문자 이스케이프 헬퍼 (XSS 방지)
     function esc(s) {
@@ -206,10 +219,40 @@
       return d.innerHTML;
     }
 
+    // ── 탭 전환 ──
+    document.querySelector('.tab-bar').addEventListener('click', function(e) {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      if (tab === 'unsupported') loadUnsupported();
+    });
+
+    // ── 사용자 관리 ──
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${BASE}/admin/users`, { credentials: 'same-origin' });
+        if (res.status === 401) { location.href = '/'; return; }
+        if (res.status === 403) {
+          document.getElementById('usersContent').innerHTML =
+            '<div class="loading" style="color:#ff6b6b;">관리자 권한이 필요합니다.</div>';
+          return;
+        }
+        const data = await res.json();
+        renderUsers(data.users);
+      } catch (e) {
+        document.getElementById('usersContent').innerHTML =
+          '<div class="loading" style="color:#ff6b6b;">서버 연결 실패</div>';
+      }
+    }
+
     function renderUsers(users) {
       document.getElementById('userCount').textContent = `총 ${users.length}명`;
       const html = `
-        <table class="user-table">
+        <table class="data-table">
           <thead>
             <tr>
               <th>GW ID</th>
@@ -248,45 +291,28 @@
           </tbody>
         </table>
       `;
-      document.getElementById('content').innerHTML = html;
+      document.getElementById('usersContent').innerHTML = html;
 
-      // 이벤트 위임으로 버튼 처리 (inline onclick 제거)
-      document.getElementById('content').addEventListener('click', function(e) {
+      document.getElementById('usersContent').addEventListener('click', function(e) {
         const deleteBtn = e.target.closest('.delete-btn[data-gw-id]');
-        if (deleteBtn) {
-          deleteUser(deleteBtn.dataset.gwId, deleteBtn.dataset.name);
-          return;
-        }
+        if (deleteBtn) { deleteUser(deleteBtn.dataset.gwId, deleteBtn.dataset.name); return; }
         const saveBtn = e.target.closest('.save-btn[data-gw-id]');
-        if (saveBtn) {
-          saveProfile(saveBtn.dataset.gwId);
-        }
+        if (saveBtn) saveProfile(saveBtn.dataset.gwId);
       });
     }
 
     async function deleteUser(gwId, name) {
       if (!confirm(`"${name}" (${gwId}) 사용자를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) return;
-
       try {
-        const res = await fetch(`${BASE}/admin/users/${gwId}`, {
-          method: 'DELETE',
-          credentials: 'same-origin',
-        });
+        const res = await fetch(`${BASE}/admin/users/${gwId}`, { method: 'DELETE', credentials: 'same-origin' });
         const data = await res.json();
-        if (res.ok) {
-          showToast(data.message || '삭제 완료');
-          loadUsers();
-        } else {
-          showToast(data.detail || '삭제 실패', true);
-        }
-      } catch (e) {
-        showToast('서버 오류', true);
-      }
+        if (res.ok) { showToast(data.message || '삭제 완료'); loadUsers(); }
+        else showToast(data.detail || '삭제 실패', true);
+      } catch (e) { showToast('서버 오류', true); }
     }
 
     async function saveProfile(gwId) {
       const empSeq = document.getElementById(`emp-${gwId}`).value.trim();
-
       try {
         const res = await fetch(`${BASE}/admin/users/${gwId}/profile`, {
           method: 'PUT',
@@ -295,21 +321,103 @@
           credentials: 'same-origin',
         });
         const data = await res.json();
-        if (res.ok) {
-          showToast(`${gwId} empSeq 저장 완료`);
-          loadUsers();
-        } else {
-          showToast(data.detail || '저장 실패', true);
-        }
+        if (res.ok) { showToast(`${gwId} empSeq 저장 완료`); loadUsers(); }
+        else showToast(data.detail || '저장 실패', true);
+      } catch (e) { showToast('서버 오류', true); }
+    }
+
+    // ── 미지원 요청 ──
+    async function loadUnsupported() {
+      document.getElementById('unsupportedContent').innerHTML =
+        '<div class="loading">불러오는 중...</div>';
+      try {
+        const res = await fetch(`${BASE}/admin/unsupported-requests`, { credentials: 'same-origin' });
+        if (!res.ok) { throw new Error(res.status); }
+        const data = await res.json();
+        renderUnsupported(data.items, data.total);
       } catch (e) {
-        showToast('서버 오류', true);
+        document.getElementById('unsupportedContent').innerHTML =
+          '<div class="loading" style="color:#ff6b6b;">불러오기 실패</div>';
       }
     }
 
+    function renderUnsupported(items, total) {
+      document.getElementById('unsupportedCount').textContent =
+        `총 ${total}건`;
+
+      if (!items.length) {
+        document.getElementById('unsupportedContent').innerHTML =
+          '<div class="loading">미지원 요청이 없습니다.</div>';
+        return;
+      }
+
+      const html = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>사용자</th>
+              <th>유형</th>
+              <th>요청 내용</th>
+              <th>상세</th>
+              <th>일시</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(r => `
+              <tr id="unsup-${esc(r.id)}">
+                <td style="color:var(--text-muted)">${esc(r.id)}</td>
+                <td>${esc(r.gw_id)}</td>
+                <td><span class="badge badge-type">${esc(r.request_type)}</span></td>
+                <td class="msg-cell" title="${esc(r.user_message)}">${esc(r.user_message)}</td>
+                <td class="msg-cell" title="${esc(r.detail)}">${esc(r.detail || '-')}</td>
+                <td style="white-space:nowrap">${esc(r.created_at ? r.created_at.replace('T', ' ').slice(0, 16) : '-')}</td>
+                <td>
+                  <button class="delete-btn" data-req-id="${esc(r.id)}">삭제</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      document.getElementById('unsupportedContent').innerHTML = html;
+
+      document.getElementById('unsupportedContent').addEventListener('click', function(e) {
+        const btn = e.target.closest('.delete-btn[data-req-id]');
+        if (btn) deleteUnsupported(Number(btn.dataset.reqId));
+      });
+    }
+
+    async function deleteUnsupported(id) {
+      try {
+        const res = await fetch(`${BASE}/admin/unsupported-requests/${id}`, {
+          method: 'DELETE', credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (res.ok) { showToast('삭제 완료'); loadUnsupported(); }
+        else showToast(data.detail || '삭제 실패', true);
+      } catch (e) { showToast('서버 오류', true); }
+    }
+
+    document.getElementById('clearAllBtn').addEventListener('click', async function() {
+      if (!confirm('미지원 요청 전체를 삭제하시겠습니까?')) return;
+      try {
+        const res = await fetch(`${BASE}/admin/unsupported-requests`, { credentials: 'same-origin' });
+        const data = await res.json();
+        const ids = (data.items || []).map(r => r.id);
+        await Promise.all(ids.map(id =>
+          fetch(`${BASE}/admin/unsupported-requests/${id}`, { method: 'DELETE', credentials: 'same-origin' })
+        ));
+        showToast(`${ids.length}건 삭제 완료`);
+        loadUnsupported();
+      } catch (e) { showToast('서버 오류', true); }
+    });
+
+    // ── 공통 토스트 ──
     function showToast(msg, isError = false) {
       const existing = document.querySelector('.toast');
       if (existing) existing.remove();
-
       const el = document.createElement('div');
       el.className = `toast${isError ? ' error' : ''}`;
       el.textContent = msg;

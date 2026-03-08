@@ -2232,169 +2232,237 @@ class ApprovalAutomation:
         # → input[type=checkbox], div[class*='check'], label 등 다양한 셀렉터 시도
         selected = False
 
-        # 방법 1: JavaScript로 모달 영역 내 체크박스 요소 직접 탐색
-        checkbox_count = 0
+        # ── 방법 0: OBTDataGrid React Fiber API로 모달 내 그리드 첫 행 선택 ──
+        logger.info("방법 0: OBTDataGrid React Fiber — 모달 내 그리드 첫 행 선택 시도")
         try:
-            checkbox_count = page.evaluate("""() => {
-                // 모달 영역(y < 650) 내 체크박스 역할 요소 찾기
-                let count = 0;
-                const elems = document.querySelectorAll(
-                    'input[type="checkbox"], [role="checkbox"], [class*="checkbox"], [class*="Checkbox"]'
-                );
-                for (const el of elems) {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.y > 150 && rect.y < 650 && rect.x < 200) {
-                        count++;
-                    }
-                }
-                return count;
-            }""")
-            logger.info(f"JS 체크박스 탐지: {checkbox_count}개")
-        except Exception:
-            pass
+            react_selected = page.evaluate("""() => {
+                // 모달 영역 내 OBTDataGrid 찾기
+                const grids = document.querySelectorAll('.OBTDataGrid_grid__22Vfl');
+                for (const grid of grids) {
+                    const rect = grid.getBoundingClientRect();
+                    // 모달은 화면 상단~중간 (y: 100~700), 전체 화면이 아닌 오버레이
+                    if (rect.y < 100 || rect.y > 700) continue;
 
-        # 방법 2: 다양한 체크박스 셀렉터 시도
-        cb_selectors = [
-            "input[type='checkbox']",
-            "[role='checkbox']",
-            "div[class*='checkbox']",
-            "div[class*='Checkbox']",
-            "div[class*='check']",
-            "label[class*='check']",
-            "span[class*='check']",
-        ]
-        modal_checkboxes = []
-        for sel in cb_selectors:
-            try:
-                all_cbs = page.locator(sel).all()
-                for cb in all_cbs:
-                    try:
-                        box = cb.bounding_box()
-                        # 모달 영역 내 (y: 180~600, x: < 200)
-                        if box and 180 < box["y"] < 600 and box["x"] < 200:
-                            modal_checkboxes.append((box["y"], cb))
-                    except Exception:
-                        continue
-                if modal_checkboxes:
-                    logger.info(f"체크박스 셀렉터 매칭: {sel} ({len(modal_checkboxes)}개)")
-                    break
-            except Exception:
-                continue
+                    // React Fiber 키 찾기
+                    const fKey = Object.keys(grid).find(k => k.startsWith('__reactFiber'));
+                    if (!fKey) continue;
+                    let node = grid[fKey];
 
-        # 방법 3: 체크박스를 못 찾으면 모달 기준 상대 좌표로 폴백
-        if not modal_checkboxes:
-            logger.info("셀렉터로 체크박스 미발견 — 모달 기준 상대 좌표 클릭")
-            # "데이터가 존재하지 않습니다" 확인
-            try:
-                no_data = page.locator("text=데이터가 존재하지 않습니다").first
-                if no_data.is_visible(timeout=1000):
-                    logger.warning("계산서 모달: 데이터가 존재하지 않습니다")
-                    try:
-                        page.locator("button:has-text('취소')").last.click(force=True)
-                    except Exception:
-                        pass
-                    return False
-            except Exception:
-                pass
-
-            # 건수 확인
-            try:
-                count_text = page.evaluate("""() => {
-                    const all = document.querySelectorAll('*');
-                    for (const e of all) {
-                        const t = e.textContent?.trim() || '';
-                        const rect = e.getBoundingClientRect();
-                        if (/^\\d+건$/.test(t) && rect.width < 80 && rect.height < 30) {
-                            return t;
-                        }
-                    }
-                    return '';
-                }""")
-                if count_text:
-                    logger.info(f"모달 건수: {count_text}")
-            except Exception:
-                pass
-
-            # 모달 제목 위치 기준으로 상대 좌표 계산
-            # 제목 "매입(세금)계산서 내역" 위치를 기준점으로 사용
-            try:
-                title_box = page.locator("text=매입(세금)계산서 내역").first.bounding_box()
-                if title_box:
-                    modal_x = title_box["x"]  # 모달 왼쪽 x
-                    modal_top = title_box["y"]  # 모달 상단 y
-                    # 첫 데이터 행 체크박스: 제목으로부터 약 +215px 아래, 모달 좌측 +10px
-                    # ★ +185는 헤더 전체선택 체크박스 → +215로 첫 데이터 행만 선택
-                    cb_x = modal_x + 10
-                    cb_y = modal_top + 215
-                    page.mouse.click(cb_x, cb_y)
-                    time.sleep(0.3)
-                    _save_debug(page, "invoice_modal_coord_click")
-                    logger.info(f"체크박스 상대 좌표 클릭 (1건): ({cb_x:.0f}, {cb_y:.0f}) (제목 기준)")
-                    selected = True
-                else:
-                    raise ValueError("모달 제목 위치 미확인")
-            except Exception as e:
-                # 최종 폴백: JavaScript로 첫 번째 테이블 행 찾기
-                logger.warning(f"상대 좌표 실패: {e}, JS 폴백 시도")
-                try:
-                    first_row = page.evaluate("""() => {
-                        const trs = document.querySelectorAll('tr');
-                        for (const tr of trs) {
-                            const rect = tr.getBoundingClientRect();
-                            const text = tr.textContent || '';
-                            if (rect.height > 20 && rect.height < 50 && text.includes('20') && rect.y > 200) {
-                                return {x: rect.x + 15, y: rect.y + rect.height/2};
+                    // interface 탐색 (depth 최대 10)
+                    for (let i = 0; i < 10; i++) {
+                        if (!node) break;
+                        if (node.stateNode && node.stateNode.state && node.stateNode.state.interface) {
+                            const iface = node.stateNode.state.interface;
+                            if (typeof iface.getRowCount === 'function') {
+                                const rowCount = iface.getRowCount();
+                                if (rowCount > 0) {
+                                    // 첫 번째 데이터 행 선택
+                                    iface.setSelection({ rowIndex: 0, columnIndex: 0 });
+                                    iface.focus({ rowIndex: 0, columnIndex: 0 });
+                                    if (typeof iface.commit === 'function') iface.commit();
+                                    return { success: true, rowCount: rowCount };
+                                } else {
+                                    return { success: false, rowCount: 0 };
+                                }
                             }
                         }
-                        return null;
-                    }""")
-                    if first_row:
-                        page.mouse.click(first_row["x"], first_row["y"])
-                        logger.info(f"체크박스 JS 폴백 클릭: ({first_row['x']:.0f}, {first_row['y']:.0f})")
-                        selected = True
+                        // child 우선, 없으면 sibling
+                        node = node.child || node.sibling || node.return;
+                    }
+                }
+                return { success: false, rowCount: -1 };
+            }""")
+
+            if react_selected and react_selected.get("success"):
+                logger.info(f"방법 0 성공: OBTDataGrid 첫 행 선택 (전체 {react_selected.get('rowCount')}행)")
+                selected = True
+                time.sleep(0.5)
+            elif react_selected and react_selected.get("rowCount") == 0:
+                logger.warning("방법 0: 모달 그리드 데이터 없음 (0건)")
+                # 데이터 없는 경우 취소
+                try:
+                    page.locator("button:has-text('취소')").last.click(force=True)
                 except Exception:
                     pass
-                if not selected:
-                    _save_debug(page, "invoice_modal_coord_click")
-                    logger.warning("계산서 체크박스 클릭 실패")
-        else:
-            # 체크박스 정렬 (y 순서)
-            modal_checkboxes.sort(key=lambda x: x[0])
+                return False
+            else:
+                logger.info(f"방법 0 미적용 (결과: {react_selected}) → 기존 방법으로 폴백")
+        except Exception as e:
+            logger.info(f"방법 0 예외 (무시): {e}")
 
-            # 헤더 체크박스 제외 (첫 번째와 두 번째 y 차이가 15px 이상이면 헤더)
-            data_checkboxes = [cb for _, cb in modal_checkboxes]
-            if len(modal_checkboxes) > 1 and (modal_checkboxes[1][0] - modal_checkboxes[0][0]) > 15:
-                data_checkboxes = [cb for _, cb in modal_checkboxes[1:]]
-                logger.info(f"헤더 제외 → 데이터 체크박스 {len(data_checkboxes)}개")
+        if not selected:
+            # 방법 1: JavaScript로 모달 영역 내 체크박스 요소 직접 탐색
+            checkbox_count = 0
+            try:
+                checkbox_count = page.evaluate("""() => {
+                    // 모달 영역(y < 650) 내 체크박스 역할 요소 찾기
+                    let count = 0;
+                    const elems = document.querySelectorAll(
+                        'input[type="checkbox"], [role="checkbox"], [class*="checkbox"], [class*="Checkbox"]'
+                    );
+                    for (const el of elems) {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.y > 150 && rect.y < 650 && rect.x < 200) {
+                            count++;
+                        }
+                    }
+                    return count;
+                }""")
+                logger.info(f"JS 체크박스 탐지: {checkbox_count}개")
+            except Exception:
+                pass
 
-            # vendor/amount 매칭
-            for cb in data_checkboxes:
+            # 방법 2: 다양한 체크박스 셀렉터 시도
+            cb_selectors = [
+                "input[type='checkbox']",
+                "[role='checkbox']",
+                "div[class*='checkbox']",
+                "div[class*='Checkbox']",
+                "div[class*='check']",
+                "label[class*='check']",
+                "span[class*='check']",
+            ]
+            modal_checkboxes = []
+            for sel in cb_selectors:
                 try:
-                    row = cb.locator("xpath=ancestor::tr[1]")
-                    rt = row.inner_text().strip()
-                    if "데이터가 존재하지 않습니다" in rt or rt.startswith("합계"):
-                        continue
-                    vendor_ok = (not vendor) or (vendor in rt)
-                    amount_ok = True
-                    if amount is not None:
-                        import re as _re
-                        nums = [int(n.replace(",", "")) for n in _re.findall(r"[\d,]+", rt)
-                                if n.replace(",", "").isdigit() and len(n.replace(",", "")) >= 3]
-                        amount_ok = any(abs(a - int(amount)) < max(1000, int(amount) * 0.01) for a in nums)
-                    if vendor_ok and amount_ok:
-                        cb.click(force=True)
-                        logger.info(f"계산서 체크박스 선택: {rt[:60]}")
-                        selected = True
+                    all_cbs = page.locator(sel).all()
+                    for cb in all_cbs:
+                        try:
+                            box = cb.bounding_box()
+                            # 모달 영역 내 (y: 180~600, x: < 200)
+                            if box and 180 < box["y"] < 600 and box["x"] < 200:
+                                modal_checkboxes.append((box["y"], cb))
+                        except Exception:
+                            continue
+                    if modal_checkboxes:
+                        logger.info(f"체크박스 셀렉터 매칭: {sel} ({len(modal_checkboxes)}개)")
                         break
                 except Exception:
                     continue
-            if not selected and data_checkboxes:
+
+            # 방법 3: 체크박스를 못 찾으면 모달 기준 상대 좌표로 폴백
+            if not modal_checkboxes:
+                logger.info("셀렉터로 체크박스 미발견 — 모달 기준 상대 좌표 클릭")
+                # "데이터가 존재하지 않습니다" 확인
                 try:
-                    data_checkboxes[0].click(force=True)
-                    logger.info("계산서 첫 행 체크박스 선택")
-                    selected = True
+                    no_data = page.locator("text=데이터가 존재하지 않습니다").first
+                    if no_data.is_visible(timeout=1000):
+                        logger.warning("계산서 모달: 데이터가 존재하지 않습니다")
+                        try:
+                            page.locator("button:has-text('취소')").last.click(force=True)
+                        except Exception:
+                            pass
+                        return False
+                except Exception:
+                    pass
+
+                # 건수 확인
+                try:
+                    count_text = page.evaluate("""() => {
+                        const all = document.querySelectorAll('*');
+                        for (const e of all) {
+                            const t = e.textContent?.trim() || '';
+                            const rect = e.getBoundingClientRect();
+                            if (/^\\d+건$/.test(t) && rect.width < 80 && rect.height < 30) {
+                                return t;
+                            }
+                        }
+                        return '';
+                    }""")
+                    if count_text:
+                        logger.info(f"모달 건수: {count_text}")
+                except Exception:
+                    pass
+
+                # 모달 제목 위치 기준으로 상대 좌표 계산
+                # 제목 "매입(세금)계산서 내역" 위치를 기준점으로 사용
+                try:
+                    title_box = page.locator("text=매입(세금)계산서 내역").first.bounding_box()
+                    if title_box:
+                        modal_x = title_box["x"]  # 모달 왼쪽 x
+                        modal_top = title_box["y"]  # 모달 상단 y
+                        # 첫 데이터 행 체크박스: 제목으로부터 약 +215px 아래, 모달 좌측 +10px
+                        # ★ +185는 헤더 전체선택 체크박스 → +215로 첫 데이터 행만 선택
+                        cb_x = modal_x + 10
+                        # 뷰포트 높이 조회 후 비례 보정 (1920×1080 기준 215px)
+                        try:
+                            viewport_height = page.viewport_size["height"] if page.viewport_size else 1080
+                        except Exception:
+                            viewport_height = 1080
+                        base_offset = 215
+                        scale = viewport_height / 1080
+                        cb_offset = max(180, min(260, int(base_offset * scale)))
+                        cb_y = modal_top + cb_offset
+                        logger.info(f"체크박스 좌표: modal_top={modal_top:.0f}, offset={cb_offset}px (scale={scale:.2f})")
+                        page.mouse.click(cb_x, cb_y)
+                        time.sleep(0.3)
+                        _save_debug(page, "invoice_modal_coord_click")
+                        logger.info(f"체크박스 상대 좌표 클릭 (1건): ({cb_x:.0f}, {cb_y:.0f}) (제목 기준)")
+                        selected = True
+                    else:
+                        raise ValueError("모달 제목 위치 미확인")
                 except Exception as e:
-                    logger.warning(f"첫 행 체크박스 선택 실패: {e}")
+                    # 최종 폴백: JavaScript로 첫 번째 테이블 행 찾기
+                    logger.warning(f"상대 좌표 실패: {e}, JS 폴백 시도")
+                    try:
+                        first_row = page.evaluate("""() => {
+                            const trs = document.querySelectorAll('tr');
+                            for (const tr of trs) {
+                                const rect = tr.getBoundingClientRect();
+                                const text = tr.textContent || '';
+                                if (rect.height > 20 && rect.height < 50 && text.includes('20') && rect.y > 200) {
+                                    return {x: rect.x + 15, y: rect.y + rect.height/2};
+                                }
+                            }
+                            return null;
+                        }""")
+                        if first_row:
+                            page.mouse.click(first_row["x"], first_row["y"])
+                            logger.info(f"체크박스 JS 폴백 클릭: ({first_row['x']:.0f}, {first_row['y']:.0f})")
+                            selected = True
+                    except Exception:
+                        pass
+                    if not selected:
+                        _save_debug(page, "invoice_modal_coord_click")
+                        logger.warning("계산서 체크박스 클릭 실패")
+            else:
+                # 체크박스 정렬 (y 순서)
+                modal_checkboxes.sort(key=lambda x: x[0])
+
+                # 헤더 체크박스 제외 (첫 번째와 두 번째 y 차이가 15px 이상이면 헤더)
+                data_checkboxes = [cb for _, cb in modal_checkboxes]
+                if len(modal_checkboxes) > 1 and (modal_checkboxes[1][0] - modal_checkboxes[0][0]) > 15:
+                    data_checkboxes = [cb for _, cb in modal_checkboxes[1:]]
+                    logger.info(f"헤더 제외 → 데이터 체크박스 {len(data_checkboxes)}개")
+
+                # vendor/amount 매칭
+                for cb in data_checkboxes:
+                    try:
+                        row = cb.locator("xpath=ancestor::tr[1]")
+                        rt = row.inner_text().strip()
+                        if "데이터가 존재하지 않습니다" in rt or rt.startswith("합계"):
+                            continue
+                        vendor_ok = (not vendor) or (vendor in rt)
+                        amount_ok = True
+                        if amount is not None:
+                            import re as _re
+                            nums = [int(n.replace(",", "")) for n in _re.findall(r"[\d,]+", rt)
+                                    if n.replace(",", "").isdigit() and len(n.replace(",", "")) >= 3]
+                            amount_ok = any(abs(a - int(amount)) < max(1000, int(amount) * 0.01) for a in nums)
+                        if vendor_ok and amount_ok:
+                            cb.click(force=True)
+                            logger.info(f"계산서 체크박스 선택: {rt[:60]}")
+                            selected = True
+                            break
+                    except Exception:
+                        continue
+                if not selected and data_checkboxes:
+                    try:
+                        data_checkboxes[0].click(force=True)
+                        logger.info("계산서 첫 행 체크박스 선택")
+                        selected = True
+                    except Exception as e:
+                        logger.warning(f"첫 행 체크박스 선택 실패: {e}")
 
         _save_debug(page, "invoice_modal_row_selected")
 

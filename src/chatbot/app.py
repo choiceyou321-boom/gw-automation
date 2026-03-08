@@ -285,6 +285,26 @@ async def admin_update_user_profile(gw_id: str, req: ProfileUpdateRequest, reque
     return JSONResponse({"message": result["message"]})
 
 
+@app.get("/admin/unsupported-requests")
+async def admin_list_unsupported(request: Request):
+    """미지원 요청 목록 (관리자 전용)"""
+    require_admin(request)
+    from src.chatbot.chat_db import list_unsupported_requests
+    items = list_unsupported_requests()
+    return JSONResponse({"items": items, "total": len(items)})
+
+
+@app.delete("/admin/unsupported-requests/{request_id}")
+async def admin_delete_unsupported(request_id: int, request: Request):
+    """미지원 요청 단건 삭제 (관리자 전용)"""
+    require_admin(request)
+    from src.chatbot.chat_db import delete_unsupported_request
+    ok = delete_unsupported_request(request_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="존재하지 않는 요청입니다.")
+    return JSONResponse({"message": "삭제 완료"})
+
+
 @app.get("/admin")
 async def serve_admin_page(request: Request):
     """관리자 페이지 서빙"""

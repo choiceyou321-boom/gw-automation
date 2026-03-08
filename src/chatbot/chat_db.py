@@ -202,3 +202,78 @@ def update_session_title(gw_id: str, session_id: str, title: str) -> dict:
         return {"success": True, "message": "세션 제목이 업데이트되었습니다."}
     finally:
         conn.close()
+
+
+# ─────────────────────────────────────────
+# 미지원 요청 로그
+# ─────────────────────────────────────────
+
+def _ensure_unsupported_table(conn: sqlite3.Connection):
+    """미지원 요청 테이블 생성 (없으면)"""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS unsupported_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            gw_id TEXT NOT NULL,
+            request_type TEXT NOT NULL,
+            user_message TEXT NOT NULL,
+            detail TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_unsupported_created
+        ON unsupported_requests (created_at DESC)
+    """)
+    conn.commit()
+
+
+def save_unsupported_request(
+    gw_id: str,
+    request_type: str,
+    user_message: str,
+    detail: str = "",
+) -> None:
+    """미지원 요청 기록 저장"""
+    conn = _get_db()
+    try:
+        _ensure_unsupported_table(conn)
+        conn.execute(
+            """INSERT INTO unsupported_requests (gw_id, request_type, user_message, detail)
+               VALUES (?, ?, ?, ?)""",
+            (gw_id, request_type, user_message, detail),
+        )
+        conn.commit()
+        logger.info(f"미지원 요청 기록: {gw_id} → {request_type} ({detail})")
+    finally:
+        conn.close()
+
+
+def list_unsupported_requests(limit: int = 200) -> list[dict]:
+    """미지원 요청 목록 조회 (최신순)"""
+    conn = _get_db()
+    try:
+        _ensure_unsupported_table(conn)
+        rows = conn.execute(
+            """SELECT id, gw_id, request_type, user_message, detail, created_at
+               FROM unsupported_requests
+               ORDER BY created_at DESC
+               LIMIT ?""",
+            (limit,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def delete_unsupported_request(request_id: int) -> bool:
+    """미지원 요청 단건 삭제"""
+    conn = _get_db()
+    try:
+        _ensure_unsupported_table(conn)
+        cursor = conn.execute(
+            "DELETE FROM unsupported_requests WHERE id = ?", (request_id,)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        conn.close()

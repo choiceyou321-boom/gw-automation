@@ -385,6 +385,7 @@ class MeetingRoomAPI:
                     "end_time":   end_time,
                     "date":       date,
                     "booker":     item.get("empName", item.get("empNm", item.get("userName", ""))),
+                    "empSeq":     str(item.get("empSeq", "")),
                     "schmSeq":    str(item.get("schmSeq", "")),
                     "seqNum":     str(item.get("seqNum", "")),
                     "raw":        item

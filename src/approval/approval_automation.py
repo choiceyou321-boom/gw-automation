@@ -1259,22 +1259,41 @@ class ApprovalAutomation:
             _is_invoice_type = evidence_type in ("세금계산서", "계산서", "계산서내역")
             if _is_invoice_type:
                 # 계산서내역 버튼 → DOM 모달 ("매입(세금)계산서 내역") 열림
-                self._click_evidence_type_button(evidence_type)
-                time.sleep(1)
-                try:
-                    invoice_selected = self._select_invoice_in_modal(
-                        vendor=data.get("invoice_vendor", ""),
-                        amount=data.get("invoice_amount"),
-                        date_from=data.get("invoice_date", ""),
-                        date_to=data.get("invoice_date", ""),
-                    )
-                except Exception as e:
-                    logger.warning(f"세금계산서 모달 선택 실패: {e}")
+                # 그리드 렌더링 실패 시 최대 3회 재시도
+                _invoice_row_count = 0
+                for _inv_attempt in range(3):
+                    if _inv_attempt > 0:
+                        logger.warning(f"인보이스 재선택 시도 {_inv_attempt + 1}/3 — 그리드 비어 있음")
+                        # 이전 시도에서 모달이 남아있을 수 있으므로 확인 후 닫기
+                        try:
+                            leftover = page.locator("text=매입(세금)계산서 내역").first
+                            if leftover.is_visible(timeout=500):
+                                page.locator("button:has-text('취소')").last.click(force=True)
+                                time.sleep(0.5)
+                        except Exception:
+                            pass
 
-                # 인보이스 선택 후 그리드 렌더링 대기 (최대 5초)
-                if invoice_selected:
+                    self._click_evidence_type_button(evidence_type)
+                    time.sleep(1)
+                    _modal_invoice_selected = False
+                    try:
+                        _modal_invoice_selected = self._select_invoice_in_modal(
+                            vendor=data.get("invoice_vendor", ""),
+                            amount=data.get("invoice_amount"),
+                            date_from=data.get("invoice_date", ""),
+                            date_to=data.get("invoice_date", ""),
+                        )
+                    except Exception as e:
+                        logger.warning(f"세금계산서 모달 선택 실패: {e}")
+
+                    if not _modal_invoice_selected:
+                        # 모달 선택 자체 실패 — 재시도해도 의미 없음
+                        logger.warning("세금계산서 모달 선택 실패 — 재시도 중단")
+                        break
+
+                    # 인보이스 선택 후 그리드 렌더링 대기 (최대 5초)
                     for _wait in range(10):
-                        row_count = page.evaluate("""() => {
+                        _invoice_row_count = page.evaluate("""() => {
                             const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
                             if (!el) return 0;
                             const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
@@ -1284,14 +1303,24 @@ class ApprovalAutomation:
                             const iface = f?.stateNode?.state?.interface;
                             return (iface && typeof iface.getRowCount === 'function') ? iface.getRowCount() : 0;
                         }""")
-                        if row_count > 0:
-                            logger.info(f"그리드 렌더링 완료: {row_count}행")
+                        if _invoice_row_count > 0:
+                            logger.info(f"그리드 렌더링 완료: {_invoice_row_count}행 (시도 {_inv_attempt + 1}/3)")
                             break
                         time.sleep(0.5)
                     else:
-                        logger.warning("그리드 렌더링 타임아웃 (5초) — 용도코드/날짜 입력 실패 가능성")
+                        logger.warning(f"그리드 렌더링 타임아웃 (5초) — 시도 {_inv_attempt + 1}/3")
 
-                _save_debug(page, "03c2_after_invoice_select")
+                    if _invoice_row_count > 0:
+                        invoice_selected = True
+                        break
+                    # 그리드가 비어 있으면 다음 시도로
+
+                if invoice_selected:
+                    _save_debug(page, "03c2_after_invoice_select")
+                else:
+                    if _invoice_row_count == 0 and _modal_invoice_selected:
+                        logger.error("인보이스 선택 후 그리드 행 없음 (3회 재시도 모두 실패) — 검증 부적합 발생 가능")
+                    _save_debug(page, "03c2_after_invoice_select")
             else:
                 # 세금계산서가 아닌 증빙유형 (카드, 현금영수증 등) → 버튼만 클릭
                 self._click_evidence_type_button(evidence_type)
@@ -1361,7 +1390,14 @@ class ApprovalAutomation:
                             usage_col = c
                             break
 
-                    if usage_col and row_count > 0:
+                    if row_count == 0:
+                        # 그리드 행이 없으면 용도코드 입력 불가 — 인보이스 재선택 실패 후 여기까지 도달한 경우
+                        logger.error(
+                            "그리드 행 없음 (row_count=0) — 용도코드 입력 불가, "
+                            "인보이스 선택 후 그리드 렌더링이 완료되지 않았습니다. "
+                            "검증 부적합 발생 가능"
+                        )
+                    elif usage_col and row_count > 0:
                         # OBTDataGrid interface의 setValue로 직접 셀 값 설정 시도
                         # 자동완성 트리거를 위해 셀 포커스 + 키보드 입력 방식 유지
                         filled_count = 0
@@ -1383,12 +1419,14 @@ class ApprovalAutomation:
                                 page.keyboard.type(str(usage_code), delay=30)
                                 time.sleep(0.3)
                                 page.keyboard.press("Enter")
-                                time.sleep(0.3)
+                                time.sleep(0.5)  # 자동완성 반영 및 그리드 상태 업데이트 대기
                                 filled_count += 1
                             except Exception:
                                 continue
 
                         logger.info(f"용도코드 '{usage_code}' 입력: {filled_count}/{row_count}행")
+                        # 용도코드 입력 완료 후 그리드 검증 상태 반영 대기
+                        time.sleep(0.5)
                     else:
                         logger.warning(f"용도 컬럼 미발견 (cols: {[c['header'] for c in cols[:5]]})")
                 else:

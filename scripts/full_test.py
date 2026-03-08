@@ -191,7 +191,98 @@ class FullTestRunner:
         else:
             logger.warning(f"  chat_history.db 없음: {chat_db}")
 
+        # 잔류 테스트 예약 사전 정리 (회의실 테스트 건너뛰는 경우 스킵)
+        if not self.skip_meeting and not self.dry_run:
+            self._cleanup_stale_test_reservations(days=14)
+
         logger.info("  Phase 1 완료")
+
+    def _cleanup_stale_test_reservations(self, days: int = 14):
+        """
+        테스트 시작 전 잔류 테스트 예약 사전 정리.
+        오늘부터 days일 후까지 각 날짜별 예약을 조회하여
+        제목에 '[TEST_' 가 포함된 예약 중 본인(empSeq 일치) 것만 취소한다.
+        예외 발생 시 경고 로그만 출력하고 테스트를 중단하지 않는다.
+        """
+        logger.info("  잔류 테스트 예약 사전 정리 시작...")
+        try:
+            # 회의실 API 세션 확보
+            self._ensure_meeting_api()
+        except Exception as e:
+            logger.warning(f"  잔류 정리: 회의실 API 초기화 실패 (건너뜀) — {e}")
+            return
+
+        # 현재 사용자 empSeq (본인 예약만 취소 가능)
+        my_emp_seq = str(self.meeting_api.company_info.get("empSeq", ""))
+        if not my_emp_seq:
+            logger.warning("  잔류 정리: empSeq 미확인 — 본인 필터 없이 진행")
+
+        today = date.today()
+        cancelled_count = 0
+        skipped_others = 0
+
+        for d in range(days):
+            target_date = (today + timedelta(days=d)).strftime("%Y-%m-%d")
+            try:
+                reservations = self.meeting_api.get_reservations(target_date)
+            except Exception as e:
+                logger.warning(f"  잔류 정리: {target_date} 예약 조회 실패 (건너뜀) — {e}")
+                continue
+
+            for res in reservations:
+                req_text = res.get("reqText", "")
+                if "[TEST_" not in req_text:
+                    continue
+
+                # 본인 예약 여부 확인 (empSeq 불일치 시 건너뜀)
+                res_emp_seq = res.get("empSeq", "")
+                if my_emp_seq and res_emp_seq and res_emp_seq != my_emp_seq:
+                    logger.debug(
+                        f"  잔류 정리: 다른 사용자 예약 건너뜀 "
+                        f"(reqText={req_text!r}, empSeq={res_emp_seq})"
+                    )
+                    skipped_others += 1
+                    continue
+
+                schm_seq = res.get("schmSeq", "")   # rs121A05에서 종종 빈값
+                seq_num  = res.get("seqNum", "")
+                res_seq  = res.get("resSeq", "")
+
+                if not seq_num:
+                    logger.warning(
+                        f"  잔류 정리: seqNum 없는 테스트 예약 "
+                        f"(reqText={req_text!r}, date={target_date}) — 수동 취소 필요"
+                    )
+                    continue
+
+                try:
+                    cancel_result = self.meeting_api.cancel_reservation(
+                        schm_seq=schm_seq,   # 빈값 허용 (API에서 선택적)
+                        seq_num=seq_num,
+                        res_seq=res_seq,
+                        req_text=req_text,
+                        start_date=res.get("startDate", ""),
+                        end_date=res.get("endDate", ""),
+                        res_name=res.get("resName", ""),
+                    )
+                    if cancel_result.get("success"):
+                        logger.info(
+                            f"  잔류 정리: 취소 성공 — {req_text!r} "
+                            f"({res.get('resName', '')} {target_date})"
+                        )
+                        cancelled_count += 1
+                    else:
+                        logger.warning(
+                            f"  잔류 정리: 취소 실패 — {req_text!r} "
+                            f"({cancel_result.get('message', '')})"
+                        )
+                except Exception as e:
+                    logger.warning(f"  잔류 정리: 취소 중 오류 — {req_text!r}: {e}")
+
+        msg = f"  잔류 테스트 예약 {cancelled_count}건 정리 완료"
+        if skipped_others:
+            msg += f" (타 사용자 예약 {skipped_others}건 건너뜀)"
+        logger.info(msg)
 
     # ═══════════════════════════════════════════════════
     #  Phase 2: 기능별 테스트
@@ -691,6 +782,10 @@ class FullTestRunner:
                 logger.error(f"  {description}: [FAIL] - {e}")
             self.cleanup_results.append(cr)
 
+        # 안전망: cleanup 후 향후 7일 재스캔 → [TEST_ 잔류 예약 경고
+        if self.meeting_api and not self.skip_meeting:
+            self._warn_stale_test_reservations(days=7)
+
         # 세션 캐시 초기화
         cr = CleanupResult("세션 캐시 초기화")
         try:
@@ -727,6 +822,46 @@ class FullTestRunner:
             cr.message = str(e)
             logger.error(f"  Playwright 종료: [FAIL] - {e}")
         self.cleanup_results.append(cr)
+
+    def _warn_stale_test_reservations(self, days: int = 7):
+        """
+        Phase 3 cleanup 완료 후 향후 days일간 [TEST_ 잔류 예약을 재스캔하여 경고.
+        본인(empSeq 일치) 예약만 확인한다. 실제 취소는 하지 않고 경고만 출력.
+        예외 발생 시 경고만 출력하고 중단하지 않는다.
+        """
+        my_emp_seq = str(self.meeting_api.company_info.get("empSeq", ""))
+        today = date.today()
+        stale_found = []
+
+        for d in range(days):
+            target_date = (today + timedelta(days=d)).strftime("%Y-%m-%d")
+            try:
+                reservations = self.meeting_api.get_reservations(target_date)
+            except Exception as e:
+                logger.warning(f"  안전망 재스캔: {target_date} 조회 실패 — {e}")
+                continue
+
+            for res in reservations:
+                req_text = res.get("reqText", "")
+                if "[TEST_" not in req_text:
+                    continue
+                # 본인 예약만 경고 (타 사용자 잔류는 무시)
+                res_emp_seq = res.get("empSeq", "")
+                if my_emp_seq and res_emp_seq and res_emp_seq != my_emp_seq:
+                    continue
+                stale_found.append(
+                    f"{req_text!r} ({res.get('resName', '')} {target_date} "
+                    f"schmSeq={res.get('schmSeq', '')} seqNum={res.get('seqNum', '')})"
+                )
+
+        if stale_found:
+            logger.warning(
+                f"  ⚠ [안전망] cleanup 후에도 [TEST_ 잔류 예약 {len(stale_found)}건 발견 — GW 수동 확인 필요:"
+            )
+            for item in stale_found:
+                logger.warning(f"    - {item}")
+        else:
+            logger.info(f"  안전망 재스캔: 향후 {days}일간 [TEST_ 잔류 예약 없음")
 
     def _delete_draft_document(self, title: str):
         """임시보관문서함에서 제목으로 문서를 찾아 삭제"""

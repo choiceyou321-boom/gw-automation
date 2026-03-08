@@ -7,6 +7,7 @@ Google Gemini 연동 + 의도 분석 에이전트
 import os
 import base64
 import json
+import concurrent.futures
 from pathlib import Path
 from typing import Optional
 from google import genai
@@ -15,6 +16,9 @@ from google.genai import types
 # Gemini 클라이언트 초기화
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 MODEL_ID = "gemini-2.5-flash"
+
+# 동시 Playwright 세션 수 제한 (무제한 스레드 생성 방지)
+_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
 # 자동화 도구 정의 (function calling)
 AUTOMATION_TOOLS = [
@@ -393,7 +397,7 @@ def handle_reserve_meeting_room(params: dict, user_context: dict = None) -> str:
     part_info = f"\n- 참석자: {participants}" if participants else ""
 
     try:
-        import concurrent.futures
+
 
         def _run_reservation():
             """별도 스레드에서 sync Playwright + MeetingRoomAPI 실행"""
@@ -412,9 +416,8 @@ def handle_reserve_meeting_room(params: dict, user_context: dict = None) -> str:
                 cleanup()
 
         # async 루프 밖에서 sync Playwright 실행 (ThreadPoolExecutor 사용)
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_reservation)
-            result = future.result(timeout=120)
+        future = _executor.submit(_run_reservation)
+        result = future.result(timeout=120)
 
         if result.get("success"):
             return (
@@ -453,7 +456,7 @@ def handle_check_reservation_status(params: dict, user_context: dict = None) -> 
     room_name = params.get("room_name", "")
 
     try:
-        import concurrent.futures
+
 
         def _run_check():
             api, cleanup = _get_api_for_user(user_context)
@@ -463,9 +466,8 @@ def handle_check_reservation_status(params: dict, user_context: dict = None) -> 
             finally:
                 cleanup()
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_check)
-            reservations = future.result(timeout=120)
+        future = _executor.submit(_run_check)
+        reservations = future.result(timeout=120)
 
         # 특정 회의실 필터링
         if room_name:
@@ -497,7 +499,7 @@ def handle_check_available_rooms(params: dict, user_context: dict = None) -> str
     duration = int(params.get("duration_minutes", 60))
 
     try:
-        import concurrent.futures
+
 
         def _run_check():
             api, cleanup = _get_api_for_user(user_context)
@@ -511,9 +513,8 @@ def handle_check_available_rooms(params: dict, user_context: dict = None) -> str
             finally:
                 cleanup()
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_check)
-            slots = future.result(timeout=120)
+        future = _executor.submit(_run_check)
+        slots = future.result(timeout=120)
 
         if not slots:
             room_info = f" ({room_name})" if room_name else ""
@@ -551,7 +552,7 @@ def handle_cancel_meeting_reservation(params: dict, user_context: dict = None) -
     current_gw_id = (user_context or {}).get("gw_id", "")
 
     try:
-        import concurrent.futures
+
 
         def _run_cancel():
             api, cleanup = _get_api_for_user(user_context)
@@ -634,9 +635,8 @@ def handle_cancel_meeting_reservation(params: dict, user_context: dict = None) -
             finally:
                 cleanup()
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_cancel)
-            result = future.result(timeout=120)
+        future = _executor.submit(_run_cancel)
+        result = future.result(timeout=120)
 
         return result.get("message", "처리 완료")
 
@@ -812,7 +812,7 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
 
     # 실제 작성 단계
     try:
-        import concurrent.futures
+
 
         def _run_approval():
             from playwright.sync_api import sync_playwright
@@ -839,6 +839,11 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                 page.set_viewport_size({"width": 1920, "height": 1080})
 
                 automation = ApprovalAutomation(page, context)
+                # 사용자별 결재선 동적 해석
+                from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
+                resolved_line = resolve_approval_line(approval_line, "지출결의서", user_context)
+                resolved_cc = resolve_cc_recipients(cc, "지출결의서", user_context)
+
                 expense_data = {
                     "title": title,
                     "date": date,
@@ -847,10 +852,9 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                     "total_amount": amount,
                     "project": project,
                 }
-                if approval_line:
-                    expense_data["approval_line"] = approval_line
-                if cc:
-                    expense_data["cc"] = cc
+                expense_data["approval_line"] = resolved_line
+                if resolved_cc:
+                    expense_data["cc"] = resolved_cc
                 if evidence_type:
                     expense_data["evidence_type"] = evidence_type
                 if invoice_vendor:
@@ -883,9 +887,8 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                 except Exception:
                     pass
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_approval)
-            result = future.result(timeout=180)
+        future = _executor.submit(_run_approval)
+        result = future.result(timeout=180)
 
         if result.get("success"):
             msg = f"지출결의서가 임시보관되었습니다! (상신 전 상태)\n\n제목: {title}\n금액: {amount_str}"
@@ -1041,7 +1044,7 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
         )
 
     try:
-        import concurrent.futures
+
 
         def _run_approval():
             from playwright.sync_api import sync_playwright
@@ -1068,11 +1071,15 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
                 page.set_viewport_size({"width": 1920, "height": 1080})
 
                 automation = ApprovalAutomation(page, context)
+                # 사용자별 결재선 동적 해석
+                from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
+                resolved_line = resolve_approval_line(approval_line, form_key, user_context)
+                resolved_cc = resolve_cc_recipients(cc, form_key, user_context)
+
                 data = {"title": title, **fields}
-                if approval_line:
-                    data["approval_line"] = approval_line
-                if cc:
-                    data["cc"] = cc
+                data["approval_line"] = resolved_line
+                if resolved_cc:
+                    data["cc"] = resolved_cc
                 result = automation.create_form(form_key, data)
 
                 close_session(browser)
@@ -1087,9 +1094,8 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
                 except Exception:
                     pass
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_approval)
-            result = future.result(timeout=180)
+        future = _executor.submit(_run_approval)
+        result = future.result(timeout=180)
 
         if result.get("success"):
             return f"{display_name}가 임시보관되었습니다! (상신 전 상태)\n\n제목: {title}\n\n그룹웨어 임시보관문서에서 확인 후 직접 상신해주세요."
@@ -1115,7 +1121,7 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
         return "검색 키워드를 입력해주세요."
 
     try:
-        import concurrent.futures
+
 
         def _run_search():
             from playwright.sync_api import sync_playwright
@@ -1154,9 +1160,8 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
                 except Exception:
                     pass
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_search)
-            result = future.result(timeout=60)
+        future = _executor.submit(_run_search)
+        result = future.result(timeout=60)
 
         if not result.get("success"):
             return result.get("message", "프로젝트 검색에 실패했습니다.")
@@ -1197,15 +1202,14 @@ def handle_get_mail_summary(params: dict, user_context: dict = None) -> str:
     summarizer.run_for_chatbot() 호출 → 결과 반환.
     """
     try:
-        import concurrent.futures
+
 
         def _run_summary():
             from src.mail.summarizer import run_for_chatbot
             return run_for_chatbot(user_context=user_context)
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(_run_summary)
-            result = future.result(timeout=120)
+        future = _executor.submit(_run_summary)
+        result = future.result(timeout=120)
 
         return result
     except concurrent.futures.TimeoutError:

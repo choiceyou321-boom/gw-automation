@@ -577,7 +577,7 @@ def _summarize_text(text: str, max_length: int = 500) -> str:
     if not text or text == "(본문 추출 실패)":
         return text
 
-    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
     if not lines:
         return text[:max_length]
 

@@ -51,6 +51,11 @@ def _get_db() -> sqlite3.Connection:
         )
     """)
 
+    # messages 조회 성능을 위한 인덱스 (gw_id, session_id 기반 full scan 방지)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_messages_session
+        ON messages (gw_id, session_id, id)
+    """)
     conn.commit()
     return conn
 

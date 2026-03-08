@@ -199,6 +199,13 @@
       }
     }
 
+    // HTML 특수문자 이스케이프 헬퍼 (XSS 방지)
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = String(s == null ? '' : s);
+      return d.innerHTML;
+    }
+
     function renderUsers(users) {
       document.getElementById('userCount').textContent = `총 ${users.length}명`;
       const html = `
@@ -216,24 +223,24 @@
           </thead>
           <tbody>
             ${users.map(u => `
-              <tr id="row-${u.gw_id}">
+              <tr id="row-${esc(u.gw_id)}">
                 <td>
-                  ${u.gw_id}
-                  ${u.gw_id === 'tgjeon' ? ' <span class="badge badge-admin">관리자</span>' : ''}
+                  ${esc(u.gw_id)}
+                  ${u.is_admin ? ' <span class="badge badge-admin">관리자</span>' : ''}
                 </td>
-                <td>${u.name}</td>
-                <td>${u.position || '-'}</td>
+                <td>${esc(u.name)}</td>
+                <td>${esc(u.position || '-')}</td>
                 <td>
-                  <input class="edit-input" id="emp-${u.gw_id}" value="${u.emp_seq || ''}" placeholder="미설정" />
-                  <button class="save-btn" onclick="saveProfile('${u.gw_id}')">저장</button>
+                  <input class="edit-input" id="emp-${esc(u.gw_id)}" value="${esc(u.emp_seq || '')}" placeholder="미설정" />
+                  <button class="save-btn" data-gw-id="${esc(u.gw_id)}">저장</button>
                   ${!u.emp_seq ? '<span class="badge badge-incomplete">미설정</span>' : ''}
                 </td>
-                <td>${u.dept_seq || '-'}</td>
-                <td>${u.created_at ? u.created_at.split('T')[0] : '-'}</td>
+                <td>${esc(u.dept_seq || '-')}</td>
+                <td>${esc(u.created_at ? u.created_at.split('T')[0] : '-')}</td>
                 <td>
-                  ${u.gw_id === 'tgjeon'
+                  ${u.is_admin
                     ? '<button class="delete-btn" disabled>삭제 불가</button>'
-                    : `<button class="delete-btn" onclick="deleteUser('${u.gw_id}', '${u.name}')">삭제</button>`
+                    : `<button class="delete-btn" data-gw-id="${esc(u.gw_id)}" data-name="${esc(u.name)}">삭제</button>`
                   }
                 </td>
               </tr>
@@ -242,6 +249,19 @@
         </table>
       `;
       document.getElementById('content').innerHTML = html;
+
+      // 이벤트 위임으로 버튼 처리 (inline onclick 제거)
+      document.getElementById('content').addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.delete-btn[data-gw-id]');
+        if (deleteBtn) {
+          deleteUser(deleteBtn.dataset.gwId, deleteBtn.dataset.name);
+          return;
+        }
+        const saveBtn = e.target.closest('.save-btn[data-gw-id]');
+        if (saveBtn) {
+          saveProfile(saveBtn.dataset.gwId);
+        }
+      });
     }
 
     async function deleteUser(gwId, name) {

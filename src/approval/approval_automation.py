@@ -11,6 +11,7 @@ Phase 0 DOM 탐색 결과 반영 (2026-03-01):
 - 필드 접근: th 라벨 → 형제 td 내 input (placeholder 기반)
 - 액션 버튼: "결재상신" / "상신" (div.topBtn)
 """
+import os
 import time
 import logging
 from pathlib import Path
@@ -19,20 +20,35 @@ from src.approval.form_templates import resolve_approval_line, resolve_cc_recipi
 
 logger = logging.getLogger("approval_automation")
 
-GW_URL = "https://gw.glowseoul.co.kr"
+GW_URL = os.environ.get("GW_URL", "https://gw.glowseoul.co.kr")
 
-# 스크린샷 저장 디렉토리
+# 스크린샷 저장 디렉토리 (모듈 로드 시 한 번만 생성)
 SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 재시도 설정
 MAX_RETRIES = 3
 RETRY_DELAY = 3  # 초
 
+# OBTDataGrid React fiber를 통한 그리드 API 접근 JS 헬퍼 (세션 XI 발견)
+# 접근 경로: .OBTDataGrid_grid__22Vfl → __reactFiber → depth 3 → stateNode.state.interface
+_GET_GRID_IFACE_JS = """
+(() => {
+    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+    if (!el) return null;
+    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+    if (!fk) return null;
+    let f = el[fk];
+    for (let i = 0; i < 3 && f; i++) f = f.return;
+    if (!f || !f.stateNode || !f.stateNode.state) return null;
+    return f.stateNode.state.interface || null;
+})()
+"""
+
 
 def _save_debug(page: Page, name: str):
     """디버그용 스크린샷 저장"""
     try:
-        SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
         path = SCREENSHOT_DIR / f"{name}.png"
         page.screenshot(path=str(path))
         logger.info(f"스크린샷: {path}")
@@ -553,47 +569,61 @@ class ApprovalAutomation:
 
                 self.page.on("dialog", _handle_dialog)
 
-                submit_btn = self.page.locator("button:has-text('결재상신')").first
-                submit_btn.wait_for(state="visible", timeout=5000)
+                # 결재상신 버튼 찾기 (div.topBtn 우선, button 폴백)
+                submit_btn = None
+                for sel in [
+                    "div.topBtn:has-text('결재상신')",
+                    "button:has-text('결재상신')",
+                    "[class*='topBtn']:has-text('결재상신')",
+                    "text=결재상신",
+                ]:
+                    loc = self.page.locator(sel).first
+                    try:
+                        if loc.is_visible(timeout=2000):
+                            submit_btn = loc
+                            logger.info(f"결재상신 버튼 발견: {sel}")
+                            break
+                    except Exception:
+                        continue
+                if not submit_btn:
+                    _save_debug(self.page, "error_no_submit_btn")
+                    return {"success": False, "message": "결재상신 버튼을 찾을 수 없습니다."}
 
                 # expect_page로 팝업 감지 (결재상신 → 새 창)
-                # 알림 팝업(art_seq_no, boardNo)은 제외해야 함
-                def _is_approval_popup(p_url: str) -> bool:
-                    """결재상신 팝업인지 판별 (알림 팝업 제외)"""
-                    if not p_url or p_url == "about:blank":
-                        return False
-                    if "art_seq_no" in p_url or "boardNo" in p_url:
-                        return False  # 알림/게시판 팝업
-                    if "MicroModuleCode=eap" in p_url or "formId" in p_url:
-                        return True  # 결재 양식 팝업
-                    if "popup" in p_url and "eap" in p_url:
-                        return True
-                    return True  # 기타 팝업도 일단 허용
-
                 popup_page = None
-                pages_before = set(id(p) for p in self.context.pages)
-                submit_btn.click(force=True)
-                logger.info("결재상신 클릭 → 팝업 대기")
+                try:
+                    with self.context.expect_page(timeout=15000) as new_page_info:
+                        submit_btn.scroll_into_view_if_needed()
+                        time.sleep(0.3)
+                        submit_btn.click()
+                        logger.info("결재상신 클릭 → 팝업 대기 (expect_page)")
+                    popup_page = new_page_info.value
+                    logger.info(f"결재상신 팝업 감지: {popup_page.url[:100]}")
+                except Exception as e:
+                    logger.warning(f"expect_page 팝업 감지 실패: {e}")
 
-                # 최대 15초 대기하며 새 결재 팝업 감지
-                for _ in range(30):
-                    time.sleep(0.5)
-                    for p in self.context.pages:
-                        try:
-                            if id(p) in pages_before or p.is_closed():
-                                continue
-                            p_url = p.url or ""
-                            if _is_approval_popup(p_url):
+                # expect_page 실패 시 폴링 폴백
+                if not popup_page:
+                    pages_before = set(id(p) for p in self.context.pages)
+                    # 이미 클릭했으므로 다시 클릭 시도
+                    try:
+                        submit_btn.click()
+                        logger.info("결재상신 재클릭 → 폴링 대기")
+                    except Exception:
+                        pass
+                    for _ in range(20):
+                        time.sleep(0.5)
+                        for p in self.context.pages:
+                            try:
+                                if id(p) in pages_before or p.is_closed():
+                                    continue
                                 popup_page = p
-                                logger.info(f"결재상신 팝업 감지: {p_url[:100]}")
+                                logger.info(f"결재상신 팝업 감지 (폴링): {p.url[:100]}")
                                 break
-                            else:
-                                logger.debug(f"알림 팝업 건너뜀: {p_url[:80]}")
-                                pages_before.add(id(p))  # 다음 루프에서 무시
-                        except Exception:
-                            continue
-                    if popup_page:
-                        break
+                            except Exception:
+                                continue
+                        if popup_page:
+                            break
 
                 # dialog 핸들러 제거
                 self.page.remove_listener("dialog", _handle_dialog)
@@ -646,12 +676,21 @@ class ApprovalAutomation:
                         pass
                     return {"success": False, "message": "결재상신 후 팝업이 열리지 않았습니다."}
 
-                # 팝업 로드 대기
-                try:
-                    popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
-                except Exception:
-                    time.sleep(3)
+                # 팝업 로드 대기 (SPA 렌더링 완료까지)
                 popup_page.on("dialog", lambda d: d.accept())
+                try:
+                    popup_page.wait_for_load_state("networkidle", timeout=20000)
+                except Exception:
+                    pass
+                # SPA 컨텐츠 로드 대기: div.topBtn (보관/상신 버튼 영역) 출현 확인
+                try:
+                    popup_page.locator("div.topBtn").first.wait_for(
+                        state="visible", timeout=20000
+                    )
+                    logger.info("팝업 SPA 컨텐츠 로드 완료 (div.topBtn 감지)")
+                except Exception:
+                    logger.warning("팝업 div.topBtn 대기 타임아웃 — 계속 진행")
+                    time.sleep(3)
                 logger.info(f"결재상신 팝업 열림: {popup_page.url[:100]}")
                 _save_debug(popup_page, "expense_draft_02_popup_opened")
 
@@ -777,15 +816,9 @@ class ApprovalAutomation:
             modified = replace_mapping_value(modified, "rmkDc", item_name)
             modified = replace_mapping_value(modified, "supAm", amount_str)
 
-            # 용도별합계 행의 합계
-            grid_sum_key = "sumAm"  # 그리드 행의 합계 (기본정보와 동명)
-            # 그리드 합계는 두 번째 occurrence이므로 직접 교체
-            # → 이미 기본정보에서 교체됨, 그리드 행은 별도 처리
             logger.info(f"그리드 항목: {item_name}, 금액: {amount_str}")
 
-        # 설명 (description)
-        desc = data.get("description", "")
-        # description은 본문 하단 비고 영역에 기입 가능하지만 생략 가능
+        # description은 본문 하단 비고 영역에 기입 가능하지만 현재 생략
 
         # HTML 설정
         if modified != current_html:
@@ -833,13 +866,26 @@ class ApprovalAutomation:
         page = self.page
         _save_debug(page, "04_before_submit")
 
-        submit_btn = page.locator("button:has-text('결재상신')").first
-        try:
-            submit_btn.wait_for(state="visible", timeout=5000)
-        except Exception:
+        # 결재상신 버튼 찾기 (div.topBtn 우선)
+        submit_btn = None
+        for sel in [
+            "div.topBtn:has-text('결재상신')",
+            "button:has-text('결재상신')",
+            "[class*='topBtn']:has-text('결재상신')",
+        ]:
+            loc = page.locator(sel).first
+            try:
+                if loc.is_visible(timeout=2000):
+                    submit_btn = loc
+                    break
+            except Exception:
+                continue
+        if not submit_btn:
             return {"success": False, "message": "결재상신 버튼을 찾을 수 없습니다."}
 
-        submit_btn.click(force=True)
+        submit_btn.scroll_into_view_if_needed()
+        time.sleep(0.3)
+        submit_btn.click()
         logger.info("결재상신 클릭")
         time.sleep(3)
 
@@ -877,23 +923,22 @@ class ApprovalAutomation:
         time.sleep(2)
         self._close_popups()
 
-        # 전자결재 모듈 아이콘 클릭 (span.module-link.EA)
         navigated = False
+
+        # 방법 1: 전자결재 모듈 아이콘 클릭 (span.module-link.EA)
         ea_link = page.locator("span.module-link.EA").first
         try:
             if ea_link.is_visible(timeout=5000):
                 ea_link.click(force=True)
                 logger.info("전자결재 모듈 클릭")
+                page.wait_for_timeout(2000)
             else:
                 raise PlaywrightTimeout("전자결재 모듈 링크 미발견")
-        except PlaywrightTimeout:
-            try:
-                page.locator("text=전자결재").first.click(force=True)
-            except Exception:
-                pass
         except Exception:
+            # 폴백: GW 내부 탭에서 "전자결재" 클릭
             try:
                 page.locator("text=전자결재").first.click(force=True)
+                page.wait_for_timeout(2000)
             except Exception:
                 pass
 
@@ -907,20 +952,63 @@ class ApprovalAutomation:
                 raise RuntimeError("세션이 만료되었습니다.")
             logger.warning("결재 HOME 텍스트 미발견")
 
-        # 폴백: URL 직접 네비게이션
+        # 방법 2: GW 내부 탭 "전자결재" 클릭 (로그인 직후 HR 페이지에 있는 경우)
+        if not navigated:
+            try:
+                # GW 상단 내부 탭에서 "전자결재" 텍스트가 있는 탭 클릭
+                tab_selectors = [
+                    "div.tab-item:has-text('전자결재')",
+                    "li:has-text('전자결재')",
+                    "span:has-text('전자결재')",
+                ]
+                for sel in tab_selectors:
+                    try:
+                        tab = page.locator(sel).first
+                        if tab.is_visible(timeout=2000):
+                            tab.click(force=True)
+                            logger.info(f"GW 내부 탭 클릭: {sel}")
+                            page.wait_for_timeout(2000)
+                            break
+                    except Exception:
+                        continue
+
+                page.wait_for_selector("text=결재 HOME", timeout=8000)
+                logger.info("결재 HOME 도달 (내부 탭 클릭)")
+                navigated = True
+            except Exception:
+                logger.warning("내부 탭 클릭 후에도 결재 HOME 미발견")
+
+        # 방법 3: URL 직접 네비게이션 (GW SPA 해시 라우팅)
+        if not navigated:
+            try:
+                # UBA 모듈 직접 URL (DRAFT_URL과 동일한 패턴)
+                approval_home_url = f"{GW_URL}/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA"
+                page.goto(approval_home_url, wait_until="domcontentloaded", timeout=15000)
+                page.wait_for_timeout(3000)
+                logger.info("전자결재 URL 직접 이동 (UBA 모듈)")
+                try:
+                    page.wait_for_selector("text=결재 HOME", timeout=8000)
+                    logger.info("결재 HOME 도달 (URL 폴백)")
+                    navigated = True
+                except Exception:
+                    # 결재 HOME 텍스트 없더라도 결재작성 버튼이 보이면 OK
+                    try:
+                        page.wait_for_selector("text=결재작성", timeout=3000)
+                        logger.info("결재작성 버튼 발견 — 전자결재 모듈 진입 확인")
+                        navigated = True
+                    except Exception:
+                        logger.warning("결재 HOME / 결재작성 모두 미발견")
+            except Exception as e:
+                logger.warning(f"전자결재 URL 이동 실패: {e}")
+
+        # 방법 4: 최후 폴백 — 기존 해시 라우팅
         if not navigated:
             try:
                 page.goto(f"{GW_URL}/#/app/approval", wait_until="domcontentloaded", timeout=15000)
-                time.sleep(2)
-                logger.info("전자결재 URL 직접 이동")
-                # 다시 한번 확인
-                try:
-                    page.wait_for_selector("text=결재 HOME", timeout=5000)
-                    logger.info("결재 HOME 도달 (URL 폴백)")
-                except Exception:
-                    logger.warning("결재 HOME 텍스트 미발견 (URL 폴백)")
+                page.wait_for_timeout(2000)
+                logger.info("전자결재 URL 직접 이동 (legacy 경로)")
             except Exception as e:
-                logger.warning(f"전자결재 URL 이동 실패: {e}")
+                logger.warning(f"legacy 경로 이동 실패: {e}")
 
         self._close_popups()
         _save_debug(page, "01_approval_home")
@@ -952,32 +1040,49 @@ class ApprovalAutomation:
         """결재작성 → 지출결의서 양식 선택 (인라인 폼)"""
         page = self.page
 
+        def _try_click_form(phase: str) -> bool:
+            """양식 링크 클릭 후 URL 변경 확인 (HPM0110에서 벗어나는지)"""
+            for keyword in ["[프로젝트]지출결의서", "프로젝트]지출", "지출결의서"]:
+                try:
+                    links = page.locator(f"text={keyword}").all()
+                    for link in links:
+                        if link.is_visible():
+                            link.click(force=True)
+                            logger.info(f"양식 클릭 ({phase}): '{keyword}'")
+                            # 클릭 후 URL 변경 대기 (SPA 네비게이션)
+                            try:
+                                page.wait_for_url("**/APB1020/**", timeout=8000)
+                                logger.info(f"양식 페이지 이동 확인: {page.url[:100]}")
+                                return True
+                            except Exception:
+                                # URL 변경 안 됨 → 클릭 재시도
+                                logger.warning(f"양식 클릭 후 URL 미변경 (여전히 {page.url[:80]})")
+                                # 한 번 더 클릭 시도 (SPA 렌더링 지연 대응)
+                                try:
+                                    page.wait_for_timeout(1000)
+                                    link2 = page.locator(f"text={keyword}").first
+                                    if link2.is_visible():
+                                        link2.click(force=True)
+                                        page.wait_for_url("**/APB1020/**", timeout=8000)
+                                        logger.info(f"양식 페이지 재클릭 이동 확인: {page.url[:100]}")
+                                        return True
+                                except Exception:
+                                    pass
+                except Exception:
+                    continue
+            return False
+
         # 1차: 현재 페이지에서 양식 바로 찾기
-        for keyword in ["[프로젝트]지출결의서", "프로젝트]지출", "지출결의서"]:
-            try:
-                links = page.locator(f"text={keyword}").all()
-                for link in links:
-                    if link.is_visible():
-                        link.click(force=True)
-                        logger.info(f"양식 클릭: '{keyword}'")
-                        return
-            except Exception:
-                continue
+        if _try_click_form("현재 페이지"):
+            return
 
         # 2차: 결재작성 버튼 클릭 후 양식 검색
         logger.info("현재 페이지에 양식 없음 → 결재작성 클릭")
         self._click_write_approval()
+        page.wait_for_timeout(1500)  # 결재작성 페이지 렌더링 대기
 
-        for keyword in ["[프로젝트]지출결의서", "프로젝트]지출", "지출결의서"]:
-            try:
-                links = page.locator(f"text={keyword}").all()
-                for link in links:
-                    if link.is_visible():
-                        link.click(force=True)
-                        logger.info(f"양식 클릭 (결재작성 경유): '{keyword}'")
-                        return
-            except Exception:
-                continue
+        if _try_click_form("결재작성 경유"):
+            return
 
         _save_debug(page, "error_expense_form_not_found")
         raise Exception("지출결의서 양식을 찾을 수 없습니다.")
@@ -988,16 +1093,17 @@ class ApprovalAutomation:
 
         self._close_popups()
 
-        # URL에 양식 페이지 포함될 때까지 대기 (APB1020=지출결의서, HP=양식 전체)
+        # URL에 양식 페이지 포함될 때까지 대기 (APB1020=지출결의서 양식)
+        # 주의: **/HP/** 패턴은 HPM0110(양식 선택 페이지)도 매칭하므로 APB1020 사용
         try:
-            page.wait_for_url("**/HP/**", timeout=15000)
+            page.wait_for_url("**/APB1020/**", timeout=15000)
             logger.info(f"결재작성 페이지 로드 확인: {page.url[:100]}")
         except PlaywrightTimeout:
             # 세션 만료 확인
             if not self._check_session_valid():
                 raise RuntimeError("세션이 만료되었습니다.")
-            # HP 패턴 실패해도 팝업으로 열렸을 수 있으므로 계속 진행
-            logger.warning(f"HP URL 대기 타임아웃, 현재: {page.url[:100]}")
+            # APB1020 패턴 실패해도 팝업으로 열렸을 수 있으므로 계속 진행
+            logger.warning(f"APB1020 URL 대기 타임아웃, 현재: {page.url[:100]}")
         except Exception:
             logger.warning(f"URL 대기 중 오류, 현재: {page.url[:100]}")
 
@@ -1191,32 +1297,31 @@ class ApprovalAutomation:
         # 10~22. 용도코드 → 예산과목 → 날짜 → 검증결과 (22단계 확장)
         # ─────────────────────────────────────────
 
-        # 10. 용도코드 입력 — 모든 그리드 행에 대해 (부적합 방지)
-        #     사용자 확인: 코드 입력 후 Enter로 자동완성, 모든 행 필수
+        # 10. 용도코드 입력 — OBTDataGrid React interface API 사용 (세션 XI 개선)
+        #     기존: window.gridView (null) → 좌표 클릭 폴백
+        #     개선: React fiber → OBTDataGrid interface → setValue/getColumns
         usage_code = data.get("usage_code", "")
         if usage_code:
             try:
-                # RealGrid API로 행 수 확인 + 용도 컬럼 인덱스 파악
+                # OBTDataGrid interface로 행 수 + 컬럼 정보 확인
                 grid_info = page.evaluate("""() => {
-                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
-                    let gv = null;
-                    for (const name of gridNames) {
-                        if (window[name] && typeof window[name].getItemCount === 'function') {
-                            gv = window[name];
-                            break;
-                        }
-                    }
-                    if (!gv) return null;
-                    const rowCount = gv.getItemCount();
-                    // 컬럼 필드명 목록
-                    const cols = gv.getColumns().map(c => ({name: c.name, fieldName: c.fieldName, header: c.header?.text || ''}));
-                    return {rowCount, cols, gridName: gv.constructor.name};
+                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                    if (!el) return null;
+                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                    if (!fk) return null;
+                    let f = el[fk];
+                    for (let i = 0; i < 3 && f; i++) f = f.return;
+                    const iface = f?.stateNode?.state?.interface;
+                    if (!iface || typeof iface.getRowCount !== 'function') return null;
+                    const rowCount = iface.getRowCount();
+                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
+                    return {rowCount, cols};
                 }""")
 
                 if grid_info:
                     row_count = grid_info["rowCount"]
                     cols = grid_info["cols"]
-                    logger.info(f"그리드 행 수: {row_count}, 컬럼: {[c['header'] for c in cols[:10]]}")
+                    logger.info(f"OBTDataGrid 행 수: {row_count}, 컬럼: {[c['header'] for c in cols[:10]]}")
 
                     # 용도 컬럼 찾기
                     usage_col = None
@@ -1226,24 +1331,24 @@ class ApprovalAutomation:
                             break
 
                     if usage_col and row_count > 0:
-                        # 각 행에 용도코드 입력 (클릭 + 타이핑 + Enter)
+                        # OBTDataGrid interface의 setValue로 직접 셀 값 설정 시도
+                        # 자동완성 트리거를 위해 셀 포커스 + 키보드 입력 방식 유지
                         filled_count = 0
                         for row_idx in range(row_count):
                             try:
-                                # RealGrid API로 셀 포커스
+                                # interface.setSelection으로 셀 포커스
                                 page.evaluate(f"""() => {{
-                                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
-                                    for (const name of gridNames) {{
-                                        if (window[name] && typeof window[name].setCurrent === 'function') {{
-                                            window[name].setCurrent({{ itemIndex: {row_idx}, column: '{usage_col["name"]}' }});
-                                            window[name].setFocus();
-                                            break;
-                                        }}
-                                    }}
+                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    let f = el[fk];
+                                    for (let i = 0; i < 3; i++) f = f.return;
+                                    const iface = f.stateNode.state.interface;
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: '{usage_col["name"]}' }});
+                                    iface.focus();
                                 }}""")
                                 time.sleep(0.3)
 
-                                # 편집 input에 용도코드 입력
+                                # 편집 input에 용도코드 입력 (자동완성 트리거)
                                 page.keyboard.type(str(usage_code), delay=30)
                                 time.sleep(0.3)
                                 page.keyboard.press("Enter")
@@ -1256,33 +1361,29 @@ class ApprovalAutomation:
                     else:
                         logger.warning(f"용도 컬럼 미발견 (cols: {[c['header'] for c in cols[:5]]})")
                 else:
-                    # 폴백: 첫 행만 좌표 클릭
-                    page.mouse.click(465, 275)
-                    time.sleep(0.5)
-                    page.keyboard.type(str(usage_code), delay=50)
-                    page.keyboard.press("Enter")
-                    logger.info(f"용도코드 폴백 (1행만): {usage_code}")
+                    logger.warning("OBTDataGrid interface 미발견 — 용도코드 입력 건너뜀")
 
                 _save_debug(page, "10_after_usage_code")
             except Exception as e:
                 logger.warning(f"용도코드 입력 실패: {e}")
 
         # 10-1. 지급요청일도 그리드 행별 입력 (부적합 "N번 행의 지급요청일등(값)" 방지)
+        #       OBTDataGrid interface로 셀 포커스 후 키보드 입력
         payment_request_date = data.get("payment_request_date", "")
         if payment_request_date and usage_code:
             try:
                 clean_date = payment_request_date.replace("-", "")
                 grid_info = page.evaluate("""() => {
-                    const gridNames = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
-                    let gv = null;
-                    for (const name of gridNames) {
-                        if (window[name] && typeof window[name].getItemCount === 'function') {
-                            gv = window[name]; break;
-                        }
-                    }
-                    if (!gv) return null;
-                    const rowCount = gv.getItemCount();
-                    const cols = gv.getColumns().map(c => ({name: c.name, fieldName: c.fieldName, header: c.header?.text || ''}));
+                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                    if (!el) return null;
+                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                    if (!fk) return null;
+                    let f = el[fk];
+                    for (let i = 0; i < 3 && f; i++) f = f.return;
+                    const iface = f?.stateNode?.state?.interface;
+                    if (!iface || typeof iface.getRowCount !== 'function') return null;
+                    const rowCount = iface.getRowCount();
+                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
                     return {rowCount, cols};
                 }""")
 
@@ -1300,14 +1401,13 @@ class ApprovalAutomation:
                         for row_idx in range(grid_info["rowCount"]):
                             try:
                                 page.evaluate(f"""() => {{
-                                    const gn = ['gridView', 'grid', 'expenseGrid', 'detailGrid'];
-                                    for (const name of gn) {{
-                                        if (window[name] && typeof window[name].setCurrent === 'function') {{
-                                            window[name].setCurrent({{ itemIndex: {row_idx}, column: '{pay_col["name"]}' }});
-                                            window[name].setFocus();
-                                            break;
-                                        }}
-                                    }}
+                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    let f = el[fk];
+                                    for (let i = 0; i < 3; i++) f = f.return;
+                                    const iface = f.stateNode.state.interface;
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: '{pay_col["name"]}' }});
+                                    iface.focus();
                                 }}""")
                                 time.sleep(0.2)
                                 page.keyboard.type(clean_date, delay=20)
@@ -1319,7 +1419,7 @@ class ApprovalAutomation:
                                 continue
                         logger.info(f"지급요청일 '{payment_request_date}' 그리드 입력: {filled_count}/{grid_info['rowCount']}행")
                     else:
-                        logger.warning(f"지급요청일 컬럼 미발견")
+                        logger.warning("지급요청일 컬럼 미발견")
                 _save_debug(page, "10_1_after_payment_date_grid")
             except Exception as e:
                 logger.warning(f"지급요청일 그리드 입력 실패: {e}")
@@ -2626,8 +2726,6 @@ class ApprovalAutomation:
                 {"content": "내용", "vendor": "거래처", "supply_amount": 50000, "tax_amount": 5000},  # 상세 형식
             ]
         """
-        page = self.page
-
         if not items:
             return
 
@@ -3835,7 +3933,10 @@ class ApprovalAutomation:
     # 임시보관문서 열기 + 결재상신 E2E
     # ─────────────────────────────────────────
 
-    DRAFT_URL = f"{GW_URL}/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA1020"
+    # 임시보관문서함 URL (cleanup에서 검증된 패턴)
+    DRAFT_URL = f"{GW_URL}/#/UB/UB/UBA0000?appCode=approval&viewType=list&menuCode=UBD9999&subMenuCode=UBA1060"
+    # 폴백용 URL
+    DRAFT_URL_ALT = f"{GW_URL}/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA1020"
 
     def open_draft_and_submit(self, doc_title: str = None, dry_run: bool = False) -> dict:
         """
@@ -3859,13 +3960,52 @@ class ApprovalAutomation:
         try:
             # ── 1단계: 임시보관문서함 이동 ──
             logger.info("[1/4] 임시보관문서함 이동")
-            page.goto(self.DRAFT_URL, wait_until="domcontentloaded", timeout=30000)
 
-            # 리스트 로드 대기 (networkidle 또는 최대 10초)
+            # 전자결재 모듈 진입 후 사이드바에서 임시보관문서 클릭
+            draft_loaded = False
+
+            # 방법 1: 전자결재 모듈 이동 → 사이드바 클릭
+            self._navigate_to_approval_home()
             try:
-                page.wait_for_load_state("networkidle", timeout=10000)
+                draft_link = page.locator("text=임시보관문서").first
+                if draft_link.is_visible(timeout=5000):
+                    draft_link.click(force=True)
+                    logger.info("사이드바 '임시보관문서' 클릭")
+                    page.wait_for_timeout(2000)
+                    draft_loaded = True
+            except Exception:
+                logger.debug("사이드바 임시보관문서 클릭 실패")
+
+            # 방법 2: URL 직접 이동 (기본)
+            if not draft_loaded:
+                page.goto(self.DRAFT_URL, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(2000)
+
+            # 방법 3: 폴백 URL
+            # 임시보관문서 페이지 확인 (제목 행이 있거나 "임시보관문서" 텍스트가 보이는지)
+            try:
+                page.wait_for_selector(
+                    "text=임시보관문서",
+                    timeout=5000,
+                )
+            except Exception:
+                logger.info("임시보관문서 텍스트 미발견 → 폴백 URL 시도")
+                page.goto(self.DRAFT_URL_ALT, wait_until="domcontentloaded", timeout=15000)
+                page.wait_for_timeout(2000)
+
+            # 리스트 로드 대기
+            try:
+                page.wait_for_selector(
+                    "div.titDiv .title span, div.titDiv .title, [data-orbit-component='OBTTooltip'] span",
+                    timeout=10000,
+                )
+                logger.info("임시보관문서 리스트 로드 완료 (titDiv 감지)")
             except PlaywrightTimeout:
-                pass
+                logger.debug("titDiv 셀렉터 대기 타임아웃 — networkidle 폴백")
+                try:
+                    page.wait_for_load_state("networkidle", timeout=5000)
+                except PlaywrightTimeout:
+                    pass
 
             _save_debug(page, "draft_01_list")
 
@@ -3876,6 +4016,20 @@ class ApprovalAutomation:
             if not popup_page:
                 _save_debug(page, "draft_error_no_popup")
                 return {"success": False, "message": "임시보관문서를 열 수 없습니다. 목록을 확인해주세요."}
+
+            # 팝업 SPA 렌더링 대기 (Loading 스피너 완료까지)
+            try:
+                popup_page.wait_for_load_state("networkidle", timeout=15000)
+            except Exception:
+                pass
+            # 추가: 문서 내용 로드 대기 (topBtn, 결재선, 제목 등)
+            for wait_sel in ["div.topBtn", "text=상신", "text=보관", "th:has-text('제목')"]:
+                try:
+                    popup_page.wait_for_selector(wait_sel, timeout=8000)
+                    logger.info(f"팝업 로드 확인: {wait_sel}")
+                    break
+                except Exception:
+                    continue
 
             # 팝업에서 문서 제목 읽기
             opened_title = ""
@@ -3928,85 +4082,201 @@ class ApprovalAutomation:
         """
         임시보관문서함에서 문서를 클릭하고 팝업 Page를 반환.
 
+        WEHAGO 임시보관문서 리스트 DOM 구조:
+          div.titDiv.h-box > div.OBTTooltip_root__3Hfed.title > span (문서 제목)
+        OBTDataGrid가 아닌 일반 div 기반 리스트 뷰.
+
         클릭 전략:
-        1. doc_title 텍스트로 직접 찾기
-        2. 문서 리스트 첫 번째 제목 영역 클릭
-        3. 좌표 폴백 클릭
+        1. context.expect_page() + 더블클릭 (가장 안정적)
+        2. WEHAGO 전용 셀렉터 + 폴링 기반 팝업 감지
+        3. bounding box 기반 더블클릭
         """
         page = self.page
-        pages_before = set(self.context.pages)
 
-        def _wait_for_popup():
-            """팝업 Page 감지 (최대 15초)"""
-            for _ in range(30):
-                current_pages = set(self.context.pages)
-                new_pages = current_pages - pages_before
-                for p in new_pages:
+        def _setup_popup(popup_page):
+            """팝업 페이지 초기화"""
+            try:
+                popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
+                popup_page.on("dialog", lambda d: d.accept())
+            except Exception:
+                pass
+            return popup_page
+
+        def _try_expect_page_click(el, label: str, dblclick: bool = True):
+            """context.expect_page() + 클릭으로 팝업 안정적 감지"""
+            try:
+                text = (el.text_content(timeout=1000) or "").strip()
+                logger.info(f"문서 {'더블' if dblclick else ''}클릭 시도 ({label}): '{text[:60]}'")
+                with self.context.expect_page(timeout=10000) as new_page_info:
+                    if dblclick:
+                        el.dblclick(force=True)
+                    else:
+                        el.click(force=True)
+                popup_page = new_page_info.value
+                logger.info(f"팝업 감지 성공 ({label}): {popup_page.url[:80]}")
+                return _setup_popup(popup_page)
+            except Exception as e:
+                logger.debug(f"expect_page 실패 ({label}): {e}")
+            return None
+
+        def _try_polling_click(el, label: str, dblclick: bool = True):
+            """폴링 기반 팝업 감지 (expect_page 실패 시 폴백)"""
+            pages_before = set(id(p) for p in self.context.pages)
+            try:
+                text = (el.text_content(timeout=1000) or "").strip()
+                if dblclick:
+                    el.dblclick(force=True)
+                else:
+                    el.click(force=True)
+                logger.info(f"문서 {'더블' if dblclick else ''}클릭 ({label}): '{text[:60]}'")
+            except Exception as e:
+                logger.debug(f"클릭 실패 ({label}): {e}")
+                return None
+
+            # 팝업 감지 (최대 10초)
+            for _ in range(20):
+                for p in self.context.pages:
                     try:
+                        if id(p) in pages_before or p.is_closed():
+                            continue
                         p_url = p.url or ""
-                        # 결재 문서 팝업 URL 패턴
-                        if any(kw in p_url.lower() for kw in ["docid", "formid", "micromodulecode=eap", "popup"]):
-                            return p
-                        # URL이 빈 문자열이나 about:blank가 아닌 새 페이지
                         if p_url and p_url != "about:blank":
-                            return p
+                            logger.info(f"팝업 감지 (폴링, {label}): {p_url[:80]}")
+                            return _setup_popup(p)
                     except Exception:
                         continue
                 time.sleep(0.5)
             return None
 
-        # 방법 1: doc_title 텍스트로 클릭
-        if doc_title:
+        # ── 대상 요소 찾기 ──
+        target_el = None
+        wehago_selectors = [
+            "div.titDiv .title span",
+            "div.titDiv .title",
+            "div.titDiv",
+        ]
+
+        for sel in wehago_selectors:
+            try:
+                elements = page.locator(sel).all()
+                if not elements:
+                    continue
+
+                for el in elements:
+                    try:
+                        if not el.is_visible(timeout=1000):
+                            continue
+                        el_text = (el.text_content(timeout=1000) or "").strip()
+                        if not el_text:
+                            continue
+                        # doc_title 매칭 또는 첫 번째 요소
+                        if doc_title:
+                            if doc_title in el_text or el_text in doc_title:
+                                target_el = el
+                                break
+                        else:
+                            target_el = el
+                            break
+                    except Exception:
+                        continue
+                if target_el:
+                    break
+            except Exception:
+                continue
+
+        # doc_title로 텍스트 검색 폴백
+        if not target_el and doc_title:
             try:
                 el = page.locator(f"text={doc_title}").first
-                if el.is_visible(timeout=3000):
-                    el.click()
-                    logger.info(f"문서 클릭 (제목): '{doc_title}'")
-                    popup = _wait_for_popup()
-                    if popup:
-                        popup.wait_for_load_state("domcontentloaded", timeout=15000)
-                        popup.on("dialog", lambda d: d.accept())
-                        return popup
-            except Exception as e:
-                logger.debug(f"제목 클릭 실패: {e}")
-
-        # 방법 2: 리스트 아이템 첫 번째 제목 영역 클릭
-        for selector in [
-            "[class*='subject'] a",
-            "[class*='title'] a",
-            "[class*='docTitle']",
-            "table tbody tr:first-child td:nth-child(3)",  # 제목 컬럼 (일반적으로 3번째 td)
-            "table tbody tr:first-child td a",
-            "ul.list li:first-child",
-            "div[class*='list'] div[class*='item']:first-child",
-        ]:
-            try:
-                el = page.locator(selector).first
                 if el.is_visible(timeout=2000):
-                    text = el.text_content(timeout=1000) or ""
-                    logger.info(f"문서 클릭 (selector '{selector}'): '{text[:60]}'")
-                    el.click()
-                    popup = _wait_for_popup()
-                    if popup:
-                        popup.wait_for_load_state("domcontentloaded", timeout=15000)
-                        popup.on("dialog", lambda d: d.accept())
-                        return popup
+                    target_el = el
             except Exception:
-                continue
+                pass
 
-        # 방법 3: 좌표 폴백 — 이전 스크린샷 기준 문서 첫 번째 행 y~215
-        for x, y in [(600, 215), (600, 240), (600, 265)]:
+        # ── 클릭 시도 (대상 요소 발견 시) ──
+        if target_el:
+            # 1) expect_page + 더블클릭
+            result = _try_expect_page_click(target_el, "WEHAGO 더블클릭", dblclick=True)
+            if result:
+                return result
+
+            # 2) expect_page + 싱글클릭
+            result = _try_expect_page_click(target_el, "WEHAGO 싱글클릭", dblclick=False)
+            if result:
+                return result
+
+            # 3) 폴링 + 더블클릭
+            result = _try_polling_click(target_el, "WEHAGO 폴링 더블클릭", dblclick=True)
+            if result:
+                return result
+
+        # ── bounding box 기반 더블클릭 (셀렉터로 찾았지만 클릭이 안 먹히는 경우) ──
+        for sel in wehago_selectors:
             try:
-                page.mouse.click(x, y)
-                logger.info(f"문서 클릭 (좌표 {x},{y})")
-                popup = _wait_for_popup()
-                if popup:
-                    popup.wait_for_load_state("domcontentloaded", timeout=15000)
-                    popup.on("dialog", lambda d: d.accept())
-                    return popup
+                el = page.locator(sel).first
+                if not el.is_visible(timeout=1000):
+                    continue
+                box = el.bounding_box()
+                if not box:
+                    continue
+                logger.info(f"bounding box 더블클릭: ({box['x']:.0f}, {box['y']:.0f})")
+                pages_before = set(id(p) for p in self.context.pages)
+                page.mouse.dblclick(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+                time.sleep(1)
+                for p in self.context.pages:
+                    try:
+                        if id(p) in pages_before or p.is_closed():
+                            continue
+                        p_url = p.url or ""
+                        if p_url and p_url != "about:blank":
+                            logger.info(f"팝업 감지 (bounding box): {p_url[:80]}")
+                            return _setup_popup(p)
+                    except Exception:
+                        continue
+                # 팝업 없으면 추가 대기
+                for _ in range(14):
+                    time.sleep(0.5)
+                    for p in self.context.pages:
+                        try:
+                            if id(p) in pages_before or p.is_closed():
+                                continue
+                            if (p.url or "") not in ("", "about:blank"):
+                                return _setup_popup(p)
+                        except Exception:
+                            continue
             except Exception:
                 continue
 
+        # ── JS evaluate 최종 시도: 더블클릭 이벤트 디스패치 ──
+        try:
+            title_found = page.evaluate("""() => {
+                const spans = document.querySelectorAll('div.titDiv .title span');
+                for (const span of spans) {
+                    if (span.offsetParent && span.textContent.trim().length > 0) {
+                        const evt = new MouseEvent('dblclick', {bubbles: true, cancelable: true, view: window});
+                        span.dispatchEvent(evt);
+                        return span.textContent.trim().substring(0, 60);
+                    }
+                }
+                return null;
+            }""")
+            if title_found:
+                logger.info(f"문서 더블클릭 (JS dispatch): '{title_found}'")
+                pages_before_js = set(id(p) for p in self.context.pages)
+                for _ in range(20):
+                    time.sleep(0.5)
+                    for p in self.context.pages:
+                        try:
+                            if id(p) in pages_before_js or p.is_closed():
+                                continue
+                            if (p.url or "") not in ("", "about:blank"):
+                                return _setup_popup(p)
+                        except Exception:
+                            continue
+        except Exception as e:
+            logger.debug(f"JS dispatch 클릭 실패: {e}")
+
+        logger.error("모든 클릭 방법 실패 — 임시보관문서 열기 불가")
         return None
 
     def _find_submit_button(self, doc_page: "Page"):
@@ -4121,7 +4391,7 @@ class ApprovalAutomation:
 
         return {"success": True, "message": "결재상신 버튼을 클릭했습니다. 결과를 확인해주세요."}
 
-    def create_proof_issuance(self, data: dict) -> dict:
+    def create_proof_issuance(self, _data: dict) -> dict:
         """
         [회계팀] 증빙발행 신청서 작성
 
@@ -4143,7 +4413,7 @@ class ApprovalAutomation:
         # TODO: DOM 탐색 후 구현
         return {"success": False, "message": "증빙발행 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
 
-    def create_advance_payment_request(self, data: dict) -> dict:
+    def create_advance_payment_request(self, _data: dict) -> dict:
         """
         [본사]선급금 요청서 작성
 
@@ -4165,7 +4435,7 @@ class ApprovalAutomation:
         # TODO: DOM 탐색 후 구현
         return {"success": False, "message": "선급금요청 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
 
-    def create_advance_payment_settlement(self, data: dict) -> dict:
+    def create_advance_payment_settlement(self, _data: dict) -> dict:
         """
         [본사]선급금 정산서 작성
 
@@ -4184,7 +4454,7 @@ class ApprovalAutomation:
         # TODO: DOM 탐색 후 구현
         return {"success": False, "message": "선급금정산 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
 
-    def create_overtime_request(self, data: dict) -> dict:
+    def create_overtime_request(self, _data: dict) -> dict:
         """
         연장근무신청서 작성
 
@@ -4202,7 +4472,7 @@ class ApprovalAutomation:
         # TODO: DOM 탐색 후 구현
         return {"success": False, "message": "연장근무 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
 
-    def create_outside_work_request(self, data: dict) -> dict:
+    def create_outside_work_request(self, _data: dict) -> dict:
         """
         외근신청서(당일) 작성
 
@@ -4221,7 +4491,7 @@ class ApprovalAutomation:
         # TODO: DOM 탐색 후 구현
         return {"success": False, "message": "외근신청 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
 
-    def create_referral_bonus_request(self, data: dict) -> dict:
+    def create_referral_bonus_request(self, _data: dict) -> dict:
         """
         사내추천비 자금 요청서 작성
 

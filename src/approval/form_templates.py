@@ -20,6 +20,8 @@
   - 일부 양식에서 "보관" 버튼 존재 (양식별 상이)
 """
 
+from src.auth.user_db import get_approval_config  # 결재선 DB 조회 (핫패스 동적 import 방지)
+
 # ─────────────────────────────────────────
 # 공통 상수
 # ─────────────────────────────────────────
@@ -841,21 +843,29 @@ def list_form_names() -> list[dict]:
     ]
 
 
-def resolve_approval_line(custom_line: dict | str | None, form_name: str = None) -> dict:
+def resolve_approval_line(custom_line: dict | str | None, form_name: str = None, user_context: dict = None) -> dict:
     """
     결재선 딕셔너리 반환.
 
     Args:
-        custom_line: 사용자가 지정한 결재선 (딕셔너리 또는 프리셋 이름 문자열)
+        custom_line: 사용자가 대화 중 직접 지정한 결재선 (딕셔너리 또는 프리셋 이름 문자열)
         form_name: 양식명 (미지정 시 양식 기본값 사용 불가)
+        user_context: 사용자 세션 정보 (gw_id 포함). DB에 저장된 결재선 조회용.
 
     Returns:
         결재선 딕셔너리 {"drafter": ..., "agree": ...(선택), "final": ...}
 
+    조회 순서:
+        1. custom_line (사용자가 대화 중 직접 지정)
+        2. user_context → gw_id → DB approval_config → 양식별 or default
+        3. 양식 기본값 (FORM_TEMPLATES에 정의된 것)
+        4. 팀 전역 기본값 (DEFAULT_APPROVAL_LINE)
+
     사용 예:
-        resolve_approval_line(None, "지출결의서")   # 양식 기본값
-        resolve_approval_line("간단")               # 프리셋
-        resolve_approval_line({"final": "홍길동"}) # 커스텀
+        resolve_approval_line(None, "지출결의서")                    # 양식 기본값
+        resolve_approval_line("간단")                                # 프리셋
+        resolve_approval_line({"final": "홍길동"})                  # 커스텀
+        resolve_approval_line(None, "지출결의서", {"gw_id": "tgjeon"})  # DB 설정 우선
     """
     # 1. 딕셔너리면 그대로 사용 (drafter 기본값 보완)
     if isinstance(custom_line, dict):
@@ -872,23 +882,45 @@ def resolve_approval_line(custom_line: dict | str | None, form_name: str = None)
             if custom_line in key or key in custom_line:
                 return dict(val)
 
-    # 3. 양식 기본값 사용
+    # 3. 사용자별 DB 결재선 설정 조회
+    if user_context:
+        gw_id = user_context.get("gw_id")
+        if gw_id:
+            try:
+                config = get_approval_config(gw_id)
+                if config:
+                    # 양식별 키로 먼저 조회 (예: "지출결의서", "거래처등록")
+                    form_key = _find_template_key(form_name) if form_name else None
+                    line = None
+                    if form_key and form_key in config:
+                        line = config[form_key]
+                    elif form_name and form_name in config:
+                        line = config[form_name]
+                    elif "default" in config:
+                        line = config["default"]
+                    if line:
+                        return {"drafter": "auto", **line}
+            except Exception:
+                pass  # DB 조회 실패 시 폴백
+
+    # 4. 양식 기본값 사용
     if form_name:
         tmpl = get_template(form_name)
         if tmpl and "approval_line" in tmpl:
             return dict(tmpl["approval_line"])
 
-    # 4. 전역 기본값
+    # 5. 전역 기본값
     return dict(DEFAULT_APPROVAL_LINE)
 
 
-def resolve_cc_recipients(cc_input: list | str | None, form_name: str = None) -> list[str]:
+def resolve_cc_recipients(cc_input: list | str | None, form_name: str = None, user_context: dict = None) -> list[str]:
     """
     수신참조 목록 반환.
 
     Args:
         cc_input: 수신참조 목록 또는 프리셋 이름
         form_name: 양식명 (양식 기본 cc 사용)
+        user_context: 사용자 세션 정보 (향후 사용자별 cc 설정 확장용)
 
     Returns:
         수신참조 이름 리스트

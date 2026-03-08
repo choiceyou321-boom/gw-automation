@@ -52,8 +52,8 @@ function showMainApp() {
   if (state.currentUser) {
     document.getElementById('userName').textContent =
       `${state.currentUser.name}${state.currentUser.position ? ' ' + state.currentUser.position : ''}`;
-    // 관리자면 관리 링크 표시
-    if (state.currentUser.gw_id === 'tgjeon') {
+    // 관리자면 관리 링크 표시 (서버 is_admin 필드 기준)
+    if (state.currentUser.is_admin) {
       document.getElementById('adminLink').style.display = 'inline-block';
     }
   }

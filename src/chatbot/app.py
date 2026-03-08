@@ -39,10 +39,11 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="GW 자동화 챗봇 (웹)", version="2.0.0")
 
-# CORS 설정 (개발 환경)
+# CORS 설정 (allow_origins 환경변수로 설정, 기본값 localhost)
+_allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:51749").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in _allowed_origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -110,8 +111,8 @@ def get_current_user(request: Request) -> dict | None:
     return user
 
 
-# 관리자 GW ID (이 계정만 관리 페이지 접근 가능)
-ADMIN_GW_ID = "tgjeon"
+# 관리자 GW ID (환경변수 필수, 미설정 시 관리자 기능 비활성화)
+ADMIN_GW_ID = os.environ.get("ADMIN_GW_ID", "")
 
 
 def require_auth(request: Request) -> dict:
@@ -177,6 +178,7 @@ async def login(req: LoginRequest, response: Response):
         }
     })
     # httpOnly 쿠키로 JWT 설정 (same-origin, 24시간)
+    is_https = os.environ.get("HTTPS", "false").lower() == "true"
     resp.set_cookie(
         key="auth_token",
         value=token,
@@ -184,6 +186,7 @@ async def login(req: LoginRequest, response: Response):
         samesite="lax",
         max_age=24 * 60 * 60,
         path="/",
+        secure=is_https,
     )
     return resp
 
@@ -198,11 +201,19 @@ async def logout():
 
 @app.get("/auth/me")
 async def get_me(request: Request):
-    """현재 로그인 사용자 정보"""
+    """현재 로그인 사용자 정보 (민감 필드 제외)"""
     user = get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
-    return JSONResponse({"user": user})
+    safe_user = {
+        "gw_id": user["gw_id"],
+        "name": user.get("name"),
+        "position": user.get("position"),
+        "emp_seq": user.get("emp_seq"),
+        "dept_seq": user.get("dept_seq"),
+        "is_admin": bool(ADMIN_GW_ID and user["gw_id"] == ADMIN_GW_ID),
+    }
+    return JSONResponse({"user": safe_user})
 
 
 @app.put("/auth/profile")
@@ -232,7 +243,10 @@ async def admin_list_users(request: Request):
     """사용자 목록 (관리자 전용)"""
     require_admin(request)
     from src.auth.user_db import list_users
-    return JSONResponse({"users": list_users()})
+    users = list_users()
+    for u in users:
+        u["is_admin"] = bool(ADMIN_GW_ID and u.get("gw_id") == ADMIN_GW_ID)
+    return JSONResponse({"users": users})
 
 
 @app.delete("/admin/users/{gw_id}")
@@ -375,12 +389,13 @@ async def chat(request_body: ChatRequest, request: Request):
 
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(request: Request, file: UploadFile = File(...)):
     """
     파일 업로드 처리
     - 이미지: base64 인코딩 후 반환
     - PDF: 저장 후 경로 반환
     """
+    require_auth(request)  # 인증 필수
     if not file.filename:
         raise HTTPException(status_code=400, detail="파일 이름이 없습니다.")
 
@@ -405,7 +420,8 @@ async def upload_file(file: UploadFile = File(...)):
     # 업로드 파일 저장
     upload_dir = DATA_DIR / "uploads"
     upload_dir.mkdir(exist_ok=True)
-    save_path = upload_dir / f"{uuid.uuid4()}_{file.filename}"
+    safe_name = Path(file.filename).name  # 디렉토리 구분자 제거 (경로 트래버설 방지)
+    save_path = upload_dir / f"{uuid.uuid4()}_{safe_name}"
     save_path.write_bytes(contents)
 
     return JSONResponse({

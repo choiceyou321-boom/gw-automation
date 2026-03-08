@@ -2,9 +2,11 @@
 사용자 DB 모듈 (SQLite + Fernet 암호화)
 - 회원가입, 로그인 검증, 프로필 관리
 - GW 비밀번호는 Fernet 대칭 암호화 (Playwright 로그인에 복호화 필요)
+- approval_config: 사용자별 결재선 설정 (JSON)
 """
 
 import os
+import json
 import sqlite3
 import logging
 from pathlib import Path
@@ -54,6 +56,12 @@ def _get_db() -> sqlite3.Connection:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # 기존 테이블에 approval_config 컬럼 추가 (없으면 추가, 있으면 무시)
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN approval_config TEXT DEFAULT ''")
+    except sqlite3.OperationalError as e:
+        if "duplicate column" not in str(e):
+            raise  # 예상치 못한 DB 오류는 재발생
     conn.commit()
     return conn
 
@@ -117,6 +125,7 @@ def verify_login(gw_id: str, gw_pw: str) -> dict | None:
             "emp_seq": row["emp_seq"],
             "dept_seq": row["dept_seq"],
             "email_addr": row["email_addr"],
+            "approval_config": row["approval_config"] or "",
         }
     finally:
         conn.close()
@@ -127,7 +136,7 @@ def get_user(gw_id: str) -> dict | None:
     conn = _get_db()
     try:
         row = conn.execute(
-            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr FROM users WHERE gw_id = ?",
+            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr, approval_config FROM users WHERE gw_id = ?",
             (gw_id,),
         ).fetchone()
         if not row:
@@ -200,6 +209,54 @@ def delete_user(gw_id: str) -> dict:
         conn.commit()
         logger.info(f"사용자 삭제: {gw_id}")
         return {"success": True, "message": f"사용자 '{gw_id}'가 삭제되었습니다."}
+    finally:
+        conn.close()
+
+
+def get_approval_config(gw_id: str) -> dict:
+    """
+    사용자별 결재선 설정 조회.
+    반환 예시: {"default": {"agree": "신동관", "final": "최기영"}, "간단": {"final": "최기영"}}
+    설정이 없으면 빈 dict 반환.
+    """
+    conn = _get_db()
+    try:
+        row = conn.execute(
+            "SELECT approval_config FROM users WHERE gw_id = ?", (gw_id,)
+        ).fetchone()
+        if not row or not row["approval_config"]:
+            return {}
+        try:
+            return json.loads(row["approval_config"])
+        except (json.JSONDecodeError, TypeError):
+            logger.warning(f"approval_config JSON 파싱 실패: {gw_id}")
+            return {}
+    finally:
+        conn.close()
+
+
+def set_approval_config(gw_id: str, config: dict) -> dict:
+    """
+    사용자별 결재선 설정 저장.
+    config 예시: {"default": {"agree": "신동관", "final": "최기영"}}
+    반환: {"success": bool, "message": str}
+    """
+    conn = _get_db()
+    try:
+        existing = conn.execute(
+            "SELECT gw_id FROM users WHERE gw_id = ?", (gw_id,)
+        ).fetchone()
+        if not existing:
+            return {"success": False, "message": "존재하지 않는 사용자입니다."}
+
+        config_json = json.dumps(config, ensure_ascii=False)
+        conn.execute(
+            "UPDATE users SET approval_config = ? WHERE gw_id = ?",
+            (config_json, gw_id),
+        )
+        conn.commit()
+        logger.info(f"결재선 설정 저장: {gw_id} → {config}")
+        return {"success": True, "message": "결재선 설정이 저장되었습니다."}
     finally:
         conn.close()
 

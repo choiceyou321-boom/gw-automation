@@ -33,7 +33,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # 기존 로직 임포트
 from src.chatbot.agent import analyze_and_route
-from src.auth.user_db import verify_login, register as db_register
+from src.auth.user_db import verify_login, register as db_register, get_approval_config, set_approval_config
 
 # 텔레그램 유저 ID → { user_context, history }
 tg_sessions: dict[int, dict] = {}
@@ -52,6 +52,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "예시: `/login tgjeon mypass123`\n\n"
         "기타 명령어:\n"
         "`/mail` (또는 `/mailcheck`) - 안 읽은 메일 AI 요약 + Notion 저장\n"
+        "`/setline 검토:이름 승인:이름` - 결재선 설정\n"
+        "`/myline` - 현재 결재선 확인\n"
         "`/clear` - 대화 내역 지우기 (로그인 유지)"
     )
     await update.message.reply_text(welcome_text, parse_mode='Markdown')
@@ -197,6 +199,138 @@ async def mailcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"메일 확인 중 오류가 발생했습니다: {str(e)[:200]}")
 
 
+async def setline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    /setline — 사용자별 결재선 설정.
+    사용법:
+      /setline 검토:신동관 승인:최기영       → default 결재선 설정
+      /setline 지출결의서 검토:신동관 승인:최기영  → 양식별 결재선 설정
+      /setline 간단 승인:최기영              → "간단" 프리셋 결재선 설정
+      /setline 거래처등록 승인:최기영          → 거래처등록 양식 결재선 설정
+    """
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+    if not session:
+        await update.message.reply_text(
+            "먼저 로그인을 해주세요.\n`/login [아이디] [비밀번호]`", parse_mode='Markdown'
+        )
+        return
+
+    args = context.args
+    if not args:
+        await update.message.reply_text(
+            "사용법:\n"
+            "`/setline 검토:이름 승인:이름` — 기본 결재선 설정\n"
+            "`/setline 지출결의서 검토:이름 승인:이름` — 양식별 설정\n"
+            "`/setline 간단 승인:이름` — 간단 결재선 설정\n\n"
+            "예시:\n"
+            "`/setline 검토:신동관 승인:최기영`\n"
+            "`/setline 거래처등록 승인:최기영`",
+            parse_mode='Markdown',
+        )
+        return
+
+    gw_id = session.get("gw_id")
+    if not gw_id:
+        await update.message.reply_text("로그인 정보를 확인할 수 없습니다.")
+        return
+
+    # 인자 파싱: 첫 번째 인자가 "검토:" 또는 "승인:"으로 시작하면 양식명 없음 (default)
+    # 아니면 첫 번째 인자가 양식명/프리셋명
+    line_args = list(args)
+    target_key = "default"  # 기본 키
+
+    # 첫 번째 인자가 "검토:" 또는 "승인:"이 아니면 양식명으로 간주
+    if line_args and not line_args[0].startswith(("검토:", "승인:")):
+        target_key = line_args.pop(0)
+
+    if not line_args:
+        await update.message.reply_text(
+            "결재선 정보가 부족합니다. `검토:이름` 또는 `승인:이름`을 입력해주세요.",
+            parse_mode='Markdown',
+        )
+        return
+
+    # "검토:이름", "승인:이름" 파싱
+    line = {}
+    for arg in line_args:
+        if arg.startswith("검토:"):
+            line["agree"] = arg[3:]
+        elif arg.startswith("승인:"):
+            line["final"] = arg[3:]
+        else:
+            await update.message.reply_text(
+                f"알 수 없는 형식: `{arg}`\n`검토:이름` 또는 `승인:이름` 형식으로 입력해주세요.",
+                parse_mode='Markdown',
+            )
+            return
+
+    if "final" not in line:
+        await update.message.reply_text(
+            "최종 승인자(`승인:이름`)는 필수입니다.",
+            parse_mode='Markdown',
+        )
+        return
+
+    # 기존 설정 불러와서 머지
+    existing_config = get_approval_config(gw_id)
+    existing_config[target_key] = line
+    result = set_approval_config(gw_id, existing_config)
+
+    if result["success"]:
+        line_desc = ""
+        if line.get("agree"):
+            line_desc += f"검토: {line['agree']} → "
+        line_desc += f"승인: {line['final']}"
+        await update.message.reply_text(
+            f"결재선이 설정되었습니다.\n\n"
+            f"대상: **{target_key}**\n"
+            f"결재선: {line_desc}",
+            parse_mode='Markdown',
+        )
+    else:
+        await update.message.reply_text(f"설정 실패: {result['message']}")
+
+
+async def myline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """/myline — 현재 설정된 결재선 확인"""
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+    if not session:
+        await update.message.reply_text(
+            "먼저 로그인을 해주세요.\n`/login [아이디] [비밀번호]`", parse_mode='Markdown'
+        )
+        return
+
+    gw_id = session.get("gw_id")
+    if not gw_id:
+        await update.message.reply_text("로그인 정보를 확인할 수 없습니다.")
+        return
+
+    config = get_approval_config(gw_id)
+    if not config:
+        await update.message.reply_text(
+            "설정된 결재선이 없습니다. (양식 기본값 사용 중)\n\n"
+            "설정하려면: `/setline 검토:이름 승인:이름`",
+            parse_mode='Markdown',
+        )
+        return
+
+    lines = ["현재 설정된 결재선:\n"]
+    for key, line in config.items():
+        desc = f"  **{key}**: "
+        parts = []
+        if line.get("agree"):
+            parts.append(f"검토 → {line['agree']}")
+        if line.get("final"):
+            parts.append(f"승인 → {line['final']}")
+        desc += " → ".join(parts) if parts else "(설정 없음)"
+        lines.append(desc)
+
+    lines.append("\n변경: `/setline [양식명] 검토:이름 승인:이름`")
+    await update.message.reply_text("\n".join(lines), parse_mode='Markdown')
+
+
 def _check_login(tg_user_id: int) -> dict | None:
     """로그인 세션 확인, 없으면 None"""
     return tg_sessions.get(tg_user_id)
@@ -208,7 +342,7 @@ def _get_user_context(session: dict) -> dict:
 
 
 def _append_history(session: dict, role: str, content: str):
-    """히스토리에 메시지 추가 (최근 20개만 유지)"""
+    """히스토리에 메시지 추가 (최근 40개만 유지)"""
     session["history"].append({"role": role, "content": content})
     if len(session["history"]) > 40:
         session["history"] = session["history"][-40:]
@@ -381,6 +515,8 @@ def main():
     app.add_handler(CommandHandler("clear", clear_chat))
     app.add_handler(CommandHandler("mailcheck", mailcheck))
     app.add_handler(CommandHandler("mail", mailcheck))  # /mail 단축 별칭
+    app.add_handler(CommandHandler("setline", setline))
+    app.add_handler(CommandHandler("myline", myline))
 
     # 메시지 핸들러
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

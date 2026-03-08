@@ -7,6 +7,7 @@ GW 세션 관리자
 
 import time
 import logging
+import threading
 from dataclasses import dataclass
 
 logger = logging.getLogger("session_manager")
@@ -24,8 +25,9 @@ class CachedSession:
     created_at: float
 
 
-# 사용자별 세션 캐시 {gw_id: CachedSession}
+# 사용자별 세션 캐시 {gw_id: CachedSession} + 스레드 안전 Lock
 _session_cache: dict[str, CachedSession] = {}
+_cache_lock = threading.Lock()
 
 
 def _is_valid(session: CachedSession) -> bool:
@@ -35,14 +37,15 @@ def _is_valid(session: CachedSession) -> bool:
 
 def get_cached_session(gw_id: str) -> CachedSession | None:
     """캐시된 세션 반환. 만료되었으면 None."""
-    session = _session_cache.get(gw_id)
-    if session and _is_valid(session):
-        logger.info(f"세션 캐시 히트: {gw_id}")
-        return session
-    if session:
-        logger.info(f"세션 캐시 만료: {gw_id}")
-        del _session_cache[gw_id]
-    return None
+    with _cache_lock:
+        session = _session_cache.get(gw_id)
+        if session and _is_valid(session):
+            logger.info(f"세션 캐시 히트: {gw_id}")
+            return session
+        if session:
+            logger.info(f"세션 캐시 만료: {gw_id}")
+            del _session_cache[gw_id]
+        return None
 
 
 def _login_and_cache(gw_id: str, gw_pw: str) -> CachedSession:
@@ -72,7 +75,8 @@ def _login_and_cache(gw_id: str, gw_pw: str) -> CachedSession:
         cookies=cookie_dict,
         created_at=time.time(),
     )
-    _session_cache[gw_id] = cached
+    with _cache_lock:
+        _session_cache[gw_id] = cached
     logger.info(f"세션 캐시 저장: {gw_id}")
     return cached
 
@@ -129,12 +133,14 @@ def refresh_session(gw_id: str) -> CachedSession:
 
 def invalidate_cache(gw_id: str):
     """특정 사용자 캐시 삭제"""
-    if gw_id in _session_cache:
-        del _session_cache[gw_id]
-        logger.info(f"세션 캐시 삭제: {gw_id}")
+    with _cache_lock:
+        if gw_id in _session_cache:
+            del _session_cache[gw_id]
+            logger.info(f"세션 캐시 삭제: {gw_id}")
 
 
 def clear_all_cache():
     """전체 캐시 초기화"""
-    _session_cache.clear()
+    with _cache_lock:
+        _session_cache.clear()
     logger.info("전체 세션 캐시 초기화")

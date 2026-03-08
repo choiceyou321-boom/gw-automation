@@ -249,7 +249,7 @@ def _check_logged_in(page: Page) -> bool:
         )
         return True
     except Exception:
-        return True  # URL이 로그인이 아니면 일단 성공으로
+        return False  # 확인 실패 시 로그인 안 된 것으로 처리
 
 
 def close_session(browser: Browser):

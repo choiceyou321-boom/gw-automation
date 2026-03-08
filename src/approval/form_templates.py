@@ -428,7 +428,7 @@ FORM_TEMPLATES = {
         # - 열기 방식: 인라인 (지출결의서와 동일한 지출결의서작성 화면으로 로드)
         # - 필드 구조: 지출결의서와 유사 (그리드 포함), inputs=20개
         # - 프로젝트코드도움, 금융기관코드도움, 거래처계좌번호, 업무용차량코드도움 placeholder 확인
-        "status": "template_only",
+        "status": "verified",
 
         "fields": {
             "title": {
@@ -516,7 +516,7 @@ FORM_TEMPLATES = {
         # - formId 미확인 (URL에 미노출) — 선급금요청(181)과 유사한 구조
         # - 열기 방식: 인라인 (지출결의서작성 화면으로 로드, inputs=20개)
         # - 왼쪽 양식목록에 "[본사]선급금 정산서" 항목 표시됨 확인
-        "status": "template_only",
+        "status": "verified",
 
         "fields": {
             "title": {

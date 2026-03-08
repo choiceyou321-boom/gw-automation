@@ -4551,124 +4551,928 @@ class ApprovalAutomation:
 
         return {"success": True, "message": "결재상신 버튼을 클릭했습니다. 결과를 확인해주세요."}
 
-    def create_proof_issuance(self, _data: dict) -> dict:
+    def create_proof_issuance(self, data: dict) -> dict:
         """
         [회계팀] 증빙발행 신청서 작성
 
+        전자결재 양식 (인라인 폼).
+        결재작성 → "[회계팀] 증빙발행 신청서" 검색 → 선택
+
         Args:
             data: {
-                "title": "제목",
-                "issue_type": "발행구분 (세금계산서/영수증/계산서)",
-                "vendor_name": "발행처(거래처명)",
+                "title": "제목",                      # 필수
+                "issue_type": "세금계산서",            # 발행구분
+                "vendor_name": "발행처",               # 거래처명
                 "business_number": "사업자번호",
-                "supply_amount": 공급가액(숫자),
-                "tax_amount": 세액(숫자),
-                "issue_date": "발행일 (YYYY-MM-DD)",
+                "supply_amount": 공급가액,
+                "tax_amount": 세액,
+                "issue_date": "YYYY-MM-DD",
                 "item_description": "품목/내용",
-                "note": "비고 (선택)",
+                "note": "비고",
+                "save_mode": "submit",
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "증빙발행 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        validation = self._validate_required_fields(data, ["title"], "증빙발행신청서")
+        if validation:
+            return validation
 
-    def create_advance_payment_request(self, _data: dict) -> dict:
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+
+        page = self.page
+        last_error = None
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+                self._navigate_to_approval_home()
+                self._click_write_approval()
+                page.wait_for_timeout(1500)
+
+                # 증빙발행 검색 및 클릭
+                form_found = False
+                for search_kw in ["증빙발행", "[회계팀] 증빙발행"]:
+                    try:
+                        for sel in ["input[placeholder*='검색']", "input[type='search']", "input.OBTTextField"]:
+                            try:
+                                inp = page.locator(sel).first
+                                if inp.is_visible(timeout=2000):
+                                    inp.fill(search_kw)
+                                    inp.press("Enter")
+                                    page.wait_for_timeout(2000)
+                                    break
+                            except Exception:
+                                continue
+
+                        for click_kw in ["[회계팀] 증빙발행 신청서", "증빙발행 신청서", "증빙발행"]:
+                            link = page.locator(f"text={click_kw}").first
+                            if link.is_visible(timeout=2000):
+                                link.click(force=True)
+                                page.wait_for_timeout(3000)
+                                form_found = True
+                                logger.info(f"증빙발행 신청서 클릭: {click_kw}")
+                                break
+                        if form_found:
+                            break
+                    except Exception:
+                        continue
+
+                if not form_found:
+                    raise Exception("증빙발행 신청서 양식을 찾을 수 없습니다.")
+
+                # 양식 로드 대기 (제목 필드 확인)
+                try:
+                    page.locator("th:has-text('제목')").first.wait_for(state="visible", timeout=10000)
+                except Exception:
+                    raise Exception("증빙발행 신청서 양식 로드 실패")
+
+                # 필드 채우기
+                field_map = [
+                    ("제목", data.get("title", "")),
+                    ("발행구분", data.get("issue_type", "")),
+                    ("발행처", data.get("vendor_name", "")),
+                    ("사업자번호", data.get("business_number", "")),
+                    ("공급가액", str(data.get("supply_amount", "")) if data.get("supply_amount") else ""),
+                    ("세액", str(data.get("tax_amount", "")) if data.get("tax_amount") else ""),
+                    ("발행일", data.get("issue_date", "")),
+                    ("품목", data.get("item_description", "")),
+                    ("내용", data.get("item_description", "")),
+                    ("비고", data.get("note", "")),
+                ]
+                for label, value in field_map:
+                    if value:
+                        self._fill_field_by_label(label, value)
+
+                # 결재선 설정
+                if data.get("approval_line"):
+                    resolved_line = resolve_approval_line(data["approval_line"], "증빙발행")
+                    self.set_approval_line(page, resolved_line)
+
+                save_mode = data.get("save_mode", "verify")
+                if save_mode == "submit":
+                    result = self._submit_inline_form()
+                    return result
+                elif save_mode == "draft":
+                    return self._create_proof_issuance_draft(data)
+                else:
+                    _save_debug(page, "proof_issuance_verify")
+                    return {"success": True, "message": "증빙발행 신청서 필드 작성이 완료되었습니다. 내용을 확인 후 상신해주세요."}
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"증빙발행 신청서 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+            except Exception as e:
+                last_error = e
+                logger.error(f"증빙발행 신청서 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        return {"success": False, "message": f"증빙발행 신청서 작성 실패: {str(last_error)}"}
+
+    def _create_proof_issuance_draft(self, _data: dict) -> dict:
+        """증빙발행 신청서 임시보관 (draft 모드)"""
+        # TODO: 팝업 기반 보관 흐름 구현 (증빙발행 DOM 탐색 후)
+        return {"success": False, "message": "증빙발행 임시보관은 아직 지원되지 않습니다. save_mode='submit'으로 시도해주세요."}
+
+    def _click_advance_payment_form(self, form_type: str = "요청서"):
         """
-        [본사]선급금 요청서 작성
+        선급금 요청서/정산서 양식 선택 (인라인 폼)
+
+        formId=181 URL 직접 접근 시도 (요청서), 실패 시 검색 폴백.
+        정산서는 formId 미확인이므로 검색으로만 진입.
+
+        Args:
+            form_type: "요청서" 또는 "정산서"
+        """
+        page = self.page
+
+        # 요청서: formId=181 URL 직접 접근 시도
+        if form_type == "요청서":
+            try:
+                direct_url = (
+                    f"{GW_URL}/#/HP/APB1020/APB1020"
+                    f"?specialLnb=Y&moduleCode=HP&menuCode=APB1020&formId=181"
+                )
+                page.goto(direct_url, wait_until="domcontentloaded", timeout=15000)
+                page.wait_for_timeout(2000)
+                try:
+                    page.wait_for_url("**/APB1020/**", timeout=8000)
+                    logger.info(f"선급금 요청서 URL 직접 이동 성공: {page.url[:100]}")
+                    return
+                except Exception:
+                    logger.warning(f"선급금 요청서 URL 직접 이동 후 APB1020 미확인: {page.url[:80]}")
+            except Exception as e:
+                logger.warning(f"선급금 요청서 URL 직접 이동 실패: {e}")
+
+        # 검색 키워드 설정
+        if form_type == "요청서":
+            keywords = ["[본사]선급금 요청서", "선급금 요청서", "선급금"]
+        else:
+            keywords = ["[본사]선급금 정산서", "선급금 정산서", "선급금정산"]
+
+        def _try_click_form(phase: str) -> bool:
+            for keyword in keywords:
+                try:
+                    links = page.locator(f"text={keyword}").all()
+                    for link in links:
+                        if link.is_visible():
+                            link.click(force=True)
+                            logger.info(f"선급금 {form_type} 양식 클릭 ({phase}): '{keyword}'")
+                            try:
+                                page.wait_for_url("**/APB1020/**", timeout=8000)
+                                logger.info(f"양식 페이지 이동 확인: {page.url[:100]}")
+                                return True
+                            except Exception:
+                                logger.warning(f"양식 클릭 후 URL 미변경 (여전히 {page.url[:80]})")
+                                try:
+                                    page.wait_for_timeout(1000)
+                                    link2 = page.locator(f"text={keyword}").first
+                                    if link2.is_visible():
+                                        link2.click(force=True)
+                                        page.wait_for_url("**/APB1020/**", timeout=8000)
+                                        logger.info(f"양식 페이지 재클릭 이동 확인: {page.url[:100]}")
+                                        return True
+                                except Exception:
+                                    pass
+                except Exception:
+                    continue
+            return False
+
+        # 1차: 현재 페이지에서 양식 바로 찾기
+        if _try_click_form("현재 페이지"):
+            return
+
+        # 2차: 결재작성 버튼 클릭 후 양식 검색
+        logger.info(f"현재 페이지에 선급금 {form_type} 양식 없음 → 결재작성 클릭")
+        self._click_write_approval()
+        page.wait_for_timeout(1500)
+
+        if _try_click_form("결재작성 경유"):
+            return
+
+        _save_debug(page, f"error_advance_payment_{form_type}_not_found")
+        raise Exception(f"선급금 {form_type} 양식을 찾을 수 없습니다.")
+
+    def _fill_advance_payment_fields(self, data: dict, form_type: str = "요청서"):
+        """
+        선급금 요청서/정산서 필드 채우기
+
+        지출결의서와 동일한 인라인 폼 구조 (APB1020 화면).
+        요청서 필드: 제목, 프로젝트, 요청사유, 은행명, 계좌번호, 예금주, 금액 (그리드)
+        정산서 필드: 제목, 프로젝트, 정산내역, 선급금액, 사용금액, 반환금액
+
+        Args:
+            data: 양식 데이터 딕셔너리
+            form_type: "요청서" 또는 "정산서"
+        """
+        page = self.page
+        title = data.get("title", "")
+        project = data.get("project", "")
+
+        # 1. 프로젝트 코드도움 입력 (상단)
+        if project:
+            self._fill_project_code(project, y_hint=292)
+            _save_debug(page, "adv_03a_after_project_top")
+
+            # 프로젝트 입력 후 페이지 이탈 검증
+            time.sleep(0.3)
+            current_url = page.url
+            if "/HP/" not in current_url:
+                logger.warning(f"프로젝트 입력 후 페이지 이탈 감지: {current_url}")
+                _save_debug(page, "adv_03a_page_escaped")
+
+        # 2. 제목 입력
+        if title:
+            self._fill_field_by_label("제목", title)
+        _save_debug(page, "adv_03_after_title")
+
+        # 3. 양식별 텍스트 필드 채우기
+        if form_type == "요청서":
+            # 요청서 필드 맵: (라벨, data 키)
+            field_map = [
+                ("요청사유", "purpose"),
+                ("은행명", "bank_name"),
+                ("계좌번호", "account_number"),
+                ("예금주", "account_holder"),
+            ]
+        else:
+            # 정산서 필드 맵
+            field_map = [
+                ("정산내역", "description"),
+                ("선급금액", "original_amount"),
+                ("사용금액", "used_amount"),
+                ("반환금액", "return_amount"),
+            ]
+
+        for label, key in field_map:
+            val = data.get(key)
+            if val is not None and str(val).strip():
+                self._fill_field_by_label(label, str(val))
+
+        # 4. 금액 그리드 입력 (요청서: 금액 항목을 그리드에 입력)
+        if form_type == "요청서":
+            amount = data.get("amount")
+            vendor_name = data.get("vendor_name", "")
+            if amount is not None:
+                items = [{
+                    "item": data.get("purpose", "선급금"),
+                    "amount": amount,
+                    "vendor": vendor_name,
+                }]
+                self._fill_grid_items(items)
+                _save_debug(page, "adv_03b_after_grid")
+
+        # 5. 지급요청일 / 증빙일자 입력
+        payment_date = data.get("payment_date", "") or data.get("receipt_date", "") or data.get("date", "")
+        if payment_date:
+            self._fill_receipt_date(payment_date)
+            _save_debug(page, "adv_03d_after_date")
+
+        # 6. 하단 프로젝트 코드도움 입력
+        if project:
+            self._fill_project_code_bottom(project)
+            _save_debug(page, "adv_03d2_after_project_bottom")
+
+        # 7. 첨부파일 업로드
+        attachment_path = data.get("attachment_path", "")
+        if attachment_path:
+            self._upload_attachment(attachment_path)
+            _save_debug(page, "adv_03e_after_attachment")
+
+        logger.info(f"선급금 {form_type} 필드 채우기 완료")
+
+    def create_advance_payment_request(self, data: dict) -> dict:
+        """
+        [본사]선급금 요청서 작성 (인라인 폼 기반, 재시도 포함)
+
+        지출결의서와 동일한 APB1020 인라인 폼 구조.
+        formId=181 URL 직접 접근 후 필드 채우기.
+        - save_mode="verify" (기본): 필드 작성 검증만 수행
+        - save_mode="submit": 결재상신 실행
+        - save_mode="draft": 팝업 기반 보관 (인라인 폼에 보관 버튼 없음)
 
         Args:
             data: {
-                "title": "제목",
-                "project": "프로젝트 (코드도움)",
-                "vendor_name": "거래처명",
-                "amount": 요청금액(숫자),
-                "payment_date": "지급요청일 (YYYY-MM-DD)",
-                "purpose": "요청사유",
-                "bank_name": "은행명",
-                "account_number": "계좌번호",
-                "account_holder": "예금주",
+                "title": "제목",                    # 필수
+                "project": "프로젝트 (코드도움)",    # 선택
+                "vendor_name": "거래처명",           # 선택
+                "amount": 요청금액(숫자),             # 선택
+                "payment_date": "지급요청일 (YYYY-MM-DD)",  # 선택
+                "purpose": "요청사유",               # 선택
+                "bank_name": "은행명",               # 선택
+                "account_number": "계좌번호",        # 선택
+                "account_holder": "예금주",          # 선택
+                "attachment_path": "/path.pdf",      # 첨부파일 경로 (선택)
+                "save_mode": "verify",               # "verify" | "submit" | "draft"
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "선급금요청 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        # 필수 필드 검증
+        validation = self._validate_required_fields(data, ["title"], "선급금요청")
+        if validation:
+            return validation
 
-    def create_advance_payment_settlement(self, _data: dict) -> dict:
+        # 세션 확인
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+
+        save_mode = data.get("save_mode", "verify")
+
+        last_error = None
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+
+                # 1. 전자결재 HOME 이동
+                self._navigate_to_approval_home()
+
+                # 2. 선급금 요청서 양식 클릭 (인라인 폼)
+                self._click_advance_payment_form(form_type="요청서")
+
+                # 3. 양식 로드 대기
+                self._wait_for_form_load()
+
+                # 4. 필드 채우기
+                self._fill_advance_payment_fields(data, form_type="요청서")
+
+                # 4-1. 결재선 커스텀 설정
+                if data.get("approval_line"):
+                    resolved_line = resolve_approval_line(data["approval_line"], "선급금요청")
+                    self.set_approval_line(self.page, resolved_line)
+
+                # 4-2. 수신참조 설정
+                if data.get("cc"):
+                    resolved_cc = resolve_cc_recipients(data["cc"], "선급금요청")
+                    self.set_cc_recipients(self.page, resolved_cc)
+
+                # 5. 저장/검증
+                if save_mode == "submit":
+                    result = self._submit_inline_form()
+                elif save_mode == "draft":
+                    # 인라인 폼에는 보관 버튼이 없으므로 verify로 처리
+                    logger.warning("선급금 요청서 draft 모드: 인라인 폼에 보관 버튼 없음 → verify로 처리")
+                    result = self._verify_expense_fields(data)
+                else:
+                    # verify: 필드 작성 검증만
+                    result = self._verify_expense_fields(data)
+
+                return result
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"선급금 요청서 작성 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                _save_debug(self.page, f"adv_req_error_timeout_attempt{attempt}")
+                if attempt < MAX_RETRIES:
+                    if not self._check_session_valid():
+                        return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+                    self._close_popups()
+                    time.sleep(RETRY_DELAY)
+
+            except Exception as e:
+                last_error = e
+                logger.error(f"선급금 요청서 작성 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                _save_debug(self.page, f"adv_req_error_attempt{attempt}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        _save_debug(self.page, "adv_req_error_final")
+        return {"success": False, "message": f"선급금 요청서 작성 실패 ({MAX_RETRIES}회 시도): {str(last_error)}"}
+
+    def create_advance_payment_settlement(self, data: dict) -> dict:
         """
-        [본사]선급금 정산서 작성
+        [본사]선급금 정산서 작성 (인라인 폼 기반, 재시도 포함)
+
+        지출결의서와 동일한 APB1020 인라인 폼 구조.
+        formId 미확인 → 검색으로 진입.
+        - save_mode="verify" (기본): 필드 작성 검증만 수행
+        - save_mode="submit": 결재상신 실행
+        - save_mode="draft": verify로 처리 (인라인 폼에 보관 버튼 없음)
 
         Args:
             data: {
-                "title": "제목",
-                "project": "프로젝트 (코드도움)",
-                "vendor_name": "거래처명",
-                "original_amount": 선급금액(숫자),
-                "used_amount": 사용금액(숫자),
-                "description": "정산내역",
+                "title": "제목",                    # 필수
+                "project": "프로젝트 (코드도움)",    # 선택
+                "vendor_name": "거래처명",           # 선택
+                "original_amount": 선급금액(숫자),   # 선택
+                "used_amount": 사용금액(숫자),        # 선택
+                "return_amount": 반환금액(숫자),      # 선택 (자동계산 가능)
+                "description": "정산내역",           # 선택
+                "attachment_path": "/path.pdf",      # 첨부파일 경로 (선택)
+                "save_mode": "verify",               # "verify" | "submit" | "draft"
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "선급금정산 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        # 필수 필드 검증
+        validation = self._validate_required_fields(data, ["title"], "선급금정산")
+        if validation:
+            return validation
 
-    def create_overtime_request(self, _data: dict) -> dict:
+        # 세션 확인
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+
+        save_mode = data.get("save_mode", "verify")
+
+        # return_amount 자동 계산 (미입력 시)
+        if not data.get("return_amount"):
+            orig = data.get("original_amount")
+            used = data.get("used_amount")
+            if orig is not None and used is not None:
+                try:
+                    data = dict(data)  # 원본 수정 방지
+                    data["return_amount"] = int(orig) - int(used)
+                    logger.info(f"반환금액 자동 계산: {orig} - {used} = {data['return_amount']}")
+                except Exception:
+                    pass
+
+        last_error = None
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+
+                # 1. 전자결재 HOME 이동
+                self._navigate_to_approval_home()
+
+                # 2. 선급금 정산서 양식 클릭 (인라인 폼)
+                self._click_advance_payment_form(form_type="정산서")
+
+                # 3. 양식 로드 대기
+                self._wait_for_form_load()
+
+                # 4. 필드 채우기
+                self._fill_advance_payment_fields(data, form_type="정산서")
+
+                # 4-1. 결재선 커스텀 설정
+                if data.get("approval_line"):
+                    resolved_line = resolve_approval_line(data["approval_line"], "선급금정산")
+                    self.set_approval_line(self.page, resolved_line)
+
+                # 4-2. 수신참조 설정
+                if data.get("cc"):
+                    resolved_cc = resolve_cc_recipients(data["cc"], "선급금정산")
+                    self.set_cc_recipients(self.page, resolved_cc)
+
+                # 5. 저장/검증
+                if save_mode == "submit":
+                    result = self._submit_inline_form()
+                elif save_mode == "draft":
+                    logger.warning("선급금 정산서 draft 모드: 인라인 폼에 보관 버튼 없음 → verify로 처리")
+                    result = self._verify_expense_fields(data)
+                else:
+                    result = self._verify_expense_fields(data)
+
+                return result
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"선급금 정산서 작성 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                _save_debug(self.page, f"adv_sett_error_timeout_attempt{attempt}")
+                if attempt < MAX_RETRIES:
+                    if not self._check_session_valid():
+                        return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+                    self._close_popups()
+                    time.sleep(RETRY_DELAY)
+
+            except Exception as e:
+                last_error = e
+                logger.error(f"선급금 정산서 작성 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                _save_debug(self.page, f"adv_sett_error_attempt{attempt}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        _save_debug(self.page, "adv_sett_error_final")
+        return {"success": False, "message": f"선급금 정산서 작성 실패 ({MAX_RETRIES}회 시도): {str(last_error)}"}
+
+    def create_overtime_request(self, data: dict) -> dict:
         """
-        연장근무신청서 작성
+        연장근무신청서 작성 (근태관리 모듈)
+
+        근태관리 모듈 경로:
+        - 결재작성 → "연장근무신청서" 검색 → 선택 (formId=43)
+        - 또는 근태관리 > 근태신청 > 연장근무신청서 직접 이동
 
         Args:
             data: {
-                "title": "제목",
-                "work_date": "근무일 (YYYY-MM-DD)",
-                "start_time": "시작시간 (HH:MM)",
-                "end_time": "종료시간 (HH:MM)",
-                "reason": "사유",
+                "title": "제목",               # 필수 (표시용, 실제 폼 제목 필드 없을 수 있음)
+                "work_date": "YYYY-MM-DD",     # 근무일
+                "start_time": "HH:MM",         # 시작시간
+                "end_time": "HH:MM",           # 종료시간
+                "reason": "사유",               # 비고/사유
+                "work_type": "연장근무",        # 근무구분 (조기근무/연장근무/휴일근무, 기본: 연장근무)
+                "save_mode": "submit",          # "submit" | "verify"
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "연장근무 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
 
-    def create_outside_work_request(self, _data: dict) -> dict:
+        page = self.page
+        last_error = None
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+                self._navigate_to_approval_home()
+
+                # 결재작성 클릭
+                self._click_write_approval()
+                page.wait_for_timeout(1500)
+
+                # 연장근무신청서 검색 및 선택
+                search_keywords = ["연장근무신청서", "연장근무"]
+                form_found = False
+                for kw in search_keywords:
+                    try:
+                        # 검색창 입력
+                        for sel in ["input[placeholder*='검색']", "input[type='search']", "input.OBTTextField"]:
+                            try:
+                                inp = page.locator(sel).first
+                                if inp.is_visible(timeout=2000):
+                                    inp.fill(kw)
+                                    inp.press("Enter")
+                                    page.wait_for_timeout(1500)
+                                    break
+                            except Exception:
+                                continue
+                        # 결과 클릭
+                        link = page.locator("text=연장근무신청서").first
+                        if link.is_visible(timeout=3000):
+                            link.click(force=True)
+                            page.wait_for_timeout(3000)
+                            form_found = True
+                            logger.info("연장근무신청서 양식 클릭 완료")
+                            break
+                    except Exception:
+                        continue
+
+                if not form_found:
+                    raise Exception("연장근무신청서 양식을 찾을 수 없습니다.")
+
+                # 필드 채우기
+                work_date = data.get("work_date", "")
+                start_time = data.get("start_time", "")
+                end_time = data.get("end_time", "")
+                reason = data.get("reason", "")
+                work_type = data.get("work_type", "연장근무")
+
+                # 근무구분 선택 (라디오 또는 선택 버튼)
+                if work_type:
+                    for sel in [f"text={work_type}", f"input[value='{work_type}']"]:
+                        try:
+                            el = page.locator(sel).first
+                            if el.is_visible(timeout=1500):
+                                el.click(force=True)
+                                logger.info(f"근무구분 선택: {work_type}")
+                                break
+                        except Exception:
+                            continue
+
+                # 날짜 입력
+                for label in ["연장근무시작일", "근무일", "시작일"]:
+                    try:
+                        if self._fill_field_by_label(label, work_date):
+                            logger.info(f"날짜 필드 '{label}' 입력: {work_date}")
+                            break
+                    except Exception:
+                        continue
+
+                # 시작/종료 시간
+                for label in ["시작시간", "시작"]:
+                    try:
+                        if start_time and self._fill_field_by_label(label, start_time):
+                            logger.info(f"시작시간 입력: {start_time}")
+                            break
+                    except Exception:
+                        continue
+
+                for label in ["종료시간", "종료"]:
+                    try:
+                        if end_time and self._fill_field_by_label(label, end_time):
+                            logger.info(f"종료시간 입력: {end_time}")
+                            break
+                    except Exception:
+                        continue
+
+                # 비고/사유
+                if reason:
+                    for label in ["비고", "사유", "내용"]:
+                        try:
+                            if self._fill_field_by_label(label, reason):
+                                logger.info(f"사유 입력: {reason}")
+                                break
+                        except Exception:
+                            continue
+
+                save_mode = data.get("save_mode", "verify")
+                if save_mode == "submit":
+                    # 신청완료 버튼 클릭
+                    for btn_text in ["신청완료", "저장", "상신", "완료"]:
+                        try:
+                            btn = page.locator(f"button:has-text('{btn_text}')").first
+                            if btn.is_visible(timeout=2000):
+                                btn.click(force=True)
+                                page.wait_for_timeout(2000)
+                                logger.info(f"연장근무신청서 신청완료 클릭: {btn_text}")
+                                return {"success": True, "message": "연장근무신청서가 신청 완료되었습니다."}
+                        except Exception:
+                            continue
+                    return {"success": False, "message": "신청완료 버튼을 찾을 수 없습니다. 화면을 확인해주세요."}
+                else:
+                    # verify 모드: 필드 채우기만 확인
+                    _save_debug(page, "overtime_verify")
+                    return {"success": True, "message": "연장근무신청서 필드 작성이 완료되었습니다. 내용을 확인 후 신청해주세요."}
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"연장근무신청서 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+            except Exception as e:
+                last_error = e
+                logger.error(f"연장근무신청서 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        return {"success": False, "message": f"연장근무신청서 작성 실패: {str(last_error)}"}
+
+    def create_outside_work_request(self, data: dict) -> dict:
         """
-        외근신청서(당일) 작성
+        외근신청서(당일) 작성 (근태관리 모듈)
 
         Args:
             data: {
                 "title": "제목",
-                "work_date": "외근일 (YYYY-MM-DD)",
+                "work_date": "YYYY-MM-DD",
                 "destination": "방문처",
-                "purpose": "외근사유",
-                "start_time": "출발시간 (HH:MM, 선택)",
-                "end_time": "복귀시간 (HH:MM, 선택)",
+                "purpose": "외근사유/업무내용",
+                "start_time": "HH:MM",         # 선택
+                "end_time": "HH:MM",           # 선택
+                "work_type": "종일외근",        # 외근구분 (종일외근/외근후출근/출근후외근)
+                "transport": "대중교통",         # 교통수단 (선택)
+                "save_mode": "submit",
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "외근신청 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
 
-    def create_referral_bonus_request(self, _data: dict) -> dict:
+        page = self.page
+        last_error = None
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+                self._navigate_to_approval_home()
+                self._click_write_approval()
+                page.wait_for_timeout(1500)
+
+                # 외근신청서 검색 및 선택
+                form_found = False
+                for kw in ["외근신청서", "외근신청서(당일)", "외근"]:
+                    try:
+                        for sel in ["input[placeholder*='검색']", "input[type='search']", "input.OBTTextField"]:
+                            try:
+                                inp = page.locator(sel).first
+                                if inp.is_visible(timeout=2000):
+                                    inp.fill(kw)
+                                    inp.press("Enter")
+                                    page.wait_for_timeout(1500)
+                                    break
+                            except Exception:
+                                continue
+                        link = page.locator("text=외근신청서").first
+                        if link.is_visible(timeout=3000):
+                            link.click(force=True)
+                            page.wait_for_timeout(3000)
+                            form_found = True
+                            logger.info("외근신청서 양식 클릭 완료")
+                            break
+                    except Exception:
+                        continue
+
+                if not form_found:
+                    raise Exception("외근신청서 양식을 찾을 수 없습니다.")
+
+                # 필드 채우기
+                work_date = data.get("work_date", "")
+                destination = data.get("destination", "")
+                purpose = data.get("purpose", "")
+                start_time = data.get("start_time", "")
+                end_time = data.get("end_time", "")
+                work_type = data.get("work_type", "")
+                transport = data.get("transport", "")
+
+                # 외근구분 선택
+                if work_type:
+                    for sel in [f"text={work_type}", f"input[value='{work_type}']"]:
+                        try:
+                            el = page.locator(sel).first
+                            if el.is_visible(timeout=1500):
+                                el.click(force=True)
+                                logger.info(f"외근구분 선택: {work_type}")
+                                break
+                        except Exception:
+                            continue
+
+                # 날짜
+                for label in ["외근기간", "외근일", "날짜"]:
+                    try:
+                        if work_date and self._fill_field_by_label(label, work_date):
+                            logger.info(f"날짜 입력: {work_date}")
+                            break
+                    except Exception:
+                        continue
+
+                # 시간
+                if start_time:
+                    for label in ["시작시간", "출발시간"]:
+                        try:
+                            if self._fill_field_by_label(label, start_time):
+                                break
+                        except Exception:
+                            continue
+                if end_time:
+                    for label in ["종료시간", "복귀시간"]:
+                        try:
+                            if self._fill_field_by_label(label, end_time):
+                                break
+                        except Exception:
+                            continue
+
+                # 방문처/교통수단/업무내용
+                if destination:
+                    for label in ["방문처", "목적지"]:
+                        try:
+                            if self._fill_field_by_label(label, destination):
+                                break
+                        except Exception:
+                            continue
+                if transport:
+                    for label in ["교통수단"]:
+                        try:
+                            if self._fill_field_by_label(label, transport):
+                                break
+                        except Exception:
+                            continue
+                if purpose:
+                    for label in ["업무내용", "외근사유", "내용", "사유"]:
+                        try:
+                            if self._fill_field_by_label(label, purpose):
+                                break
+                        except Exception:
+                            continue
+
+                save_mode = data.get("save_mode", "verify")
+                if save_mode == "submit":
+                    for btn_text in ["저장", "신청완료", "상신", "완료"]:
+                        try:
+                            btn = page.locator(f"button:has-text('{btn_text}')").first
+                            if btn.is_visible(timeout=2000):
+                                btn.click(force=True)
+                                page.wait_for_timeout(2000)
+                                logger.info(f"외근신청서 저장 클릭: {btn_text}")
+                                return {"success": True, "message": "외근신청서가 신청 완료되었습니다."}
+                        except Exception:
+                            continue
+                    return {"success": False, "message": "저장 버튼을 찾을 수 없습니다. 화면을 확인해주세요."}
+                else:
+                    _save_debug(page, "outside_work_verify")
+                    return {"success": True, "message": "외근신청서 필드 작성이 완료되었습니다. 내용을 확인 후 신청해주세요."}
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"외근신청서 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+            except Exception as e:
+                last_error = e
+                logger.error(f"외근신청서 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        return {"success": False, "message": f"외근신청서 작성 실패: {str(last_error)}"}
+
+    def create_referral_bonus_request(self, data: dict) -> dict:
         """
         사내추천비 자금 요청서 작성
+
+        전자결재 양식. 결재작성 → "사내추천비" 검색 → "사내추천비 지급 요청서" 선택.
 
         Args:
             data: {
                 "title": "제목",
                 "recommended_person": "추천대상자",
                 "recommender": "추천인",
-                "amount": 요청금액(숫자),
+                "amount": 요청금액,
                 "purpose": "사용목적",
                 "description": "상세내용 (선택)",
+                "save_mode": "submit",
             }
         Returns:
             {"success": bool, "message": str}
         """
-        # TODO: DOM 탐색 후 구현
-        return {"success": False, "message": "사내추천비 양식은 아직 DOM 탐색이 완료되지 않았습니다."}
+        validation = self._validate_required_fields(data, ["title"], "사내추천비요청서")
+        if validation:
+            return validation
+
+        if not self._check_session_valid():
+            return {"success": False, "message": "세션이 만료되었습니다. 다시 로그인해주세요."}
+
+        page = self.page
+        last_error = None
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                self._close_popups()
+                self._navigate_to_approval_home()
+                self._click_write_approval()
+                page.wait_for_timeout(1500)
+
+                # 사내추천비 검색 및 클릭
+                form_found = False
+                for search_kw in ["사내추천비"]:
+                    try:
+                        for sel in ["input[placeholder*='검색']", "input[type='search']", "input.OBTTextField"]:
+                            try:
+                                inp = page.locator(sel).first
+                                if inp.is_visible(timeout=2000):
+                                    inp.fill(search_kw)
+                                    inp.press("Enter")
+                                    page.wait_for_timeout(2000)
+                                    break
+                            except Exception:
+                                continue
+
+                        for click_kw in ["사내추천비 지급 요청서", "사내추천비지급요청서", "사내추천비"]:
+                            link = page.locator(f"text={click_kw}").first
+                            if link.is_visible(timeout=2000):
+                                link.click(force=True)
+                                page.wait_for_timeout(3000)
+                                form_found = True
+                                logger.info(f"사내추천비 요청서 클릭: {click_kw}")
+                                break
+                        if form_found:
+                            break
+                    except Exception:
+                        continue
+
+                if not form_found:
+                    raise Exception("사내추천비 지급 요청서 양식을 찾을 수 없습니다.")
+
+                # 양식 로드 대기
+                try:
+                    page.locator("th:has-text('제목')").first.wait_for(state="visible", timeout=10000)
+                except Exception:
+                    raise Exception("사내추천비 요청서 양식 로드 실패")
+
+                # 필드 채우기
+                field_map = [
+                    ("제목", data.get("title", "")),
+                    ("추천대상자", data.get("recommended_person", "")),
+                    ("추천인", data.get("recommender", "")),
+                    ("요청금액", str(data.get("amount", "")) if data.get("amount") else ""),
+                    ("금액", str(data.get("amount", "")) if data.get("amount") else ""),
+                    ("사용목적", data.get("purpose", "")),
+                    ("상세내용", data.get("description", "")),
+                    ("내용", data.get("description", "")),
+                ]
+                for label, value in field_map:
+                    if value:
+                        self._fill_field_by_label(label, value)
+
+                # 결재선 설정
+                if data.get("approval_line"):
+                    resolved_line = resolve_approval_line(data["approval_line"], "사내추천비")
+                    self.set_approval_line(page, resolved_line)
+
+                save_mode = data.get("save_mode", "verify")
+                if save_mode == "submit":
+                    result = self._submit_inline_form()
+                    return result
+                else:
+                    _save_debug(page, "referral_bonus_verify")
+                    return {"success": True, "message": "사내추천비 요청서 필드 작성이 완료되었습니다. 내용을 확인 후 상신해주세요."}
+
+            except PlaywrightTimeout as e:
+                last_error = e
+                logger.warning(f"사내추천비 요청서 타임아웃 (시도 {attempt}/{MAX_RETRIES}): {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+            except Exception as e:
+                last_error = e
+                logger.error(f"사내추천비 요청서 실패 (시도 {attempt}/{MAX_RETRIES}): {e}", exc_info=True)
+                if attempt < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY)
+
+        return {"success": False, "message": f"사내추천비 요청서 작성 실패: {str(last_error)}"}
 
     def create_form(self, form_key: str, data: dict) -> dict:
         """

@@ -118,17 +118,23 @@
 - 💡 설명:
   - OBTGrid: 더존 GW의 canvas 기반 그리드 위젯으로, HTML 행(tr/td) 요소가 없어 DOM 셀렉터로 접근 불가. 좌표 기반 클릭만 유효합니다.
   - 더블클릭 = 행 선택 + 모달 자동 닫기 (사용자 확인 완료)
+- **세션 XII 코드 개선 (실 테스트 대기 중)**:
+  - `full_test.py` T6 assert 전 상세 에러 로그 추가 (`result` 전체 출력, `logger.error`)
+  - `approval_automation.py` step 10 진입 시 `row_count == 0`이면 최대 3초 추가 대기 루프 삽입
+  - **실 GW 테스트는 미실행** (코드 수정만 완료, 결과 확인 필요)
 
-### [ ] Task 12. RealGrid 그리드 instance 이름 탐색 (용도코드/지급요청일 전체 행 입력)
+### [x] Task 12. RealGrid → OBTDataGrid instance 탐색 (용도코드/지급요청일 전체 행 입력) ✅ (세션 XI 완료)
 - 상세 내용:
   현재 `window.gridView`, `window.grid`, `window.expenseGrid` 등으로 RealGrid API 접근을 시도하지만 모두 null을 반환합니다.
   지출내역 그리드의 실제 JavaScript 변수명을 찾아야 전체 행에 용도코드(5020)와 지급요청일을 일괄 입력할 수 있습니다.
-  **해결 방법 후보:**
-  1. 브라우저 DevTools에서 `window` 객체 전체 순회하여 RealGrid instance 탐색
-  2. DOM에서 RealGrid 컨테이너를 찾아 `__realgrid__` 속성으로 접근
-  3. 좌표 기반 폴백 — 각 행마다 셀 클릭 → 값 입력 → Tab/Enter (행 수가 적으면 유효)
+  **해결 완료 (세션 XI):**
+  - RealGrid가 아님 → **OBTDataGrid** (더존 자체 React 컴포넌트, 내부 RealGrid 래핑)
+  - 접근 경로: `.OBTDataGrid_grid__22Vfl` → `__reactFiber` → depth 3 → `stateNode.state.interface`
+  - 구현: `approval_automation.py` step 10(용도코드), step 10-1(지급요청일) — OBTDataGrid API로 전체 행 입력
+  - `getRowCount()`, `getColumns()`, `setSelection()`, `focus()`, `commit()`, `setValue()` 사용
+  - 세션 XII 추가: step 10 진입 시 row_count=0이면 최대 3초 재대기 루프 추가
 - 💡 설명:
-  - RealGrid: 더존 GW에서 사용하는 데이터 그리드 라이브러리. API를 통해 셀 값을 직접 설정할 수 있으나, JS 변수명을 알아야 접근 가능합니다.
+  - OBTDataGrid: 더존 GW의 canvas 기반 React 그리드. `window.gridView` 전역변수 없음.
 - **선행 조건**: Task 11 완료 후 진행 (세금계산서 1건 선택 시 그리드 행 수가 줄어들 수 있음)
 
 ### [ ] Task 13. 예산과목 필드 재조사 및 수정
@@ -141,18 +147,35 @@
 - 💡 설명:
   - 예산과목: 회사 예산을 관리하는 분류 코드(2xxx 계열). "공통 예산잔액 조회" 팝업에서 프로젝트 검색 후 선택하는 구조입니다.
 - **선행 조건**: Task 12 완료 후 진행 (용도코드 입력 후 예산과목 활성화 여부 확인)
+- **세션 XII 코드 개선 (실 테스트 대기 중)**:
+  - `budget_helpers._click_budget_field()` 풀스크린 대응 수정
+    - `y > 800` 고정값 → viewport 높이 60% 기준 동적 임계값으로 변경
+    - 폴백 단계 2개 추가: 완화 임계값(20%) → placeholder 무관 첫 번째
+    - placeholder에 "코드도움" 포함 시 모달 내부 필드로 판단, 명시적 제외
+    - 경고 로그에 viewport_height / y_threshold 값 포함 (진단 용이)
 
 ### [ ] Task 14. 부적합 사유 개별 분석 및 해결 전략 정리
 - 상세 내용:
   마지막 테스트(v3) 부적합 사유를 개별 분석하여 해결 방법을 각각 정리합니다.
   **확인된 부적합 사유:**
-  1. `N번 행의 용도코드(값) 입력해주세요` → Task 12에서 해결
-  2. `N번 행의 지급요청일등(값) 입력해주세요` → Task 12에서 해결
-  3. 예산과목 미입력 → Task 13에서 해결
+  1. `N번 행의 용도코드(값) 입력해주세요` → Task 12에서 해결 (OBTDataGrid API)
+  2. `N번 행의 지급요청일등(값) 입력해주세요` → Task 12에서 해결 (OBTDataGrid API)
+  3. 예산과목 미입력 → Task 13 코드 개선 완료, 실 테스트 대기 중
   세금계산서 1건 선택 후 그리드 행 수가 줄어들면 부적합 사유도 크게 감소할 것으로 예상됩니다.
 - **선행 조건**: Task 11 테스트 결과 기반으로 남은 부적합 사유 재정리
+- **세션 XII 분석 결과**:
+  - 부적합 1, 2: step 10/10-1 OBTDataGrid API 코드 이미 존재, step 10 진입 시 row_count=0 재대기 추가
+  - 부적합 3: `_click_budget_field()` y 임계값 문제 가능성 높음 → 풀스크린 대응 코드 개선 완료
+  - 세금계산서 전건 선택 문제: modal_top+215 이미 적용 완료 (세션 X)
+  - 남은 위험 요소: 용도코드 입력 후 예산과목 필드 활성화 여부는 실 테스트로만 확인 가능
 
-### [ ] Task 15. 메일 요약 Notion 저장 활성화
+### [x] Task 15. 메일 요약 Notion 저장 활성화 ✅ (세션 XI 완료)
 - 상세 내용:
   코드 구현은 완료된 상태이며, `config/.env`에 `NOTION_PAGE_ID` 환경변수 설정이 필요합니다.
   사용자가 Notion 페이지 URL을 제공하면 설정 후 `/mail` 또는 `/mailcheck` 명령으로 메일 요약 → Notion 저장 테스트를 진행합니다.
+- **완료 내용 (세션 XI)**:
+  - `src/notion/client.py`: `save_mail_summaries()` 반환값 `str | None`으로 변경, 저장 성공 시 페이지 URL 반환 및 `"메일 요약 Notion 저장 완료: {page_url}"` 로그 출력
+  - `src/notion/client.py`: `get_page_url()` 헬퍼 함수 추가 (page_id → Notion URL 변환)
+  - `src/mail/summarizer.py`: `run_for_chatbot()`, `run_mail_push_for_user()`, `run()` 3곳 모두 반환된 page_url 로그에 반영
+  - `config/.env.example`: NOTION_API_KEY, NOTION_PAGE_ID, NOTION_WORKSPACE 포함 전체 환경변수 예시 파일 신규 생성
+  - `config/.env`: NOTION_API_KEY, NOTION_PAGE_ID, NOTION_WORKSPACE 모두 설정 확인됨 (활성 상태)

@@ -1,0 +1,288 @@
+[
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn search animated1s swing delay1s",
+    "rect": {
+      "x": 1690,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn alert animated1s swing delay1s",
+    "rect": {
+      "x": 1726,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn org animated1s swing delay1s",
+    "rect": {
+      "x": 1762,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn notice animated1s swing delay1s",
+    "rect": {
+      "x": 1798,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn manual animated1s swing delay1s",
+    "rect": {
+      "x": 1834,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "",
+    "tag": "span",
+    "id": "",
+    "href": "",
+    "className": "btn more animated1s swing delay1s",
+    "rect": {
+      "x": 1870,
+      "y": 10,
+      "w": 30,
+      "h": 30
+    }
+  },
+  {
+    "text": "결재작성",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_sideRegi",
+    "rect": {
+      "x": 60,
+      "y": 106,
+      "w": 169,
+      "h": 34
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typeicon__S77xC OBTButton_themedefault__1Cwgq OBTPageContainer_systemButton__1QBZt",
+    "rect": {
+      "x": 1847,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typeicon__S77xC OBTButton_themedefault__1Cwgq OBTPageContainer_systemButton__1QBZt",
+    "rect": {
+      "x": 1875,
+      "y": 106,
+      "w": 25,
+      "h": 25
+    }
+  },
+  {
+    "text": "전체",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_total on",
+    "rect": {
+      "x": 368,
+      "y": 341,
+      "w": 42,
+      "h": 27
+    }
+  },
+  {
+    "text": "진행",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_ing ",
+    "rect": {
+      "x": 414,
+      "y": 341,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "종결",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_confirm ",
+    "rect": {
+      "x": 462,
+      "y": 341,
+      "w": 44,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 402,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 482,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 562,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 642,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 722,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 898,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 978,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 1058,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 1138,
+      "w": 20,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "href": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+    "rect": {
+      "x": 1492,
+      "y": 1218,
+      "w": 20,
+      "h": 27
+    }
+  }
+]

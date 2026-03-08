@@ -113,38 +113,74 @@ def _save_debug_screenshot(page: Page, name: str):
 
 
 def _click_budget_field(page: Page):
-    """단계 12: 하단 테이블의 예산과목 필드 클릭."""
-    # 메인 폼의 예산과목 input (모달 내부의 예산과목코드도움과 구분)
+    """단계 12: 하단 테이블의 예산과목 필드 클릭.
+
+    풀스크린 모드 대응: y > 800 고정값 대신 화면 높이 비율(60% 이상)로 판단.
+    placeholder='예산과목코드도움'(모달 내부) 제외, placeholder='예산과목'(메인 폼) 우선.
+    """
+    # 메인 폼의 예산과목 input (모달 내부의 '예산과목코드도움'과 구분)
     selectors = [
         "input[placeholder='예산과목']",
         "input[placeholder*='예산과목']",
     ]
+
+    # 화면 높이 기준 y 임계값 동적 계산 (풀스크린 대응)
+    try:
+        viewport_height = page.viewport_size["height"] if page.viewport_size else 900
+    except Exception:
+        viewport_height = 900
+    # 화면 하단 40% 영역 (예: 900px → y > 540, 1080px → y > 648)
+    y_threshold = viewport_height * 0.6
+
     for sel in selectors:
         try:
             inputs = page.locator(sel).all()
             for inp in inputs:
-                if inp.is_visible(timeout=2000):
-                    # 모달 내 '예산과목코드도움'과 구분: 메인 폼의 필드는 y > 900 (하단 영역)
-                    box = inp.bounding_box()
-                    if box and box["y"] > 800:
-                        inp.click(force=True)
-                        logger.info(f"예산과목 필드 클릭: {sel} (y={box['y']:.0f})")
-                        return inp
+                if not inp.is_visible(timeout=2000):
+                    continue
+                # 'placeholder가 예산과목코드도움'인 것은 모달 내부 필드 — 제외
+                ph = inp.get_attribute("placeholder") or ""
+                if "코드도움" in ph:
+                    continue
+                box = inp.bounding_box()
+                if box and box["y"] > y_threshold:
+                    inp.click(force=True)
+                    logger.info(f"예산과목 필드 클릭: {sel} (y={box['y']:.0f}, threshold={y_threshold:.0f})")
+                    return inp
         except Exception:
             continue
 
-    # 폴백: y 위치 무관하게 첫 번째
+    # 폴백 1: y 임계값 완화 (화면 상단 20% 이상이면 허용)
+    y_min = viewport_height * 0.2
+    for sel in selectors:
+        try:
+            inputs = page.locator(sel).all()
+            for inp in inputs:
+                if not inp.is_visible(timeout=2000):
+                    continue
+                ph = inp.get_attribute("placeholder") or ""
+                if "코드도움" in ph:
+                    continue
+                box = inp.bounding_box()
+                if box and box["y"] > y_min:
+                    inp.click(force=True)
+                    logger.info(f"예산과목 필드 클릭 (완화 임계값): {sel} (y={box['y']:.0f})")
+                    return inp
+        except Exception:
+            continue
+
+    # 폴백 2: placeholder 무관 첫 번째 visible
     for sel in selectors:
         try:
             inp = page.locator(sel).first
             if inp.is_visible(timeout=2000):
                 inp.click(force=True)
-                logger.info(f"예산과목 필드 클릭 (폴백): {sel}")
+                logger.info(f"예산과목 필드 클릭 (최종 폴백): {sel}")
                 return inp
         except Exception:
             continue
 
-    logger.warning("예산과목 필드를 찾을 수 없음")
+    logger.warning(f"예산과목 필드를 찾을 수 없음 (y_threshold={y_threshold:.0f}, viewport_height={viewport_height})")
     return None
 
 

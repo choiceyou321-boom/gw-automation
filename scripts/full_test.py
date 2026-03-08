@@ -595,8 +595,17 @@ class FullTestRunner:
             "accounting_date": "",
             "save_mode": "draft",      # 결재상신→팝업→보관 흐름
         })
+        if not result.get("success"):
+            # 실패 시 상세 정보 로그 출력 (원인 분석용)
+            msg = result.get("message", "(메시지 없음)")
+            debug_keys = {k: v for k, v in result.items() if k != "success"}
+            logger.error(f"T6 지출결의서 임시보관 실패 — message: {msg}")
+            logger.error(f"T6 result 전체: {debug_keys}")
+            # 스크린샷 경로가 있으면 로그에 포함
+            if result.get("screenshot"):
+                logger.error(f"T6 실패 스크린샷: {result['screenshot']}")
         assert result.get("success"), f"지출결의서 임시보관 실패: {result.get('message')}"
-        logger.debug(f"  지출결의서 임시보관 성공: {title}")
+        logger.info(f"  지출결의서 임시보관 성공: {title}")
 
         # 임시보관문서 삭제 cleanup 등록
         self.cleanup_tasks.append((

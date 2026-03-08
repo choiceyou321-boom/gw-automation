@@ -1,0 +1,45 @@
+{
+  "captured_requests": [],
+  "popup_buttons": [
+    "미리보기",
+    "보관",
+    "상신"
+  ],
+  "inline_buttons": [
+    {
+      "tag": "BUTTON",
+      "text": "문서목록",
+      "class": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_pr"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "다시쓰기",
+      "class": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_pr"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "결재상신",
+      "class": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_pr"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "class": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_syste"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "class": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_syste"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "class": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_syste"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "class": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_syste"
+    }
+  ]
+}

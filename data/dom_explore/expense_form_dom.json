@@ -1,0 +1,3322 @@
+{
+  "toolbar_topBtn": [],
+  "save_related": [
+    {
+      "tag": "HTML",
+      "text": "예산관리\n임직원업무관리\n전자결재\n메일\n일정\n자원\n게시판\n업무관리\nONEFFICE\nONECHAMBER\n오피스케어\n위로\n아래로\n부가서비스\n지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "visible": true
+    },
+    {
+      "tag": "BODY",
+      "text": "예산관리\n임직원업무관리\n전자결재\n메일\n일정\n자원\n게시판\n업무관리\nONEFFICE\nONECHAMBER\n오피스케어\n위로\n아래로\n부가서비스\n지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "예산관리\n임직원업무관리\n전자결재\n메일\n일정\n자원\n게시판\n업무관리\nONEFFICE\nONECHAMBER\n오피스케어\n위로\n아래로\n부가서비스\n지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다",
+      "id": "wrap",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "예산관리\n임직원업무관리\n전자결재\n메일\n일정\n자원\n게시판\n업무관리\nONEFFICE\nONECHAMBER\n오피스케어\n위로\n아래로\n부가서비스\n지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다",
+      "id": "klagoWrap",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기\n전태규\n주식회사 글로우서울 PM팀\n49\n임직원업무관리\n세법도우미\n온라인문의\n마이페이지\n근태관리\n인사관리\n급여",
+      "id": "containerWrap",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "width": 1232,
+        "height": 720
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출결의서작성\n문서목록\n다시쓰기\n결재상신\n양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다",
+      "id": "contents",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 94,
+        "width": 1032,
+        "height": 626
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출결의서작성\n문서목록\n다시쓰기\n결재상신\n양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다",
+      "id": "micro-menu-e307bdb4-466a-4b98-b142-9fb0e86d44ec",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 94,
+        "width": 1032,
+        "height": 626
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출결의서작성\n문서목록\n다시쓰기\n결재상신\n양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다",
+      "id": "",
+      "className": "OBTPageContainer_root__ZiSjR",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 94,
+        "width": 1032,
+        "height": 626
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTPageContainer_section__1BEdq OBTPageContainer_floatSideBar__1d7Zc",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 144,
+        "width": 1032,
+        "height": 576
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTPageContainer_contentsWrapper__1jaSj",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 144,
+        "width": 1032,
+        "height": 576
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTPageContainer_contents__3nJlO",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_root__15rw5 wrap-content APB1020",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_middle__2nl2e",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_fill__3r_NH",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_root__15rw5 wrap-content APB1020",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_middle__2nl2e",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "양식목록\n[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 ",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 268,
+        "y": 164,
+        "width": 992,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출정보( 작성자/작성부서:전태규/PM팀 )\n회계단위\n\t\n\t\n회계처리일자 (예산결의일)\n\t\n\n\n품의서첨부\n\t\n선택\n\t\n첨부파일\n\t\n\n\n프로젝트\n\t\n\t\n전표처리구분\n\t\n지출결의서별\n지출내역별\n\n\n제목\n\t\n\t\n자금집행전용\n\t\n부\n여\n지출내역\n카드사용내역\n계산서내역\n현금영수",
+      "id": "",
+      "className": "OBTDockPanel_fill__3r_NH",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 164,
+        "width": 642,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출정보( 작성자/작성부서:전태규/PM팀 )\n회계단위\n\t\n\t\n회계처리일자 (예산결의일)\n\t\n\n\n품의서첨부\n\t\n선택\n\t\n첨부파일\n\t\n\n\n프로젝트\n\t\n\t\n전표처리구분\n\t\n지출결의서별\n지출내역별\n\n\n제목\n\t\n\t\n자금집행전용\n\t\n부\n여\n지출내역\n카드사용내역\n계산서내역\n현금영수",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 164,
+        "width": 642,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출정보( 작성자/작성부서:전태규/PM팀 )\n회계단위\n\t\n\t\n회계처리일자 (예산결의일)\n\t\n\n\n품의서첨부\n\t\n선택\n\t\n첨부파일\n\t\n\n\n프로젝트\n\t\n\t\n전표처리구분\n\t\n지출결의서별\n지출내역별\n\n\n제목\n\t\n\t\n자금집행전용\n\t\n부\n여\n지출내역\n카드사용내역\n계산서내역\n현금영수",
+      "id": "",
+      "className": "OBTDockPanel_root__15rw5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 164,
+        "width": 642,
+        "height": 536
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출내역\n카드사용내역\n계산서내역\n현금영수증\nEXCEL\n열기\n예금주실명\n추가\n삭제\n0%",
+      "id": "",
+      "className": "OBTDockPanel_middle__2nl2e",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 382,
+        "width": 642,
+        "height": 84
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출내역\n카드사용내역\n계산서내역\n현금영수증\nEXCEL\n열기\n예금주실명\n추가\n삭제\n0%",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 382,
+        "width": 642,
+        "height": 84
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출내역\n카드사용내역\n계산서내역\n현금영수증\nEXCEL\n열기\n예금주실명\n추가\n삭제\n0%",
+      "id": "",
+      "className": "OBTDockPanel_fill__3r_NH",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 382,
+        "width": 642,
+        "height": 84
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "지출내역\n카드사용내역\n계산서내역\n현금영수증\nEXCEL\n열기\n예금주실명\n추가\n삭제\n0%",
+      "id": "",
+      "className": "OBTDockPanel_wrapper__39ttv",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 618,
+        "y": 382,
+        "width": 642,
+        "height": 84
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "전자계산서 (공급받는자보관용)승인번호공급자등록번호종사업장번호공급받는자등록번호종사업장번호상호성명상호성명사업장사업장업태종목업태종목이메일이메일이메일작성일자공급가액세액비고00월일품목규격수량단가공급가액세액비고합계금액현금수표어음외상미수금이 금액을()0000",
+      "id": "APB1020Capture-etax-area",
+      "className": "ABP1020FormEtaxLayer",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "전자계산서 (공급받는자보관용)승인번호공급자등록번호종사업장번호공급받는자등록번호종사업장번호상호성명상호성명사업장사업장업태종목업태종목이메일이메일이메일작성일자공급가액세액비고00월일품목규격수량단가공급가액세액비고합계금액현금수표어음외상미수금이 금액을()0000",
+      "id": "",
+      "className": "wrap-content",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "전자계산서 (공급받는자보관용)승인번호공급자등록번호종사업장번호공급받는자등록번호종사업장번호상호성명상호성명사업장사업장업태종목업태종목이메일이메일이메일작성일자공급가액세액비고00월일품목규격수량단가공급가액세액비고합계금액현금수표어음외상미수금이 금액을()0000",
+      "id": "",
+      "className": "ABP1020FormEtax wrap-content3",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "전자계산서 (공급받는자보관용)승인번호공급자등록번호종사업장번호공급받는자등록번호종사업장번호상호성명상호성명사업장사업장업태종목업태종목이메일이메일이메일작성일자공급가액세액비고00월일품목규격수량단가공급가액세액비고합계금액현금수표어음외상미수금이 금액을()0000",
+      "id": "",
+      "className": "tax-invoice",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    }
+  ],
+  "all_buttons": [
+    {
+      "tag": "BUTTON",
+      "text": "모두읽음",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typesmall__3toy9 OBTButton_themedefault__1Cwgq OBTButton_small__3geAP allRead ml20",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "설정",
+      "id": "",
+      "className": "OBTTooltip_root__3Hfed settingBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "prevBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "nextBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "세법도우미",
+      "id": "",
+      "className": "onlineBtn avatar_rb",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1063.59375,
+        "y": 58.5,
+        "width": 95.203125,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "온라인문의",
+      "id": "",
+      "className": "onlineBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1164.796875,
+        "y": 58.5,
+        "width": 95.203125,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "결재작성",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_sideRegi",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "sbBtn flex on",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typeicon__S77xC OBTButton_themedefault__1Cwgq OBTPageContainer_systemButton__1QBZt",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typeicon__S77xC OBTButton_themedefault__1Cwgq OBTPageContainer_systemButton__1QBZt",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "전체",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_total on",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "진행",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_ing ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "종결",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_confirm ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "결재라인보기",
+      "id": "",
+      "className": "btn_info",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_eapLine",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "문서목록",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton__sqHOA",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 904.484375,
+        "y": 105,
+        "width": 66.171875,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "다시쓰기",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton__sqHOA",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 973.65625,
+        "y": 105,
+        "width": 66.171875,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "결재상신",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTPageContainer_primaryFunctionButton__sqHOA",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1053.828125,
+        "y": 105,
+        "width": 86.171875,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG OBTPageContainer_backgroundColorNone__K2J0A",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1151,
+        "y": 106,
+        "width": 25,
+        "height": 25
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1179,
+        "y": 106,
+        "width": 25,
+        "height": 25
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1207,
+        "y": 106,
+        "width": 25,
+        "height": 25
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typeicon__3IMDU OBTButton_themedefault__Px-_H OBTPageContainer_systemButton__3dlrG",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1235,
+        "y": 106,
+        "width": 25,
+        "height": 25
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 903.984375,
+        "y": 210.5,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "선택",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 887.890625,
+        "y": 255,
+        "width": 44.09375,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1225,
+        "y": 255,
+        "width": 27,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 903.984375,
+        "y": 297,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "카드사용내역\n계산서내역\n현금영수증\nEXCEL\n열기\n예금주실명\n추가\n삭제",
+      "id": "",
+      "className": "btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 674.734375,
+        "y": 382,
+        "width": 570.265625,
+        "height": 54
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 758.984375,
+        "y": 382,
+        "width": 27,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H img-btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 789.984375,
+        "y": 382,
+        "width": 27,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "카드사용내역",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 820.984375,
+        "y": 382,
+        "width": 88.25,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "계산서내역",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 913.234375,
+        "y": 382,
+        "width": 77.203125,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "현금영수증",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 994.4375,
+        "y": 382,
+        "width": 77.203125,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "EXCEL\n열기",
+      "id": "",
+      "className": "LS_splitbtn size_m",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1075.640625,
+        "y": 382,
+        "width": 67.15625,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "EXCEL\n열기",
+      "id": "",
+      "className": "btngroup",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1075.640625,
+        "y": 382,
+        "width": 67.15625,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "EXCEL",
+      "id": "",
+      "className": "LS_btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 1075.640625,
+        "y": 382,
+        "width": 51.15625,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "열기",
+      "id": "",
+      "className": "LS_btn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 1126.796875,
+        "y": 382,
+        "width": 16,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "예금주실명",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1146.796875,
+        "y": 382,
+        "width": 77.203125,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "추가",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1152.8125,
+        "y": 409,
+        "width": 44.09375,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "삭제",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1200.90625,
+        "y": 409,
+        "width": 44.09375,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 1224,
+        "y": 512.5,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 732.28125,
+        "y": 571.5,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 796.9375,
+        "y": 571.5,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "실명",
+      "id": "",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1207.90625,
+        "y": 570.5,
+        "width": 44.09375,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 796.9375,
+        "y": 619,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 1010.375,
+        "y": 619,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 1225,
+        "y": 615.5,
+        "width": 27,
+        "height": 27
+      },
+      "visible": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {
+        "x": 796.9375,
+        "y": 666.5,
+        "width": 27,
+        "height": 20
+      },
+      "visible": true
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "btnBox",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "newPortalScrollSignBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "prevBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "text": "",
+      "id": "",
+      "className": "nextBtn",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "1",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "2",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "3",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "4",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "5",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "6",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "7",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "8",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "9",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "10",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "11",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "12",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "13",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "14",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "15",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "16",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "17",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "18",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "19",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "20",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "21",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "22",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "23",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "24",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "25",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "26",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "27",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "button",
+      "value": "",
+      "rect": {},
+      "visible": false
+    }
+  ],
+  "project_inputs": [
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "프로젝트코드도움",
+      "name": "",
+      "type": "text",
+      "value": "GS-25-0031. [단양] 고수동굴",
+      "rect": {
+        "x": 736.046875,
+        "y": 300.5,
+        "width": 167.9375,
+        "height": 18
+      },
+      "visible": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "사원코드도움",
+      "name": "",
+      "type": "text",
+      "value": "GS251105. 전태규",
+      "rect": {
+        "x": 1124.46875,
+        "y": 516,
+        "width": 99.53125,
+        "height": 18
+      },
+      "visible": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "금융기관코드도움",
+      "name": "",
+      "type": "text",
+      "value": "",
+      "rect": {
+        "x": 697.59375,
+        "y": 575,
+        "width": 34.6875,
+        "height": 18
+      },
+      "visible": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "부서코드도움",
+      "name": "",
+      "type": "text",
+      "value": "GH10330. PM팀",
+      "rect": {
+        "x": 697.59375,
+        "y": 622.5,
+        "width": 99.34375,
+        "height": 18
+      },
+      "visible": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "프로젝트코드도움",
+      "name": "",
+      "type": "text",
+      "value": "GS-25-0031. [단양] 고수동굴",
+      "rect": {
+        "x": 911.03125,
+        "y": 622.5,
+        "width": 99.34375,
+        "height": 18
+      },
+      "visible": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "업무용차량코드도움",
+      "name": "",
+      "type": "text",
+      "value": "",
+      "rect": {
+        "x": 697.59375,
+        "y": 670,
+        "width": 99.34375,
+        "height": 18
+      },
+      "visible": true
+    }
+  ],
+  "autocomplete_dom": {
+    "div[class*='AutoComplete']": [
+      {
+        "tag": "DIV",
+        "text": "",
+        "id": "",
+        "className": "AutoCompleteDialog_wrapper__2txa-",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {},
+        "visible": false
+      }
+    ],
+    "div[class*='dropdown']": [
+      {
+        "tag": "DIV",
+        "text": "전체일정",
+        "id": "",
+        "className": "OBTTooltip_root__3Hfed OBTDropDownList_default__6OVEb dropdownList",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {},
+        "visible": false
+      }
+    ],
+    "div[class*='layer']": [
+      {
+        "tag": "DIV",
+        "text": "결재작성결재 HOME마이페이지근태관리인사관리급여관리경비청구지출결의/계산서품의/지출결의품의서작성지출결의서작성개인지출결의서예산관리",
+        "id": "",
+        "className": "eapSide layer_set",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {},
+        "visible": false
+      }
+    ],
+    "div[class*='popup']": [
+      {
+        "tag": "DIV",
+        "text": "결재작성결재 HOME마이페이지근태관리인사관리급여관리경비청구지출결의/계산서품의/지출결의품의서작성지출결의서작성개인지출결의서예산관리",
+        "id": "",
+        "className": "OBTPageContainer_popupContents__30v1E",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {},
+        "visible": false
+      }
+    ],
+    "div[class*='List']": [
+      {
+        "tag": "DIV",
+        "text": "해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기",
+        "id": "",
+        "className": "cmrList",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 239,
+          "y": 61,
+          "width": 152,
+          "height": 74
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기",
+        "id": "",
+        "className": "cmrList",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 379,
+          "y": 61,
+          "width": 152,
+          "height": 74
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "전체안읽음",
+        "id": "filterListPopInside",
+        "className": "filterList01",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {},
+        "visible": false
+      },
+      {
+        "tag": "DIV",
+        "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 발행된 후",
+        "id": "",
+        "className": "OBTCardList_head__127fk card-list1",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 268,
+          "y": 197,
+          "width": 330,
+          "height": 503
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 발행된 후",
+        "id": "",
+        "className": "OBTCardList_root__9-5aV",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 268,
+          "y": 199,
+          "width": 330,
+          "height": 501
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "",
+        "id": "",
+        "className": "OBTCardList_sortstyle__2Ca9O",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 269,
+          "y": 199,
+          "width": 328,
+          "height": 9
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "",
+        "id": "",
+        "className": "OBTCardList_sortSpace__3EDFk",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 281,
+          "y": 203.5,
+          "width": 304,
+          "height": 0
+        },
+        "visible": false
+      },
+      {
+        "tag": "DIV",
+        "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.\n[본사]선급금 정산서\n선급금의 증빙이 발행된 후",
+        "id": "",
+        "className": "OBTCardList_virtualCardList__24HbJ",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 269,
+          "y": 208,
+          "width": 328,
+          "height": 491
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.",
+        "id": "",
+        "className": "OBTCardList_template1__TW3tO",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 299,
+          "y": 212,
+          "width": 259,
+          "height": 62
+        },
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.",
+        "id": "",
+        "className": "OBTCardList_template2__YT864",
+        "href": "",
+        "placeholder": "",
+        "name": "",
+        "type": "",
+        "value": "",
+        "rect": {
+          "x": 299,
+          "y": 212,
+          "width": 259,
+          "height": 62
+        },
+        "visible": true
+      }
+    ]
+  },
+  "visible_li_elements": [
+    {
+      "tag": "LI",
+      "text": "예산관리",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 56,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "임직원업무관리",
+      "id": "",
+      "className": "module-item selected",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 100,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "전자결재",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "메일",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 188,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "일정",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 232,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "자원",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 276,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "게시판",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 320,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "업무관리",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 364,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "ONEFFICE",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 408,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "ONECHAMBER",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 452,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "오피스케어",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 496,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "위로",
+      "id": "",
+      "className": "arrow-item up disabled",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 629,
+        "width": 48,
+        "height": 17
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "아래로",
+      "id": "",
+      "className": "arrow-item down disabled",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 646,
+        "width": 48,
+        "height": 17
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "부가서비스",
+      "id": "",
+      "className": "gnbService",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 673,
+        "width": 48,
+        "height": 47
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "부가서비스",
+      "id": "",
+      "className": "module-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 0,
+        "y": 676,
+        "width": 48,
+        "height": 44
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "지출결의서작성\n지출결의서작성\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기",
+      "id": "",
+      "className": "tab-item on",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 248,
+        "y": 10,
+        "width": 138,
+        "height": 32
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "해당 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 240,
+        "y": 62,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "해당 탭 제외 다른 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 240,
+        "y": 86,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "모든 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 240,
+        "y": 110,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "전자결재\n전자결재\n해당 탭 닫기\n해당 탭 제외 다른 탭 닫기\n모든 탭 닫기",
+      "id": "",
+      "className": "tab-item",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 388,
+        "y": 10,
+        "width": 138,
+        "height": 32
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "해당 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 380,
+        "y": 62,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "해당 탭 제외 다른 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 380,
+        "y": 86,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "모든 탭 닫기",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 380,
+        "y": 110,
+        "width": 150,
+        "height": 24
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "전태규\n주식회사 글로우서울 PM팀",
+      "id": "userInfoPopupBtn",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 866.078125,
+        "y": 10,
+        "width": 177.921875,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1050,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "49",
+      "id": "intergratedNotificationBtn",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1086,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1122,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1158,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1194,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "",
+      "id": "",
+      "className": "",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 1230,
+        "y": 10,
+        "width": 30,
+        "height": 34
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "마이페이지",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 95,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "근태관리",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 130,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "인사관리",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 165,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "급여관리",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 200,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "경비청구",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 235,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "지출결의/계산서\n품의/지출결의\n품의서작성\n지출결의서작성",
+      "id": "",
+      "className": "nav-item step-1 nav-item-open ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 270,
+        "width": 193,
+        "height": 128
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "품의/지출결의\n품의서작성\n지출결의서작성",
+      "id": "",
+      "className": "nav-item step-2 nav-item-open ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 309,
+        "width": 188,
+        "height": 84
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "품의서작성",
+      "id": "",
+      "className": "nav-item step-3 ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 68,
+        "y": 337,
+        "width": 168,
+        "height": 28
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "지출결의서작성",
+      "id": "",
+      "className": "nav-item step-3 selected",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 68,
+        "y": 365,
+        "width": 168,
+        "height": 28
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "개인지출결의서",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 398,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "예산관리",
+      "id": "",
+      "className": "nav-item step-1 nav-item-close ",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 48,
+        "y": 433,
+        "width": 193,
+        "height": 35
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[본사]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.",
+      "id": "virtual0",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 208,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[프로젝트]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.",
+      "id": "virtual1",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 278,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[본사]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.",
+      "id": "virtual2",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 348,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[본사]선급금 정산서\n선급금의 증빙이 발행된 후 선급금을 정산하기 위해 작성하는 양식입니다.",
+      "id": "virtual3",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 418,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[매장]지출결의서\n일반지출내역을 결재받기 위해 작성하는 양식입니다.",
+      "id": "virtual4",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 488,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[매장]선급금 요청서\n증빙 발행 전 지출내역을 결재받기 위해 작성하는 양식입니다.",
+      "id": "virtual5",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 558,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[매장]선급금 정산서\n선급금의 증빙이 발행된 후 선급금을 정산하기 위해 작성하는 양식입니다.",
+      "id": "virtual6",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 628,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[일용]지출결의서\n일용직 급여 결재를 위해 작성하는 양식입니다.",
+      "id": "virtual7",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 698,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    },
+    {
+      "tag": "LI",
+      "text": "[사업]지출결의서\n사업소득자 급여 결재를 위해 작성하는 양식입니다.",
+      "id": "virtual8",
+      "className": "OBTCardList_li_CardList__3TuN5",
+      "href": "",
+      "placeholder": "",
+      "name": "",
+      "type": "",
+      "value": "",
+      "rect": {
+        "x": 269,
+        "y": 768,
+        "width": 319,
+        "height": 70
+      },
+      "visible": true
+    }
+  ],
+  "autocomplete_raw_dom": [
+    {
+      "tag": "DIV",
+      "className": "autoText",
+      "id": "",
+      "childCount": 1,
+      "innerHTML": "<div class=\"autoTextIn\"><div class=\"OBTScrollbar_root__1U_ry\" style=\"position: relative; overflow: hidden; height: 300px;\"><div style=\"position: absolute; inset: 0px; overflow: scroll; margin-right: -15px; margin-bottom: -15px;\"></div><div style=\"position: absolute; height: 6px; transition: opacity 200ms; opacity: 0; right: 2px; bottom: 2px; left: 2px; border-radius: 3px;\"><div style=\"position: relative; display: block; height: 4px; border-radius: 2px; width: 120px; background-color: rgb(177, 19",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "className": "autoTextIn",
+      "id": "",
+      "childCount": 1,
+      "innerHTML": "<div class=\"OBTScrollbar_root__1U_ry\" style=\"position: relative; overflow: hidden; height: 300px;\"><div style=\"position: absolute; inset: 0px; overflow: scroll; margin-right: -15px; margin-bottom: -15px;\"></div><div style=\"position: absolute; height: 6px; transition: opacity 200ms; opacity: 0; right: 2px; bottom: 2px; left: 2px; border-radius: 3px;\"><div style=\"position: relative; display: block; height: 4px; border-radius: 2px; width: 120px; background-color: rgb(177, 190, 196);\"></div></div><d",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "className": "OBTTooltip_root__3Hfed OBTDropDownList_default__6OVEb dropdownList",
+      "id": "",
+      "childCount": 2,
+      "innerHTML": "<div style=\"width: 100%; position: relative;\"><div style=\"position: relative;\"><span style=\"display: block; overflow: hidden; height: 20px; padding: 4px 24px 1px 6px; border: 1px solid rgb(219, 219, 219); background: rgb(255, 255, 255); line-height: 18px;\"><span tabindex=\"0\" id=\"inputElement\" style=\"display: block; width: 100%; border: 0px; background: transparent; outline: none; font-size: 12px; font-family: inherit; color: rgb(0, 0, 0); cursor: pointer; overflow: hidden; white-space: nowrap; w",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "visible": false
+    },
+    {
+      "tag": "DIV",
+      "className": "AutoCompleteDialog_wrapper__2txa-",
+      "id": "",
+      "childCount": 1,
+      "innerHTML": "<ul></ul>",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "visible": false
+    }
+  ]
+}

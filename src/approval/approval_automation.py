@@ -1383,12 +1383,35 @@ class ApprovalAutomation:
                     cols = grid_info["cols"]
                     logger.info(f"OBTDataGrid 행 수: {row_count}, 컬럼: {[c['header'] for c in cols[:10]]}")
 
+                    # row_count == 0이면 렌더링이 아직 완료되지 않은 것 — 최대 3초 추가 대기
+                    if row_count == 0:
+                        logger.warning("step 10 진입 시 그리드 행 없음 — 렌더링 대기 (최대 3초)")
+                        for _extra_wait in range(6):
+                            time.sleep(0.5)
+                            row_count = page.evaluate("""() => {
+                                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                if (!el) return 0;
+                                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                if (!fk) return 0;
+                                let f = el[fk];
+                                for (let i = 0; i < 3 && f; i++) f = f.return;
+                                const iface = f?.stateNode?.state?.interface;
+                                return (iface && typeof iface.getRowCount === 'function') ? iface.getRowCount() : 0;
+                            }""")
+                            if row_count > 0:
+                                logger.info(f"step 10 추가 대기 후 그리드 행 확인: {row_count}행 ({(_extra_wait+1)*0.5:.1f}초)")
+                                break
+                        else:
+                            logger.error("step 10 추가 대기 3초 후에도 그리드 행 없음")
+
                     # 용도 컬럼 찾기
                     usage_col = None
                     for c in cols:
                         if "용도" in c.get("header", "") or "usage" in c.get("name", "").lower():
                             usage_col = c
                             break
+                    # cols는 초기 evaluate에서 가져온 것이므로 row_count 재조회 후 재확인 불필요
+                    # (컬럼 목록은 row_count와 무관하게 동일)
 
                     if row_count == 0:
                         # 그리드 행이 없으면 용도코드 입력 불가 — 인보이스 재선택 실패 후 여기까지 도달한 경우

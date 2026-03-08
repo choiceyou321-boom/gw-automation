@@ -1,0 +1,109 @@
+{
+  "toolbar_buttons": [
+    {
+      "tag": "button",
+      "text": "조회",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTConditionPanel_s",
+      "id": "",
+      "rect": {
+        "top": -734,
+        "left": 732.453125,
+        "width": 63.09375
+      },
+      "onclick": "",
+      "dataAttr": {}
+    },
+    {
+      "tag": "button",
+      "text": "조회",
+      "className": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTConditionPanel_s",
+      "rect": {
+        "top": -734,
+        "left": 732.453125,
+        "width": 63.09375
+      }
+    },
+    {
+      "tag": "div",
+      "text": "조회",
+      "className": "OBTButton_wrapper__1_tA2",
+      "rect": {
+        "top": -729.5,
+        "left": 743.453125,
+        "width": 41.09375
+      }
+    },
+    {
+      "tag": "span",
+      "text": "조회",
+      "className": "OBTButton_labelText__1g-UF",
+      "rect": {
+        "top": -729.5,
+        "left": 762.453125,
+        "width": 22.09375
+      }
+    },
+    {
+      "tag": "button",
+      "text": "신규작성",
+      "className": "OBTButton_root__1g4ov OBTButton_typebig__2y7od OBTButton_themeblue__akNC1",
+      "rect": {
+        "top": 220,
+        "left": 268,
+        "width": 330
+      }
+    },
+    {
+      "tag": "div",
+      "text": "신규작성",
+      "className": "OBTButton_wrapper__1_tA2",
+      "rect": {
+        "top": 225,
+        "left": 285,
+        "width": 296
+      }
+    },
+    {
+      "tag": "span",
+      "text": "신규작성",
+      "className": "OBTButton_labelText__1g-UF",
+      "rect": {
+        "top": 225,
+        "left": 405.390625,
+        "width": 55.203125
+      }
+    }
+  ],
+  "js_api": {
+    "windowFunctions": [
+      "open",
+      "showOpenFilePicker",
+      "showSaveFilePicker",
+      "ExcelFormatConverter",
+      "saveAs"
+    ],
+    "hasReact": false,
+    "hasVue": false,
+    "hasAngular": false,
+    "duzonGlobals": [
+      {
+        "key": "webpackJsonpklago-ui-gw",
+        "type": "object"
+      },
+      {
+        "key": "webpackJsonpklago-ui-eap-micro",
+        "type": "object"
+      }
+    ],
+    "microModuleKeys": [],
+    "hasOpener": false,
+    "messageListeners": "unknown"
+  },
+  "iframes": [],
+  "popup_api": {
+    "openPopupFunctions": [],
+    "historyLength": 4,
+    "hash": "#/HP/APB1020/APB1020?formDTp=APB1020_00001&formId=255",
+    "formRelatedStorage": []
+  }
+}

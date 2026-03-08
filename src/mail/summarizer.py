@@ -712,8 +712,9 @@ def run_for_chatbot(user_context: dict = None) -> str:
         # Notion에 백그라운드 저장 (실패해도 응답은 반환)
         try:
             from src.notion.client import save_mail_summaries
-            save_mail_summaries(mails)
-            logger.info("Notion 저장 완료")
+            page_url = save_mail_summaries(mails)
+            if page_url:
+                logger.info(f"메일 요약 Notion 저장 완료: {page_url}")
         except Exception as e:
             logger.error(f"Notion 저장 실패: {e}")
 
@@ -822,8 +823,9 @@ async def run_mail_push_for_user(
     # Notion 저장 (실패 무시)
     try:
         from src.notion.client import save_mail_summaries
-        await loop.run_in_executor(None, save_mail_summaries, mails)
-        logger.info("Notion 저장 완료")
+        page_url = await loop.run_in_executor(None, save_mail_summaries, mails)
+        if page_url:
+            logger.info(f"메일 요약 Notion 저장 완료: {page_url}")
     except Exception as e:
         logger.error(f"Notion 저장 실패: {e}")
 
@@ -860,8 +862,11 @@ def run():
 
             # Notion에 저장
             try:
-                save_mail_summaries(mails)
-                logger.info("Notion 저장 완료!")
+                page_url = save_mail_summaries(mails)
+                if page_url:
+                    logger.info(f"메일 요약 Notion 저장 완료: {page_url}")
+                else:
+                    logger.info("Notion 저장 완료 (URL 반환 없음)")
             except Exception as e:
                 logger.error(f"Notion 저장 실패: {e}")
                 logger.info("JSON 파일은 로컬에 저장되어 있습니다.")

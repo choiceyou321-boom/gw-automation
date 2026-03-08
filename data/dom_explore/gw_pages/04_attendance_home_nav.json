@@ -1,0 +1,262 @@
+[
+  {
+    "className": "sideWrapIn flex-1",
+    "text": "예산관리임직원업무관리전자결재메일일정자원게시판업무관리ONEFFICEONECHAMBER오피스케어위로아래로부가서비스더존TV"
+  },
+  {
+    "className": "react-contextmenu-wrapper",
+    "text": "개인인사정보조회개인인사정보조회개인인사정보조회"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 제외 다른 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "모든 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-wrapper",
+    "text": "자원자원자원"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 제외 다른 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "모든 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-wrapper",
+    "text": "메일메일메일"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 제외 다른 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "모든 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-wrapper",
+    "text": "전자결재전자결재전자결재"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "해당 탭 제외 다른 탭 닫기"
+  },
+  {
+    "className": "react-contextmenu-item",
+    "text": "모든 탭 닫기"
+  },
+  {
+    "className": " menuLnb",
+    "text": ""
+  },
+  {
+    "className": "sideLnbMenu",
+    "text": "마이페이지내정보관리개인인사정보조회기본정보수정인사정보변경신청인증기기 설정노트업무보고이력관리주소록주소록관리근태관리인사관리급여관리경비청구지출결의/계산서개인지출결의서예산관리"
+  },
+  {
+    "className": "nav-item step-1 nav-item-open ",
+    "text": "마이페이지내정보관리개인인사정보조회기본정보수정인사정보변경신청인증기기 설정노트업무보고이력관리주소록주소록관리"
+  },
+  {
+    "className": "nav-text",
+    "text": "마이페이지"
+  },
+  {
+    "className": "nav-item step-2 nav-item-open ",
+    "text": "내정보관리개인인사정보조회기본정보수정인사정보변경신청인증기기 설정노트"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "내정보관리"
+  },
+  {
+    "className": "nav-item step-3 selected",
+    "text": "개인인사정보조회"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "개인인사정보조회"
+  },
+  {
+    "className": "nav-item step-3 ",
+    "text": "기본정보수정"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "기본정보수정"
+  },
+  {
+    "className": "nav-item step-3 ",
+    "text": "인사정보변경신청"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "인사정보변경신청"
+  },
+  {
+    "className": "nav-item step-3 ",
+    "text": "인증기기 설정"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "인증기기 설정"
+  },
+  {
+    "className": "nav-item step-3 ",
+    "text": "노트"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "노트"
+  },
+  {
+    "className": "nav-item step-2 nav-item-close ",
+    "text": "업무보고"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "업무보고"
+  },
+  {
+    "className": "nav-item step-2 nav-item-close ",
+    "text": "이력관리"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "이력관리"
+  },
+  {
+    "className": "nav-item step-2 nav-item-close ",
+    "text": "주소록"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "주소록"
+  },
+  {
+    "className": "nav-item step-2 nav-item-close ",
+    "text": "주소록관리"
+  },
+  {
+    "className": "nav-icon",
+    "text": ""
+  },
+  {
+    "className": "nav-text",
+    "text": "주소록관리"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "근태관리"
+  },
+  {
+    "className": "nav-text",
+    "text": "근태관리"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "인사관리"
+  },
+  {
+    "className": "nav-text",
+    "text": "인사관리"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "급여관리"
+  },
+  {
+    "className": "nav-text",
+    "text": "급여관리"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "경비청구"
+  },
+  {
+    "className": "nav-text",
+    "text": "경비청구"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "지출결의/계산서"
+  },
+  {
+    "className": "nav-text",
+    "text": "지출결의/계산서"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "개인지출결의서"
+  },
+  {
+    "className": "nav-text",
+    "text": "개인지출결의서"
+  },
+  {
+    "className": "nav-item step-1 nav-item-close ",
+    "text": "예산관리"
+  },
+  {
+    "className": "nav-text",
+    "text": "예산관리"
+  }
+]

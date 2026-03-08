@@ -1,0 +1,19 @@
+{
+  "method1_popup_url": {
+    "url": "https://gw.glowseoul.co.kr/#popup?MicroModuleCode=eap&formId=255&callComp=UBAP001",
+    "top_buttons": [
+      "미리보기",
+      "보관",
+      "상신"
+    ],
+    "has_save_btn": true
+  },
+  "method2_window_open": {
+    "top_buttons": [
+      "미리보기",
+      "보관",
+      "상신"
+    ],
+    "has_save_btn": true
+  }
+}

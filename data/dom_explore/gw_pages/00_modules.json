@@ -1,0 +1,626 @@
+[
+  {
+    "text": "예산관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 56,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "예산관리",
+    "className": "module-link BM",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 56,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 100,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-link HR",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 100,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "전자결재",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 144,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "전자결재",
+    "className": "module-link EA",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 144,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "메일",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 188,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "메일",
+    "className": "module-link ML",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 188,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "일정",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 232,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "일정",
+    "className": "module-link CL",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 232,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "자원",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 276,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "자원",
+    "className": "module-link RM",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 276,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "게시판",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 320,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "게시판",
+    "className": "module-link BD",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 320,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "업무관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 364,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "업무관리",
+    "className": "module-link KS",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 364,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 408,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-link OF",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 408,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 452,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-link OC",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 452,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 496,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-link UT",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 496,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "부가서비스더존TV",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 1036,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "부가서비스",
+    "className": "module-link SERVICE",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 1036,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "예산관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 56,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "예산관리",
+    "className": "module-link BM",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 56,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 100,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-link HR",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 100,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "전자결재",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 144,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "전자결재",
+    "className": "module-link EA",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 144,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "메일",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 188,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "메일",
+    "className": "module-link ML",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 188,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "일정",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 232,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "일정",
+    "className": "module-link CL",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 232,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "자원",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 276,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "자원",
+    "className": "module-link RM",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 276,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "게시판",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 320,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "게시판",
+    "className": "module-link BD",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 320,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "업무관리",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 364,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "업무관리",
+    "className": "module-link KS",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 364,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 408,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-link OF",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 408,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 452,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-link OC",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 452,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 496,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-link UT",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 496,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "부가서비스더존TV",
+    "className": "module-item",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 1036,
+      "w": 48,
+      "h": 44
+    }
+  },
+  {
+    "text": "부가서비스",
+    "className": "module-link SERVICE",
+    "id": "",
+    "href": "",
+    "title": "",
+    "rect": {
+      "x": 0,
+      "y": 1036,
+      "w": 48,
+      "h": 44
+    }
+  }
+]

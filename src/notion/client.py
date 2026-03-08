@@ -87,15 +87,24 @@ def create_mail_summary_blocks(mail: dict) -> list[dict]:
     return blocks
 
 
-def save_mail_summaries(mails: list[dict], page_id: str = None):
-    """여러 메일 요약을 Notion에 저장"""
-    target_page = page_id or NOTION_PAGE_ID
+def get_page_url(page_id: str) -> str:
+    """Notion 페이지 ID로 공개 URL 생성 (하이픈 제거 후 조합)."""
+    clean_id = page_id.replace("-", "")
+    return f"https://www.notion.so/{clean_id}"
+
+
+def save_mail_summaries(mails: list[dict], page_id: str = None) -> str | None:
+    """
+    여러 메일 요약을 Notion에 저장.
+    반환: 저장된 페이지 URL (성공 시) 또는 None (실패/설정 없음)
+    """
+    target_page = page_id or os.getenv("NOTION_PAGE_ID") or NOTION_PAGE_ID
     if not target_page:
         logger.error("NOTION_PAGE_ID가 설정되지 않았습니다. .env 파일을 확인하세요.")
-        return
+        return None
     if not (os.getenv("NOTION_API_KEY") or NOTION_API_KEY):
         logger.error("NOTION_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
-        return
+        return None
 
     all_blocks = []
 
@@ -118,4 +127,6 @@ def save_mail_summaries(mails: list[dict], page_id: str = None):
         batch = all_blocks[i:i + 100]
         append_to_page(target_page, batch)
 
-    logger.info(f"Notion에 메일 {len(mails)}건 요약 저장 완료")
+    page_url = get_page_url(target_page)
+    logger.info(f"메일 요약 Notion 저장 완료: {page_url}")
+    return page_url

@@ -1,0 +1,19 @@
+{
+  "captured_requests": [],
+  "js_info": {
+    "eapModuleType": "object",
+    "eapModuleKeys": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "eapModuleLength": 9,
+    "firstItem": "object",
+    "apiUrls": [],
+    "hasStore": false,
+    "hasDispatch": false,
+    "nextData": false
+  }
+}

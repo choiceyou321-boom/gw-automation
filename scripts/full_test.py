@@ -344,16 +344,24 @@ class FullTestRunner:
         schm_seq = str(data.get("schmSeq", ""))
         seq_num = str(data.get("seqNum", ""))
 
-        logger.debug(f"  예약 생성 성공: schmSeq={schm_seq}, seqNum={seq_num}")
+        logger.debug(f"  예약 생성 성공: schmSeq={schm_seq}, seqNum={seq_num}, resSeq={res_seq}")
+
+        # schmSeq/seqNum 유효성 검증
+        if not schm_seq or not seq_num:
+            logger.warning(f"  ⚠ 예약 ID 미반환 (schmSeq={schm_seq!r}, seqNum={seq_num!r}) — 수동 취소 필요")
 
         # 즉시 취소 (cleanup에도 등록하여 이중 보호)
         def cancel():
+            if not schm_seq and not seq_num:
+                logger.error(f"  ⚠ 예약 취소 불가: schmSeq/seqNum 없음 (resSeq={res_seq}, title={title!r}) — GW에서 수동 취소 필요")
+                return
             cancel_result = self.meeting_api.cancel_reservation(
                 schm_seq=schm_seq,
                 seq_num=seq_num,
                 res_seq=res_seq,
             )
             if not cancel_result.get("success"):
+                logger.error(f"  ⚠ 예약 잔류 주의: schmSeq={schm_seq}, seqNum={seq_num}, resSeq={res_seq}, title={title!r}")
                 raise RuntimeError(f"예약 취소 실패: {cancel_result.get('message')}")
 
         self.cleanup_tasks.append((cancel, f"회의실 예약 취소: {title}"))

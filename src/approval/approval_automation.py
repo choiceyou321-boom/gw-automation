@@ -637,18 +637,28 @@ class ApprovalAutomation:
                     try:
                         error_modal = self.page.locator("text=부적합").first
                         if error_modal.is_visible(timeout=2000):
-                            # 오류 내용 추출
+                            # 오류 내용 추출 — 다양한 패턴 포함
                             error_text = self.page.evaluate("""() => {
-                                const els = document.querySelectorAll('div, span, li, p');
+                                const els = document.querySelectorAll('div, span, li, p, td');
                                 const errors = [];
+                                const PATTERNS = ['입력해주세요', '오류 내용', '필수', '부적합', '미입력', '확인하세요'];
                                 for (const el of els) {
                                     const t = el.textContent?.trim() || '';
-                                    if (t.includes('입력해주세요') || t.includes('오류 내용')) {
-                                        errors.push(t.substring(0, 80));
+                                    if (t.length > 3 && t.length < 200 && PATTERNS.some(p => t.includes(p))) {
+                                        errors.push(t.substring(0, 100));
                                     }
                                 }
-                                return errors.slice(0, 10).join('; ');
+                                // 중복 제거 후 반환
+                                return [...new Set(errors)].slice(0, 10).join('; ');
                             }""")
+                            if not error_text:
+                                # 패턴 미매칭 시 모달 전체 텍스트 캡처
+                                error_text = self.page.evaluate("""() => {
+                                    const modal = document.querySelector(
+                                        '[class*="modal"], [class*="dialog"], [class*="popup"], [role="dialog"]'
+                                    );
+                                    return modal ? modal.textContent?.trim().substring(0, 300) : '(오류 내용 추출 실패)';
+                                }""")
                             # 닫기 버튼 클릭
                             try:
                                 close_btn = self.page.locator("button:has-text('닫기')").first
@@ -656,7 +666,7 @@ class ApprovalAutomation:
                                     close_btn.click()
                             except Exception:
                                 pass
-                            return {"success": False, "message": f"검증 부적합: {error_text[:200]}"}
+                            return {"success": False, "message": f"검증 부적합: {error_text[:300]}"}
                     except Exception:
                         pass
                     # 일반 모달 오류 확인
@@ -1260,6 +1270,27 @@ class ApprovalAutomation:
                     )
                 except Exception as e:
                     logger.warning(f"세금계산서 모달 선택 실패: {e}")
+
+                # 인보이스 선택 후 그리드 렌더링 대기 (최대 5초)
+                if invoice_selected:
+                    for _wait in range(10):
+                        row_count = page.evaluate("""() => {
+                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                            if (!el) return 0;
+                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                            if (!fk) return 0;
+                            let f = el[fk];
+                            for (let i = 0; i < 3 && f; i++) f = f.return;
+                            const iface = f?.stateNode?.state?.interface;
+                            return (iface && typeof iface.getRowCount === 'function') ? iface.getRowCount() : 0;
+                        }""")
+                        if row_count > 0:
+                            logger.info(f"그리드 렌더링 완료: {row_count}행")
+                            break
+                        time.sleep(0.5)
+                    else:
+                        logger.warning("그리드 렌더링 타임아웃 (5초) — 용도코드/날짜 입력 실패 가능성")
+
                 _save_debug(page, "03c2_after_invoice_select")
             else:
                 # 세금계산서가 아닌 증빙유형 (카드, 현금영수증 등) → 버튼만 클릭

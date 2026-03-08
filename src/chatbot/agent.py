@@ -1336,7 +1336,7 @@ async def analyze_and_route(
     text_parts = []
 
     if response.candidates and response.candidates[0].content:
-        for part in response.candidates[0].content.parts:
+        for part in (response.candidates[0].content.parts or []):
             if part.function_call:
                 function_call = part.function_call
             elif part.text:
@@ -1378,7 +1378,7 @@ async def analyze_and_route(
 
         if final_response.candidates and final_response.candidates[0].content:
             final_texts = [
-                p.text for p in final_response.candidates[0].content.parts if p.text
+                p.text for p in (final_response.candidates[0].content.parts or []) if p.text
             ]
             result["response"] = "\n".join(final_texts)
         else:

@@ -37,3 +37,9 @@ playwright-report/
 
 # 로그
 logs/*.log
+
+# Docker / 배포
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/logs/
+data/tmp/

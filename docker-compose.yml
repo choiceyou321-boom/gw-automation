@@ -1,0 +1,55 @@
+services:
+  # ─────────────────────────────────────────
+  # 챗봇 애플리케이션 (FastAPI + Playwright)
+  # ─────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gw-chatbot
+    restart: unless-stopped
+    env_file:
+      - config/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PLAYWRIGHT_BROWSERS_PATH=/home/appuser/.cache/ms-playwright
+    volumes:
+      # 데이터 영속성 (DB, 스크린샷, 업로드)
+      - ./data:/app/data
+      - ./logs:/app/logs
+      # config는 read-only 마운트
+      - ./config/.env:/app/config/.env:ro
+    ports:
+      - "127.0.0.1:51749:51749"   # localhost만 노출 (nginx가 프록시)
+    networks:
+      - gw-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:51749/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ─────────────────────────────────────────
+  # Nginx (HTTPS 역방향 프록시 + SSL)
+  # ─────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: gw-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro          # SSL 인증서 디렉토리
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - gw-net
+
+networks:
+  gw-net:
+    driver: bridge

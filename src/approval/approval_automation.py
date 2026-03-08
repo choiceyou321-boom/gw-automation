@@ -952,24 +952,43 @@ class ApprovalAutomation:
             except Exception:
                 pass
 
-        # 결재 HOME 확인 (클릭 후 페이지 로드 대기)
-        try:
-            page.wait_for_selector("text=결재 HOME", timeout=12000)
-            logger.info("결재 HOME 도달")
+        # 결재 HOME 확인 (span.tit 결재 HOME 또는 결재작성 버튼으로 판단)
+        def _check_approval_home_loaded(timeout_ms: int = 15000) -> bool:
+            """결재 HOME 로드 여부 확인 (OR 셀렉터 — 단일 타임아웃)"""
+            try:
+                # Playwright OR 로케이터: 어느 하나라도 보이면 성공
+                loc = page.locator(
+                    "span.tit:has-text('결재 HOME'), "
+                    "button:has-text('결재작성'), "
+                    "span.OBTButton_labelText__1s2qO:has-text('결재작성')"
+                ).first
+                loc.wait_for(state="visible", timeout=timeout_ms)
+                logger.info("전자결재 HOME 확인 (결재 HOME / 결재작성 버튼)")
+                return True
+            except Exception:
+                pass
+            # 폴백: text= 방식
+            try:
+                page.wait_for_selector("text=결재 HOME", timeout=min(timeout_ms // 2, 5000))
+                logger.info("전자결재 HOME 확인 (text=결재 HOME)")
+                return True
+            except Exception:
+                return False
+
+        if _check_approval_home_loaded(30000):
             navigated = True
-        except Exception:
+        else:
             if not self._check_session_valid():
                 raise RuntimeError("세션이 만료되었습니다.")
-            logger.warning("결재 HOME 텍스트 미발견")
+            logger.warning("결재 HOME 텍스트 미발견 (방법 1)")
 
         # 방법 2: GW 내부 탭 "전자결재" 클릭 (로그인 직후 HR 페이지에 있는 경우)
         if not navigated:
             try:
-                # GW 상단 내부 탭에서 "전자결재" 텍스트가 있는 탭 클릭
                 tab_selectors = [
+                    "li.tab-item:has-text('전자결재')",
                     "div.tab-item:has-text('전자결재')",
                     "li:has-text('전자결재')",
-                    "span:has-text('전자결재')",
                 ]
                 for sel in tab_selectors:
                     try:
@@ -982,41 +1001,37 @@ class ApprovalAutomation:
                     except Exception:
                         continue
 
-                page.wait_for_selector("text=결재 HOME", timeout=8000)
-                logger.info("결재 HOME 도달 (내부 탭 클릭)")
-                navigated = True
+                if _check_approval_home_loaded(15000):
+                    logger.info("결재 HOME 도달 (내부 탭 클릭)")
+                    navigated = True
+                else:
+                    logger.warning("내부 탭 클릭 후에도 결재 HOME 미발견")
             except Exception:
-                logger.warning("내부 탭 클릭 후에도 결재 HOME 미발견")
+                logger.warning("내부 탭 클릭 실패")
 
-        # 방법 3: URL 직접 네비게이션 (GW SPA 해시 라우팅)
+        # 방법 3: URL 직접 네비게이션 (HPM0110 = 전자결재 홈, 확인된 URL)
         if not navigated:
             try:
-                # UBA 모듈 직접 URL (DRAFT_URL과 동일한 패턴)
-                approval_home_url = f"{GW_URL}/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA"
+                approval_home_url = f"{GW_URL}/#/HP/HPM0110/HPM0110"
                 page.goto(approval_home_url, wait_until="domcontentloaded", timeout=15000)
                 page.wait_for_timeout(3000)
-                logger.info("전자결재 URL 직접 이동 (UBA 모듈)")
-                try:
-                    page.wait_for_selector("text=결재 HOME", timeout=8000)
-                    logger.info("결재 HOME 도달 (URL 폴백)")
+                logger.info("전자결재 URL 직접 이동 (HPM0110)")
+                if _check_approval_home_loaded(12000):
+                    logger.info("결재 HOME 도달 (HPM0110 URL)")
                     navigated = True
-                except Exception:
-                    # 결재 HOME 텍스트 없더라도 결재작성 버튼이 보이면 OK
-                    try:
-                        page.wait_for_selector("text=결재작성", timeout=3000)
-                        logger.info("결재작성 버튼 발견 — 전자결재 모듈 진입 확인")
-                        navigated = True
-                    except Exception:
-                        logger.warning("결재 HOME / 결재작성 모두 미발견")
+                else:
+                    logger.warning("HPM0110 URL 이동 후 결재 HOME 미발견")
             except Exception as e:
-                logger.warning(f"전자결재 URL 이동 실패: {e}")
+                logger.warning(f"HPM0110 URL 이동 실패: {e}")
 
         # 방법 4: 최후 폴백 — 기존 해시 라우팅
         if not navigated:
             try:
                 page.goto(f"{GW_URL}/#/app/approval", wait_until="domcontentloaded", timeout=15000)
-                page.wait_for_timeout(2000)
+                page.wait_for_timeout(3000)
                 logger.info("전자결재 URL 직접 이동 (legacy 경로)")
+                if _check_approval_home_loaded(8000):
+                    navigated = True
             except Exception as e:
                 logger.warning(f"legacy 경로 이동 실패: {e}")
 
@@ -2091,21 +2106,25 @@ class ApprovalAutomation:
 
         page = self.page
 
-        def _norm(d: str) -> str:
-            return d.replace("-", "")[:8]
+        def _norm(d: str, fmt: str = "%Y%m%d") -> str:
+            """날짜 문자열 정규화 (YYYY-MM-DD / YYYYMMDD / YYYY.MM.DD → 지정 포맷)"""
+            d = d.replace("-", "").replace(".", "")[:8]
+            if fmt == "%Y-%m-%d" and len(d) == 8:
+                return f"{d[:4]}-{d[4:6]}-{d[6:8]}"
+            return d
 
-        # 기본 기간: ±3개월
+        # 기본 기간: ±6개월 (3개월에서 확장 — 분기 지연 발행 계산서 대응)
         today = _dt.date.today()
         if not date_from:
-            start = (today.replace(day=1) - _dt.timedelta(days=90)).replace(day=1)
-            date_from = start.strftime("%Y%m%d")
+            start = (today.replace(day=1) - _dt.timedelta(days=180)).replace(day=1)
+            date_from = start.strftime("%Y-%m-%d")
         else:
-            date_from = _norm(date_from)
+            date_from = _norm(date_from, "%Y-%m-%d")
         if not date_to:
             next_m = today.replace(day=28) + _dt.timedelta(days=4)
-            date_to = (next_m.replace(day=1) - _dt.timedelta(days=1)).strftime("%Y%m%d")
+            date_to = (next_m.replace(day=1) - _dt.timedelta(days=1)).strftime("%Y-%m-%d")
         else:
-            date_to = _norm(date_to)
+            date_to = _norm(date_to, "%Y-%m-%d")
 
         logger.info(f"계산서 모달 검색 — vendor='{vendor}' amount={amount} 기간={date_from}~{date_to}")
 
@@ -2187,19 +2206,32 @@ class ApprovalAutomation:
             logger.warning(f"모달 날짜 설정 실패: {e}")
 
         # ── 조회 버튼 클릭 ──
-        # 스크린샷에서 보면 돋보기 아이콘 버튼이 날짜 옆에 있음
+        # 모달 내 "조회" 버튼 또는 돋보기 아이콘 버튼 클릭
         search_clicked = False
         try:
-            # 모달 내 검색 아이콘 (돋보기) — 날짜 입력 옆
-            search_btns = page.locator("button[class*='search'], button[class*='Search']").all()
-            for btn in search_btns:
+            for sel in [
+                "button:has-text('조회')",
+                "button:has-text('검색')",
+                "button[class*='search']",
+                "button[class*='Search']",
+                "button[title*='조회']",
+                "button[title*='검색']",
+                "span:has-text('조회') >> xpath=ancestor::button",
+            ]:
                 try:
-                    box = btn.bounding_box()
-                    # 모달 영역 내 (y: 150~250)
-                    if box and 150 < box["y"] < 300 and 300 < box["x"] < 1200:
-                        btn.click(force=True)
-                        logger.info("모달 검색 버튼 클릭 (돋보기)")
-                        search_clicked = True
+                    btns = page.locator(sel).all()
+                    for btn in btns:
+                        box = btn.bounding_box()
+                        if not box:
+                            continue
+                        # 모달 영역 내 (y: 150~350)
+                        if 100 < box["y"] < 400 and 100 < box["x"] < 1400:
+                            if btn.is_visible():
+                                btn.click(force=True)
+                                logger.info(f"모달 조회 버튼 클릭: {sel}")
+                                search_clicked = True
+                                break
+                    if search_clicked:
                         break
                 except Exception:
                     continue
@@ -2468,8 +2500,25 @@ class ApprovalAutomation:
 
         if not selected:
             logger.warning("계산서 모달에서 선택할 행이 없습니다")
+            # 모달 취소 (선택 없이 닫기)
             try:
                 page.locator("button:has-text('취소')").last.click(force=True)
+                time.sleep(0.5)
+            except Exception:
+                pass
+            # 계산서내역 버튼이 활성화된 상태로 남을 수 있으므로 다시 클릭해 비활성화 시도
+            try:
+                for sel in [
+                    "button:has-text('계산서내역')",
+                    "span:has-text('계산서내역')",
+                    "div:has-text('계산서내역'):visible",
+                ]:
+                    btn = page.locator(sel).first
+                    if btn.is_visible(timeout=500):
+                        btn.click(force=True)
+                        logger.info("계산서내역 버튼 재클릭 (비활성화)")
+                        time.sleep(0.3)
+                        break
             except Exception:
                 pass
             return False
@@ -3577,47 +3626,39 @@ class ApprovalAutomation:
         # 현재 열린 페이지 목록 기록 (팝업 감지용)
         pages_before = set(self.context.pages)
 
-        # 1. 결재작성 페이지로 이동 (UBA6000)
-        form_select_url = f"{GW_URL}/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA6000"
-
-        # div.sideRegi 클릭 시도 → 실패하면 직접 URL 이동
-        try:
-            side_regi = page.locator("div.sideRegi").first
-            if side_regi.is_visible(timeout=3000):
-                side_regi.click(force=True)
-                # URL 변경 대기 (최대 5초)
-                try:
-                    page.wait_for_url("**/UBA6000**", timeout=5000)
-                except Exception:
-                    pass
-                # URL 확인 - UBA6000이 아니면 직접 이동
-                if "UBA6000" not in page.url:
-                    logger.info("sideRegi 클릭 후 UBA6000이 아님, 직접 이동")
-                    page.goto(form_select_url, wait_until="domcontentloaded", timeout=15000)
-            else:
-                page.goto(form_select_url, wait_until="domcontentloaded", timeout=15000)
-        except Exception:
-            page.goto(form_select_url, wait_until="domcontentloaded", timeout=15000)
+        # 1. 전자결재 HOME → 결재작성 클릭 (UBA6000 URL은 HR 모듈로 변경되어 사용 불가)
+        self._navigate_to_approval_home()
+        self._click_write_approval()
+        page.wait_for_timeout(1500)
 
         logger.info(f"결재작성 페이지 이동: {page.url[:100]}")
         _save_debug(page, "vendor_01_form_select_page")
 
-        # 2. 양식 검색 입력란 찾기 (placeholder로 식별, 페이지 로드 대기 포함)
+        # 2. 양식 검색 입력란 찾기 (결재작성 페이지 기준)
         search_input = None
         for selector in [
             "input[placeholder*='카테고리 또는 양식명']",
             "input[placeholder*='양식명']",
             "input[placeholder*='양식']",
             "input[placeholder*='검색']",
+            "input[placeholder*='Search']",
+            # placeholder 없는 경우: 결재작성 페이지의 첫 번째 텍스트 input
+            "input[type='text']:visible",
+            "input:visible",
         ]:
             try:
-                inp = page.locator(selector).first
-                if inp.is_visible(timeout=3000):
-                    # readonly가 아닌지 확인
+                candidates = page.locator(selector).all()
+                for inp in candidates:
+                    if not inp.is_visible():
+                        continue
                     readonly = inp.get_attribute("readonly")
-                    if readonly is None:
+                    disabled = inp.get_attribute("disabled")
+                    if readonly is None and disabled is None:
                         search_input = inp
+                        logger.info(f"검색 input 발견: selector={selector}")
                         break
+                if search_input:
+                    break
             except Exception:
                 continue
 

@@ -1498,7 +1498,10 @@ class ApprovalAutomation:
                     # 지급요청일 컬럼 찾기
                     pay_col = None
                     for c in grid_info["cols"]:
-                        h = c.get("header", "").replace(" ", "")
+                        raw_h = c.get("header", "")
+                        if isinstance(raw_h, dict):
+                            raw_h = raw_h.get("text", "")
+                        h = str(raw_h).replace(" ", "")
                         if "지급요청" in h or "지급일" in h or "payDate" in c.get("name", "").lower():
                             pay_col = c
                             break

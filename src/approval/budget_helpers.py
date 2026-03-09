@@ -78,9 +78,22 @@ def select_budget_code(page: Page, project_keyword: str, budget_keyword: str) ->
         logger.info(f"예산과목 선택 완료: {code}. {name}")
 
         # ── 단계 17-확인: 모달 확인 버튼 클릭 ──
+        _save_debug_screenshot(page, "budget_17_before_main_confirm")
         if not _confirm_budget_modal(page):
             result["message"] = "모달 확인 버튼 클릭 실패"
             return result
+
+        time.sleep(0.5)  # 모달 닫힘 대기
+        _save_debug_screenshot(page, "budget_17b_after_main_confirm")
+
+        # 메인 모달이 여전히 열려있으면 Escape로 강제 닫기
+        try:
+            if page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=500):
+                logger.warning("메인 모달이 여전히 열려있음 — Escape로 강제 닫기")
+                page.keyboard.press("Escape")
+                time.sleep(0.5)
+        except Exception:
+            pass
 
         result["success"] = True
         result["budget_code"] = code
@@ -375,6 +388,7 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
 
     selected_code = ""
     selected_name = ""
+    selected_row = None
 
     # 방법 1: 테이블 행(tr/td) 순회
     try:
@@ -399,6 +413,7 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
                         name_idx = col_idx + 1
                         if name_idx < len(cells):
                             selected_name = cells[name_idx].inner_text(timeout=1000).strip()
+                        selected_row = row
                         row.click()
                         logger.info(f"서브 팝업 행 선택: 코드={selected_code}, 이름={selected_name}")
                         break
@@ -464,18 +479,122 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
         _save_debug_screenshot(page, "budget_code_not_found")
         return ("", "")
 
-    time.sleep(0.5)
+    time.sleep(0.3)
+    _save_debug_screenshot(page, "budget_16c_row_selected")
 
-    # 서브 팝업 확인 버튼 클릭
-    _click_confirm_button(page, "서브 팝업")
+    # 서브 팝업 확인 버튼 클릭 — 서브 팝업 내부 버튼을 우선 타겟팅
+    sub_popup_confirmed = _click_sub_popup_confirm(page)
+    if not sub_popup_confirmed:
+        logger.warning("서브 팝업 확인 버튼 클릭 실패 — 폴백: 더블클릭으로 선택")
+        # 더블클릭으로 선택 확정 시도
+        if selected_row is not None:
+            try:
+                selected_row.dblclick()
+                logger.info("서브 팝업 행 더블클릭으로 선택 확정")
+                time.sleep(0.5)
+            except Exception as e:
+                logger.debug(f"더블클릭 실패: {e}")
 
-    time.sleep(0.5)
+    time.sleep(0.8)  # 서브 팝업 닫힘 + 메인 모달 업데이트 대기
+    _save_debug_screenshot(page, "budget_16d_after_sub_confirm")
     return (selected_code, selected_name)
 
 
+def _click_sub_popup_confirm(page: Page) -> bool:
+    """서브 팝업('예산과목코드도움') 내부의 확인 버튼을 타겟팅하여 클릭.
+
+    서브 팝업은 '예산과목코드도움' 텍스트를 포함하는 컨테이너.
+    메인 모달의 '확인' 버튼과 혼동되지 않도록 서브 팝업 컨테이너를 먼저 찾음.
+    """
+    # 방법 1: 서브 팝업 제목 텍스트를 포함한 부모 컨테이너 내 확인 버튼 탐색
+    popup_container_selectors = [
+        "div:has(h1:has-text('예산과목코드도움'))",
+        "div:has(> h1:has-text('예산과목코드도움'))",
+        "div:has(h2:has-text('예산과목코드도움'))",
+        "section:has(:text('예산과목코드도움'))",
+    ]
+    for container_sel in popup_container_selectors:
+        try:
+            container = page.locator(container_sel).first
+            if container.is_visible(timeout=2000):
+                confirm_btn = container.locator("button:has-text('확인')").last
+                if confirm_btn.is_visible(timeout=1000):
+                    confirm_btn.click()
+                    logger.info(f"서브 팝업 컨테이너 내 확인 버튼 클릭: {container_sel}")
+                    return True
+        except Exception:
+            continue
+
+    # 방법 2: 서브 팝업 제목 기준 위치 파악 후 팝업 범위 내 가장 가까운 확인 버튼 클릭
+    # 최대 거리 350px 제한 — 서브 팝업 높이를 벗어나는 버튼(메인 모달 버튼 등) 제외
+    try:
+        title_loc = page.locator("text=예산과목코드도움").first
+        title_box = title_loc.bounding_box()
+        if title_box:
+            btns = page.locator("button:has-text('확인')").all()
+            closest_btn = None
+            min_dist = float("inf")
+            MAX_POPUP_HEIGHT = 350  # 서브 팝업 내부 버튼은 제목 아래 350px 이내에 위치
+            for btn in btns:
+                try:
+                    btn_box = btn.bounding_box()
+                    if not btn_box:
+                        continue
+                    dist = btn_box["y"] - title_box["y"]
+                    # 제목 아래, 팝업 범위 내 (350px 이내)
+                    if 0 < dist < MAX_POPUP_HEIGHT and dist < min_dist:
+                        min_dist = dist
+                        closest_btn = btn
+                except Exception:
+                    continue
+            if closest_btn:
+                closest_btn.click(force=True)  # OBTDialog 포인터 이벤트 차단 우회
+                logger.info(f"서브 팝업 제목 아래 확인 버튼 클릭 force (거리={min_dist:.0f}px)")
+                return True
+            else:
+                logger.debug(f"서브 팝업 범위 내(350px) 확인 버튼 미발견 (최소거리={min_dist:.0f}px)")
+    except Exception as e:
+        logger.debug(f"서브 팝업 위치 기반 확인 버튼 탐색 실패: {e}")
+
+    # 방법 3: 폴백 — reversed로 마지막 확인 버튼 (기존 방식)
+    return _click_confirm_button(page, "서브 팝업 폴백")
+
+
 def _confirm_budget_modal(page: Page) -> bool:
-    """모달 확인 버튼 클릭."""
-    return _click_confirm_button(page, "예산 모달")
+    """메인 예산잔액 조회 모달의 확인 버튼 클릭.
+
+    서브 팝업이 먼저 닫혀야 메인 모달의 확인 버튼이 정상 동작함.
+    """
+    # 1. 서브 팝업 닫힘 대기
+    try:
+        page.locator("text=예산과목코드도움").first.wait_for(state="hidden", timeout=3000)
+        logger.info("서브 팝업 닫힘 확인")
+    except Exception:
+        logger.debug("서브 팝업 닫힘 확인 타임아웃 (이미 닫혔을 수 있음)")
+
+    # 2. 메인 모달이 아직 열려있는지 확인
+    main_modal_visible = False
+    try:
+        main_modal_visible = page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=1000)
+    except Exception:
+        pass
+
+    if not main_modal_visible:
+        logger.info("공통 예산잔액 조회 모달 이미 닫힘 (서브 팝업 확인으로 같이 닫혔을 가능성)")
+        return True
+
+    # 3. 메인 모달 확인 버튼 클릭
+    result = _click_confirm_button(page, "예산 모달")
+
+    # 4. 모달 닫힘 대기
+    if result:
+        try:
+            page.locator("text=공통 예산잔액 조회").first.wait_for(state="hidden", timeout=5000)
+            logger.info("공통 예산잔액 조회 모달 닫힘 확인")
+        except Exception:
+            logger.warning("공통 예산잔액 조회 모달 닫힘 확인 실패 — 계속 진행")
+
+    return result
 
 
 def _click_confirm_button(page: Page, context_name: str) -> bool:

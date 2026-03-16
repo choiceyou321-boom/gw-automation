@@ -586,21 +586,23 @@ class FullTestRunner:
             "items": [{"item": "테스트 공사비", "amount": 1000000}],
             "total_amount": 1100000,
             "date": datetime.now().strftime("%Y-%m-%d"),
-            # 세금계산서 내역: 테스트 환경에 등록된 계산서가 없으면 선택 불가
-            # → verify 모드로 필드 작성만 검증 (실 GW에서는 세금계산서 선택 후 draft 저장)
+            # 실 세금계산서 (미래사무기) — 계산서내역 선택 + 임시보관 E2E
             "evidence_type": "계산서내역",
-            "invoice_vendor": "",
+            "invoice_vendor": "미래사무기",
             "invoice_amount": None,
             "usage_code": "5020",
             "budget_keyword": "경량",
             "payment_request_date": datetime.now().strftime("%Y-%m-%d"),
             "accounting_date": "",
-            "save_mode": "verify",     # 필드 작성 검증만 (인보이스 없는 환경 대응)
+            "save_mode": "draft",      # 실 임시보관 (결재상신→팝업→보관)
         })
-        # verify 모드: 필드 채우기 성공 여부만 확인 (GW 검증결과 부적합은 허용)
-        if not result.get("success") and "지출결의서 양식을 찾을 수 없습니다" in result.get("message", ""):
-            assert False, f"지출결의서 임시보관 실패 (양식 없음): {result.get('message')}"
-        logger.info(f"  지출결의서 필드 작성 완료 (verify): {title}")
+        if not result.get("success"):
+            msg = result.get("message", "(메시지 없음)")
+            logger.error(f"T6 실패 — {msg}")
+            if result.get("screenshot"):
+                logger.error(f"T6 실패 스크린샷: {result['screenshot']}")
+        assert result.get("success"), f"지출결의서 임시보관 실패: {result.get('message')}"
+        logger.info(f"  지출결의서 임시보관 성공: {title}")
 
         # 임시보관문서 삭제 cleanup 등록
         self.cleanup_tasks.append((

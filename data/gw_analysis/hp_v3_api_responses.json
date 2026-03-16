@@ -1,0 +1,774 @@
+[
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/eap/eap096A02",
+    "body": {
+      "resultCode": 0,
+      "resultMsg": "성공하였습니다.",
+      "resultData": {
+        "boxList": [
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1001000",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "미결문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "Y",
+            "iconId": "001",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "20",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "40",
+                "sortName": "도착일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "200",
+            "alramCnt": "2",
+            "displayCnt": "2",
+            "menuId": "1001100",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "기결문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "002",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 2,
+            "fixedYn": "Y",
+            "boxCode": "30",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "20",
+                "sortName": "결재일자"
+              },
+              {
+                "sortKey": "30",
+                "sortName": "종결일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "2",
+            "alramCnt": "0",
+            "displayCnt": "2",
+            "menuId": "1001110",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "기결문서(진행)",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "004",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "40",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "20",
+                "sortName": "결재일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1001120",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "기결문서(종결)",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "002",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "30",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "20",
+                "sortName": "결재일자"
+              },
+              {
+                "sortKey": "30",
+                "sortName": "종결일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "772",
+            "alramCnt": "645",
+            "displayCnt": "645",
+            "menuId": "1001200",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "수신참조문서",
+            "leafYN": "N",
+            "readYN": "Y",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "006",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "60",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "40",
+                "sortName": "도착일자"
+              },
+              {
+                "sortKey": "30",
+                "sortName": "종결일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "200",
+            "alramCnt": "2",
+            "displayCnt": "2",
+            "menuId": "1000400",
+            "parMenuId": "1000300",
+            "menuLevel": "1",
+            "menuName": "상신문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "005",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "10",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1000600",
+            "parMenuId": "1000300",
+            "menuLevel": "1",
+            "menuName": "수신상신문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "005",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "140",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "10",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1001400",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "시행문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "Y",
+            "appYN": "N",
+            "iconId": "012",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "120",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "30",
+                "sortName": "종결일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1001300",
+            "parMenuId": "1000900",
+            "menuLevel": "1",
+            "menuName": "수신문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "010",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "100",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "1",
+            "alramCnt": "1",
+            "displayCnt": "1",
+            "menuId": "1010000",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "예결함",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "008",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 2,
+            "fixedYn": "N",
+            "boxCode": "70",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1010001",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "후결함",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "013",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "N",
+            "boxCode": "80",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "24",
+            "alramCnt": "0",
+            "displayCnt": "24",
+            "menuId": "1010002",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "반려함",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "003",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 2,
+            "fixedYn": "N",
+            "boxCode": "50",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1010003",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "보류함",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "011",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "N",
+            "boxCode": "110",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1010004",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "전결함",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "009",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "N",
+            "boxCode": "90",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "30",
+            "alramCnt": "0",
+            "displayCnt": "30",
+            "menuId": "1010005",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "시행확인문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "018",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "N",
+            "boxCode": "150",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              },
+              {
+                "sortKey": "30",
+                "sortName": "종결일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1002500",
+            "parMenuId": "1000100",
+            "menuLevel": "1",
+            "menuName": "인수인계문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "019",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "160",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          },
+          {
+            "docCnt": "0",
+            "alramCnt": "0",
+            "displayCnt": "0",
+            "menuId": "1001800",
+            "parMenuId": "1001700",
+            "menuLevel": "1",
+            "menuName": "이전문서",
+            "leafYN": "N",
+            "readYN": "N",
+            "operYN": "N",
+            "appYN": "N",
+            "iconId": "020",
+            "docCntYn": "Y",
+            "menuType": "eaBox",
+            "itemCount": 1,
+            "fixedYn": "Y",
+            "boxCode": "300",
+            "sortList": [
+              {
+                "sortKey": "10",
+                "sortName": "기안일자"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/asset-manifest.json?timestamp=1773676523809",
+    "body": {
+      "_truncated": true,
+      "_size": 157923,
+      "_keys": [
+        "files",
+        "entrypoints"
+      ],
+      "_preview": "{\"files\": {\"static/js/0.aaa5c9aa.chunk.js\": \"/modules/personal/static/js/0.aaa5c9aa.chunk.js\", \"static/js/0.aaa5c9aa.chunk.js.map\": \"/modules/personal/static/js/0.aaa5c9aa.chunk.js.map\", \"static/js/1.0b18843f.chunk.js\": \"/modules/personal/static/js/1.0b18843f.chunk.js\", \"static/js/1.0b18843f.chunk.js.map\": \"/modules/personal/static/js/1.0b18843f.chunk.js.map\", \"static/js/2.030e6eb0.chunk.js\": \"/modules/personal/static/js/2.030e6eb0.chunk.js\", \"static/js/2.030e6eb0.chunk.js.map\": \"/modules/personal/static/js/2.030e6eb0.chunk.js.map\", \"static/js/3.36f554db.chunk.js\": \"/modules/personal/static/js/3.36f554db.chunk.js\", \"static/js/3.36f554db.chunk.js.map\": \"/modules/personal/static/js/3.36f554db.chunk.js.map\", \"static/js/4.a8761303.chunk.js\": \"/modules/personal/static/js/4.a8761303.chunk.js\", \"static/js/4.a8761303.chunk.js.map\": \"/modules/personal/static/js/4.a8761303.chunk.js.map\", \"static/js/5.1f385528.chunk.js\": \"/modules/personal/static/js/5.1f385528.chunk.js\", \"static/js/5.1f385528.chunk.js.map\": \"/modules/personal/static/js/5.1f385528.chunk.js.map\", \"static/css/6.37b7a888.chunk.css\": \"/modules/personal/static/css/6.37b7a888.chunk.css\", \"static/js/6.be2b1e42.chunk.js\": \"/modules/personal/static/js/6.be2b1e42.chunk.js\", \"static/js/6.be2b1e42.chunk.js.map\": \"/modules/personal/static/js/6.be2b1e42.chunk.js.map\", \"static/js/7.bca9454c.chunk.js\": \"/modules/personal/static/js/7.bca9454c.chunk.js\", \"static/js/7.bca9454c.chunk.js.map\": \"/modules/personal/static/js/7.bca9454c.chunk.js.map\", \"static/js/8.aefab3ee.chunk.js\": \"/modules/personal/static/js/8.aefab3ee.chunk.js\", \"static/js/8.aefab3ee.chunk.js.map\": \"/modules/personal/static/js/8.aefab3ee.chunk.js.map\", \"static/js/9.6e884e8c.chunk.js\": \"/modules/personal/static/js/9.6e884e8c.chunk.js\", \"static/js/9.6e884e8c.chunk.js.map\": \"/modules/personal/static/js/9.6e884e8c.chunk.js.map\", \"static/js/10.a02a063d.chunk.js\": \"/modules/personal/static/js/10.a02a063d.chunk.js\", \"static/js/10.a02a063d.chunk.js.map\": \"/modules/personal/static/js/10.a02a063d.chunk.js.map\", \"static/js/11.bb4b1840.chunk.js\": \"/modules/personal/static/js/11.bb4b1840.chunk.js\", \"static/js/11.bb4b1840.chunk.js.map\": \"/modules/personal/static/js/11.bb4b1840.chunk.js.map\", \"static/js/12.2db9ac7b.chunk.js\": \"/modules/personal/static/js/12.2db9ac7b.chunk.js\", \"static/js/12.2db9ac7b.chunk.js.map\": \"/modules/personal/static/js/12.2db9ac7b.chunk.js.map\", \"static/js/13.d5544994.chunk.js\": \"/modules/personal/static/js/13.d5544994.chunk.js\", \"static/js/13.d5544994.chunk.js.map\": \"/modules/personal/static/js/13.d5544994.chunk.js.map\", \"static/js/14.226a6629.chunk.js\": \"/modules/personal/static/js/14.226a6629.chunk.js\", \"static/js/14.226a6629.chunk.js.map\": \"/modules/personal/static/js/14.226a6629.chunk.js.map\", \"static/js/15.8cf7cf1f.chunk.js\": \"/modules/personal/static/js/15.8cf7cf1f.chunk.js\", \"static/js/15.8cf7cf1f.chunk.js.map\": \"/modules/personal/static/js/15.8cf7cf1f.chunk.js.map\", \"static/css/16.ae2aa3bf.chunk.css\": \"/modules/personal/static"
+    }
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/runtime-main.629306e8.js",
+    "body": "!function(e){function c(c){for(var d,a,n=c[0],o=c[1],b=c[2],u=0,l=[];u<n.length;u++)a=n[u],Object.prototype.hasOwnProperty.call(t,a)&&t[a]&&l.push(t[a][0]),t[a]=0;for(d in o)Object.prototype.hasOwnProperty.call(o,d)&&(e[d]=o[d]);for(i&&i(c);l.length;)l.shift()();return r.push.apply(r,b||[]),f()}function f(){for(var e,c=0;c<r.length;c++){for(var f=r[c],d=!0,a=1;a<f.length;a++){var o=f[a];0!==t[o]&&(d=!1)}d&&(r.splice(c--,1),e=n(n.s=f[0]))}return e}var d={},a={23:0},t={23:0},r=[];function n(c){if(d[c])return d[c].exports;var f=d[c]={i:c,l:!1,exports:{}};return e[c].call(f.exports,f,f.exports,n),f.l=!0,f.exports}n.e=function(e){var c=[];a[e]?c.push(a[e]):0!==a[e]&&{6:1,16:1,27:1,30:1,32:1,34:1,38:1,44:1,55:1,56:1,71:1,79:1,83:1,84:1,85:1}[e]&&c.push(a[e]=new Promise((function(c,f){for(var d=\"static/css/\"+({}[e]||e)+\".\"+{0:\"31d6cfe0\",1:\"31d6cfe0\",2:\"31d6cfe0\",3:\"31d6cfe0\",4:\"31d6cfe0\",5:\"31d6cfe0\",6:\"37b7a888\",7:\"31d6cfe0\",8:\"31d6cfe0\",9:\"31d6cfe0\",10:\"31d6cfe0\",11:\"31d6cfe0\",12:\"31d6cfe0\",13:\"31d6cfe0\",14:\"31d6cfe0\",15:\"31d6cfe0\",16:\"ae2aa3bf\",17:\"31d6cfe0\",18:\"31d6cfe0\",19:\"31d6cfe0\",20:\"31d6cfe0\",21:\"31d6cfe0\",25:\"31d6cfe0\",26:\"31d6cfe0\",27:\"3957fc10\",28:\"31d6cfe0\",29:\"31d6cfe0\",30:\"c7e83bfa\",31:\"31d6cfe0\",32:\"1f42b3cd\",33:\"31d6cfe0\",34:\"e0fb6ea2\",35:\"31d6cfe0\",36:\"31d6cfe0\",37:\"31d6cfe0\",38:\"9d42bc00\",39:\"31d6cfe0\",40:\"31d6cfe0\",41:\"31d6cfe0\",42:\"31d6cfe0\",43:\"31d6cfe0\",44:\"2bb97b22\",45:\"31d6cfe0\",46:\"31d6cfe0\",47:\"31d6cfe0\",48:\"31d6cfe0\",49:\"31d6cfe0\",50:\"31d6cfe0\",51:\"31d6cfe0\",52:\"31d6cfe0\",53:\"31d6cfe0\",54:\"31d6cfe0\",55:\"2bedb7d6\",56:\"41aef0f4\",57:\"31d6cfe0\",58:\"31d6cfe0\",59:\"31d6cfe0\",60:\"31d6cfe0\",61:\"31d6cfe0\",62:\"31d6cfe0\",63:\"31d6cfe0\",64:\"31d6cfe0\",65:\"31d6cfe0\",66:\"31d6cfe0\",67:\"31d6cfe0\",68:\"31d6cfe0\",69:\"31d6cfe0\",70:\"31d6cfe0\",71:\"57a60731\",72:\"31d6cfe0\",73:\"31d6cfe0\",74:\"31d6cfe0\",75:\"31d6cfe0\",76:\"31d6cfe0\",77:\"31d6cfe0\",78:\"31d6cfe0\",79:\"49d9bbce\",80:\"31d6cfe0\",81:\"31d6cfe0\",82:\"31d6cfe0\",83:\"c2c1963c\",84:\"2fe4fa85\",85:\"16e7832c\",86:\"31d6cfe0\",87:\"31d6cfe0\",88:\"31d6cfe0\",89:\"31d6cfe0\",90:\"31d6cfe0\",91:\"31d6cfe0\",92:\"31d6cfe0\",93:\"31d6cfe0\",94:\"31d6cfe0\",95:\"31d6cfe0\",96:\"31d6cfe0\",97:\"31d6cfe0\",98:\"31d6cfe0\",99:\"31d6cfe0\",100:\"31d6cfe0\",101:\"31d6cfe0\",102:\"31d6cfe0\",103:\"31d6cfe0\",104:\"31d6cfe0\",105:\"31d6cfe0\",106:\"31d6cfe0\",107:\"31d6cfe0\",108:\"31d6cfe0\",109:\"31d6cfe0\",110:\"31d6cfe0\",111:\"31d6cfe0\",112:\"31d6cfe0\",113:\"31d6cfe0\",114:\"31d6cfe0\",115:\"31d6cfe0\",116:\"31d6cfe0\",117:\"31d6cfe0\",118:\"31d6cfe0\",119:\"31d6cfe0\",120:\"31d6cfe0\",121:\"31d6cfe0\",122:\"31d6cfe0\",123:\"31d6cfe0\",124:\"31d6cfe0\",125:\"31d6cfe0\",126:\"31d6cfe0\",127:\"31d6cfe0\",128:\"31d6cfe0\",129:\"31d6cfe0\",130:\"31d6cfe0\",131:\"31d6cfe0\",132:\"31d6cfe0\",133:\"31d6cfe0\",134:\"31d6cfe0\",135:\"31d6cfe0\",136:\"31d6cfe0\",137:\"31d6cfe0\",138:\"31d6cfe0\",139:\"31d6cfe0\",140:\"31d6cfe0\",141:\"31d6cfe0\",142:\"31d6cfe0\",143:\"31d6cfe0\",144:\"31d6cfe0\",145:\"31d6cfe0\",146:\"31d6cfe0\",147:\"31d6cfe0\",148:\"31d6cfe0\",149:\"31d6cfe0\",150:\"31d6cfe0\",151:\"31d6cfe0\",152:\"31d6cfe0\",153:\"31d6cfe0\",154:\"31d6cfe0"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/css/24.f8b213cc.chunk.css",
+    "body": "@charset \"UTF-8\";.DraftEditor-editorContainer,.DraftEditor-root,.public-DraftEditor-content{height:inherit;text-align:left;text-align:initial}.public-DraftEditor-content[contenteditable=true]{-webkit-user-modify:read-write-plaintext-only}.DraftEditor-root{position:relative}.DraftEditor-editorContainer{background-color:hsla(0,0%,100%,0);border-left:.1px solid transparent;position:relative;z-index:1}.public-DraftEditor-block{position:relative}.DraftEditor-alignLeft .public-DraftStyleDefault-block{text-align:left}.DraftEditor-alignLeft .public-DraftEditorPlaceholder-root{left:0;text-align:left}.DraftEditor-alignCenter .public-DraftStyleDefault-block{text-align:center}.DraftEditor-alignCenter .public-DraftEditorPlaceholder-root{margin:0 auto;text-align:center;width:100%}.DraftEditor-alignRight .public-DraftStyleDefault-block{text-align:right}.DraftEditor-alignRight .public-DraftEditorPlaceholder-root{right:0;text-align:right}.public-DraftEditorPlaceholder-root{color:#9197a3;position:absolute;width:100%;z-index:1}.public-DraftEditorPlaceholder-hasFocus{color:#bdc1c9}.DraftEditorPlaceholder-hidden{display:none}.public-DraftStyleDefault-block{position:relative;white-space:pre-wrap}.public-DraftStyleDefault-ltr{direction:ltr;text-align:left}.public-DraftStyleDefault-rtl{direction:rtl;text-align:right}.public-DraftStyleDefault-listLTR{direction:ltr}.public-DraftStyleDefault-listRTL{direction:rtl}.public-DraftStyleDefault-ol,.public-DraftStyleDefault-ul{margin:16px 0;padding:0}.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listLTR{margin-left:1.5em}.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listRTL{margin-right:1.5em}.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listLTR{margin-left:3em}.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listRTL{margin-right:3em}.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listLTR{margin-left:4.5em}.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listRTL{margin-right:4.5em}.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listLTR{margin-left:6em}.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listRTL{margin-right:6em}.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listLTR{margin-left:7.5em}.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listRTL{margin-right:7.5em}.public-DraftStyleDefault-unorderedListItem{list-style-type:square;position:relative}.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth0{list-style-type:disc}.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth1{list-style-type:circle}.public-DraftStyleDefault-orderedListItem{list-style-type:none;position:relative}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before{left:-36px;position:absolute;text-align:right;width:30px}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before{position:absolute;right:-36px;text-align:left;width:30px}.public-DraftStyleDefault-order"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/24.2d01abd0.chunk.js",
+    "body": "/*! For license information please see 24.2d01abd0.chunk.js.LICENSE.txt */\n(this[\"webpackJsonpklago-ui-personal-micro\"]=this[\"webpackJsonpklago-ui-personal-micro\"]||[]).push([[24],[function(e,t,r){\"use strict\";e.exports=r(774)},,function(e,t,r){e.exports=r(760)},,function(e,t,r){\"use strict\";r.d(t,\"a\",(function(){return o}));var n=r(20);function i(e,t){var r=Object.keys(e);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(e);t&&(n=n.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),r.push.apply(r,n)}return r}function o(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{};t%2?i(Object(r),!0).forEach((function(t){Object(n.a)(e,t,r[t])})):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):i(Object(r)).forEach((function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))}))}return e}},,function(e,t,r){\"use strict\";function n(e,t,r,n,i,o,a){try{var s=e[o](a),u=s.value}catch(l){return void r(l)}s.done?t(u):Promise.resolve(u).then(n,i)}function i(e){return function(){var t=this,r=arguments;return new Promise((function(i,o){var a=e.apply(t,r);function s(e){n(a,i,o,s,u,\"next\",e)}function u(e){n(a,i,o,s,u,\"throw\",e)}s(void 0)}))}}r.d(t,\"a\",(function(){return i}))},function(e,t,r){\"use strict\";function n(e,t){if(!(e instanceof t))throw new TypeError(\"Cannot call a class as a function\")}r.d(t,\"a\",(function(){return n}))},function(e,t,r){\"use strict\";r.d(t,\"a\",(function(){return i}));var n=r(194);function i(e,t){if(\"function\"!==typeof t&&null!==t)throw new TypeError(\"Super expression must either be null or a function\");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&Object(n.a)(e,t)}},function(e,t,r){\"use strict\";r.d(t,\"a\",(function(){return u}));var n=r(221),i=r(290),o=r(174),a=r(13);function s(e,t){return!t||\"object\"!==Object(o.a)(t)&&\"function\"!==typeof t?Object(a.a)(e):t}function u(e){var t=Object(i.a)();return function(){var r,i=Object(n.a)(e);if(t){var o=Object(n.a)(this).constructor;r=Reflect.construct(i,arguments,o)}else r=i.apply(this,arguments);return s(this,r)}}},function(e,t,r){\"use strict\";function n(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,\"value\"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}function i(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}r.d(t,\"a\",(function(){return i}))},,,function(e,t,r){\"use strict\";function n(e){if(void 0===e)throw new ReferenceError(\"this hasn't been initialised - super() hasn't been called\");return e}r.d(t,\"a\",(function(){return n}))},,function(e,t,r){(function(e){e.exports=function(){\"use strict\";var t,r;function n(){return t.apply(null,arguments)}function i(e){t=e}function o(e){return e instanceof Array||\"[object Array]\"===Object.prototype.toString.call(e)}function a(e){return null!=e&&\"[object Object]\"===Object.prototype.toString.call(e)}function s(e,t){return Object.pro"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/main.16b9fe53.chunk.js",
+    "body": "/*! For license information please see main.16b9fe53.chunk.js.LICENSE.txt */\n(this[\"webpackJsonpklago-ui-personal-micro\"]=this[\"webpackJsonpklago-ui-personal-micro\"]||[]).push([[22],[,function(e,t,n){\"use strict\";n.d(t,\"d\",(function(){return a})),n.d(t,\"k\",(function(){return o.default})),n.d(t,\"e\",(function(){return f})),n.d(t,\"a\",(function(){return m.a})),n.d(t,\"i\",(function(){return h})),n.d(t,\"j\",(function(){return r.a})),n.d(t,\"b\",(function(){return g.a})),n.d(t,\"c\",(function(){return g.b})),n.d(t,\"l\",(function(){return g.c})),n.d(t,\"o\",(function(){return g.d})),n.d(t,\"m\",(function(){return y.a})),n.d(t,\"h\",(function(){return o.OrbitInternalLangPack})),n.d(t,\"n\",(function(){return o.setLunaRocketLanguageFromSession})),n.d(t,\"f\",(function(){return v.MaskType})),n.d(t,\"g\",(function(){return o.ModuleLicenseEnum}));var a=n(24),r=n(170),o=(n(441),n(442),n(12)),i=n(4),s=n(2),l=n.n(s),c=n(6),u=n(7),d=n(10),p=n(139),f=function(){function e(){Object(u.a)(this,e)}return Object(d.a)(e,null,[{key:\"getExcelFormData\",value:function(){var e=Object(c.a)(l.a.mark((function e(t,n,a,r,o){var i;return l.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,t.post(\"/system/common/getexcelformdata\",{companyCode:n,menuCode:a,tableName:r,isUse:void 0===o||!0===o?1:0},{contextType:\"application/json\"});case 2:if(0===(i=e.sent).resultCode){e.next=5;break}throw new Error(i.resultMsg);case 5:return e.abrupt(\"return\",i.resultData);case 6:case\"end\":return e.stop()}}),e)})));return function(t,n,a,r,o){return e.apply(this,arguments)}}()},{key:\"getWorkSheets\",value:function(e){return new Promise((function(t,a){n.e(1).then(n.t.bind(null,2032,7)).then((function(n){var r=new FileReader,i=new n.Workbook;r.readAsArrayBuffer(e),r.onload=function(){var e=r.result;i.xlsx.load(e).then((function(e){t(e.worksheets)})).catch((function(e){a(new Error(o.OrbitInternalLangPack.getText(\"WE000020946\",\"\\ud30c\\uc77c\\uc744 \\uc77d\\uc744 \\uc218 \\uc5c6\\uc2b5\\ub2c8\\ub2e4.\")))}))}}))}))}},{key:\"parseExcel\",value:function(e,t,a){var r=this;return new Promise((function(s,u){n.e(1).then(n.t.bind(null,2032,7)).then((function(n){var d=new FileReader,p=new n.Workbook;d.readAsArrayBuffer(e),d.onload=Object(c.a)(l.a.mark((function e(){var n,f,m,h,g,y,v,b;return l.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,n=d.result,e.next=4,p.xlsx.load(n);case 4:return f=e.sent,m=[],f&&f.worksheets[0]||u(new Error(o.OrbitInternalLangPack.getText(\"WE000020946\",\"\\ud30c\\uc77c\\uc744 \\uc77d\\uc744 \\uc218 \\uc5c6\\uc2b5\\ub2c8\\ub2e4.\"))),f.worksheets[0].rowCount<3&&u(new Error(o.OrbitInternalLangPack.getText(\"WE000068147\",\"\\uc798\\ubabb\\ub41c \\uc5d1\\uc140 \\uc591\\uc2dd \\uc785\\ub2c8\\ub2e4.\"))),f.worksheets[0].rowCount<4&&u(new Error(o.OrbitInternalLangPack.getText(\"WE000000636\",\"\\ub370\\uc774\\ud130\\uac00 \\uc5c6\\uc2b5\\ub2c8\\ub2e4.\"))),e.next=11,Object(c.a)(l.a.mark((function e(){var t;return l.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:if(t=void 0,!a){e.next=14;break}if(!a.formDat"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/css/main.d3da634b.chunk.css",
+    "body": ".Breadcrumb_breadcrumb__2cVht{display:flex;align-items:center;height:50px;background-color:#f8f9fa;padding:0 10px;font-size:1.25em}.Breadcrumb_node-item__ZxN6A{font-weight:700;align-items:center}.Breadcrumb_node-item--end__35lML,.Breadcrumb_node-item__ZxN6A{display:flex;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.Breadcrumb_node-item--end__35lML{cursor:pointer;margin:4px 0 0}.Breadcrumb_node-item--end__35lML>img{pointer-events:none;transition:transform .2s ease;transform-origin:center}.Breadcrumb_node-item--end__35lML .Breadcrumb_arrowDown__Dvt9A{transform:rotate(.5turn)}.Breadcrumb_node-item__prev__xXRZF{cursor:pointer;color:#4ea1d3;font-weight:400}.Breadcrumb_dropdown__2dAUc{width:160px;white-space:nowrap;overflow:hidden;background-color:#fff;position:absolute;border:1px solid #d1d3d4;z-index:10;top:20px;font-size:11px;box-shadow:0 1px 6px rgba(0,0,0,.12),0 1px 4px rgba(0,0,0,.12)}.Breadcrumb_dropdown__2dAUc a{text-decoration:none}.Breadcrumb_dropdown__2dAUc li{line-height:22px;padding:0 7px;height:27px;line-height:27px;font-size:12px}.Breadcrumb_dropdown__2dAUc li:hover{background:#e9f5ff}.Breadcrumb_title__1wFDs{font-weight:700}.Breadcrumb_arrowButton__wyFLx,.Breadcrumb_title__1wFDs{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.Breadcrumb_arrowButton__wyFLx{pointer-events:none;padding:3px 10px 0;height:14px}.OBTPortal_orbitPortalRoot__cB3ud{position:fixed;left:0;top:0;width:0;height:0;overflow:visible;z-index:2001}.OBTFloatingPanel_root__2c4nn{display:inline-block;position:fixed;z-index:2001}.OBTFloatingPanel_root__2c4nn.OBTFloatingPanel_invisible__1RThb{display:none}.OBTFloatingPanel_root__2c4nn.OBTFloatingPanel_opacity__1Dvb5{opacity:0}.OBTFloatingPanel_rootWrapper__2fqyk{position:fixed;display:none}.OBTTooltip_root__3Bfdz{display:inline-block;line-height:0}.OBTTooltip_root__3Bfdz.OBTTooltip_relativePosition__2XH8x{position:relative}.OBTTooltip_tooltipFloatingPanel__1yLmg{pointer-events:none}.OBTTooltip_tooltip__2C2a6{pointer-events:auto;display:flex;align-items:center;justify-content:center;transition:transform .12s ease-out;transform:scale(1)}.OBTTooltip_tooltip__2C2a6:not(.OBTTooltip_visible__3y0q0){transform:scale(0)}.OBTTooltip_tooltip__2C2a6:not(.OBTTooltip_visible__3y0q0):not(.OBTTooltip_transition__TYmyu){display:none}.OBTTooltip_tooltip__2C2a6>.OBTTooltip_contents__2UdOU{box-shadow:0 1px 4px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.12);font-size:12px;font-weight:400;line-height:14px;padding:7px 12px 7px 10px;border-radius:3px;background-color:#fff;border:1px solid #a6a6a6;color:#000}.OBTTooltip_tooltip__2C2a6>.OBTTooltip_contents__2UdOU.OBTTooltip_maxContent__1cx5b{width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:20em;white-space:normal;word-break:break-all}.OBTTooltip_tooltip__2C2a6>.OBTTooltip_contents__2UdOU>.OBTTooltip_labelTextWrapper__k71VC{position:relative;padding-left:18px}.OBTTooltip_tooltip__2C2a6>"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/icon-func-favorite-off.241daf68.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_pagecheck_m_off.c75de4ab.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://support.amaranth10.com/api/user/public/menu/check?moduleGubun=HP&menuCode=HPM0110&urlPath=HPM0110&langCode=ko",
+    "body": {
+      "moduleCode": "HP",
+      "menuCode": "HPM0110",
+      "urlCode": "HPM0110",
+      "langCode": "ko",
+      "happy": "yes",
+      "happyUrl": "https://support.amaranth10.com/user/ko/receipt/406000300",
+      "video": "yes",
+      "videoUrl": "https://support.amaranth10.com/user/ko/video/406000300",
+      "onlinemanual": "yes",
+      "onlinemanualUrl": "https://support.amaranth10.com/user/ko/manual/406000300"
+    }
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-manual-normal.c4adae22.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-video-normal.ff7750be.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-happy-normal.6c1addc8.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/149.e498333c.chunk.js",
+    "body": "(this[\"webpackJsonpklago-ui-personal-micro\"]=this[\"webpackJsonpklago-ui-personal-micro\"]||[]).push([[149],{3678:function(e,t,a){\"use strict\";a.r(t),a.d(t,\"default\",(function(){return T}));var n=a(2),s=a.n(n),r=a(6),o=a(7),i=a(13),c=a(10),u=a(8),p=a(9),l=a(0),f=a.n(l),h=a(5),g=a(3),b=a(230),m=a(1735),d=a(1995),I=a(1997),C=\"read\",y={groupSeq:\"\",loginId:\"\",compNm:\"\",deptPathNm:\"\"},v={version:\"20241105.001\",desc:\"D20241101042\"},T=function(e){Object(u.a)(a,e);var t=Object(p.a)(a);function a(e){var n;return Object(o.a)(this,a),(n=t.call(this,e)).pageContainer=h.OBTPageContainer.getTypedPageContainer(n.props.pageContainer),n.util=h.OBTPageContainer.getTypedUtil(n.props.util),n.basicInfoTab=null,n.state={tabStage:\"0\",visibleList:[]},n.myRefs={basicInfoTab:f.a.createRef(),personalInfoTab:f.a.createRef(),detailTab:f.a.createRef()},n.getVisibleCategoryCode=Object(r.a)(s.a.mark((function e(){var t,a;return s.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return t={coCd:n.props.userInfo.erpUserInfo.companyCode||\"\",empCd:n.props.userInfo.erpUserInfo.userCode||\"\"},e.next=3,n.util.fetch.post(\"/personal/hpm0110/getVisibleList\",t,{contextType:\"application/json\"});case 3:a=e.sent,n.setState({visibleList:a});case 5:case\"end\":return e.stop()}}),e)}))),n.getMainButtons=function(){return[{key:\"systemHelp\",helpButtons:[\"manual\"],onClick:function(e){\"manual\"===e.type?b.HumanUtils.openOnlineManual({openType:\"ecmForm\",menuCode:n.props.menuItem.pageCode}):\"happy\"===e.type||e.type}}]},n.closeCallback=function(){var e=Object(r.a)(s.a.mark((function e(t){return s.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,n.pageContainer.confirm(h.ConfirmMessageEnum.closeDirty);case 2:e.sent&&t.close();case 4:case\"end\":return e.stop()}}),e)})));return function(t){return e.apply(this,arguments)}}(),n.searchData=function(){var e={langkind:n.props.userInfo.erpUserInfo.language||\"\",coCd:n.props.userInfo.erpUserInfo.companyCode||\"\",empCd:n.props.userInfo.erpUserInfo.userCode||\"\"};n.pageContainer.setMainButtons(n.getMainButtons()),\"1\"===n.state.tabStage?n.myRefs.personalInfoTab.current.readData(e):\"2\"===n.state.tabStage&&n.myRefs.detailTab.current.readData(e)},n.moveToCategoryInDetailTab=function(e){n.myRefs.detailTab.current.state.button=e,n.setState({tabStage:\"2\"},(function(){n.searchData()}))},n.pageContainer.initialize({mainButtons:n.getMainButtons(),closeHandler:n.handleClose.bind(Object(i.a)(n)),deleteHandler:n.handleDelete.bind(Object(i.a)(n)),usePrivacy:!0,privacyOptions:{resident:\"always\",foreign:\"always\",passport:\"always\",driver:\"always\",credit:\"always\",account:\"always\"},getVersion:function(){var e=Object(r.a)(s.a.mark((function e(){return s.a.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return e.abrupt(\"return\",{uiVersion:v});case 1:case\"end\":return e.stop()}}),e)})));return function(){return e.apply(this,arguments)}}()}),n}return Object(c.a)(a,[{key:\"langPack\",get:function(){return this.props.LangPack||g.b}}]),Object(c.a)(a,[{key:\"componentD"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/18.16d1463f.chunk.js",
+    "body": "(this[\"webpackJsonpklago-ui-personal-micro\"]=this[\"webpackJsonpklago-ui-personal-micro\"]||[]).push([[18],{1397:function(e,t,a){e.exports=a.p+\"static/media/ic_newpage_m_disable.0b2dc67e.png\"},1410:function(e,t,a){e.exports=a.p+\"static/media/ic_newpage_m_normal.9e616a7a.png\"},1618:function(e,t,a){\"use strict\";var n=a(3);t.a={tel:{ThreedLengthTelCodeList:[\"051\",\"053\",\"032\",\"062\",\"042\",\"052\",\"044\",\"031\",\"033\",\"043\",\"041\",\"063\",\"061\",\"054\",\"055\",\"064\",\"010\",\"011\",\"016\",\"017\",\"019\",\"070\"],patterns:[/^(\\d{4,4})$/,/^(\\d{3,3})(\\d{4,4})$/,/^(\\d{4,4})(\\d{4,4})$/,/^(\\d{2,2})(\\d{3,3})(\\d{4,4})$/,/^(\\d{2,2})(\\d{4,4})(\\d{4,4})$/,/^(\\d{3,3})(\\d{4,4})(\\d{4,4})$/,/^(\\d{4,4})(\\d{4,4})(\\d{4,4})$/,/^(\\+\\d{2,2})(\\d{2,2})(\\d{3,3})(\\d{4,4})$/,/^(\\+\\d{2,2})(\\d{2,2})(\\d{4,4})(\\d{4,4})$/],rawExtractor:function(e){return 0===(e||\"\").indexOf(\"+\")?e.substring(0,1)+e.replace(/[^\\d]/g,\"\"):e.replace(/[^\\d]/g,\"\")},setFormat:function(e){if((e||\"\").length<7||e.indexOf(\"-\")>=0)return e;var t=this.rawExtractor(e);if(t&&10===t.length&&this.ThreedLengthTelCodeList.indexOf(t.substr(0,3))>=0){var a=/^(\\d{3,3})(\\d{3,3})(\\d{4,4})$/.exec(t);return a&&0!==a.length?a.filter((function(e,t){return t>0})).join(\"-\"):t}var n=this.patterns.map((function(e){var a=e.exec(t);return a&&a.length>0?a.filter((function(e,t){return t>0})).join(\"-\"):null})).find((function(e){return e}));return n||t}},date:{setFormat:function(e){return(e||\"\").length<6||e.indexOf(\"-\")>0?e:e.length<8?\"\".concat(e.substring(0,4),\"-\").concat(e.substring(4,6)):\"\".concat(e.substring(0,4),\"-\").concat(e.substring(4,6),\"-\").concat(e.substring(6,8))},setPeriod:function(e){var t=this;if((e||\"\").indexOf(\"~\")<0)return this.setFormat(e);var a=e.split(\"~\");return 2===a.length&&8===a[0].length&&0===a[1].length?this.setFormat(a[0]):a.map((function(e){return t.setFormat(e)})).join(\"~\")},setCharDate:function(e){return 8!==(e||\"\").length?e:n.b.getText(\"WE000043742\",\"${1}\\ub144 ${2}\\uc6d4 ${3}\\uc77c\").replace(/\\${(\\d+)}/g,(function(t,a){return[e.substring(0,4),e.substring(4,6),\"0\"===e.substring(6,7)?e.substring(7,8):e.substring(6,8)][a-1]}))}},resident:{rawExtractor:function(e){return e?e.replace(/[^\\d]/g,\"\").substr(0,13):\"\"},fixedPatternFormatter:function(e){return 13===e.length?e.substr(0,6)+\"-\"+e.substr(6):e},setFormat:function(e){return(e||\"\").length<13?e:this.fixedPatternFormatter(e)}}}},1735:function(e,t,a){\"use strict\";var n=a(0),r=a.n(n),i=a(3);t.a={genderCode:{\"\":\"\",F:i.b.getText(\"WE000024393\",\"\\uc5ec\\uc131\"),M:i.b.getText(\"WE000024394\",\"\\ub0a8\\uc131\")},nativeLangcode:{\"\":\"\",kr:i.b.getText(\"WE000001812\",\"\\ud55c\\uad6d\\uc5b4\"),en:i.b.getText(\"WE000001815\",\"\\uc601\\uc5b4\"),jp:i.b.getText(\"WE000001813\",\"\\uc77c\\ubcf8\\uc5b4\"),cn:i.b.getText(\"WE000001814\",\"\\uc911\\uad6d\\uc5b4\")},licenseCheckYn:{\"\":\"\",1:i.b.getText(\"WE000004009\",\"\\uadf8\\ub8f9\\uc6e8\\uc5b4\"),2:i.b.getText(\"WE000000169\",\"\\uba54\\uc77c\"),3:i.b.getText(\"WE000015704\",\"\\ube44\\ub77c\\uc774\\uc120\\uc2a4\")},lunarYn:{\"\":\"\",Y:i.b.getText(\"WE000004604\",\"\\uc74c\\ub825\"),N:i.b.getText(\"WE000004605\",\""
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/148.e074a696.chunk.js",
+    "body": "(this[\"webpackJsonpklago-ui-personal-micro\"]=this[\"webpackJsonpklago-ui-personal-micro\"]||[]).push([[148],{3605:function(e,t,a){\"use strict\";a.r(t);var n=a(0),l=a.n(n),r=a(42),m=a(1618),c=a(3);t.default=function(e){var t=e.userProfile;return l.a.createElement(\"div\",{className:\"data-area10 t1\"},l.a.createElement(\"dl\",{className:\"area1\"},l.a.createElement(\"dt\",null,l.a.createElement(\"span\",null,l.a.createElement(\"strong\",null,t.korHcls)),l.a.createElement(\"span\",{className:\"pic-type1\"},\"\"!==t.picFileId?l.a.createElement(\"img\",{src:\"/gw/contentsImgController/download/\".concat(t.groupSeq,\"/empPic/\").concat(t.picFileId),alt:\"\"}):l.a.createElement(l.a.Fragment,null))),l.a.createElement(\"dd\",null,l.a.createElement(\"em\",null,\"\\uc18c\\uc18d\"),l.a.createElement(\"i\",null,t.divNm||\"\",\" | \",t.deptNm||\"\")),l.a.createElement(\"dd\",null,l.a.createElement(\"em\",null,\"\\uc785\\uc0ac\\uc77c/\\uc7ac\\uc9c1\\uc5ec\\ubd80(\\uc7ac\\uc9c1\\uae30\\uac04)\"),l.a.createElement(\"i\",null,r.b.UtilCommon.coalesce(m.a.date.setFormat(t.joinDt),\"\"),\"~\",r.b.UtilCommon.isEmpty(t.rtrDt)?\"\\uc7ac\\uc9c1\\uc911\":m.a.date.setFormat(t.rtrDt)),l.a.createElement(\"i\",null,function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:(new Date).toISOString().replaceAll(\"-\",\"\").substring(0,8);if(r.b.UtilCommon.isEmpty(e)||8!==e.length)return\"\";var a=function(e){var t=e.year,a=e.month;return new Date(t,a,0).getDate()},n={year:Number(e.substring(0,4)),month:Number(e.substring(4,6)),date:Number(e.substring(6,8))},l={year:Number(t.substring(0,4)),month:Number(t.substring(4,6)),date:Number(t.substring(6,8))},m=0,o=0,u=0;2===n.month&&29===n.date&&2===l.month&&28===l.date?u=0:n.date===a(n)&&l.date===a(l)?u=1:1===n.date&&l.date===a(l)?(u=0,o=1):(u=l.date-n.date+1)<0&&(l.month=l.month-1,l.month<=0&&(l.year=l.year-1,l.month=l.month+12),u=l.date+a(n)-n.date+1),(o=o+l.month-n.month)<0&&(l.year=l.year-1,l.month=l.month+12,o=l.month-n.month),m=l.year-n.year,1===n.date&&u>=a(l)&&(o+=1,u-=a(l)),o>=12&&(m+=1,o-=12);var d=[];return m>0&&d.push(\"\".concat(m).concat(c.b.getText(\"WE000000253\",\"\\ub144\"))),o>0&&d.push(\"\".concat(o).concat(c.b.getText(\"WE000003065\",\"\\uac1c\\uc6d4\"))),u>0&&d.push(\"\".concat(u).concat(c.b.getText(\"WE000000255\",\"\\uc77c\"))),\"(\".concat(d.join(\" \"),\")\")}(t.joinDt,r.b.UtilCommon.coalesce(t.rtrDt,void 0))))),l.a.createElement(\"dl\",{className:\"area2\"},l.a.createElement(\"dt\",null,\"\\uc544\\uc774\\ub514\"),l.a.createElement(\"dd\",null,t.loginId||\"\"),l.a.createElement(\"dt\",null,\"\\uc0dd\\ub144\\uc6d4\\uc77c\"),l.a.createElement(\"dd\",null,r.b.UtilCommon.isEmpty(t.brthDt)?\"\":\"\".concat(m.a.date.setCharDate(t.brthDt),\" (\").concat(function(e){if(8!==e.length)return\"\";var t=Number(e.substring(0,4)),a=(new Date).getFullYear();return\"\".concat(a-t+1,\"\\uc138\")}(t.brthDt),\")\")),l.a.createElement(\"dt\",null,\"\\ud734\\ub300\\ud3f0\\ubc88\\ud638\"),l.a.createElement(\"dd\",null,m.a.tel.setFormat(t.emgcTel)),l.a.createElement(\"dt\",null,\"\\uc804\\ud654\\ubc88\\ud638\"),l.a.createElement(\"dd\",null,m.a.tel.setFormat(t.tel)),l.a.createElement(\"dt"
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-info-03-m-normal.c1fb3c52.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/static/media/profile_personaldata_noimg_01.d3547a0d.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/personal/hpm0110/getVisibleList",
+    "body": [
+      "001",
+      "002",
+      "003",
+      "004",
+      "005",
+      "006",
+      "007",
+      "008",
+      "009",
+      "010",
+      "011",
+      "012",
+      "014",
+      "015",
+      "018",
+      "023",
+      "031",
+      "032",
+      "033"
+    ]
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_newpage_m_normal.9e616a7a.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/btn_minus.ef0b2fb5.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_cehcked.e6202f1f.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/1x1.06c805d5.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox.9510b9f1.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_disable.f9b7c270.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/btn_plus.5c8a0ad2.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_checked_disable.8346786a.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_inputcal_m_normal.dbab1cda.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_inputcal_m_over.34454bf5.png",
+    "body": null
+  },
+  {
+    "status": 200,
+    "url": "https://gw.glowseoul.co.kr/personal/hpm0110/selectEmpInfo",
+    "body": {
+      "resultCode": 0,
+      "resultMsg": "OK",
+      "resultData": {
+        "count": [
+          {
+            "itemType": "school",
+            "count": 3
+          },
+          {
+            "itemType": "career",
+            "count": 3
+          },
+          {
+            "itemType": "license",
+            "count": 0
+          },
+          {
+            "itemType": "examination",
+            "count": 0
+          },
+          {
+            "itemType": "merit",
+            "count": 0
+          },
+          {
+            "itemType": "reward",
+            "count": 0
+          },
+          {
+            "itemType": "appointment",
+            "count": 0
+          },
+          {
+            "itemType": "education",
+            "count": 0
+          },
+          {
+            "itemType": "biztrip",
+            "count": 0
+          }
+        ],
+        "UpperInfo": [
+          {
+            "hoprNm": null,
+            "divNm": "주식회사 글로우서울",
+            "loginId": "tgjeon",
+            "brthDt": "19970608",
+            "picFileId": "1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+            "empCd": "GS251105",
+            "deptNm": "PM팀",
+            "rsrgAdd": "서울 송파구 올림픽로 435 (신천동, 파크리오) 227동 2304호",
+            "joinDt": "20251117",
+            "emgcTel": "01090671690",
+            "korNm": "전태규",
+            "tel": "01090671690",
+            "rtrDt": "",
+            "korHcls": "전태규 대리"
+          }
+        ],
+        "Summary": [
+          {
+            "summary4": null,
+            "summary5": "",
+            "itemType": "school",
+            "summary2": "20130302~20160202",
+            "summary3": "졸업",
+            "summary1": "잠실고등학교"
+          },
+          {
+            "summary4": "실내디자인과",
+            "summary5": "",
+            "itemType": "school",
+            "summary2": "20200302~20220802",
+            "summary3": "졸업",
+            "summary1": "평생교육진흥원"
+          },
+          {
+            "summary4": "실내건축디자인 전공",
+            "summary5": "",
+            "itemType": "school",
+            "summary2": "20240302~",
+            "summary3": "휴학",
+            "summary1": "홍익대학교 건축도시대학원"
+          },
+          {
+            "summary4": "",
+            "summary5": "",
+            "itemType": "career",
+            "summary2": "20211213~20240331",
+            "summary3": "2년 3개월 19일",
+            "summary1": "아이지엠아이디"
+          },
+          {
+            "summary4": "",
+            "summary5": "",
+            "itemType": "career",
+            "summary2": "20241216~20250314",
+            "summary3": "2개월 27일",
+            "summary1": "연일에스디"
+          },
+          {
+            "summary4": "",
+            "summary5": "",
+            "itemType": "career",
+            "summary2": "20250302~20251101",
+            "summary3": "8개월",
+            "summary1": "에스티앤지앤디"
+          }
+        ]
+      }
+    }
+  }
+]

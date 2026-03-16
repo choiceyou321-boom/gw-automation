@@ -38,6 +38,9 @@ playwright-report/
 # 로그
 logs/*.log
 
+# 구글 서비스 계정 키 (보안)
+config/google_service_account.json
+
 # Docker / 배포
 nginx/ssl/*.pem
 nginx/ssl/*.key

@@ -64,7 +64,7 @@
 | **API 통신** | httpx (회의실 예약 - HMAC 서명) |
 | **프론트엔드** | Vanilla HTML/CSS/JS (다크 테마) |
 | **봇** | python-telegram-bot |
-| **에이전트** | Claude Code (Sonnet 4.6) |
+| **에이전트** | Claude Code (Opus 4.6) |
 
 ---
 
@@ -73,7 +73,7 @@
 ### 1. 환경 설정
 
 ```bash
-cd "D:\전체\1. project\자동화 work"
+cd "자동화 work"   # 프로젝트 디렉토리로 이동
 pip install -r requirements.txt
 playwright install chromium
 ```

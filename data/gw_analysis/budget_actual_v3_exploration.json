@@ -1,0 +1,1427 @@
+{
+  "frame_content": {
+    "page_text": "검색",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "searchInput",
+        "name": "",
+        "placeholder": "통합검색",
+        "value": "",
+        "disabled": false,
+        "cls": "searchInput flex-1",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "사업장코드도움",
+        "value": "1000. 주식회사 글로우서울",
+        "disabled": false,
+        "cls": "",
+        "x": 393,
+        "y": 179,
+        "w": 128,
+        "h": 18,
+        "visible": true,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "value": "2026-01",
+        "disabled": false,
+        "cls": "OBTDatePickerRebuild_inputYM__cRH3u OBTDatePickerRebuild_dateInput__35pTn",
+        "x": 740,
+        "y": 173,
+        "w": 45,
+        "h": 29,
+        "visible": true,
+        "label": "~"
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "value": "2026-12",
+        "disabled": false,
+        "cls": "OBTDatePickerRebuild_inputYM__cRH3u OBTDatePickerRebuild_dateInput__35pTn",
+        "x": 798,
+        "y": 173,
+        "w": 45,
+        "h": 29,
+        "visible": true,
+        "label": "~"
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "사업코드도움",
+        "value": "",
+        "disabled": false,
+        "cls": "",
+        "x": 981,
+        "y": 179,
+        "w": 143,
+        "h": 18,
+        "visible": true,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "차수를 입력하세요.",
+        "value": "1",
+        "disabled": false,
+        "cls": "",
+        "x": 393,
+        "y": 213,
+        "w": 164,
+        "h": 19,
+        "visible": true,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "예산과목코드도움",
+        "value": "",
+        "disabled": false,
+        "cls": "",
+        "x": 981,
+        "y": 214,
+        "w": 143,
+        "h": 18,
+        "visible": true,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "grid_edb553e0-2150-11f1-904e-296554fb07b8_line",
+        "name": "",
+        "placeholder": "",
+        "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+        "disabled": false,
+        "cls": "",
+        "x": 269,
+        "y": 335,
+        "w": 0,
+        "h": 0,
+        "visible": true,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "search_input",
+        "name": "",
+        "placeholder": "통합검색",
+        "value": "",
+        "disabled": false,
+        "cls": "inpBox",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "encAmToken",
+        "placeholder": "",
+        "value": "",
+        "disabled": false,
+        "cls": "",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": "GLOWSEOUL글로우서울"
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "url",
+        "placeholder": "",
+        "value": "",
+        "disabled": false,
+        "cls": "",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "value": "2026-03",
+        "disabled": false,
+        "cls": "OBTDatePickerRebuild_inputYM__HMD2_ OBTDatePickerRebuild_dateInput__tQLeQ",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": ""
+      }
+    ],
+    "buttons": [
+      {
+        "tag": "SPAN",
+        "text": "99+",
+        "id": "",
+        "cls": "btnCnt",
+        "x": 1091,
+        "y": 10
+      },
+      {
+        "tag": "DIV",
+        "text": "온라인문의",
+        "id": "",
+        "cls": "onlineBtn",
+        "x": 1165,
+        "y": 59
+      },
+      {
+        "tag": "BUTTON",
+        "text": "조회",
+        "id": "",
+        "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTConditionPanel_searchButton__2cpwg",
+        "x": 732,
+        "y": -664
+      },
+      {
+        "tag": "BUTTON",
+        "text": "전체회계단위",
+        "id": "",
+        "cls": "",
+        "x": 268,
+        "y": 291
+      },
+      {
+        "tag": "BUTTON",
+        "text": "주식회사 글로우서울",
+        "id": "",
+        "cls": "",
+        "x": 411,
+        "y": 291
+      }
+    ],
+    "realgrid": {
+      "has_realgrid": true,
+      "realgrid_keys": [
+        "getVersion",
+        "setRootContext",
+        "setAssetRoot",
+        "setDebug",
+        "setTrace",
+        "setLogging",
+        "isMobile",
+        "setMobile",
+        "getTimer",
+        "Progress",
+        "DataType",
+        "DataField",
+        "DataColumn",
+        "DataFillMode",
+        "DataFillOptions",
+        "DataOutputOptions",
+        "RowState",
+        "ChangingMode",
+        "DropdownValueLabel",
+        "BackgroundImageLocation",
+        "ColumnHeaderItemLocation",
+        "SubTextLocation",
+        "CellButton",
+        "ButtonVisibility",
+        "LocalDataProvider",
+        "LocalTreeDataProvider",
+        "Column",
+        "ColumnGroup",
+        "ColumnHeader",
+        "ColumnGroupHeader"
+      ],
+      "has_grids": true,
+      "grids_type": "object",
+      "grids_keys": [
+        "getActiveGrid",
+        "exportGrid",
+        "getVersion",
+        "setRootContext",
+        "setAssetRoot",
+        "setDebug",
+        "setLogging",
+        "setTrace",
+        "_log",
+        "setMobile",
+        "$_setMobileEnabled",
+        "getTimer",
+        "Dictionary",
+        "Dimensoion",
+        "SummaryMode",
+        "ValueType",
+        "DataField",
+        "RowState",
+        "ChangingMode",
+        "LocalDataProvider"
+      ],
+      "window_grid_vars": {
+        "Grids": "object",
+        "RealGridJS": "object"
+      }
+    },
+    "grid_dom": {
+      "obtdatagrid_count": 6,
+      "obtdatagrid_elements": [
+        {
+          "cls": "obt_grid_root_class_name_hard OBTDataGrid_root__mruAZ",
+          "w": 992,
+          "h": 367,
+          "visible": true
+        },
+        {
+          "cls": "OBTDataGrid_grid__22Vfl",
+          "w": 991,
+          "h": 364,
+          "visible": true
+        },
+        {
+          "cls": "OBTDataGrid_emptyData__19FCq",
+          "w": 991,
+          "h": 364,
+          "visible": true
+        },
+        {
+          "cls": "OBTDataGrid_emptyTextNormal__GOUwQ",
+          "w": 138,
+          "h": 18,
+          "visible": true
+        },
+        {
+          "cls": "OBTDataGrid_privacyLoadingRoot__1Apj4",
+          "w": 302,
+          "h": 46,
+          "visible": true
+        },
+        {
+          "cls": "OBTDataGrid_privacyLoading__2XPOr OBTLinearProgress_root__Apxli",
+          "w": 302,
+          "h": 46,
+          "visible": true
+        }
+      ],
+      "canvas_count": 1,
+      "canvases": [
+        {
+          "w": 991,
+          "h": 364,
+          "style_w": "",
+          "style_h": "",
+          "parentId": "",
+          "parentClass": "",
+          "grandparentClass": "OBTDataGrid_grid__22Vfl",
+          "visible": true
+        }
+      ],
+      "grid_divs": [
+        {
+          "id": "gridWrapper_edb74fb0-2150-11f1-904e-296554fb07b8",
+          "cls": "obt_grid_root_class_name_hard OBTDataGrid_root__mruAZ",
+          "w": 992,
+          "h": 367
+        },
+        {
+          "id": "grid_edb553e0-2150-11f1-904e-296554fb07b8",
+          "cls": "OBTDataGrid_grid__22Vfl",
+          "w": 991,
+          "h": 364
+        }
+      ]
+    },
+    "fiber": {
+      "grid_class": "OBTDataGrid_grid__22Vfl",
+      "no_fiber": true
+    },
+    "html_tables": []
+  },
+  "realgrid": {
+    "version": "1.1.36.2638",
+    "keys": [
+      "getVersion",
+      "setRootContext",
+      "setAssetRoot",
+      "setDebug",
+      "setTrace",
+      "setLogging",
+      "isMobile",
+      "setMobile",
+      "getTimer",
+      "Progress",
+      "DataType",
+      "DataField",
+      "DataColumn",
+      "DataFillMode",
+      "DataFillOptions",
+      "DataOutputOptions",
+      "RowState",
+      "ChangingMode",
+      "DropdownValueLabel",
+      "BackgroundImageLocation",
+      "ColumnHeaderItemLocation",
+      "SubTextLocation",
+      "CellButton",
+      "ButtonVisibility",
+      "LocalDataProvider",
+      "LocalTreeDataProvider",
+      "Column",
+      "ColumnGroup",
+      "ColumnHeader",
+      "ColumnGroupHeader",
+      "ColumnFooter",
+      "ColumnFilter",
+      "ColumnFilterAction",
+      "IndicatorValue",
+      "SortStyle",
+      "SortDirection",
+      "SortCase",
+      "SelectionStyle",
+      "ItemType",
+      "ItemState",
+      "SummaryMode",
+      "ValidationLevel",
+      "ItemRearrangeMode",
+      "ValidationResult",
+      "GridOptions",
+      "CellIndex",
+      "CellRenderer",
+      "TextCellRenderer",
+      "BarCellRenderer",
+      "CheckCellRenderer"
+    ],
+    "grids_keys": [
+      "getActiveGrid",
+      "exportGrid",
+      "getVersion",
+      "setRootContext",
+      "setAssetRoot",
+      "setDebug",
+      "setLogging",
+      "setTrace",
+      "_log",
+      "setMobile",
+      "$_setMobileEnabled",
+      "getTimer",
+      "Dictionary",
+      "Dimensoion",
+      "SummaryMode",
+      "ValueType",
+      "DataField",
+      "RowState",
+      "ChangingMode",
+      "LocalDataProvider",
+      "GridContainer",
+      "GridView",
+      "CellIndex",
+      "ColumnHeaderItemLocation",
+      "ColumnGroup",
+      "Column",
+      "ValueColumn",
+      "DataColumn",
+      "SeriesColumn",
+      "ColumnLayout",
+      "VisualStyles",
+      "SelectionStyle",
+      "SelectionManager",
+      "BlockSelection",
+      "RowSelection",
+      "ColumnSelection",
+      "ImageList",
+      "ColumnGroupOrientation",
+      "CellButton",
+      "SolidBrush",
+      "SolidPen",
+      "LocalTreeDataProvider",
+      "TreeDataRow",
+      "TreeContainer",
+      "TreeView",
+      "realgrid",
+      "Progress",
+      "PopupMenu",
+      "PopupMenuManager",
+      "GridBase",
+      "AssertError",
+      "ColumnHeader",
+      "BooleanConverter",
+      "DateTimeReader",
+      "DecimalFormatter",
+      "SeriesCell",
+      "ExpressionSyntaxError",
+      "DataRowExpressionRuntime",
+      "StylesArchiver"
+    ],
+    "grid_instances": {
+      "getActiveGrid": {
+        "type": "function"
+      },
+      "exportGrid": {
+        "type": "function"
+      },
+      "getVersion": {
+        "type": "function"
+      },
+      "setRootContext": {
+        "type": "function"
+      },
+      "setAssetRoot": {
+        "type": "function"
+      },
+      "setDebug": {
+        "type": "function"
+      },
+      "setLogging": {
+        "type": "function"
+      },
+      "setTrace": {
+        "type": "function"
+      },
+      "_log": {
+        "type": "function"
+      },
+      "setMobile": {
+        "type": "function"
+      },
+      "$_setMobileEnabled": {
+        "type": "function"
+      },
+      "getTimer": {
+        "type": "function"
+      },
+      "Dictionary": {
+        "type": "function"
+      },
+      "Dimensoion": {
+        "type": "function"
+      },
+      "SummaryMode": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "NONE",
+          "AGGREGATE",
+          "STATISTICAL"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "ValueType": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "TEXT",
+          "NUMBER",
+          "BOOLEAN",
+          "DATETIME",
+          "OBJECT",
+          "CHAR",
+          "UNUM",
+          "INT",
+          "UINT",
+          "DATE"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "DataField": {
+        "type": "function"
+      },
+      "RowState": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "NONE",
+          "CREATED",
+          "UPDATED",
+          "DELETED",
+          "CREATE_AND_DELETED",
+          "isDeleted"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "ChangingMode": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "BEFORE_EDITCOMMIT",
+          "NORMAL"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "LocalDataProvider": {
+        "type": "function"
+      },
+      "GridContainer": {
+        "type": "function"
+      },
+      "GridView": {
+        "type": "function"
+      },
+      "CellIndex": {
+        "type": "function"
+      },
+      "ColumnHeaderItemLocation": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "NONE",
+          "LEFT_EDGE",
+          "RIGHT_EDGE",
+          "TOP_EDGE",
+          "BOTTOM_EDGE",
+          "LEFT",
+          "RIGHT",
+          "TOP",
+          "BOTTOM",
+          "CENTER"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "ColumnGroup": {
+        "type": "function"
+      },
+      "Column": {
+        "type": "function"
+      },
+      "ValueColumn": {
+        "type": "function"
+      },
+      "DataColumn": {
+        "type": "function"
+      },
+      "SeriesColumn": {
+        "type": "function"
+      },
+      "ColumnLayout": {
+        "type": "function"
+      },
+      "VisualStyles": {
+        "type": "function"
+      },
+      "SelectionStyle": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "BLOCK",
+          "ROWS",
+          "COLUMNS",
+          "SINGLE_ROW",
+          "SINGLE_COLUMN",
+          "SINGLE",
+          "NONE",
+          "isSingle",
+          "isRow",
+          "isColumn"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "SelectionManager": {
+        "type": "function"
+      },
+      "BlockSelection": {
+        "type": "function"
+      },
+      "RowSelection": {
+        "type": "function"
+      },
+      "ColumnSelection": {
+        "type": "function"
+      },
+      "ImageList": {
+        "type": "function"
+      },
+      "ColumnGroupOrientation": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "HORIZONTAL",
+          "VERTICAL"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "CellButton": {
+        "type": "object",
+        "methods": [
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "toLocaleString"
+        ],
+        "own_keys": [
+          "NONE",
+          "ACTION",
+          "POPUP",
+          "IMAGE"
+        ],
+        "row_count": -1,
+        "columns": []
+      },
+      "SolidBrush": {
+        "type": "function"
+      },
+      "SolidPen": {
+        "type": "function"
+      },
+      "LocalTreeDataProvider": {
+        "type": "function"
+      },
+      "TreeDataRow": {
+        "type": "function"
+      },
+      "TreeContainer": {
+        "type": "function"
+      },
+      "TreeView": {
+        "type": "function"
+      },
+      "realgrid": {
+        "type": "object",
+        "methods": [
+          "constructor"
+        ],
+        "own_keys": [
+          "createGrid",
+          "createTree",
+          "setDataFields",
+          "addDataField",
+          "$_setMobile",
+          "$_isMobile",
+          "toProxy",
+          "setDataProviderHandler",
+          "setGridHandler",
+          "setTreeDataProviderHandler",
+          "setTreeHandler",
+          "ping",
+          "refreshGrid",
+          "getDataOptions",
+          "setDataOptions",
+          "getDataFields",
+          "getDataValues",
+          "loadData",
+          "getDataValue",
+          "setDataValue",
+          "initGrid",
+          "resetSize",
+          "resetShadowDom",
+          "setShadowDomOptions",
+          "setOptions",
+          "isVisible",
+          "setVisible",
+          "mouseToIndex",
+          "getCellBounds",
+          "getColumns"
+        ],
+        "row_count": -1,
+        "cols_error": "Cannot read properties of undefined (reading '_rootColumn')"
+      },
+      "Progress": {
+        "type": "function"
+      },
+      "PopupMenu": {
+        "type": "function"
+      },
+      "PopupMenuManager": {
+        "type": "function"
+      },
+      "GridBase": {
+        "type": "function"
+      },
+      "AssertError": {
+        "type": "function"
+      },
+      "ColumnHeader": {
+        "type": "function"
+      },
+      "BooleanConverter": {
+        "type": "function"
+      },
+      "DateTimeReader": {
+        "type": "function"
+      },
+      "DecimalFormatter": {
+        "type": "function"
+      },
+      "SeriesCell": {
+        "type": "function"
+      },
+      "ExpressionSyntaxError": {
+        "type": "function"
+      },
+      "DataRowExpressionRuntime": {
+        "type": "function"
+      },
+      "StylesArchiver": {
+        "type": "function"
+      }
+    },
+    "grid_patterns": {}
+  },
+  "search_2026": {
+    "year_field": {
+      "found": false
+    }
+  },
+  "grid_data_2026": {
+    "getActiveGrid": {
+      "columns": []
+    },
+    "exportGrid": {
+      "columns": []
+    },
+    "getVersion": {
+      "columns": []
+    },
+    "setRootContext": {
+      "columns": []
+    },
+    "setAssetRoot": {
+      "columns": []
+    },
+    "setDebug": {
+      "columns": []
+    },
+    "setLogging": {
+      "columns": []
+    },
+    "setTrace": {
+      "columns": []
+    },
+    "_log": {
+      "columns": []
+    },
+    "setMobile": {
+      "columns": []
+    },
+    "$_setMobileEnabled": {
+      "columns": []
+    },
+    "getTimer": {
+      "columns": []
+    },
+    "Dictionary": {
+      "columns": []
+    },
+    "Dimensoion": {
+      "columns": []
+    },
+    "SummaryMode": {
+      "columns": []
+    },
+    "ValueType": {
+      "columns": []
+    },
+    "DataField": {
+      "columns": []
+    },
+    "RowState": {
+      "columns": []
+    },
+    "ChangingMode": {
+      "columns": []
+    },
+    "LocalDataProvider": {
+      "columns": []
+    },
+    "GridContainer": {
+      "columns": []
+    },
+    "GridView": {
+      "columns": []
+    },
+    "CellIndex": {
+      "columns": []
+    },
+    "ColumnHeaderItemLocation": {
+      "columns": []
+    },
+    "ColumnGroup": {
+      "columns": []
+    },
+    "Column": {
+      "columns": []
+    },
+    "ValueColumn": {
+      "columns": []
+    },
+    "DataColumn": {
+      "columns": []
+    },
+    "SeriesColumn": {
+      "columns": []
+    },
+    "ColumnLayout": {
+      "columns": []
+    },
+    "VisualStyles": {
+      "columns": []
+    },
+    "SelectionStyle": {
+      "columns": []
+    },
+    "SelectionManager": {
+      "columns": []
+    },
+    "BlockSelection": {
+      "columns": []
+    },
+    "RowSelection": {
+      "columns": []
+    },
+    "ColumnSelection": {
+      "columns": []
+    },
+    "ImageList": {
+      "columns": []
+    },
+    "ColumnGroupOrientation": {
+      "columns": []
+    },
+    "CellButton": {
+      "columns": []
+    },
+    "SolidBrush": {
+      "columns": []
+    },
+    "SolidPen": {
+      "columns": []
+    },
+    "LocalTreeDataProvider": {
+      "columns": []
+    },
+    "TreeDataRow": {
+      "columns": []
+    },
+    "TreeContainer": {
+      "columns": []
+    },
+    "TreeView": {
+      "columns": []
+    },
+    "realgrid": {
+      "cols_error": "Cannot read properties of undefined (reading '_rootColumn')"
+    },
+    "Progress": {
+      "columns": []
+    },
+    "PopupMenu": {
+      "columns": []
+    },
+    "PopupMenuManager": {
+      "columns": []
+    },
+    "GridBase": {
+      "columns": []
+    },
+    "AssertError": {
+      "columns": []
+    },
+    "ColumnHeader": {
+      "columns": []
+    },
+    "BooleanConverter": {
+      "columns": []
+    },
+    "DateTimeReader": {
+      "columns": []
+    },
+    "DecimalFormatter": {
+      "columns": []
+    },
+    "SeriesCell": {
+      "columns": []
+    },
+    "ExpressionSyntaxError": {
+      "columns": []
+    },
+    "DataRowExpressionRuntime": {
+      "columns": []
+    },
+    "StylesArchiver": {
+      "columns": []
+    }
+  },
+  "search_2025": {
+    "year_field": {
+      "found": false
+    }
+  },
+  "grid_data_2025": {
+    "getActiveGrid": {
+      "columns": []
+    },
+    "exportGrid": {
+      "columns": []
+    },
+    "getVersion": {
+      "columns": []
+    },
+    "setRootContext": {
+      "columns": []
+    },
+    "setAssetRoot": {
+      "columns": []
+    },
+    "setDebug": {
+      "columns": []
+    },
+    "setLogging": {
+      "columns": []
+    },
+    "setTrace": {
+      "columns": []
+    },
+    "_log": {
+      "columns": []
+    },
+    "setMobile": {
+      "columns": []
+    },
+    "$_setMobileEnabled": {
+      "columns": []
+    },
+    "getTimer": {
+      "columns": []
+    },
+    "Dictionary": {
+      "columns": []
+    },
+    "Dimensoion": {
+      "columns": []
+    },
+    "SummaryMode": {
+      "columns": []
+    },
+    "ValueType": {
+      "columns": []
+    },
+    "DataField": {
+      "columns": []
+    },
+    "RowState": {
+      "columns": []
+    },
+    "ChangingMode": {
+      "columns": []
+    },
+    "LocalDataProvider": {
+      "columns": []
+    },
+    "GridContainer": {
+      "columns": []
+    },
+    "GridView": {
+      "columns": []
+    },
+    "CellIndex": {
+      "columns": []
+    },
+    "ColumnHeaderItemLocation": {
+      "columns": []
+    },
+    "ColumnGroup": {
+      "columns": []
+    },
+    "Column": {
+      "columns": []
+    },
+    "ValueColumn": {
+      "columns": []
+    },
+    "DataColumn": {
+      "columns": []
+    },
+    "SeriesColumn": {
+      "columns": []
+    },
+    "ColumnLayout": {
+      "columns": []
+    },
+    "VisualStyles": {
+      "columns": []
+    },
+    "SelectionStyle": {
+      "columns": []
+    },
+    "SelectionManager": {
+      "columns": []
+    },
+    "BlockSelection": {
+      "columns": []
+    },
+    "RowSelection": {
+      "columns": []
+    },
+    "ColumnSelection": {
+      "columns": []
+    },
+    "ImageList": {
+      "columns": []
+    },
+    "ColumnGroupOrientation": {
+      "columns": []
+    },
+    "CellButton": {
+      "columns": []
+    },
+    "SolidBrush": {
+      "columns": []
+    },
+    "SolidPen": {
+      "columns": []
+    },
+    "LocalTreeDataProvider": {
+      "columns": []
+    },
+    "TreeDataRow": {
+      "columns": []
+    },
+    "TreeContainer": {
+      "columns": []
+    },
+    "TreeView": {
+      "columns": []
+    },
+    "realgrid": {
+      "cols_error": "Cannot read properties of undefined (reading '_rootColumn')"
+    },
+    "Progress": {
+      "columns": []
+    },
+    "PopupMenu": {
+      "columns": []
+    },
+    "PopupMenuManager": {
+      "columns": []
+    },
+    "GridBase": {
+      "columns": []
+    },
+    "AssertError": {
+      "columns": []
+    },
+    "ColumnHeader": {
+      "columns": []
+    },
+    "BooleanConverter": {
+      "columns": []
+    },
+    "DateTimeReader": {
+      "columns": []
+    },
+    "DecimalFormatter": {
+      "columns": []
+    },
+    "SeriesCell": {
+      "columns": []
+    },
+    "ExpressionSyntaxError": {
+      "columns": []
+    },
+    "DataRowExpressionRuntime": {
+      "columns": []
+    },
+    "StylesArchiver": {
+      "columns": []
+    }
+  },
+  "captured_apis": [
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/thum_1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2878",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2141",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/e5d41b13-1e03-4e30-bedf-c31e76f86918_png",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw999A04",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"menuGubun\":\"BN\",\"menuCode\":\"NCH0010\",\"urlPath\":\"BZA0020\",\"searchAllLowerMenu\":true}",
+      "response_preview": "{'resultCode': 200, 'resultMsg': 'getSpecificMenuTreeList Success', 'resultData': [{'menuNo': '10', 'menuGubun': 'PORTAL', 'upperMenuNo': '0', 'name': 'PORTAL', 'originName': '포탈', 'changeNameYn': 'N', 'menuDc': None, 'ssoUseYn': 'N', 'menuDepth': 1, 'childCount': 0, 'menuImgClass': None, 'menuType': None, 'menuOrdr': 0, 'urlPath': 'PORTAL', 'urlGubun': None, 'menuCode': 'PORTAL', 'dynamicYn': 'N', 'dynamicPageCode': None, 'treeShowYn': 'Y', 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 10, 'favoriteYn': 'N', 'openMenuInfo': '', 'menuAuthType': 'USER', 'componentModuleCode': 'UJ', 'modifyAuthYn': 'Y', 'deleteAuthYn': 'N', 'printAuthYn': 'N', 'searchAuthType': 'U', 'specialContentsUrl': None, 'singleTabYn': 'N', 'microModuleCode': None, 'oneUrl': None, 'urlImportantYn': 'N', 'urlUpdateDate': None, 'openMenuPrvInfo': '', 'fileId': None, 'hideHeaderYn': None, 'originMenuNo': None, 'originMenuCode': None, 'originModuleCode': None, 'menuDisplayYn': 'N', 'chatbotDisplayYn': 'N', 'menuFuncType': 'UC', 'moduleAdditionServiceYn': 'N', 'children': []}, {'menuNo': '401000000', 'menuGubun': 'BN', 'upperMenuNo': '0', 'name': '예산관리', 'originName': '예산관리', 'changeNameYn': 'N', 'menuDc': None, 'ssoUseYn': 'N', 'menuDepth': 1, 'childCount': 5, 'menuImgClass': 'module-link BM', 'menuType': None, 'menuOrdr': 80, 'urlPath': 'N', 'urlGubun': None, 'menuCode': 'N', 'dynamicYn': 'N', 'dynamicPageCode': None, 'treeShowYn': 'Y', 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 401000000, 'favoriteYn': 'N', 'openMenuInfo': 'NCH0010|BZA0020', 'menuAuthType': 'ADMIN', 'componentModuleCode': 'BN', 'modifyAuthYn': 'N', 'deleteAuthYn': 'N', 'printAuthYn': 'N', 'searchAuthType': 'C', 'specialContentsUrl': None, 'singleTabYn': None, 'microModuleCode': 'nonprofit', 'oneUrl': None, 'urlImportantYn': 'N', 'urlUpdateDate': None, 'openMenuPrvInfo': '', 'fileId': None, 'hideHeaderYn': None, 'originMenuNo': None, 'originMenuCode': None, 'originModuleCode': None, 'menuDisplayYn': 'Y', 'chatbotDisplayYn': 'N', 'menuFuncType': 'ERP', 'moduleAdditionServiceYn': 'N', 'dynamicBaseYn': 'N', 'treeOpen': 1, 'homeId': 401000000, 'homeYn': 'N', 'homeDisplayYn': 'Y', 'children': [{'menuNo': '401000040', 'menuGubun': 'BN', 'upperMenuNo': '401000000', 'menuCode': 'NCH0000', 'menuDc': None, 'urlPath': 'NCH0000', 'name': '프로세스갤러리', 'originName': '프로세스갤러리', 'changeNameYn': 'N', 'ssoUseYn': 'N', 'childCount': 1, 'urlGubun': None, 'menuImgClass': 'module-link BM', 'menuType': None, 'menuOrdr': 401000040, 'dynamicYn': 'N', 'dynamicPageCode': None, 'dynamicBaseYn': 'N', 'treeShowYn': 'Y', 'menuDepth': 2, 'treeOpen': 1, 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 401000040, 'favoriteYn': 'N', 'menuAuthType': 'ADMIN', 'componentModuleCode': 'BN', 'modifyAuthYn': 'N', 'deleteAuthYn': 'N', 'printAuthYn': 'N', 'searchAuthType': 'C', 'specialContentsUrl': None, 'singleTabYn': None, 'microModuleCode': 'nonprofit', 'oneUrl': None, 'urlImportant"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw027A21",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"optionId\":\"cm7010\",\"compSeq\":\"0\"}",
+      "response_preview": "{'resultCode': 200, 'resultMsg': 'SUCCESS', 'resultData': '1'}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw125A05",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': '정상', 'resultData': [{'screenInfo': '{\"name\":\"상단 로고.png\",\"size\":13429,\"url\":\"/gw/contentsImgController/download/gcmsAmaranth36068/common/e5d41b13-1e03-4e30-bedf-c31e76f86918_png\",\"id\":\"e5d41b13-1e03-4e30-bedf-c31e76f86918_png\",\"extsn\":\"png\"}', 'orgType': 'company', 'screenType': 'subLogoImg', 'orgSeq': '1000'}]}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw007A01",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{}",
+      "response_preview": "{'resultCode': 200, 'resultMsg': 'SUCCESS', 'resultData': {'healthStatus': 'N', 'userSe': 'USER|AT|ADMIN', 'compListJson': [{'compSeq': '1000', 'compName': '주식회사 글로우서울', 'compCd': '1000'}, {'compSeq': '2024', 'compName': '주식회사 글로우키친', 'compCd': '2000'}, {'compSeq': '2637', 'compName': '글로우스페이스', 'compCd': '3000'}, {'compSeq': '2824', 'compName': '주식회사 글로우아시아', 'compCd': '4000'}, {'compSeq': '2154', 'compName': '소하염전', 'compCd': '8000'}, {'compSeq': '2156', 'compName': '수수붕', 'compCd': '8001'}, {'compSeq': '2158', 'compName': '신라당 익선', 'compCd': '8002'}, {'compSeq': '2160', 'compName': '청수당', 'compCd': '8003'}, {'compSeq': '2162', 'compName': '(폐업)온천집 스키야키', 'compCd': '8004'}, {'compSeq': '2164', 'compName': '온천집(익선)', 'compCd': '8005'}], 'alarmMenuList': [{'orderNum': '0', 'flag2': '전체', 'flag1': 'ALL'}, {'flag1': 'COMMON', 'flag2': '공통/시스템설정'}, {'flag1': 'KISS', 'flag2': '업무관리'}, {'flag1': 'REPORT', 'flag2': '업무보고'}, {'flag1': 'SCHEDULE', 'flag2': '일정'}, {'flag1': 'EAPPROVAL', 'flag2': '전자결재'}, {'flag1': 'BOARD', 'flag2': '게시판'}, {'flag1': 'MAIL', 'flag2': '메일'}, {'flag1': 'APR', 'flag2': '회계'}, {'flag1': 'ONEFFICE', 'flag2': 'ONEFFICE'}, {'flag1': 'RESOURCE', 'flag2': '자원'}, {'flag1': 'ONECHAMBER', 'flag2': 'ONECHAMBER'}, {'flag1': 'HPD', 'flag2': '인사'}]}}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/event/event02A01",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"header\":{\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\"},\"body\":{\"reqType\":\"2\",\"reqSubType\":\"N\",\"pageSize\":\"20\",\"newYn\":\"N\",\"mentionYn\":\"N\",\"langCode\":\"kr\",\"eventType\":\"\",\"searchType\":\"received\",\"timeStamp\":1773676682980}}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'timeStamp': 1773639055484, 'specialAlertList': [], 'moreYn': 'Y', 'alertList': [{'senderSeq': '2878', 'eventSubType': 'TA001', 'data': '{\"timeStamp\":1773667408784,\"talkContentType\":\"0\",\"chatId\":\"ceDQ9pwB5RV-Dzr02yCX\",\"link\":null,\"systemYn\":\"N\",\"content\":{\"jp\":\"\",\"kr\":\"|>@empseq=\\\\\"2062\\\\\",name=\\\\\"이영롱\\\\\"@<| |>@empseq=\\\\\"2922\\\\\",name=\\\\\"전태규\\\\\"@<| 이걸로 정리해서 윤대표님께 보고 바람~~~ \",\"en\":\"\",\"cn\":\"\"},\"roomId\":\"tNusXI8BVolwUyuQtxhh\",\"senderName\":\"신동관\"}', 'subSeq': '', 'readDate': '', 'mailBoxSeq': '', 'mentionYn': 'Y', 'eventType': 'TALK', 'message': {'alertTitle': '[일반미팅룸] 신동관님의 알파멘션', 'alertContent': '|>@empseq=\"2062\",name=\"이영롱\"@<| |>@empseq=\"2922\",name=\"전태규\"@<| 이걸로 정리해서 윤대표님께 보고 바람~~~ '}, 'url': '', 'actionType': 'A', 'mobileViewYn': 'Y', 'createTime': 1773667409135, 'webActionType': 'A', 'alertId': 'c-DQ9pwB5RV-Dzr03SAn', 'moreYn': 'N', 'seq': '', 'mailUid': '', 'email': '', 'createDate': '20260316222329135'}, {'senderSeq': '2087', 'eventSubType': 'MA001', 'data': '{\"timeStamp\":\"1773658772625\",\"senderName\":\"조성민\",\"sendEmail\":\"jsm37170@glowseoul.co.kr\",\"sendName\":\"조성민\",\"recvList\":[{\"muid\":465255,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"신택준\",\"mboxSeq\":3089,\"empSeq\":\"2840\",\"boxSeq\":3089,\"boxName\":\"INBOX\",\"email\":\"tjshin@glowseoul.co.kr\"},{\"muid\":465256,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"이지훈\",\"mboxSeq\":2976,\"empSeq\":\"2810\",\"boxSeq\":2976,\"boxName\":\"INBOX\",\"email\":\"jhyi@glowseoul.co.kr\"},{\"muid\":465257,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"권성태\",\"mboxSeq\":3047,\"empSeq\":\"2829\",\"boxSeq\":3047,\"boxName\":\"INBOX\",\"email\":\"stkwon@glowseoul.co.kr\"},{\"muid\":465258,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"김홍일\",\"mboxSeq\":2658,\"empSeq\":\"2743\",\"boxSeq\":2658,\"boxName\":\"INBOX\",\"email\":\"hikim@glowseoul.co.kr\"},{\"muid\":465259,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"신동관\",\"mboxSeq\":3221,\"empSeq\":\"2878\",\"boxSeq\":3221,\"boxName\":\"INBOX\",\"email\":\"dkshin@glowseoul.co.kr\"},{\"muid\":465260,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"임종훈\",\"mboxSeq\":2837,\"empSeq\":\"2781\",\"boxSeq\":2837,\"boxName\":\"INBOX\",\"email\":\"jhim@glowseoul.co.kr\"},{\"muid\":465261,\"paramStr\":\"muid|email|mboxSeq|boxName\",\"empName\":\"전태규\",\"mboxSeq\":3408,\"empSeq\":\"2922\",\"boxSeq\":3408,\"boxName\":\"INBOX\",\"email\":\"tgjeon@glowseoul.co.kr\"}],\"title\":\"종로 메디빌더_공사일보\",\"content\":\"금일 공사일보 공유드립니다. 조성민 Jo SungMin T 02.763.8215|M 010.5127.3717|E jsm37170@glowseoul.co.kr A 서울특별시 용산구 이태원동 164-2\",\"fileList\":[],\"fileId\":\"1773658769739_0E76A5DE3C20.eml\",\"mailSeq\":330583}', 'subSeq': '330583', 'readDate': '', 'mailBoxSeq': '3408', 'mentionYn': 'N', 'eventType': 'MAIL', 'message': {'alertTitle': '[메일] 종로 메디빌더_공사일보', 'alertContent': '보낸사람 : 조성민<jsm37170@glowseoul.co.kr>'}, 'url': '/#/popup?{0}&{1}&{2}&{3}&print=false&callComp=UDAP006&MicroModuleCode=mail&inOutCheck=1&rejectFromEmail=jsm37170@glowseoul.co.kr', 'actionType': 'A', 'mobileViewYn': 'Y', 'createTime': 1773658772655, 'webActionType': 'A', 'alertId': 'FeBN9pwB5RV-Dzr0FB_f"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/event/event02A12",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"header\":{\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\"},\"body\":{\"eventType\":\"\"}}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'alertCnt': 510, 'mention': 73}}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw032A09",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{}",
+      "response_preview": "{'resultCode': 200, 'resultMsg': '성공하였습니다', 'resultData': {'closedNetworkYn': 'N'}}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/GW107A00",
+      "status": 200,
+      "method": "POST",
+      "post_data": "[{\"menuNo\":\"401000080\",\"menuName\":\"프로세스갤러리\",\"gnbMenuName\":\"예산관리\",\"moduleCode\":\"BN\",\"menuCode\":\"NCH0010\",\"pageCode\":\"BZA0020\",\"specialContentsUrl\":null,\"menuAuthType\":\"ADMIN\",\"typeCode\":\"0\"}]",
+      "response_preview": "{'resultCode': 200, 'resultMsg': '메뉴사용내역 저장 완료되었습니다.', 'resultData': 'SUCCESS'}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/orbit/getRelativeProcess",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"moduleCd\":\"BN\",\"menuCd\":\"NCH0010\",\"pageCd\":\"BZA0020\",\"loginId\":\"GS251105\",\"deptSeq\":\"2017\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': []}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': '겸직 전체 GNB메뉴리스트 조회 완료', 'resultData': [{'menuGubun': 'BN', 'menuNmKr': '예산관리', 'menuNo': 401000000}, {'menuGubun': 'HP', 'menuNmKr': '임직원업무관리', 'menuNo': 406000000}, {'menuGubun': 'HP', 'menuNmKr': '업무보고', 'menuNo': 406000600}, {'menuGubun': 'UB', 'menuNmKr': '전자결재', 'menuNo': 1000000}, {'menuGubun': 'UD', 'menuNmKr': '메일', 'menuNo': 7000000}, {'menuGubun': 'UE', 'menuNmKr': '일정', 'menuNo': 2000000}, {'menuGubun': 'UF', 'menuNmKr': '게시판', 'menuNo': 3000000}, {'menuGubun': 'UG', 'menuNmKr': '업무관리', 'menuNo': 4000000}, {'menuGubun': 'UK', 'menuNmKr': '자원', 'menuNo': 10000000}, {'menuGubun': 'UO', 'menuNmKr': 'ONEFFICE', 'menuNo': 9000000}, {'menuGubun': 'UQ', 'menuNmKr': 'ONECHAMBER', 'menuNo': 8000000}, {'menuGubun': 'UT', 'menuNmKr': '오피스케어', 'menuNo': 16000000}]}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw015A43",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"gbnOrg\":\"e\",\"optionKey\":\"totalAlert@sort\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': None}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/bp/bza0000/0bp00011",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"loginId\":\"GS251105\",\"moduleCd\":\"BN\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': []}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/bp/bza0000/0bp00007",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"loginId\":\"GS251105\",\"deptSeq\":\"2017\",\"deptPath\":\"2001|2022|2618|2017|\",\"moduleCd\":\"BN\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'plnList': [], 'bmkPlnList': []}}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/gw999A03",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"moduleCode\":\"BN\",\"upperMenuNo\":\"401002400\",\"dynamicYn\":\"N\",\"menuType\":null,\"level\":2,\"menuAuthType\":\"ADMIN\",\"searchAuthType\":\"C\",\"microModuleCode\":\"nonprofit\"}",
+      "response_preview": "{'resultCode': 200, 'resultMsg': 'get2DepthLowerMenuList Success', 'resultData': [{'menuNo': '401002500', 'menuGubun': 'BN', 'upperMenuNo': '401002400', 'menuCode': 'NCC0230', 'name': '예산일계표', 'originName': '예산일계표', 'changeNameYn': 'N', 'menuDc': None, 'urlPath': 'NCC0230', 'ssoUseYn': 'N', 'childCount': 0, 'urlGubun': None, 'menuImgClass': 'module-link BM', 'menuType': None, 'menuOrdr': 401002500, 'dynamicYn': 'N', 'dynamicPageCode': None, 'dynamicBaseYn': 'N', 'treeShowYn': 'Y', 'menuDepth': 3, 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 401002500, 'favoriteYn': 'N', 'menuAuthType': 'ADMIN', 'treeOpen': 0, 'componentModuleCode': 'BN', 'modifyAuthYn': 'Y', 'deleteAuthYn': 'N', 'printAuthYn': 'N', 'searchAuthType': 'C', 'specialContentsUrl': None, 'singleTabYn': None, 'microModuleCode': 'nonprofit', 'oneUrl': None, 'urlImportantYn': 'N', 'urlUpdateDate': None, 'homeId': 401002500, 'homeYn': 'N', 'homeDisplayYn': 'Y', 'hideHeaderYn': None, 'originMenuNo': None, 'originMenuCode': None, 'originModuleCode': None, 'menuDisplayYn': 'Y', 'chatbotDisplayYn': 'N', 'menuFuncType': 'ERP', 'moduleAdditionServiceYn': 'N'}, {'menuNo': '401002600', 'menuGubun': 'BN', 'upperMenuNo': '401002400', 'menuCode': 'NCC0240', 'name': '예산월계표', 'originName': '예산월계표', 'changeNameYn': 'N', 'menuDc': None, 'urlPath': 'NCC0240', 'ssoUseYn': 'N', 'childCount': 0, 'urlGubun': None, 'menuImgClass': 'module-link BM', 'menuType': None, 'menuOrdr': 401002600, 'dynamicYn': 'N', 'dynamicPageCode': None, 'dynamicBaseYn': 'N', 'treeShowYn': 'Y', 'menuDepth': 3, 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 401002600, 'favoriteYn': 'N', 'menuAuthType': 'ADMIN', 'treeOpen': 0, 'componentModuleCode': 'BN', 'modifyAuthYn': 'Y', 'deleteAuthYn': 'N', 'printAuthYn': 'N', 'searchAuthType': 'C', 'specialContentsUrl': None, 'singleTabYn': None, 'microModuleCode': 'nonprofit', 'oneUrl': None, 'urlImportantYn': 'N', 'urlUpdateDate': None, 'homeId': 401002600, 'homeYn': 'N', 'homeDisplayYn': 'Y', 'hideHeaderYn': None, 'originMenuNo': None, 'originMenuCode': None, 'originModuleCode': None, 'menuDisplayYn': 'Y', 'chatbotDisplayYn': 'N', 'menuFuncType': 'ERP', 'moduleAdditionServiceYn': 'N'}, {'menuNo': '401003200', 'menuGubun': 'BN', 'upperMenuNo': '401002400', 'menuCode': 'NCC0430', 'name': '세출총괄표', 'originName': '세출총괄표', 'changeNameYn': 'N', 'menuDc': None, 'urlPath': 'NCC0430', 'ssoUseYn': 'N', 'childCount': 0, 'urlGubun': None, 'menuImgClass': 'module-link BM', 'menuType': None, 'menuOrdr': 401003200, 'dynamicYn': 'N', 'dynamicPageCode': None, 'dynamicBaseYn': 'N', 'treeShowYn': 'Y', 'menuDepth': 3, 'etc1': None, 'etc2': None, 'etc3': None, 'etc4': None, 'favoriteId': 401003200, 'favoriteYn': 'N', 'menuAuthType': 'ADMIN', 'treeOpen': 0, 'componentModuleCode': 'BN', 'modifyAuthYn': 'Y', 'deleteAuthYn': 'N', 'printAuthYn': 'Y', 'searchAuthType': 'C', 'specialContentsUrl': None, 'singleTabYn': None, 'microModuleCode': 'nonprofit', 'oneUrl': None, 'ur"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+      "status": 200,
+      "method": "GET",
+      "post_data": null,
+      "response_preview": null
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/gw/GW107A00",
+      "status": 200,
+      "method": "POST",
+      "post_data": "[{\"menuNo\":\"401003840\",\"menuName\":\"예실대비현황(상세)\",\"gnbMenuName\":\"예산관리\",\"moduleCode\":\"BN\",\"menuCode\":\"NCC0630\",\"pageCode\":\"NCC0630\",\"specialContentsUrl\":null,\"menuAuthType\":\"ADMIN\",\"typeCode\":\"0\"}]",
+      "response_preview": "{'resultCode': 200, 'resultMsg': '메뉴사용내역 저장 완료되었습니다.', 'resultData': 'SUCCESS'}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/orbit/getRelativeProcess",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"moduleCd\":\"BN\",\"menuCd\":\"NCC0630\",\"pageCd\":\"NCC0630\",\"loginId\":\"GS251105\",\"deptSeq\":\"2017\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': []}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/orbit/getMenuOptions",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'useMultiLang': False, 'privacy': {'completeYn': 'N', 'optionList': [{'coCd': '1000', 'empCd': 'GS251105', 'optType': 'C', 'rsrgOpt': '1', 'forgOpt': '1', 'visaOpt': '1', 'driveOpt': '1', 'cardOpt': '0', 'bankOpt': '0'}]}}}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/orbit/getGridSettingList",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"empSeq\":\"GS251105\",\"menuCode\":\"NCC0630\",\"gridId\":\"grid1\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': []}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/common/flagsEx",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"moduleCd\":\"N0\",\"ctrlCd\":\"17\",\"vPCoCd\":\"1000\",\"coCd\":\"1000\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'OK', 'resultData': [{'coCd': '1000', 'moduleCd': 'N0', 'ctrlCd': '17', 'ctdCd': '1', 'ctdNm': '표시', 'ctdNmk': '표시', 'ctdKorNm': '표시', 'ctdEngNm': None, 'ctdChsNm': None, 'ctdJpnNm': None, 'delFg': None, 'useYn': None, 'rmkDc': '', 'dummy1': '', 'dummy2': None, 'dummy3': None, 'ctdKrNm': '표시', 'ctdEnNm': None, 'ctdJpNm': None, 'ctdCnNm': None, 'rmkKrDc': '', 'rmkEnDc': None, 'rmkJpDc': None, 'rmkCnDc': None}, {'coCd': '1000', 'moduleCd': 'N0', 'ctrlCd': '17', 'ctdCd': '2', 'ctdNm': '미표시', 'ctdNmk': '미표시', 'ctdKorNm': '미표시', 'ctdEngNm': None, 'ctdChsNm': None, 'ctdJpnNm': None, 'delFg': None, 'useYn': None, 'rmkDc': '', 'dummy1': '', 'dummy2': None, 'dummy3': None, 'ctdKrNm': '미표시', 'ctdEnNm': None, 'ctdJpNm': None, 'ctdCnNm': None, 'rmkKrDc': '', 'rmkEnDc': None, 'rmkJpDc': None, 'rmkCnDc': None}]}"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/preferenceCommon/0BN00001",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"menuCode\":\"NCC0630\",\"sctrlDModuleCds\":[\"N0\"],\"moduleCds\":[\"BN\"],\"moduleCdType\":\"list\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'resultCode': 'SUCCESS', 'resultMessage': None, 'syscfgList': [[{'ctrFg': '3', 'ctrCd': '01', 'ctrNb': '', 'useYn': '0', 'fgTy': '2', 'selDoc': '1.부서예산 2.프로젝트예산', 'moduleCd': 'BN', 'value': '2', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '3', 'ctrCd': '02', 'ctrNb': '', 'useYn': '0', 'fgTy': '3', 'selDoc': '1.일별 2.월별 3.연도별(프로젝트별) 4.연도별(사업장별)', 'moduleCd': 'BN', 'value': '3', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '3', 'ctrCd': '03', 'ctrNb': '', 'useYn': '0', 'fgTy': '1', 'selDoc': '0.부가세포함통제 1.부가세불포함통제', 'moduleCd': 'BN', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '04', 'ctrNb': '', 'useYn': '0', 'fgTy': '', 'selDoc': '0.미사용 1.사용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '05', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0.미사용 1.사용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '06', 'ctrNb': '', 'useYn': '1', 'fgTy': '', 'selDoc': '0.미사용 1.사용', 'moduleCd': 'BN', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '3', 'ctrCd': '07', 'ctrNb': '', 'useYn': '', 'fgTy': '2', 'selDoc': '1.이월안함 2.사고+명시+계속비 3.사고이월 4.명시+계속비', 'moduleCd': 'BN', 'value': '2', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '10', 'ctrNb': '', 'useYn': '0', 'fgTy': '1', 'selDoc': '0.미사용 1.사용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '11', 'ctrNb': '', 'useYn': '0', 'fgTy': '', 'selDoc': '0.미반영 1.반영', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '12', 'ctrNb': '', 'useYn': '1', 'fgTy': '', 'selDoc': '0.미통제 1.통제', 'moduleCd': 'BN', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '13', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0.미적용1.적용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '14', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0.미사용 1.적용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '15', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0.미적용1.적용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '16', 'ctrNb': '', 'useYn': '1', 'fgTy': '', 'selDoc': '0.미사용1.사용', 'moduleCd': 'BN', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': None}, {'ctrFg': '2', 'ctrCd': '18', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0.미사용 1.사용', 'moduleCd': 'BN', 'value': '0', 'unitFg': None, 'dummy1':"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/preferenceCommon/0BN00001",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"menuCode\":\"NCC0630\",\"sctrlDModuleCds\":[\"N0\"],\"moduleCds\":[\"S\",\"BN\"],\"moduleCdType\":\"list\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': 'SUCCESS', 'resultData': {'resultCode': 'SUCCESS', 'resultMessage': None, 'syscfgList': [[{'ctrFg': '2', 'ctrCd': '01', 'ctrNb': '', 'useYn': '1', 'fgTy': '', 'selDoc': '0.미사용1.사용', 'moduleCd': 'S', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '본/지점 회계처리 여부를 설정합니다.'}, {'ctrFg': '1', 'ctrCd': '02', 'ctrNb': '2', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~6', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '수량의 소수점자릿수를 설정할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '03', 'ctrNb': '2', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~6', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '단가의 소수점자릿수를 설정할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '04', 'ctrNb': '2', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~6', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '외화단가의 소수점자릿수를 설정할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '05', 'ctrNb': '3', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~6', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '비율의 소수점자릿수를 설정할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '06', 'ctrNb': '0', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~4', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '금액의 소수점자릿수를 설정 할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '07', 'ctrNb': '2', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~4', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '외화금액의 소수점자릿수를 설정 할 수 있습니다.'}, {'ctrFg': '1', 'ctrCd': '08', 'ctrNb': '3', 'useYn': '', 'fgTy': '', 'selDoc': '선택범위:0~6', 'moduleCd': 'S', 'value': '', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '환율의 소수점자릿수를 설정 할 수 있습니다.'}, {'ctrFg': '3', 'ctrCd': '10', 'ctrNb': '', 'useYn': '', 'fgTy': '1', 'selDoc': '0.반올림, 1.절사, 2 절상', 'moduleCd': 'S', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '금액의 끝전 자릿수를 설정 할 수 있습니다.'}, {'ctrFg': '2', 'ctrCd': '11', 'ctrNb': '', 'useYn': '0', 'fgTy': '', 'selDoc': '여:1 부:0', 'moduleCd': 'S', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '% 표시 여부를 설정 할 수 있습니다.'}, {'ctrFg': '3', 'ctrCd': '14', 'ctrNb': '', 'useYn': '0', 'fgTy': '0', 'selDoc': '0. 항상조회 1.검색어 필수', 'moduleCd': 'S', 'value': '0', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '거래처코드 도움창에 조회되는 방식을 설정합니다.'}, {'ctrFg': '3', 'ctrCd': '18', 'ctrNb': '', 'useYn': '', 'fgTy': '3', 'selDoc': '0.운영안함, 1.회계, 2.영업,무역(수출), 3.회계,영업,무역(수출)', 'moduleCd': 'S', 'value': '3', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '전자세금계산서 메뉴를 사용할 모듈을 설정합니다.'}, {'ctrFg': '2', 'ctrCd': '22', 'ctrNb': '', 'useYn': '1', 'fgTy': '', 'selDoc': '여:1  부:0', 'moduleCd': 'S', 'value': '1', 'unitFg': None, 'dummy1': None, 'unitTr': None, 'dummy2': '[전표입력],[결의서입력] 메뉴에서 거래처코드도움을 사용하여 신규거래처 등록 가능여부를 설정합니다.'}, {'ctrFg': '3', 'ctrCd': '23', 'ctrNb': '10', 'useYn': '0', 'fgTy': '1', 'selDoc': '0.사용안함,"
+    },
+    {
+      "url": "https://gw.glowseoul.co.kr/system/common/iniRead",
+      "status": 200,
+      "method": "POST",
+      "post_data": "{\"menuCd\":\"NCC0000\",\"vPCoCd\":\"1000\",\"coCd\":\"1000\"}",
+      "response_preview": "{'resultCode': 0, 'resultMsg': '[iniRead] : SUCCESS', 'resultData': [{'coCd': '1000', 'empCd': 'GS251105', 'menuCd': 'NCC0000', 'optionCd': 'CNT', 'optionDc': '1', 'option2Dc': '', 'optionDcNm': '조회차수'}]}"
+    }
+  ]
+}

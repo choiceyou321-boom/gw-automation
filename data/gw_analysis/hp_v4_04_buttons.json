@@ -1,0 +1,56 @@
+[
+  {
+    "text": "사용자기본정보",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 268,
+      "y": 165
+    }
+  },
+  {
+    "text": "인사정보조회",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 380,
+      "y": 165
+    }
+  },
+  {
+    "text": "상세정보",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 491,
+      "y": 165
+    }
+  },
+  {
+    "text": "수정",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "rect": {
+      "x": 1856,
+      "y": 207
+    }
+  },
+  {
+    "text": "로그인 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "rect": {
+      "x": 603,
+      "y": 432
+    }
+  },
+  {
+    "text": "결재 비밀번호변경",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "rect": {
+      "x": 1418,
+      "y": 432
+    }
+  }
+]

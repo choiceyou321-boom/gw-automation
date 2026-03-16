@@ -1,0 +1,88 @@
+[
+  {
+    "tag": "div",
+    "id": "wrap",
+    "class": "",
+    "text": null,
+    "children": [
+      {
+        "tag": "div",
+        "id": "klagoWrap",
+        "class": "",
+        "text": null,
+        "children": [
+          {
+            "tag": "div",
+            "id": "sideWrap",
+            "class": "v-box ",
+            "text": null,
+            "children": [
+              {
+                "tag": "div",
+                "id": null,
+                "class": "sideWrapIn flex-1",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "class": "fixed_top",
+                    "text": null
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "class": "snbScWrap",
+                    "text": null
+                  },
+                  {
+                    "tag": "ul",
+                    "id": null,
+                    "class": "fixed-bottom",
+                    "text": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "id": "containerWrap",
+            "class": "",
+            "text": null,
+            "children": [
+              {
+                "tag": "div",
+                "id": null,
+                "class": "",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "div",
+                    "id": "sideLnb",
+                    "class": " ",
+                    "text": null
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "id": "contents",
+                "class": "",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "div",
+                    "id": "micro-menu-22c4e9b3-f84f-4875-afab-1cbf7dcd6f10",
+                    "class": "",
+                    "text": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

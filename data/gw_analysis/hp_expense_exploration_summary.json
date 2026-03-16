@@ -1,0 +1,156 @@
+{
+  "exploration_date": "2026-03-17",
+  "target": "HP(임직원업무관리) 모듈 - 개인지출결의현황 (이체완료 내역 포함)",
+
+  "page_info": {
+    "page_name": "개인지출결의현황",
+    "url": "/#/HP/NPA0030/NPA0030",
+    "full_url": "https://gw.glowseoul.co.kr/#/HP/NPA0030/NPA0030",
+    "module": "HP (임직원업무관리)",
+    "module_css_class": "module-link HR",
+    "lnb_path": "개인지출결의서 > 개인지출결의현황"
+  },
+
+  "navigation": {
+    "step1": "GW 메인 → span.module-link.HR (임직원업무관리) 클릭",
+    "step2": "LNB에서 '개인지출결의서' 의 chevron (v) 아이콘 클릭 → 하위 메뉴 펼침",
+    "step2_detail": ".nav-item.step-1 내 <I class='nav-icon'> 태그 클릭으로 토글",
+    "step3": "하위 메뉴 '개인지출결의현황' 클릭",
+    "direct_url": "/#/HP/NPA0030/NPA0030 으로 직접 접근 가능"
+  },
+
+  "lnb_menu_structure": {
+    "마이페이지": {
+      "내정보관리": ["개인인사정보조회 (HPM0110)", "기본정보수정", "인사정보변경신청", "인증기기 설정", "노트"],
+      "업무보고": [],
+      "이력관리": [],
+      "주소록": [],
+      "주소록관리": []
+    },
+    "근태관리": "하위 메뉴 확인 필요",
+    "인사관리": "하위 메뉴 확인 필요",
+    "급여관리": "하위 메뉴 확인 필요",
+    "경비청구": "하위 메뉴 확인 필요",
+    "지출결의/계산서": {
+      "품의/지출결의": "하위 메뉴 확인 필요"
+    },
+    "개인지출결의서": {
+      "개인지출결의서작성": "작성 페이지",
+      "개인지출결의현황": "NPA0030 — 이체완료 내역 포함 목록 페이지",
+      "증빙자료현황": "증빙 목록"
+    },
+    "예산관리": "하위 메뉴 확인 필요"
+  },
+
+  "search_filters": {
+    "작성구분": {
+      "type": "OBTDropDownList",
+      "default": "전체",
+      "options": "전체, 기타 옵션 확인 필요 (드롭다운 펼쳐서 확인)"
+    },
+    "결의일": {
+      "type": "OBTDatePicker (기간 선택)",
+      "default_from": "현재월 1일 (2026-03-01)",
+      "default_to": "오늘 (2026-03-17)",
+      "format": "YYYY-MM-DD",
+      "note": "React input이므로 nativeInputValueSetter + 이벤트 dispatch 필요"
+    },
+    "작성자": {
+      "type": "text input (읽기전용 + 검색 아이콘)",
+      "default": "GS251105. 전태규 (현재 로그인 사용자)",
+      "format": "사원번호. 성명"
+    },
+    "조회버튼": {
+      "type": "button",
+      "css": "btn.search.animated1s.swing.delay1s",
+      "icon": "돋보기 아이콘"
+    }
+  },
+
+  "main_grid": {
+    "type": "OBTDataGrid (canvas 기반)",
+    "columns": [
+      "작성구분",
+      "결의일",
+      "순번",
+      "결의구분",
+      "집행용도",
+      "총금액",
+      "진행상태"
+    ],
+    "note": "진행상태 컬럼에 '이체완료' 상태가 표시될 것으로 예상",
+    "footer": "합계 행 (총금액 합계)",
+    "react_fiber": "OBTDataGrid_grid__22Vfl 요소에서 __reactFiber 접근"
+  },
+
+  "detail_section": {
+    "지출결의상세내역": {
+      "type": "OBTDataGrid (canvas 기반)",
+      "columns": ["프로젝트", "예산과목", "결제수단", "과세구분", "제주유형", "코드", "거래처", "집행금액", "공급가액", "부가세액"]
+    },
+    "증빙내역": {
+      "type": "HTML table",
+      "columns": ["거래일자", "거래처상호", "증빙구분", "카드/계좌번호", "첨부파일"]
+    }
+  },
+
+  "api_endpoints": {
+    "page_init": {
+      "method": "POST",
+      "url": "/personal/NPA0030/0hr00004",
+      "body": {"vPCoCd": "1000", "coCd": "1000"},
+      "note": "페이지 초기화 시 호출 (코드 목록 등)"
+    },
+    "search_candidates": [
+      "/personal/NPA0030/0hr00001",
+      "/personal/NPA0030/0hr00002",
+      "/personal/NPA0030/0hr00003",
+      "/personal/NPA0030/0hr00005"
+    ],
+    "auth_note": "fetch()로 직접 호출 시 401 오류 → 페이지 내 React util.fetch 사용 필요",
+    "search_params_likely": {
+      "vPCoCd": "1000",
+      "coCd": "1000",
+      "empCd": "GS251105 (사원코드)",
+      "fromDate": "20250101 (YYYYMMDD)",
+      "toDate": "20261231 (YYYYMMDD)",
+      "writeFg": "전체 또는 특정 작성구분 코드"
+    }
+  },
+
+  "data_status": {
+    "current_user": "전태규 (tgjeon, GS251105) — 개인지출결의서 데이터 없음",
+    "empty_message": "데이터가 존재하지 않습니다",
+    "note": "이 사용자는 개인지출결의서를 작성한 적이 없어 빈 결과. 다른 사용자 또는 실 데이터가 있는 계정으로 확인 필요"
+  },
+
+  "css_selectors": {
+    "module_link": "span.module-link.HR",
+    "lnb_nav_item_step1": ".nav-item.step-1",
+    "lnb_toggle_icon": ".nav-item.step-1 i.nav-icon",
+    "lnb_extend_div": ".nav-item.step-1 > div.extend",
+    "lnb_sub_container": ".nav-item.step-1 > ul.sub-container",
+    "page_title": "개인지출결의현황",
+    "search_button": "btn.search",
+    "grid_root": ".OBTDataGrid_root__mruAZ",
+    "grid_main": ".OBTDataGrid_grid__22Vfl",
+    "grid_empty": ".OBTDataGrid_emptyData__19FCq",
+    "date_input": "input[type='text'] (날짜 값 포함)",
+    "작성구분_dropdown": "검색 영역 내 첫 번째 드롭다운",
+    "작성자_input": "검색 영역 내 'GS251105' 값을 가진 input"
+  },
+
+  "screenshots": [
+    "hp_v5_03_clicked.png — 개인지출결의현황 페이지 초기 상태 (LNB 펼침 상태)",
+    "hp_v6_01_initial.png — 직접 URL 접근 시",
+    "hp_v6_04_after_search.png — 조회 실행 후 (빈 결과)"
+  ],
+
+  "next_steps": [
+    "1. 실 데이터가 있는 계정으로 조회하여 이체완료 데이터 구조 확인",
+    "2. 진행상태 컬럼의 가능한 값 목록 파악 (작성중, 결재중, 이체완료 등)",
+    "3. OBTDataGrid React Fiber 접근 시 __reactFiber 키가 상위 wrapper에 있을 수 있음",
+    "4. API 호출 시 페이지 context 내의 util.fetch 사용 필요 (쿠키 인증 문제)",
+    "5. 지출결의/계산서 > 품의/지출결의 메뉴도 별도 확인 필요"
+  ]
+}

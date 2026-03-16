@@ -1,0 +1,340 @@
+[
+  {
+    "text": "양식필수정보",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_info_close",
+    "rect": {
+      "x": 495,
+      "y": 120,
+      "w": 121,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 760,
+      "y": 219,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 785,
+      "y": 276,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 843,
+      "y": 276,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 760,
+      "y": 330,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 718,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 816,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 901,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1003,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1104,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1206,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1274,
+      "y": 430,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 694,
+      "y": 455,
+      "w": 26,
+      "h": 24
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnImg ml4",
+    "rect": {
+      "x": 1316,
+      "y": 429,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnImg ml4",
+    "rect": {
+      "x": 1316,
+      "y": 484,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "선택",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "rect": {
+      "x": 774,
+      "y": 1072,
+      "w": 46,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btn btn_delete",
+    "rect": {
+      "x": 1176,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btnNemo btn_fileAdd ",
+    "rect": {
+      "x": 1207,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btn btn_UD_thumb  ",
+    "rect": {
+      "x": 1233,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btn btn_UD_list on ",
+    "rect": {
+      "x": 1259,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btn btn_UD_detail  ",
+    "rect": {
+      "x": 1285,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "input",
+    "id": "",
+    "className": "btn btn_down ml3 ",
+    "rect": {
+      "x": 1315,
+      "y": 1106,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 918,
+      "y": 1208,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1318,
+      "y": 1208,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnCode",
+    "rect": {
+      "x": 888,
+      "y": 1248,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  },
+  {
+    "text": "",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_reset",
+    "rect": {
+      "x": 917,
+      "y": 1246,
+      "w": 27,
+      "h": 27
+    },
+    "disabled": false
+  }
+]

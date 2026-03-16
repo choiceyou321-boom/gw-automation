@@ -1,0 +1,98 @@
+[
+  {
+    "tag": "table",
+    "text": "품 의 번 호\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t기본채번\n\t\t\t\t\t\t\t\n\n\n     \n        \n            \n            \n ",
+    "className": "area_sign",
+    "id": "",
+    "rect": {
+      "x": 553,
+      "y": 205,
+      "w": 800,
+      "h": 870
+    }
+  },
+  {
+    "tag": "table",
+    "text": "결재 \n                    \n                    \n                    \n             ",
+    "className": "df05_sign combine",
+    "id": "",
+    "rect": {
+      "x": 983,
+      "y": 207,
+      "w": 368,
+      "h": 220
+    }
+  },
+  {
+    "tag": "tr",
+    "text": "1\n                                    \n                                    \n    ",
+    "className": "sign appline_sign",
+    "id": "",
+    "rect": {
+      "x": 983,
+      "y": 235,
+      "w": 368,
+      "h": 51
+    }
+  },
+  {
+    "tag": "span",
+    "text": "1",
+    "className": "sign_num",
+    "id": "",
+    "rect": {
+      "x": 1023,
+      "y": 235,
+      "w": 26,
+      "h": 19
+    }
+  },
+  {
+    "tag": "span",
+    "text": "2",
+    "className": "sign_num",
+    "id": "",
+    "rect": {
+      "x": 1089,
+      "y": 235,
+      "w": 26,
+      "h": 19
+    }
+  },
+  {
+    "tag": "tr",
+    "text": "전태규\n                                    \n                                 \n     ",
+    "className": "sign_name",
+    "id": "",
+    "rect": {
+      "x": 983,
+      "y": 286,
+      "w": 368,
+      "h": 31
+    }
+  },
+  {
+    "tag": "tr",
+    "text": "",
+    "className": "sign appline_sign",
+    "id": "",
+    "rect": {
+      "x": 983,
+      "y": 344,
+      "w": 368,
+      "h": 51
+    }
+  },
+  {
+    "tag": "tr",
+    "text": "",
+    "className": "sign_name",
+    "id": "",
+    "rect": {
+      "x": 983,
+      "y": 395,
+      "w": 368,
+      "h": 31
+    }
+  }
+]

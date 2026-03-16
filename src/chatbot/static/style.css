@@ -966,3 +966,23 @@ body {
     display: none;
   }
 }
+
+/* 계약서 다운로드 버튼 */
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--accent, #6366f1);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.1s;
+  margin: 2px 4px 2px 0;
+}
+.download-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}

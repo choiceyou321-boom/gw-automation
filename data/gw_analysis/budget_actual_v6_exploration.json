@@ -1,0 +1,1183 @@
+{
+  "search_2026_apis": [],
+  "grid_data_2026": {
+    "grid_id": "grid_74646f10-2152-11f1-ba9e-31d34d84a8c3",
+    "depth": 3,
+    "row_count": 41,
+    "columns": [
+      {
+        "name": "lastYn",
+        "header": "lastYn",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "bottomFg",
+        "header": "bottomFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "divFg",
+        "header": "divFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "defNm",
+        "header": "과목구분",
+        "fieldName": "",
+        "width": 100,
+        "visible": true
+      },
+      {
+        "name": "bgtCd",
+        "header": "예산과목코드",
+        "fieldName": "",
+        "width": 150,
+        "visible": true
+      },
+      {
+        "name": "bgtNm",
+        "header": "예산과목명",
+        "fieldName": "",
+        "width": 200,
+        "visible": true
+      },
+      {
+        "name": "projectHeader",
+        "header": "전체프로젝트",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      },
+      {
+        "name": "0",
+        "header": "[종로] 메디빌더",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      }
+    ],
+    "data": [
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "0000000",
+        "bgtNm": "예산미편성"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "1100000",
+        "bgtNm": "디자인스튜디오"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100100",
+        "bgtNm": "설계"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100200",
+        "bgtNm": "시공"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200200",
+        "bgtNm": "철거"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200300",
+        "bgtNm": "전기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200400",
+        "bgtNm": "금속"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200500",
+        "bgtNm": "설비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200600",
+        "bgtNm": "경량"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200700",
+        "bgtNm": "유리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200800",
+        "bgtNm": "습식"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200900",
+        "bgtNm": "타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201000",
+        "bgtNm": "목공"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201100",
+        "bgtNm": "필름"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201200",
+        "bgtNm": "도장"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201300",
+        "bgtNm": "위생도기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201700",
+        "bgtNm": "도배"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201800",
+        "bgtNm": "조명"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201900",
+        "bgtNm": "제작가구"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202000",
+        "bgtNm": "폐기물처리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202100",
+        "bgtNm": "준공청소"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202200",
+        "bgtNm": "기타 용역"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202600",
+        "bgtNm": "인조대리석"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202700",
+        "bgtNm": "데코타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202800",
+        "bgtNm": "큐비클"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2203000",
+        "bgtNm": "철물자재"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2300000",
+        "bgtNm": "인테리어 외"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300200",
+        "bgtNm": "소방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300500",
+        "bgtNm": "음향"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300700",
+        "bgtNm": "냉난방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300900",
+        "bgtNm": "조경"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301000",
+        "bgtNm": "키네틱"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301100",
+        "bgtNm": "시각"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301500",
+        "bgtNm": "기타"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301600",
+        "bgtNm": "간접비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301900",
+        "bgtNm": "창호"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2302900",
+        "bgtNm": "안전관리비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2303500",
+        "bgtNm": "덤웨이터"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "4200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "4202400",
+        "bgtNm": "간접비"
+      }
+    ]
+  },
+  "grid_glowseoul_tab": {
+    "grid_id": "grid_74646f10-2152-11f1-ba9e-31d34d84a8c3",
+    "depth": 3,
+    "row_count": 41,
+    "columns": [
+      {
+        "name": "lastYn",
+        "header": "lastYn",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "bottomFg",
+        "header": "bottomFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "divFg",
+        "header": "divFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "defNm",
+        "header": "과목구분",
+        "fieldName": "",
+        "width": 100,
+        "visible": true
+      },
+      {
+        "name": "bgtCd",
+        "header": "예산과목코드",
+        "fieldName": "",
+        "width": 150,
+        "visible": true
+      },
+      {
+        "name": "bgtNm",
+        "header": "예산과목명",
+        "fieldName": "",
+        "width": 200,
+        "visible": true
+      },
+      {
+        "name": "projectHeader",
+        "header": "전체프로젝트",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      },
+      {
+        "name": "0",
+        "header": "[종로] 메디빌더",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      }
+    ],
+    "data": [
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "0000000",
+        "bgtNm": "예산미편성"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "1100000",
+        "bgtNm": "디자인스튜디오"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100100",
+        "bgtNm": "설계"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100200",
+        "bgtNm": "시공"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200200",
+        "bgtNm": "철거"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200300",
+        "bgtNm": "전기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200400",
+        "bgtNm": "금속"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200500",
+        "bgtNm": "설비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200600",
+        "bgtNm": "경량"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200700",
+        "bgtNm": "유리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200800",
+        "bgtNm": "습식"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200900",
+        "bgtNm": "타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201000",
+        "bgtNm": "목공"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201100",
+        "bgtNm": "필름"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201200",
+        "bgtNm": "도장"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201300",
+        "bgtNm": "위생도기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201700",
+        "bgtNm": "도배"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201800",
+        "bgtNm": "조명"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201900",
+        "bgtNm": "제작가구"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202000",
+        "bgtNm": "폐기물처리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202100",
+        "bgtNm": "준공청소"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202200",
+        "bgtNm": "기타 용역"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202600",
+        "bgtNm": "인조대리석"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202700",
+        "bgtNm": "데코타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202800",
+        "bgtNm": "큐비클"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2203000",
+        "bgtNm": "철물자재"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2300000",
+        "bgtNm": "인테리어 외"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300200",
+        "bgtNm": "소방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300500",
+        "bgtNm": "음향"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300700",
+        "bgtNm": "냉난방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300900",
+        "bgtNm": "조경"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301000",
+        "bgtNm": "키네틱"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301100",
+        "bgtNm": "시각"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301500",
+        "bgtNm": "기타"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301600",
+        "bgtNm": "간접비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301900",
+        "bgtNm": "창호"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2302900",
+        "bgtNm": "안전관리비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2303500",
+        "bgtNm": "덤웨이터"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "4200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "4202400",
+        "bgtNm": "간접비"
+      }
+    ]
+  },
+  "search_2025_apis": [],
+  "grid_data_2025": {
+    "grid_id": "grid_74646f10-2152-11f1-ba9e-31d34d84a8c3",
+    "depth": 3,
+    "row_count": 41,
+    "columns": [
+      {
+        "name": "lastYn",
+        "header": "lastYn",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "bottomFg",
+        "header": "bottomFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "divFg",
+        "header": "divFg",
+        "fieldName": "",
+        "width": 0,
+        "visible": true
+      },
+      {
+        "name": "defNm",
+        "header": "과목구분",
+        "fieldName": "",
+        "width": 100,
+        "visible": true
+      },
+      {
+        "name": "bgtCd",
+        "header": "예산과목코드",
+        "fieldName": "",
+        "width": 150,
+        "visible": true
+      },
+      {
+        "name": "bgtNm",
+        "header": "예산과목명",
+        "fieldName": "",
+        "width": 200,
+        "visible": true
+      },
+      {
+        "name": "projectHeader",
+        "header": "전체프로젝트",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      },
+      {
+        "name": "0",
+        "header": "[종로] 메디빌더",
+        "fieldName": "",
+        "width": 400,
+        "visible": true
+      }
+    ],
+    "data": [
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "0000000",
+        "bgtNm": "예산미편성"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "1100000",
+        "bgtNm": "디자인스튜디오"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100100",
+        "bgtNm": "설계"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "1100200",
+        "bgtNm": "시공"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200200",
+        "bgtNm": "철거"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200300",
+        "bgtNm": "전기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200400",
+        "bgtNm": "금속"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200500",
+        "bgtNm": "설비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200600",
+        "bgtNm": "경량"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200700",
+        "bgtNm": "유리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200800",
+        "bgtNm": "습식"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2200900",
+        "bgtNm": "타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201000",
+        "bgtNm": "목공"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201100",
+        "bgtNm": "필름"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201200",
+        "bgtNm": "도장"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201300",
+        "bgtNm": "위생도기"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201700",
+        "bgtNm": "도배"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201800",
+        "bgtNm": "조명"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2201900",
+        "bgtNm": "제작가구"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202000",
+        "bgtNm": "폐기물처리"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202100",
+        "bgtNm": "준공청소"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202200",
+        "bgtNm": "기타 용역"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202600",
+        "bgtNm": "인조대리석"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202700",
+        "bgtNm": "데코타일"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2202800",
+        "bgtNm": "큐비클"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2203000",
+        "bgtNm": "철물자재"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "2300000",
+        "bgtNm": "인테리어 외"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300200",
+        "bgtNm": "소방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300500",
+        "bgtNm": "음향"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300700",
+        "bgtNm": "냉난방"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2300900",
+        "bgtNm": "조경"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301000",
+        "bgtNm": "키네틱"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301100",
+        "bgtNm": "시각"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301500",
+        "bgtNm": "기타"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301600",
+        "bgtNm": "간접비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2301900",
+        "bgtNm": "창호"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2302900",
+        "bgtNm": "안전관리비"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "2303500",
+        "bgtNm": "덤웨이터"
+      },
+      {
+        "lastYn": null,
+        "bottomFg": "1",
+        "divFg": "1",
+        "defNm": "장",
+        "bgtCd": "4200000",
+        "bgtNm": "인테리어 내"
+      },
+      {
+        "lastYn": "Y",
+        "bottomFg": "0",
+        "divFg": "2",
+        "defNm": "관",
+        "bgtCd": "4202400",
+        "bgtNm": "간접비"
+      }
+    ]
+  }
+}

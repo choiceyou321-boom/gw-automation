@@ -1,0 +1,15 @@
+[
+  {
+    "text": "양식필수정보",
+    "tag": "button",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_info_close",
+    "rect": {
+      "x": 495,
+      "y": 120,
+      "w": 121,
+      "h": 27
+    },
+    "disabled": false
+  }
+]

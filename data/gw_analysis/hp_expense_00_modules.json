@@ -1,0 +1,352 @@
+[
+  {
+    "text": "예산관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "예산관리",
+    "className": "module-link BM",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-link HR",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "전자결재",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "전자결재",
+    "className": "module-link EA",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "메일",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "메일",
+    "className": "module-link ML",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "일정",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "일정",
+    "className": "module-link CL",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "자원",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "자원",
+    "className": "module-link RM",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "게시판",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "게시판",
+    "className": "module-link BD",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "업무관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "업무관리",
+    "className": "module-link KS",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-link OF",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-link OC",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-link UT",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "부가서비스더존TV",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "부가서비스",
+    "className": "module-link SERVICE",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "예산관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "예산관리",
+    "className": "module-link BM",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "임직원업무관리",
+    "className": "module-link HR",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "전자결재",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "전자결재",
+    "className": "module-link EA",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "메일",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "메일",
+    "className": "module-link ML",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "일정",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "일정",
+    "className": "module-link CL",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "자원",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "자원",
+    "className": "module-link RM",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "게시판",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "게시판",
+    "className": "module-link BD",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "업무관리",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "업무관리",
+    "className": "module-link KS",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "ONEFFICE",
+    "className": "module-link OF",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "ONECHAMBER",
+    "className": "module-link OC",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "오피스케어",
+    "className": "module-link UT",
+    "tagName": "SPAN"
+  },
+  {
+    "text": "",
+    "className": "module-name",
+    "tagName": "DIV"
+  },
+  {
+    "text": "부가서비스더존TV",
+    "className": "module-item",
+    "tagName": "LI"
+  },
+  {
+    "text": "부가서비스",
+    "className": "module-link SERVICE",
+    "tagName": "SPAN"
+  }
+]

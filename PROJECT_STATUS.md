@@ -1,7 +1,7 @@
 # 프로젝트 현황 (Project Status)
 
 > 글로우서울 그룹웨어(더존 Amaranth10/WEHAGO) 자동화 프로젝트
-> 최종 업데이트: 2026-03-04 (세션 X — T6 지출결의서 풀스크린 호환 + OBT 위젯 대응)
+> 최종 업데이트: 2026-03-08 (세션 XI — OBTDataGrid API 발견 + 결재선 동적화 + 좌표 코드 교체)
 
 ---
 
@@ -9,9 +9,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| 전체 진행률 | 세션 X — **T6 지출결의서 풀스크린 호환 + OBT canvas 그리드 대응** |
-| 진행 중 | T6 부적합 사유 개별 해결 (세금계산서 1건, 프로젝트 좌표 더블클릭, 용도코드/지급요청일) |
-| 완료된 핵심 기능 | 회의실 예약(생성/취소/조회), 전자결재(지출결의서 22단계+거래처등록 E2E+대화형 플로우), 메일 요약, 텔레그램 봇, 파일 첨부, 6개 양식 DOM 탐색, E2E 통합 테스트(T1~T13), MD 통폐합 |
+| 전체 진행률 | 세션 XI — **OBTDataGrid React fiber API 발견 + 사용자별 결재선 동적화** |
+| 진행 중 | T6 양식 로드 안정화, T13 임시보관 문서 클릭 개선, 나머지 좌표 의존 코드 제거 |
+| 완료된 핵심 기능 | 회의실 예약(생성/취소/조회), 전자결재(지출결의서 22단계+거래처등록 E2E+대화형 플로우), 결재선 동적 설정(/setline, /myline), 메일 요약, 텔레그램 봇, 파일 첨부, 6개 양식 DOM 탐색, E2E 통합 테스트(T1~T13), MD 통폐합 |
 
 ---
 
@@ -27,6 +27,43 @@
 | VIII | 2026-03-03 | 지출결의서 22단계 자동화 확장 (용도코드, 예산과목 팝업, 날짜필드, 검증결과) |
 | IX | 2026-03-03 | scripts 통폐합 (54→1+archive), 데드코드 정리 (reservation.py 삭제, history.py 이동) |
 | X | 2026-03-04 | T6 풀스크린 호환, OBT canvas 그리드 좌표 대응, 세금계산서 1건 선택 |
+| XI | 2026-03-08 | OBTDataGrid React fiber API 발견, 결재선 동적화 (/setline, /myline), 용도코드/지급요청일 코드 교체 |
+
+---
+
+## 세션 XI 작업 내역 (2026-03-08)
+
+### 완료된 작업
+
+| 항목 | 내용 | 상태 |
+|------|------|------|
+| OBTDataGrid API 발견 | React fiber (`__reactFiber`) → depth 3 → `stateNode.state.interface` 경로로 그리드 API 접근 성공 | **완료** |
+| 그리드 API 교체 (step 10) | 용도코드 입력: `window.gridView` (null 실패) → OBTDataGrid interface `setSelection()` + `focus()` | **완료** |
+| 그리드 API 교체 (step 10-1) | 지급요청일 입력: 동일 교체, 좌표 폴백 제거 | **완료** |
+| 결재선 동적화 (DB) | `user_db.py`에 `approval_config` 컬럼 + `get/set_approval_config()` | **완료** |
+| 결재선 resolve 개선 | `form_templates.py` 4단계 우선순위: 대화직접 > DB양식별 > DB기본 > 내장기본 | **완료** |
+| 텔레그램 /setline, /myline | 사용자별 결재선 설정/조회 명령어 | **완료** |
+| agent.py 결재선 주입 | `handle_submit_expense_approval()` 등에서 user_context 기반 결재선 자동 적용 | **완료** |
+| USER_MANUAL.md 갱신 | 결재선 설정 사용 예시 추가, 메일 요약 섹션 삭제 (내부 전용) | **완료** |
+| T10 22단계 테스트 PASS | OBTDataGrid API 교체 후 전체 필드 테스트 통과 (85s) | **완료** |
+
+### 핵심 발견 사항 (★)
+
+1. **OBTDataGrid = 더존 자체 canvas 그리드** (내부 RealGrid 래핑). `window.gridView` 등 전역 변수 없음
+2. **접근 경로**: `.OBTDataGrid_grid__22Vfl` → React fiber → depth 3 → `stateNode.state.interface`
+3. **interface 주요 메서드**: `setValue()`, `getValue()`, `getRowCount()`, `getColumns()`, `setSelection()`, `focus()`, `commit()`
+4. **depth 12**: 폼 컴포넌트 (`state.grid` = 지출내역 데이터, `state.head` = 상단 필드)
+5. **Playwright `page.evaluate()`에서 동일 경로로 접근 가능** → 좌표 클릭 없이 셀 값 제어
+
+### 미해결 / 다음 세션 작업
+
+| 항목 | 내용 | 상태 |
+|------|------|------|
+| T6 양식 로드 안정화 | 결재작성 → 양식 클릭 후 폼 로드 타임아웃 | **수정 중** |
+| T13 임시보관 문서 클릭 | 좌표 기반 (600,215) → DOM/API 기반으로 교체 | **수정 중** |
+| 나머지 좌표 의존 코드 | 증빙유형, 프로젝트 더블클릭, 세금계산서 등 9개 mouse.click 잔존 | **미해결** |
+| headless 1920x1080 E2E | 챗봇 배포 전 필수 테스트 | **미테스트** |
+| 다중 사용자 결재선 테스트 | 실 계정 2개 이상으로 /setline 검증 | **미테스트** |
 
 ---
 
@@ -147,10 +184,12 @@
 
 | 우선순위 | 작업 | 비고 |
 |---------|------|------|
-| **1순위** | T6 부적합 사유 개별 해결 | 프로젝트 더블클릭 검증, 세금계산서 1건 검증, 용도코드/지급요청일 grid instance 탐색 |
-| 2순위 | 메일 요약 Notion 저장 활성화 | NOTION_PAGE_ID 설정 필요 |
+| **1순위** | T6/T13 안정화 | 양식 로드 타이밍 + 임시보관 문서 클릭 방식 개선 (수정 중) |
+| **1순위** | 나머지 좌표 코드 제거 | 증빙유형, 프로젝트 더블클릭, 세금계산서 등 9개 mouse.click → OBTDataGrid API 교체 |
+| 2순위 | headless E2E 테스트 | 챗봇 배포용 1920x1080 환경 검증 |
+| 2순위 | 다중 사용자 결재선 테스트 | /setline 실 계정 검증 |
 | 3순위 | 클라우드 배포 | HTTPS 적용 필요 |
 
 ---
 
-*마지막 업데이트: 2026-03-04 (세션 X — T6 풀스크린 호환 + OBT canvas 대응)*
+*마지막 업데이트: 2026-03-08 (세션 XI — OBTDataGrid API 발견 + 결재선 동적화)*

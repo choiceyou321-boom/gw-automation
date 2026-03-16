@@ -1,0 +1,412 @@
+{
+  "inputs": [
+    {
+      "placeholder": "사업장코드",
+      "value": "1000. 주식회사 글로우서울",
+      "disabled": false,
+      "x": 838,
+      "y": 210,
+      "w": 386,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "2026-03-08",
+      "disabled": false,
+      "x": 1480,
+      "y": 204,
+      "w": 62,
+      "h": 29,
+      "cls": "OBTDatePickerRebuild_inputYMD__PtxMy OBTDatePickerRebuild_dateInput__35pTn"
+    },
+    {
+      "placeholder": "",
+      "value": "",
+      "disabled": true,
+      "x": 838,
+      "y": 250,
+      "w": 358,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "파일을 첨부해주세요",
+      "value": "",
+      "disabled": false,
+      "x": 1479,
+      "y": 250,
+      "w": 377,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "프로젝트코드도움",
+      "value": "GS-25-0088. [종로] 메디빌더",
+      "disabled": false,
+      "x": 838,
+      "y": 292,
+      "w": 386,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "Y",
+      "disabled": false,
+      "x": 1386,
+      "y": 271,
+      "w": 13,
+      "h": 13,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "N",
+      "disabled": false,
+      "x": 1503,
+      "y": 271,
+      "w": 13,
+      "h": 13,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "1000000",
+      "disabled": false,
+      "x": 838,
+      "y": 332,
+      "w": 407,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "1",
+      "disabled": false,
+      "x": 1441,
+      "y": 312,
+      "w": 13,
+      "h": 13,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": false,
+      "x": 1492,
+      "y": 312,
+      "w": 13,
+      "h": 13,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "2026-03-08",
+      "disabled": false,
+      "x": 763,
+      "y": 857,
+      "w": 62,
+      "h": 29,
+      "cls": "OBTDatePickerRebuild_inputYMD__PtxMy OBTDatePickerRebuild_dateInput__35pTn"
+    },
+    {
+      "placeholder": "",
+      "value": "",
+      "disabled": false,
+      "x": 1189,
+      "y": 857,
+      "w": 62,
+      "h": 29,
+      "cls": "OBTDatePickerRebuild_inputYMD__PtxMy OBTDatePickerRebuild_dateInput__35pTn"
+    },
+    {
+      "placeholder": "사원코드도움",
+      "value": "GS251105. 전태규",
+      "disabled": false,
+      "x": 1615,
+      "y": 863,
+      "w": 249,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "금융기관코드도움",
+      "value": "",
+      "disabled": false,
+      "x": 762,
+      "y": 904,
+      "w": 114,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "거래처계좌번호",
+      "value": "",
+      "disabled": false,
+      "x": 915,
+      "y": 903,
+      "w": 116,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "",
+      "disabled": false,
+      "x": 1188,
+      "y": 903,
+      "w": 269,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "",
+      "disabled": false,
+      "x": 1615,
+      "y": 903,
+      "w": 128,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "부서코드도움",
+      "value": "GH10330. PM팀",
+      "disabled": false,
+      "x": 762,
+      "y": 947,
+      "w": 248,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "프로젝트코드도움",
+      "value": "GS-25-0088. [종로] 메디빌더",
+      "disabled": false,
+      "x": 1188,
+      "y": 947,
+      "w": 248,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "예산과목",
+      "value": "",
+      "disabled": false,
+      "x": 762,
+      "y": 990,
+      "w": 128,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "사업장코드도움",
+      "value": "",
+      "disabled": false,
+      "x": 1188,
+      "y": 990,
+      "w": 128,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "프로젝트코드도움",
+      "value": "",
+      "disabled": false,
+      "x": 1615,
+      "y": 990,
+      "w": 128,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "업무용차량코드도움",
+      "value": "",
+      "disabled": false,
+      "x": 762,
+      "y": 1031,
+      "w": 248,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "사업장코드도움",
+      "value": "1000. 주식회사 글로우서울",
+      "disabled": false,
+      "x": 869,
+      "y": 322,
+      "w": 325,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "사업코드도움",
+      "value": "",
+      "disabled": false,
+      "x": 869,
+      "y": 363,
+      "w": 325,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "예산과목코드도움",
+      "value": "",
+      "disabled": true,
+      "x": 869,
+      "y": 404,
+      "w": 346,
+      "h": 18,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": true,
+      "x": 869,
+      "y": 489,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": true,
+      "x": 869,
+      "y": 530,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": true,
+      "x": 869,
+      "y": 571,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": true,
+      "x": 869,
+      "y": 612,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "",
+      "disabled": true,
+      "x": 869,
+      "y": 653,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    },
+    {
+      "placeholder": "",
+      "value": "0",
+      "disabled": true,
+      "x": 869,
+      "y": 694,
+      "w": 346,
+      "h": 19,
+      "cls": ""
+    }
+  ],
+  "budget_texts": [
+    {
+      "text": "예산관리",
+      "tag": "SPAN",
+      "cls": "module-link BM"
+    },
+    {
+      "text": "예산관리",
+      "tag": "SPAN",
+      "cls": "tit"
+    },
+    {
+      "text": "예산관리",
+      "tag": "SPAN",
+      "cls": "nav-text"
+    },
+    {
+      "text": "(예산결의일)",
+      "tag": "SPAN",
+      "cls": ""
+    },
+    {
+      "text": "예산",
+      "tag": "TH",
+      "cls": ""
+    },
+    {
+      "text": "예산",
+      "tag": "SPAN",
+      "cls": ""
+    },
+    {
+      "text": "예산과목",
+      "tag": "TH",
+      "cls": ""
+    },
+    {
+      "text": "예산회계단위",
+      "tag": "TH",
+      "cls": ""
+    },
+    {
+      "text": "예산프로젝트",
+      "tag": "TH",
+      "cls": ""
+    },
+    {
+      "text": "예산관리",
+      "tag": "SPAN",
+      "cls": "module-link BM"
+    },
+    {
+      "text": "공통 예산잔액 조회",
+      "tag": "H1",
+      "cls": ""
+    },
+    {
+      "text": "예산과목",
+      "tag": "DIV",
+      "cls": "OBTFormPanel_contentsWrapper__LSun8"
+    },
+    {
+      "text": "예산정보",
+      "tag": "STRONG",
+      "cls": ""
+    },
+    {
+      "text": "실행예산액",
+      "tag": "DIV",
+      "cls": "OBTFormPanel_contentsWrapper__LSun8"
+    },
+    {
+      "text": "이월예산액",
+      "tag": "DIV",
+      "cls": "OBTFormPanel_contentsWrapper__LSun8"
+    },
+    {
+      "text": "예산총액",
+      "tag": "DIV",
+      "cls": "OBTFormPanel_contentsWrapper__LSun8"
+    },
+    {
+      "text": "예산잔액",
+      "tag": "DIV",
+      "cls": "OBTFormPanel_contentsWrapper__LSun8"
+    }
+  ],
+  "modals": []
+}

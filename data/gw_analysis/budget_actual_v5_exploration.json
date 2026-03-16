@@ -1,0 +1,122 @@
+{
+  "conditions": {
+    "inputs": [
+      {
+        "placeholder": "사업장코드도움",
+        "value": "1000. 주식회사 글로우서울",
+        "type": "text",
+        "x": 393,
+        "y": 179,
+        "w": 128,
+        "h": 18,
+        "label": ""
+      },
+      {
+        "placeholder": "",
+        "value": "2026-01",
+        "type": "text",
+        "x": 740,
+        "y": 173,
+        "w": 45,
+        "h": 29,
+        "label": ""
+      },
+      {
+        "placeholder": "",
+        "value": "2026-12",
+        "type": "text",
+        "x": 798,
+        "y": 173,
+        "w": 45,
+        "h": 29,
+        "label": "~"
+      },
+      {
+        "placeholder": "사업코드도움",
+        "value": "",
+        "type": "text",
+        "x": 981,
+        "y": 179,
+        "w": 143,
+        "h": 18,
+        "label": ""
+      },
+      {
+        "placeholder": "차수를 입력하세요.",
+        "value": "1",
+        "type": "text",
+        "x": 393,
+        "y": 213,
+        "w": 164,
+        "h": 19,
+        "label": ""
+      },
+      {
+        "placeholder": "예산과목코드도움",
+        "value": "",
+        "type": "text",
+        "x": 981,
+        "y": 214,
+        "w": 143,
+        "h": 18,
+        "label": ""
+      },
+      {
+        "placeholder": "",
+        "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+        "type": "text",
+        "x": 269,
+        "y": 335,
+        "w": 0,
+        "h": 0,
+        "label": ""
+      }
+    ]
+  },
+  "search_2026_apis": [],
+  "grid_data_2026": {
+    "grid_id": "grid_1fa04cb0-2152-11f1-892a-a1ff17376018",
+    "grid_class": "OBTDataGrid_grid__22Vfl",
+    "wrapper_id": "gridWrapper_1fa24880-2152-11f1-892a-a1ff17376018",
+    "grid_div_special_keys": [
+      "__reactInternalInstance$a85dyz7kqg",
+      "__reactEventHandlers$a85dyz7kqg"
+    ],
+    "fiber_key": "__reactInternalInstance$a85dyz7kqg",
+    "depth_3_keys": [
+      "interface",
+      "dateDialogValue",
+      "currentCodePickerColumn",
+      "currentCodePickerSelectedValueDisplayCallback",
+      "currentCodePickerKeyword",
+      "currentDateColumn",
+      "isShowCodePickerDialog",
+      "codePickerCancelCallback",
+      "emptySetType",
+      "emptySetSize",
+      "emptySetTopPotition",
+      "isShowSearchBox",
+      "autoCompleteColumn",
+      "isShowExportExcelDialog",
+      "isShowCustomColumnDialog",
+      "alreadyRead",
+      "hover",
+      "gridOwnerSnackBar",
+      "noSearchSnackbar",
+      "confirmResetColumnSetting",
+      "alertHasDirtyData",
+      "wrapperSize",
+      "isShowConfigDialog"
+    ],
+    "interface_depth": 3,
+    "row_count": 0,
+    "columns": [],
+    "data": []
+  },
+  "search_2025_apis": [],
+  "grid_data_2025": {
+    "row_count": 0,
+    "columns": [],
+    "data": []
+  }
+}

@@ -6,7 +6,9 @@
 // 상태 관리
 const state = {
   sessionId: null,
-  pendingFiles: [],   // [{name, type, data(base64), preview}]
+  pendingFiles: [],        // [{name, type, data(base64), preview}]  이미지/PDF
+  pendingAttachPath: null, // XLSX 등 /upload 후 받은 attachment_path
+  pendingAttachName: null, // 표시용 파일명
   isLoading: false,
   currentUser: null,  // {gw_id, name, position, ...}
 };
@@ -233,13 +235,18 @@ async function sendMessage() {
   // 입력 초기화
   const userMsg = text;
   const files = [...state.pendingFiles];
+  const attachPath = state.pendingAttachPath;
+  const attachName = state.pendingAttachName;
   dom.messageInput.value = '';
   dom.messageInput.style.height = 'auto';
   clearAttachments();
   updateSendBtn();
 
-  // 사용자 메시지 표시
-  appendMessage('user', userMsg, files);
+  // 사용자 메시지 표시 (XLSX 첨부 포함)
+  const displayFiles = attachName
+    ? [...files, { name: attachName, type: 'application/xlsx', preview: null }]
+    : files;
+  appendMessage('user', userMsg, displayFiles);
 
   // 로딩 표시
   state.isLoading = true;
@@ -251,6 +258,9 @@ async function sendMessage() {
       session_id: state.sessionId,
       files: files.map(f => ({ name: f.name, type: f.type, data: f.data })),
     };
+    if (attachPath) {
+      payload.attachment_path = attachPath;
+    }
 
     const res = await fetch('/chat', {
       method: 'POST',
@@ -304,7 +314,7 @@ function appendMessage(role, text, files = [], action = null, actionResult = nul
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
 
-  // 첨부 이미지 (사용자 메시지)
+  // 첨부 파일 (사용자 메시지)
   if (files && files.length > 0) {
     files.forEach(f => {
       if (f.type && f.type.startsWith('image/') && f.preview) {
@@ -313,9 +323,10 @@ function appendMessage(role, text, files = [], action = null, actionResult = nul
         img.className = 'bubble-image';
         img.alt = f.name;
         bubble.appendChild(img);
-      } else if (f.type === 'application/pdf') {
+      } else if (f.name) {
+        const icon = f.type === 'application/pdf' ? '📎' : '📊';
         const p = document.createElement('p');
-        p.textContent = `\u{1F4CE} ${f.name}`;
+        p.textContent = `${icon} ${f.name}`;
         p.style.fontSize = '12px';
         p.style.color = 'rgba(255,255,255,0.7)';
         bubble.appendChild(p);
@@ -323,11 +334,15 @@ function appendMessage(role, text, files = [], action = null, actionResult = nul
     });
   }
 
-  // 텍스트
+  // 텍스트 (봇 메시지: /download/ 링크를 클릭 가능한 다운로드 버튼으로 변환)
   if (text) {
-    const p = document.createElement('p');
-    p.textContent = text;
-    bubble.appendChild(p);
+    if (role === 'bot') {
+      renderBotText(bubble, text);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = text;
+      bubble.appendChild(p);
+    }
   }
 
   // 액션 카드 (봇 응답)
@@ -350,6 +365,67 @@ function appendMessage(role, text, files = [], action = null, actionResult = nul
 
   scrollToBottom();
   return wrapper;
+}
+
+/**
+ * 봇 메시지 텍스트 렌더링
+ * - [텍스트](/download/파일명) 형식 → <a download> 버튼으로 변환
+ * - 나머지 텍스트는 줄 단위로 <p> 렌더링
+ */
+function renderBotText(container, text) {
+  // markdown 링크 패턴: [label](url)
+  const linkPattern = /\[([^\]]+)\]\((\/download\/[^)]+)\)/g;
+  const lines = text.split('\n');
+
+  lines.forEach(line => {
+    if (!line.trim()) {
+      // 빈 줄 → 약간의 여백
+      const br = document.createElement('div');
+      br.style.height = '4px';
+      container.appendChild(br);
+      return;
+    }
+
+    // 줄 안에 /download/ 링크가 있는지 확인
+    if (linkPattern.test(line)) {
+      linkPattern.lastIndex = 0;
+      const wrap = document.createElement('div');
+      wrap.style.margin = '4px 0';
+
+      let lastIdx = 0;
+      let match;
+      linkPattern.lastIndex = 0;
+      while ((match = linkPattern.exec(line)) !== null) {
+        // 링크 앞 텍스트
+        if (match.index > lastIdx) {
+          const span = document.createElement('span');
+          span.textContent = line.slice(lastIdx, match.index);
+          wrap.appendChild(span);
+        }
+        // 다운로드 버튼
+        const a = document.createElement('a');
+        a.href = match[2];
+        a.download = match[2].split('/').pop();
+        a.textContent = match[1];
+        a.className = 'download-btn';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        wrap.appendChild(a);
+        lastIdx = match.index + match[0].length;
+      }
+      // 링크 뒤 텍스트
+      if (lastIdx < line.length) {
+        const span = document.createElement('span');
+        span.textContent = line.slice(lastIdx);
+        wrap.appendChild(span);
+      }
+      container.appendChild(wrap);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = line;
+      container.appendChild(p);
+    }
+  });
 }
 
 function appendLoading() {
@@ -418,29 +494,102 @@ function onFileSelect(e) {
 }
 
 async function processFiles(files) {
-  const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-  const MAX_SIZE = 10 * 1024 * 1024;
+  const allowedBase64 = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+  const allowedUpload = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+  ];
+  const audioTypes = [
+    'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav',
+    'audio/mp4', 'audio/x-m4a', 'audio/m4a',
+    'audio/ogg', 'audio/flac', 'audio/x-flac', 'audio/webm',
+  ];
+  const audioExts = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.webm'];
+  const MAX_SIZE_BASE64 = 10 * 1024 * 1024;
+  const MAX_SIZE_UPLOAD = 20 * 1024 * 1024;
 
   for (const file of files) {
-    if (!allowed.includes(file.type)) {
-      alert(`'${file.name}'은(는) 지원하지 않는 파일 형식입니다.\n(JPG, PNG, GIF, WebP, PDF 지원)`);
-      continue;
-    }
-    if (file.size > MAX_SIZE) {
-      alert(`'${file.name}'의 크기가 10MB를 초과합니다.`);
-      continue;
-    }
+    const isXlsx = file.name.toLowerCase().endsWith('.xlsx') || allowedUpload.includes(file.type);
+    const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+    const isAudio = audioTypes.includes(file.type) || audioExts.includes(fileExt);
 
-    try {
-      const { data, preview } = await readFileAsBase64(file);
-      state.pendingFiles.push({
-        name: file.name,
-        type: file.type,
-        data,
-        preview,
-      });
-    } catch (err) {
-      console.error('파일 읽기 오류:', err);
+    if (isAudio) {
+      // 오디오 → /upload 엔드포인트로 전송, STT 처리
+      if (file.size > MAX_SIZE_UPLOAD) {
+        alert(`'${file.name}'의 크기가 20MB를 초과합니다.`);
+        continue;
+      }
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin',
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          alert(`파일 업로드 실패: ${err.detail || res.status}`);
+          continue;
+        }
+        const data = await res.json();
+        // 오디오 파일 정보를 pendingFiles에 추가 (미리보기는 아이콘)
+        state.pendingFiles.push({
+          name: file.name,
+          type: file.type || 'audio/mpeg',
+          data: null,
+          preview: null,
+          isAudio: true,
+          audioPath: data.audio_path || data.attachment_path,
+        });
+      } catch (err) {
+        console.error('오디오 업로드 오류:', err);
+        alert('오디오 파일 업로드 중 오류가 발생했습니다.');
+      }
+    } else if (isXlsx) {
+      // XLSX → /upload 엔드포인트로 전송, attachment_path 저장
+      if (file.size > MAX_SIZE_UPLOAD) {
+        alert(`'${file.name}'의 크기가 20MB를 초과합니다.`);
+        continue;
+      }
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin',
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          alert(`파일 업로드 실패: ${err.detail || res.status}`);
+          continue;
+        }
+        const data = await res.json();
+        state.pendingAttachPath = data.attachment_path;
+        state.pendingAttachName = file.name;
+      } catch (err) {
+        console.error('XLSX 업로드 오류:', err);
+        alert('파일 업로드 중 오류가 발생했습니다.');
+      }
+    } else if (allowedBase64.includes(file.type)) {
+      if (file.size > MAX_SIZE_BASE64) {
+        alert(`'${file.name}'의 크기가 10MB를 초과합니다.`);
+        continue;
+      }
+      try {
+        const { data, preview } = await readFileAsBase64(file);
+        state.pendingFiles.push({
+          name: file.name,
+          type: file.type,
+          data,
+          preview,
+        });
+      } catch (err) {
+        console.error('파일 읽기 오류:', err);
+      }
+    } else {
+      alert(`'${file.name}'은(는) 지원하지 않는 파일 형식입니다.\n(JPG, PNG, GIF, WebP, PDF, XLSX, MP3, WAV, M4A 지원)`);
     }
   }
 
@@ -465,18 +614,25 @@ function readFileAsBase64(file) {
 function renderAttachments() {
   dom.attachmentsList.innerHTML = '';
 
-  if (state.pendingFiles.length === 0) {
+  const hasFiles = state.pendingFiles.length > 0 || state.pendingAttachPath;
+  if (!hasFiles) {
     dom.attachmentsPreview.style.display = 'none';
     return;
   }
 
   dom.attachmentsPreview.style.display = 'block';
 
+  // 이미지/PDF 파일
   state.pendingFiles.forEach((f, idx) => {
     const item = document.createElement('div');
     item.className = 'attachment-item';
 
-    if (f.preview) {
+    if (f.isAudio) {
+      const icon = document.createElement('div');
+      icon.className = 'attachment-icon';
+      icon.textContent = '\u{1F3A4}';
+      item.appendChild(icon);
+    } else if (f.preview) {
       const img = document.createElement('img');
       img.src = f.preview;
       img.className = 'attachment-thumb';
@@ -507,10 +663,42 @@ function renderAttachments() {
 
     dom.attachmentsList.appendChild(item);
   });
+
+  // XLSX 파일 (attachment_path 방식)
+  if (state.pendingAttachPath) {
+    const item = document.createElement('div');
+    item.className = 'attachment-item';
+
+    const icon = document.createElement('div');
+    icon.className = 'attachment-icon';
+    icon.textContent = '\u{1F4CA}';  // 📊
+    item.appendChild(icon);
+
+    const name = document.createElement('span');
+    name.className = 'attachment-name';
+    name.textContent = state.pendingAttachName || 'Excel 파일';
+    item.appendChild(name);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'attachment-remove';
+    removeBtn.textContent = '\u00D7';
+    removeBtn.title = '제거';
+    removeBtn.addEventListener('click', () => {
+      state.pendingAttachPath = null;
+      state.pendingAttachName = null;
+      renderAttachments();
+      updateSendBtn();
+    });
+    item.appendChild(removeBtn);
+
+    dom.attachmentsList.appendChild(item);
+  }
 }
 
 function clearAttachments() {
   state.pendingFiles = [];
+  state.pendingAttachPath = null;
+  state.pendingAttachName = null;
   if (dom.attachmentsList) dom.attachmentsList.innerHTML = '';
   if (dom.attachmentsPreview) dom.attachmentsPreview.style.display = 'none';
 }

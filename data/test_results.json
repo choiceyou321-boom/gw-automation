@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-04 00:41:14",
-  "duration": 165.9,
+  "timestamp": "2026-03-09 10:48:52",
+  "duration": 385.5,
   "options": {
-    "headless": false,
+    "headless": true,
     "dry_run": false,
     "skip_approval": false,
     "skip_meeting": true,
@@ -14,7 +14,7 @@
       "name": "GW 로그인",
       "status": "PASS",
       "message": "성공",
-      "duration": 4.9
+      "duration": 4.3
     },
     {
       "test_id": "T2",
@@ -40,16 +40,16 @@
     {
       "test_id": "T6",
       "name": "지출결의서 임시보관",
-      "status": "FAIL",
-      "message": "지출결의서 임시보관 실패: 결재상신 후 팝업이 열리지 않았습니다.",
-      "duration": 48.5
+      "status": "PASS",
+      "message": "성공",
+      "duration": 240.1
     },
     {
       "test_id": "T7",
       "name": "거래처등록 임시보관",
       "status": "PASS",
       "message": "성공",
-      "duration": 34.5
+      "duration": 21.1
     },
     {
       "test_id": "T5",
@@ -70,14 +70,14 @@
       "name": "챗봇 라우팅",
       "status": "PASS",
       "message": "성공",
-      "duration": 2.7
+      "duration": 1.9
     },
     {
       "test_id": "T10",
       "name": "지출결의서 22단계 전체",
       "status": "PASS",
       "message": "성공",
-      "duration": 54.8
+      "duration": 75.6
     },
     {
       "test_id": "T11",
@@ -96,14 +96,24 @@
     {
       "test_id": "T13",
       "name": "임시보관문서 상신 E2E",
-      "status": "FAIL",
-      "message": "Timeout 15000ms exceeded.",
-      "duration": 15.3
+      "status": "PASS",
+      "message": "성공",
+      "duration": 33.4
     }
   ],
   "cleanup": [
     {
-      "description": "임시보관 삭제: [TEST_003828] 거래처등록 자동테스트",
+      "description": "임시보관 삭제: [TEST_104226] 지출결의서 자동테스트",
+      "status": "OK",
+      "message": "성공"
+    },
+    {
+      "description": "임시보관 삭제: [TEST_104226] 거래처등록 자동테스트",
+      "status": "OK",
+      "message": "성공"
+    },
+    {
+      "description": "임시보관 삭제: [TEST_104226] 지출결의서 22단계 테스트",
       "status": "OK",
       "message": "성공"
     },
@@ -120,8 +130,8 @@
   ],
   "summary": {
     "total": 13,
-    "pass": 5,
-    "fail": 2,
+    "pass": 7,
+    "fail": 0,
     "skip": 6
   }
 }

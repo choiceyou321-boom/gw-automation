@@ -1916,23 +1916,65 @@ class ApprovalAutomation:
 
         _save_debug(page, "proj_modal_search_result")
 
-        # 4. 검색 결과에서 첫 번째 데이터 행 더블클릭 (좌표 기반)
-        # OBTGrid는 canvas 기반이라 DOM 행 요소가 없음 → 모달 제목 기준 상대좌표 사용
+        # 4. 검색 결과에서 첫 번째 데이터 행 선택
         selected = False
-        try:
-            title_box = page.locator("text=프로젝트코드도움").first.bounding_box()
-            if title_box:
-                # 모달 레이아웃: 제목(y) → 검색바(+35) → 헤더(+65) → 첫 데이터 행(+85)
-                first_row_x = title_box["x"] + 200  # 모달 중앙
-                first_row_y = title_box["y"] + 95    # 첫 데이터 행 중앙
 
-                # 더블클릭으로 행 선택 (사용자 확인: 더블클릭 = 선택 + 모달 닫기)
-                page.mouse.dblclick(first_row_x, first_row_y)
-                logger.info(f"프로젝트 첫 행 더블클릭: ({first_row_x:.0f}, {first_row_y:.0f})")
+        # 방법 A: OBTDataGrid React Fiber API — 모달 내 그리드 첫 행 선택
+        try:
+            react_selected = page.evaluate("""() => {
+                const grids = document.querySelectorAll('.OBTDataGrid_grid__22Vfl');
+                for (const grid of grids) {
+                    const rect = grid.getBoundingClientRect();
+                    if (rect.y < 50 || rect.y > 800) continue;
+                    const fKey = Object.keys(grid).find(k => k.startsWith('__reactFiber'));
+                    if (!fKey) continue;
+                    let node = grid[fKey];
+                    for (let i = 0; i < 10; i++) {
+                        if (!node) break;
+                        if (node.stateNode && node.stateNode.state && node.stateNode.state.interface) {
+                            const iface = node.stateNode.state.interface;
+                            if (typeof iface.getRowCount === 'function') {
+                                const rowCount = iface.getRowCount();
+                                if (rowCount > 0) {
+                                    iface.setSelection({ rowIndex: 0, columnIndex: 0 });
+                                    iface.focus({ rowIndex: 0, columnIndex: 0 });
+                                    if (typeof iface.commit === 'function') iface.commit();
+                                    return { success: true, rowCount: rowCount };
+                                } else {
+                                    return { success: false, rowCount: 0 };
+                                }
+                            }
+                        }
+                        node = node.child || node.sibling || node.return;
+                    }
+                }
+                return { success: false, rowCount: -1 };
+            }""")
+            if react_selected and react_selected.get("success"):
+                logger.info(f"프로젝트 방법 A 성공: OBTDataGrid 첫 행 선택 ({react_selected.get('rowCount')}건)")
                 selected = True
-                time.sleep(1.0)
+                time.sleep(0.8)
+            elif react_selected and react_selected.get("rowCount") == 0:
+                logger.warning("프로젝트 방법 A: 검색 결과 없음 (0건)")
+            else:
+                logger.info(f"프로젝트 방법 A 미적용 (결과: {react_selected}) → 방법 B 시도")
         except Exception as e:
-            logger.warning(f"프로젝트 좌표 더블클릭 실패: {e}")
+            logger.info(f"프로젝트 방법 A 예외 (무시): {e}")
+
+        # 방법 B: 모달 제목 기준 상대좌표 더블클릭 (OBTGrid는 canvas 기반)
+        if not selected:
+            try:
+                title_box = page.locator("text=프로젝트코드도움").first.bounding_box()
+                if title_box:
+                    # 모달 레이아웃: 제목(y) → 검색바(+35) → 헤더(+65) → 첫 데이터 행(+85)
+                    first_row_x = title_box["x"] + 200  # 모달 중앙
+                    first_row_y = title_box["y"] + 95    # 첫 데이터 행 중앙
+                    page.mouse.dblclick(first_row_x, first_row_y)
+                    logger.info(f"프로젝트 방법 B 더블클릭: ({first_row_x:.0f}, {first_row_y:.0f})")
+                    selected = True
+                    time.sleep(1.0)
+            except Exception as e:
+                logger.warning(f"프로젝트 방법 B 좌표 더블클릭 실패: {e}")
 
         # 5. 모달이 아직 열려있으면 확인 버튼 클릭
         if selected:
@@ -2072,6 +2114,27 @@ class ApprovalAutomation:
                     return True
         except Exception:
             pass
+
+        # 방법 2-1: CSS 속성/role 기반 셀렉터 (탭 버튼 대안)
+        for css_sel in [
+            f"[data-id*='증빙']",
+            f"li[class*='tab'][title*='{btn_text}']",
+            f"div[role='tab']:has-text('{btn_text}')",
+            f"span[class*='tab']:has-text('{btn_text}')",
+            f"[class*='tab']:has-text('{btn_text}')",
+            f"[title='{btn_text}']",
+            f"[aria-label*='{btn_text}']",
+        ]:
+            try:
+                el = page.locator(css_sel).first
+                if el.is_visible(timeout=1500):
+                    box = el.bounding_box()
+                    if box and grid_y_min < box["y"] < grid_y_max + 200:
+                        el.click(force=True)
+                        logger.info(f"증빙유형 버튼 클릭 (CSS sel '{css_sel}'): '{btn_text}'")
+                        return True
+            except Exception:
+                continue
 
         # 방법 3: 좌표 폴백
         coords = coord_map.get(btn_text)
@@ -2799,6 +2862,11 @@ class ApprovalAutomation:
             "td:has-text('증빙일자') input",
             "input[placeholder*='일자']",
             "input[class*='DatePicker']",
+            "input[class*='DatePicker']:visible",
+            "input[placeholder*='날짜']",
+            "input[placeholder*='증빙']",
+            "label:has-text('증빙일자') + * input",
+            "label:has-text('증빙일자') ~ * input",
         ]:
             try:
                 el = page.locator(sel).first
@@ -2811,7 +2879,43 @@ class ApprovalAutomation:
             except Exception:
                 continue
 
-        # 최종 폴백: 좌표 기반 (x=763, y=857)
+        # 폴백 3: JS로 증빙일자 라벨 인접 input 동적 탐색
+        try:
+            result = page.evaluate("""() => {
+                const cells = Array.from(document.querySelectorAll('th, td, label, span, div'));
+                const cell = cells.find(c => c.textContent.trim() === '증빙일자');
+                if (!cell) return null;
+                // 부모 tr → 같은 행 input 탐색
+                const row = cell.closest('tr');
+                if (row) {
+                    const inp = row.querySelector('input');
+                    if (inp) {
+                        const r = inp.getBoundingClientRect();
+                        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+                    }
+                }
+                // 인접 형제 탐색
+                let sib = cell.nextElementSibling;
+                while (sib) {
+                    const inp = sib.querySelector('input');
+                    if (inp) {
+                        const r = inp.getBoundingClientRect();
+                        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+                    }
+                    sib = sib.nextElementSibling;
+                }
+                return null;
+            }""")
+            if result:
+                page.mouse.click(result["x"], result["y"])
+                page.keyboard.type(clean_date)
+                page.keyboard.press("Tab")
+                logger.info(f"증빙일자 입력 (JS동적좌표 {result['x']:.0f},{result['y']:.0f}): {date_str}")
+                return True
+        except Exception as e:
+            logger.debug(f"증빙일자 JS 동적 탐색 실패: {e}")
+
+        # 최종 폴백: 하드코딩 좌표 (x=763, y=857, fullscreen 기준)
         try:
             logger.warning("증빙일자 셀렉터 모두 실패, 좌표 폴백: (763, 857)")
             page.mouse.click(763, 857)
@@ -2876,6 +2980,13 @@ class ApprovalAutomation:
                         "[title='선택']",
                         "input[type='file'] + button",
                         "label[for='uploadFile']",
+                        "label:has(input[type='file'])",
+                        "button[title*='파일']",
+                        "button:has(svg)",
+                        "[aria-label*='파일']",
+                        "[aria-label*='선택']",
+                        "button[class*='upload']",
+                        "button[class*='file']",
                     ]:
                         try:
                             extra_btn = page.locator(extra_sel).first
@@ -3068,7 +3179,55 @@ class ApprovalAutomation:
             except Exception:
                 continue
 
-        # 최종 폴백: DOM 데이터 기준 좌표 (x=1808, y=373)
+        # 방법 3: OBTDataGrid 컨테이너 인접(외부) 버튼 탐색
+        for adj_sel in [
+            ".OBTDataGrid_grid__22Vfl + * button:has-text('추가')",
+            ".OBTDataGrid_grid__22Vfl ~ * button:has-text('추가')",
+            "* + .OBTDataGrid_grid__22Vfl button:has-text('추가')",
+            "[class*='OBTDataGrid'] ~ button:has-text('추가')",
+            "[class*='OBTDataGrid'] + button",
+            "[title='행추가']",
+            "[aria-label*='추가']",
+            "button[class*='add']",
+            "button[class*='row-add']",
+        ]:
+            try:
+                el = page.locator(adj_sel).first
+                if el.is_visible(timeout=1000):
+                    el.click(force=True)
+                    logger.info(f"그리드 '추가' 버튼 클릭 (인접 셀렉터 '{adj_sel}')")
+                    return True
+            except Exception:
+                continue
+
+        # 방법 4: JS로 그리드 인접 '추가' 버튼 동적 탐색
+        try:
+            coords = page.evaluate("""() => {
+                const grid = document.querySelector('.OBTDataGrid_grid__22Vfl, [class*="OBTDataGrid"]');
+                const gridRect = grid ? grid.getBoundingClientRect() : null;
+                const buttons = Array.from(document.querySelectorAll('button, [role="button"]'));
+                let best = null, bestDist = Infinity;
+                for (const btn of buttons) {
+                    const text = btn.textContent.trim();
+                    if (!['추가', '행추가', '+'].includes(text)) continue;
+                    const r = btn.getBoundingClientRect();
+                    if (r.width === 0 || r.height === 0) continue;
+                    const dist = gridRect ? Math.abs(r.top - gridRect.top) : 0;
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        best = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+                    }
+                }
+                return best;
+            }""")
+            if coords:
+                page.mouse.click(coords["x"], coords["y"])
+                logger.info(f"그리드 '추가' 버튼 클릭 (JS동적탐색 {coords['x']:.0f},{coords['y']:.0f})")
+                return True
+        except Exception as e:
+            logger.debug(f"그리드 '추가' JS 탐색 실패: {e}")
+
+        # 최종 폴백: DOM 데이터 기준 하드코딩 좌표 (x=1808, y=373)
         try:
             logger.warning("그리드 '추가' 버튼 셀렉터 모두 실패, 좌표 폴백: (1808, 373)")
             page.mouse.click(1808, 373)
@@ -3245,16 +3404,104 @@ class ApprovalAutomation:
 
     def _fill_grid_cell_by_position(self, row_idx: int, col_idx: int, col_name: str, value: str) -> bool:
         """
-        그리드 셀을 좌표 기반으로 입력 (폴백)
+        그리드 셀 입력 (폴백 계층)
 
-        DOM 탐색 데이터 기준 좌표:
-        - 그리드 첫 행 y ~ 345
-        - 행 높이 ~ 28px
-        - 컬럼 x 좌표: 용도~560, 내용~680, 거래처~850, 공급가액~960, 부가세~1070, 합계액~1140
+        방법 A: OBTDataGrid React Fiber interface — 헤더명/인덱스로 컬럼 찾아 포커스 후 키보드 입력
+        방법 B: 좌표 클릭으로 셀 활성화 → input:focus 탐색 → fill
+        방법 C: 좌표 더블클릭 폴백
+
+        DOM 탐색 기준 좌표 (방법 B/C):
+        - 그리드 첫 행 y ~ 345, 행 높이 ~ 28px
+        - 컬럼 x: 용도~560, 내용~680, 거래처~850, 공급가액~960, 부가세~1070, 합계액~1140
         """
         page = self.page
 
-        # 컬럼별 x 좌표 (중심점, 스크린샷 기준)
+        # ── 방법 A: OBTDataGrid interface → setSelection + focus + 키보드 입력 ──
+        try:
+            obt_result = page.evaluate(f"""() => {{
+                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                if (!el) return {{ success: false, reason: 'no_el' }};
+                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                if (!fk) return {{ success: false, reason: 'no_fiber' }};
+                let f = el[fk];
+                for (let i = 0; i < 3; i++) f = f ? f.return : null;
+                if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface)
+                    return {{ success: false, reason: 'no_iface' }};
+                const iface = f.stateNode.state.interface;
+                if (typeof iface.getColumns !== 'function') return {{ success: false, reason: 'no_getCols' }};
+
+                // 헤더명으로 컬럼 탐색, 없으면 col_idx 순서로 fallback
+                const cols = iface.getColumns();
+                let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
+                if (!col) return {{ success: false, reason: 'no_col', available: cols.map(c => c.header) }};
+
+                iface.setSelection({{ rowIndex: {row_idx}, columnName: col.name }});
+                iface.focus();
+                return {{ success: true, usedCol: col.name }};
+            }}""")
+
+            if obt_result and obt_result.get("success"):
+                time.sleep(0.3)
+                page.keyboard.type(str(value), delay=20)
+                time.sleep(0.2)
+                page.keyboard.press("Tab")
+                logger.info(f"그리드 '{col_name}' 입력 (OBTDataGrid방법A, col={obt_result.get('usedCol')}): {value}")
+                return True
+            else:
+                logger.debug(f"그리드 '{col_name}' 방법A 미적용: {obt_result}")
+        except Exception as e:
+            logger.debug(f"그리드 '{col_name}' 방법A 예외: {e}")
+
+        # ── 방법 A-2: OBTDataGrid 컬럼 폭 기반 동적 좌표 계산 ──
+        try:
+            obt_coords = page.evaluate(f"""() => {{
+                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                if (!el) return null;
+                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                if (!fk) return null;
+                let f = el[fk];
+                for (let i = 0; i < 3; i++) f = f ? f.return : null;
+                if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface)
+                    return null;
+                const iface = f.stateNode.state.interface;
+                if (typeof iface.getColumns !== 'function') return null;
+                const cols = iface.getColumns();
+                let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
+                if (!col) return null;
+
+                const rect = el.getBoundingClientRect();
+                let xOff = rect.left;
+                for (let i = 0; i < cols.length; i++) {{
+                    const w = cols[i].width || 100;
+                    if (cols[i].name === col.name || cols[i].header === col.header) {{
+                        xOff += w / 2;
+                        break;
+                    }}
+                    xOff += w;
+                }}
+                const rowH = 28;
+                const yOff = rect.top + rowH * {row_idx} + rowH / 2;
+                return {{ x: xOff, y: yOff }};
+            }}""")
+            if obt_coords:
+                page.mouse.click(obt_coords["x"], obt_coords["y"])
+                time.sleep(0.5)
+                active_input = page.locator("input:focus, textarea:focus").first
+                try:
+                    if active_input.is_visible(timeout=1000):
+                        active_input.fill("")
+                        active_input.fill(value)
+                        active_input.press("Tab")
+                        logger.info(f"그리드 '{col_name}' 입력 (OBTDataGrid동적좌표): {value}")
+                        return True
+                except Exception:
+                    pass
+        except Exception as e:
+            logger.debug(f"그리드 '{col_name}' 방법A-2 예외: {e}")
+
+        # ── 방법 B/C: 하드코딩 좌표 폴백 (DOM 데이터 기준, fullscreen 기준값) ──
         col_x_map = {
             0: 560,   # 용도
             1: 680,   # 내용
@@ -3263,35 +3510,29 @@ class ApprovalAutomation:
             4: 1070,  # 부가세
             5: 1140,  # 합계액
         }
-
         x = col_x_map.get(col_idx)
         if x is None:
             return False
-
-        # 행별 y 좌표: 첫 행 ~345, 행 높이 ~28
         y = 345 + (row_idx * 28)
 
         try:
-            # 좌표 클릭으로 셀 활성화
+            # 방법 B: 좌표 단클릭 후 input:focus
             page.mouse.click(x, y)
             time.sleep(0.5)
-
-            # 활성화된 input 찾기
             active_input = page.locator("input:focus, textarea:focus").first
             try:
                 if active_input.is_visible(timeout=1000):
                     active_input.fill("")
                     active_input.fill(value)
                     active_input.press("Tab")
-                    logger.info(f"그리드 '{col_name}' 입력 (좌표): {value}")
+                    logger.info(f"그리드 '{col_name}' 입력 (좌표 클릭): {value}")
                     return True
             except Exception:
                 pass
 
-            # 더블클릭 시도
+            # 방법 C: 좌표 더블클릭 후 input:focus
             page.mouse.dblclick(x, y)
             time.sleep(0.5)
-
             active_input = page.locator("input:focus, textarea:focus").first
             try:
                 if active_input.is_visible(timeout=1000):
@@ -3303,7 +3544,7 @@ class ApprovalAutomation:
             except Exception:
                 pass
 
-            logger.debug(f"그리드 '{col_name}' 좌표 기반 입력도 실패")
+            logger.debug(f"그리드 '{col_name}' 모든 방법 실패")
             return False
 
         except Exception as e:
@@ -4496,12 +4737,9 @@ class ApprovalAutomation:
                 el = page.locator(sel).first
                 if not el.is_visible(timeout=1000):
                     continue
-                box = el.bounding_box()
-                if not box:
-                    continue
-                logger.info(f"bounding box 더블클릭: ({box['x']:.0f}, {box['y']:.0f})")
+                logger.info(f"bounding box 더블클릭 (force): {sel}")
                 pages_before = set(id(p) for p in self.context.pages)
-                page.mouse.dblclick(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+                el.dblclick(force=True)
                 time.sleep(1)
                 for p in self.context.pages:
                     try:

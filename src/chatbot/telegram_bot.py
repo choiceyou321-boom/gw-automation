@@ -45,6 +45,7 @@ TMP_DIR.mkdir(parents=True, exist_ok=True)
 
 # 지원 확장자
 ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".xlsx", ".docx"}
+AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm"}
 # 파일 크기 제한 (20MB)
 MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
 
@@ -491,6 +492,52 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_name = doc.file_name or "file"
     ext = Path(file_name).suffix.lower()
 
+    # 오디오 파일이 문서로 전송된 경우 → STT 처리
+    is_audio = ext in AUDIO_EXTENSIONS or mime.startswith("audio/")
+    if is_audio:
+        # handle_audio와 동일한 로직으로 처리
+        if doc.file_size and doc.file_size > MAX_ATTACHMENT_SIZE:
+            await update.message.reply_text("파일 크기가 20MB를 초과합니다.")
+            return
+
+        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action='typing')
+        try:
+            file = await context.bot.get_file(doc.file_id)
+            file_bytes = await file.download_as_bytearray()
+            gw_id = session.get("gw_id", "unknown")
+            tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_{Path(file_name).name}"
+            tmp_path.write_bytes(bytes(file_bytes))
+
+            await update.message.reply_text(f"🎤 음성 파일({file_name}) 변환 중...")
+            from src.chatbot.stt import transcribe_audio
+            result = transcribe_audio(str(tmp_path))
+
+            if result["success"] and result["text"]:
+                text = result["text"]
+                stt_msg = f"🎤 변환 완료 ({result['duration_seconds']}초, 신뢰도 {result['confidence']:.0%}):\n\"{text}\""
+                user_msg = update.message.caption or text
+                ai_result = await analyze_and_route(
+                    user_message=user_msg, files=[],
+                    conversation_history=list(session["history"]),
+                    user_context=_get_user_context(session),
+                )
+                _append_history(session, "user", f"[오디오: {file_name}] {user_msg}")
+                _append_history(session, "assistant", ai_result["response"])
+                response_text = f"{stt_msg}\n\n{ai_result['response']}"
+                if len(response_text) > 4000:
+                    response_text = response_text[:4000] + "\n\n(메시지가 길어 일부 생략되었습니다)"
+                await update.message.reply_text(response_text)
+            else:
+                await update.message.reply_text(f"음성 변환 실패: {result.get('error', '알 수 없는 오류')}")
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+        except Exception as e:
+            logger.error(f"오디오(문서) 처리 실패: {str(e)}", exc_info=True)
+            await update.message.reply_text("오디오 파일 처리 중 오류가 발생했습니다.")
+        return
+
     # Gemini 분석 가능 타입 (이미지/PDF)
     gemini_supported = ("image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf")
     # 첨부파일 저장만 가능한 확장자 (xlsx, docx 등)
@@ -499,7 +546,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if mime not in gemini_supported and not attachment_only:
         await update.message.reply_text(
             "지원하지 않는 파일 형식입니다.\n"
-            "지원: JPG, PNG, GIF, WebP, PDF (분석+첨부) / XLSX, DOCX (첨부만)"
+            "지원: JPG, PNG, GIF, WebP, PDF (분석+첨부) / XLSX, DOCX (첨부만) / MP3, WAV, M4A, OGG (음성변환)"
         )
         return
 
@@ -563,6 +610,156 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("파일 처리 중 오류가 발생했습니다.")
 
 
+async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """텔레그램 음성 메시지 (녹음) 처리 → STT 변환"""
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+
+    if not session:
+        await update.message.reply_text(
+            "먼저 로그인을 해주세요.\n`/login [아이디] [비밀번호]`", parse_mode='Markdown'
+        )
+        return
+
+    await context.bot.send_chat_action(
+        chat_id=update.effective_chat.id, action='typing'
+    )
+
+    try:
+        voice = update.message.voice
+        file = await context.bot.get_file(voice.file_id)
+        file_bytes = await file.download_as_bytearray()
+
+        # 음성 메시지는 OGG 형식
+        gw_id = session.get("gw_id", "unknown")
+        tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_voice.ogg"
+        tmp_path.write_bytes(bytes(file_bytes))
+
+        # STT 변환
+        from src.chatbot.stt import transcribe_audio
+        result = transcribe_audio(str(tmp_path))
+
+        if result["success"] and result["text"]:
+            text = result["text"]
+            confidence = result["confidence"]
+            duration = result["duration_seconds"]
+
+            # 변환 결과를 사용자에게 보여주고 챗봇에 전달
+            stt_msg = f"🎤 음성 인식 ({duration}초, 신뢰도 {confidence:.0%}):\n\"{text}\""
+            await update.message.reply_text(stt_msg)
+
+            # 변환된 텍스트를 챗봇으로 라우팅
+            ai_result = await analyze_and_route(
+                user_message=text,
+                files=[],
+                conversation_history=list(session["history"]),
+                user_context=_get_user_context(session),
+            )
+
+            _append_history(session, "user", f"[음성] {text}")
+            _append_history(session, "assistant", ai_result["response"])
+
+            response_text = ai_result["response"]
+            if len(response_text) > 4000:
+                response_text = response_text[:4000] + "\n\n(메시지가 길어 일부 생략되었습니다)"
+            await update.message.reply_text(response_text)
+        else:
+            error = result.get("error", "알 수 없는 오류")
+            await update.message.reply_text(f"음성 인식에 실패했습니다.\n오류: {error}")
+
+        # 임시 파일 정리
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+    except Exception as e:
+        logger.error(f"음성 처리 실패: {str(e)}", exc_info=True)
+        await update.message.reply_text("음성 처리 중 오류가 발생했습니다.")
+
+
+async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """텔레그램 오디오 파일 (MP3 등) 처리 → STT 변환"""
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+
+    if not session:
+        await update.message.reply_text(
+            "먼저 로그인을 해주세요.\n`/login [아이디] [비밀번호]`", parse_mode='Markdown'
+        )
+        return
+
+    audio = update.message.audio
+    file_name = audio.file_name or "audio.mp3"
+    ext = Path(file_name).suffix.lower()
+
+    if ext not in AUDIO_EXTENSIONS:
+        await update.message.reply_text(
+            "지원하지 않는 오디오 형식입니다.\n지원: MP3, WAV, M4A, OGG, FLAC, WebM"
+        )
+        return
+
+    if audio.file_size and audio.file_size > MAX_ATTACHMENT_SIZE:
+        await update.message.reply_text("파일 크기가 20MB를 초과합니다.")
+        return
+
+    await context.bot.send_chat_action(
+        chat_id=update.effective_chat.id, action='typing'
+    )
+
+    try:
+        file = await context.bot.get_file(audio.file_id)
+        file_bytes = await file.download_as_bytearray()
+
+        gw_id = session.get("gw_id", "unknown")
+        safe_name = Path(file_name).name
+        tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_{safe_name}"
+        tmp_path.write_bytes(bytes(file_bytes))
+
+        await update.message.reply_text(f"🎤 음성 파일({file_name}) 변환 중...")
+
+        # STT 변환
+        from src.chatbot.stt import transcribe_audio
+        result = transcribe_audio(str(tmp_path))
+
+        if result["success"] and result["text"]:
+            text = result["text"]
+            confidence = result["confidence"]
+            duration = result["duration_seconds"]
+
+            stt_msg = f"🎤 변환 완료 ({duration}초, 신뢰도 {confidence:.0%}):\n\"{text}\""
+
+            # 변환된 텍스트를 챗봇으로 라우팅
+            user_msg = update.message.caption or text
+            ai_result = await analyze_and_route(
+                user_message=user_msg,
+                files=[],
+                conversation_history=list(session["history"]),
+                user_context=_get_user_context(session),
+            )
+
+            _append_history(session, "user", f"[오디오: {file_name}] {user_msg}")
+            _append_history(session, "assistant", ai_result["response"])
+
+            response_text = f"{stt_msg}\n\n{ai_result['response']}"
+            if len(response_text) > 4000:
+                response_text = response_text[:4000] + "\n\n(메시지가 길어 일부 생략되었습니다)"
+            await update.message.reply_text(response_text)
+        else:
+            error = result.get("error", "알 수 없는 오류")
+            await update.message.reply_text(f"음성 변환에 실패했습니다.\n오류: {error}")
+
+        # 임시 파일 정리
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+    except Exception as e:
+        logger.error(f"오디오 처리 실패: {str(e)}", exc_info=True)
+        await update.message.reply_text("오디오 파일 처리 중 오류가 발생했습니다.")
+
+
 def main():
     """봇 실행"""
     if not TELEGRAM_TOKEN:
@@ -592,6 +789,8 @@ def main():
     # 메시지 핸들러
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.add_handler(MessageHandler(filters.VOICE, handle_voice))
+    app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
 
     print("텔레그램 메시지 수신 대기 중... (종료: Ctrl+C)")

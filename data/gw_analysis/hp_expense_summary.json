@@ -1,0 +1,44 @@
+{
+  "gw_url": "https://gw.glowseoul.co.kr",
+  "steps": [
+    {
+      "step": "hp_module",
+      "url": "https://gw.glowseoul.co.kr/#/HP/HPM0110/HPM0110",
+      "navigated": true
+    },
+    {
+      "step": "expense_menu",
+      "url": "https://gw.glowseoul.co.kr/#/HP/HPM0110/HPM0110",
+      "found": true
+    },
+    {
+      "step": "transfer_tab",
+      "url": "https://gw.glowseoul.co.kr/#/HP/HPM0110/HPM0110",
+      "found": false
+    }
+  ],
+  "api_call_count": 20,
+  "api_response_count": 9,
+  "unique_endpoints": [
+    "https://gw.glowseoul.co.kr/gw/gw999A04",
+    "https://gw.glowseoul.co.kr/modules/personal/asset-manifest.json",
+    "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+    "https://gw.glowseoul.co.kr/gw/gw027A21",
+    "https://gw.glowseoul.co.kr/gw/gw125A05",
+    "https://gw.glowseoul.co.kr/gw/gw007A01",
+    "https://gw.glowseoul.co.kr/gw/APIHandler/gw032A09",
+    "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/thum_1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+    "https://gw.glowseoul.co.kr/gw/GW107A00",
+    "https://support.amaranth10.com/api/user/public/menu/check",
+    "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/e5d41b13-1e03-4e30-bedf-c31e76f86918_png",
+    "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2878",
+    "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2141",
+    "https://gw.glowseoul.co.kr/gw/gw015A43",
+    "https://gw.glowseoul.co.kr/personal/hpm0110/getVisibleList",
+    "https://gw.glowseoul.co.kr/gw/contentsImgController/download/undefined/empPic/thum_undefined",
+    "https://gw.glowseoul.co.kr/gw/gw066A58",
+    "https://gw.glowseoul.co.kr/gw/gw027A08",
+    "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png"
+  ]
+}

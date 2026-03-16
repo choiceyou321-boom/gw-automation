@@ -9,6 +9,8 @@ FastAPI 백엔드
 - POST /chat          : 채팅 메시지 처리 (텍스트 + 파일)
 - POST /upload        : 파일 업로드
 - GET  /              : 프론트엔드 서빙
+- GET  /fund          : 자금관리 웹 페이지
+- /api/fund/*         : 자금관리 API
 """
 
 import os
@@ -51,6 +53,10 @@ app.add_middleware(
 
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# 자금관리 라우터 등록
+from src.fund_table.routes import router as fund_router
+app.include_router(fund_router)
 
 # ─────────────────────────────────────────
 # Pydantic 모델
@@ -448,15 +454,25 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     content_type = file.content_type or "application/octet-stream"
     # Gemini 분석 가능 타입
     gemini_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"]
+    # 음성 파일 타입 (Speech-to-Text 변환용)
+    audio_types = [
+        "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav",
+        "audio/mp4", "audio/x-m4a", "audio/m4a",
+        "audio/ogg", "audio/flac", "audio/x-flac", "audio/webm",
+    ]
     # GW 첨부만 가능한 타입 (확장자 기준)
     safe_name = Path(file.filename).name
     ext = Path(safe_name).suffix.lower()
     attachment_only_exts = {".xlsx", ".docx"}
+    audio_exts = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm", ".mp4"}
 
-    if content_type not in gemini_types and ext not in attachment_only_exts:
+    if (content_type not in gemini_types
+            and content_type not in audio_types
+            and ext not in attachment_only_exts
+            and ext not in audio_exts):
         raise HTTPException(
             status_code=415,
-            detail="지원하지 않는 파일 형식입니다. (지원: JPG, PNG, GIF, WebP, PDF, XLSX, DOCX)"
+            detail="지원하지 않는 파일 형식입니다. (지원: JPG, PNG, GIF, WebP, PDF, XLSX, DOCX, MP3, WAV, M4A, OGG, FLAC)"
         )
 
     # data/tmp/ 에 저장 (GW 결재 첨부파일 경로로 반환)
@@ -483,7 +499,45 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     if content_type in gemini_types:
         response_data["data"] = base64.b64encode(contents).decode("utf-8")
 
+    # 음성 파일이면 STT 변환 결과 포함
+    if content_type in audio_types or ext in audio_exts:
+        response_data["is_audio"] = True
+        response_data["audio_path"] = str(tmp_path)
+
     return JSONResponse(response_data)
+
+
+@app.get("/download/{filename}")
+async def download_file(filename: str, request: Request):
+    """
+    생성된 파일 다운로드 (계약서 DOCX 등)
+    data/tmp/ 하위 파일만 제공 (경로 트래버설 방지)
+    """
+    require_auth(request)
+    # 파일 이름만 허용 (/ 포함 불가)
+    safe_name = Path(filename).name
+    if safe_name != filename:
+        raise HTTPException(status_code=400, detail="잘못된 파일 이름입니다.")
+
+    tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
+    file_path = tmp_dir / safe_name
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
+
+    # 파일 확장자에 따라 content-type 설정
+    ext = file_path.suffix.lower()
+    media_types = {
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".pdf": "application/pdf",
+    }
+    media_type = media_types.get(ext, "application/octet-stream")
+
+    return FileResponse(
+        path=str(file_path),
+        filename=safe_name,
+        media_type=media_type,
+    )
 
 
 @app.get("/history/{session_id}")

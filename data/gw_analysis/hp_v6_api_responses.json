@@ -1,0 +1,56 @@
+[
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00004",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00001",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00002",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00003",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00005",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  },
+  {
+    "status": 401,
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/search",
+    "body": {
+      "resultCode": 601,
+      "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+      "statusValue": 401
+    }
+  }
+]

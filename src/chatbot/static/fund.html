@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>자금관리 - GW 자동화</title>
+  <link rel="stylesheet" href="/static/fund.css" />
+</head>
+<body>
+  <!-- 전체 레이아웃 -->
+  <div class="fund-app">
+    <!-- 좌측 사이드바: 프로젝트 목록 -->
+    <aside class="fund-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-icon">&#9881;</span>
+          <span class="logo-text">자금관리</span>
+        </div>
+        <a href="/" class="back-link" title="챗봇으로 돌아가기">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          챗봇
+        </a>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="new-project-btn" id="newProjectBtn" title="새 프로젝트 추가">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          새 프로젝트
+        </button>
+      </div>
+
+      <div class="project-list-container">
+        <p class="section-label">프로젝트 목록</p>
+        <ul class="project-list" id="projectList">
+          <!-- JS로 동적 생성 -->
+        </ul>
+        <p class="empty-message" id="emptyProjects" style="display:none;">
+          등록된 프로젝트가 없습니다.
+        </p>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-info" id="sidebarUser">
+          <span class="user-badge" id="userBadge">--</span>
+          <span class="user-name-text" id="sidebarUserName">--</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="fund-main">
+      <!-- 상단 헤더 -->
+      <header class="fund-header">
+        <button class="sidebar-toggle" id="sidebarToggle" title="사이드바 토글">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <h1 class="page-title" id="pageTitle">프로젝트를 선택하세요</h1>
+        <div class="header-right">
+          <span class="header-user-name" id="headerUserName"></span>
+          <button class="header-btn logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
+        </div>
+      </header>
+
+      <!-- 탭 바 -->
+      <nav class="tab-bar" id="tabBar" style="display:none;">
+        <button class="tab-item active" data-tab="dashboard">대시보드</button>
+        <button class="tab-item" data-tab="overview">개요</button>
+        <button class="tab-item" data-tab="collections">수금현황</button>
+        <button class="tab-item" data-tab="subcontracts">하도급상세</button>
+        <button class="tab-item" data-tab="contacts">연락처</button>
+        <button class="tab-item" data-tab="payments">이체내역</button>
+        <button class="tab-item" data-tab="budget">예실대비</button>
+      </nav>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="tab-content" id="tabContent">
+        <!-- 초기 안내 -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+              <rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+          </div>
+          <p class="empty-state-text">좌측에서 프로젝트를 선택하거나<br/>새 프로젝트를 생성하세요.</p>
+        </div>
+
+        <!-- 대시보드 탭 -->
+        <div class="tab-panel" id="panel-dashboard" style="display:none;">
+          <div class="summary-cards" id="summaryCards">
+            <div class="summary-card">
+              <p class="card-label">수주액</p>
+              <p class="card-value" id="valContract">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">실행예산</p>
+              <p class="card-value" id="valBudget">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">수익금</p>
+              <p class="card-value" id="valProfit">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">이익율</p>
+              <p class="card-value accent" id="valMargin">0%</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">수금액</p>
+              <p class="card-value" id="valDashCollected">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">수금율</p>
+              <p class="card-value accent" id="valDashCollectionRate">0%</p>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h3 class="section-title">공종별 지급현황</h3>
+            <div class="table-wrapper">
+              <table class="data-table" id="dashTradeTable">
+                <thead>
+                  <tr>
+                    <th>공종</th>
+                    <th>업체명</th>
+                    <th class="num">계약금액</th>
+                    <th class="num">기지급액</th>
+                    <th class="num">잔여금액</th>
+                    <th class="num">지급율</th>
+                  </tr>
+                </thead>
+                <tbody id="dashTradeBody">
+                  <tr><td colspan="6" class="no-data">데이터 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 개요 탭 -->
+        <div class="tab-panel" id="panel-overview" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">프로젝트 개요</h3>
+            <button class="btn btn-primary btn-sm" id="saveOverviewBtn">저장</button>
+          </div>
+
+          <!-- 기본정보 -->
+          <div class="overview-grid">
+            <div class="overview-section">
+              <h4 class="subsection-title">기본정보</h4>
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="info-label">프로젝트 카테고리</span>
+                  <select class="info-value ov-field" data-field="project_category">
+                    <option value="">-- 선택 --</option>
+                    <option value="설계">설계 (설계 계약)</option>
+                    <option value="시공">시공 (시공 계약)</option>
+                    <option value="설계&시공">설계&시공 (통합솔루션 포함)</option>
+                    <option value="브랜드">브랜드 (브랜드 개발, 사용 등)</option>
+                    <option value="운영">운영 (위탁운영 계약)</option>
+                    <option value="직영">직영 (직영 프로젝트)</option>
+                    <option value="기획">기획 (기획 프로젝트/컨셉만)</option>
+                  </select>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">위치</span>
+                  <input type="text" class="info-value ov-field" data-field="location" placeholder="프로젝트 위치" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">용도</span>
+                  <input type="text" class="info-value ov-field" data-field="usage" placeholder="예: 의원, 카페" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">규모</span>
+                  <input type="text" class="info-value ov-field" data-field="scale" placeholder="규모" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">연면적(평)</span>
+                  <input type="number" class="info-value ov-field" data-field="area_pyeong" placeholder="0" />
+                </div>
+              </div>
+            </div>
+
+            <div class="overview-section">
+              <h4 class="subsection-title">일정</h4>
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="info-label">디자인 시작일</span>
+                  <input type="date" class="info-value ov-field" data-field="design_start" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">디자인 종료일</span>
+                  <input type="date" class="info-value ov-field" data-field="design_end" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">시공 시작일</span>
+                  <input type="date" class="info-value ov-field" data-field="construction_start" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">시공 종료일</span>
+                  <input type="date" class="info-value ov-field" data-field="construction_end" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">오픈 예정일</span>
+                  <input type="text" class="info-value ov-field" data-field="open_date" placeholder="예: 미정, 2026-04-01" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-grid">
+            <div class="overview-section">
+              <h4 class="subsection-title">계약현황</h4>
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="info-label">설계 계약일자</span>
+                  <input type="date" class="info-value ov-field" data-field="design_contract_date" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">설계 계약금액</span>
+                  <input type="number" class="info-value ov-field" data-field="design_contract_amount" placeholder="0" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">시공 계약일자</span>
+                  <input type="date" class="info-value ov-field" data-field="construction_contract_date" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">시공 계약금액</span>
+                  <input type="number" class="info-value ov-field" data-field="construction_contract_amount" placeholder="0" />
+                </div>
+              </div>
+            </div>
+
+            <div class="overview-section">
+              <h4 class="subsection-title">현재 진행상황</h4>
+              <div class="info-grid">
+                <div class="info-row full">
+                  <textarea class="info-value ov-field" data-field="current_status" rows="3" placeholder="현재 진행상황 입력"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 진행상황 체크리스트 -->
+          <div class="panel-section">
+            <h4 class="subsection-title">진행상황</h4>
+            <div class="table-wrapper">
+              <table class="data-table" id="milestoneTable">
+                <thead>
+                  <tr>
+                    <th>단계</th>
+                    <th class="chk" style="width:70px;">완료</th>
+                    <th style="width:120px;">날짜</th>
+                  </tr>
+                </thead>
+                <tbody id="milestoneBody">
+                  <tr><td colspan="3" class="no-data">진행 단계 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 배정인원 -->
+          <div class="panel-section">
+            <h4 class="subsection-title">배정인원</h4>
+            <div class="table-wrapper">
+              <table class="data-table" id="memberTable">
+                <thead>
+                  <tr>
+                    <th style="width:120px;">역할</th>
+                    <th>담당자</th>
+                    <th style="width:60px;">삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="memberBody">
+                  <tr><td colspan="3" class="no-data">데이터 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <button class="btn btn-outlined btn-sm" id="addMemberBtn" style="margin-top:8px;">+ 인원 추가</button>
+          </div>
+
+          <!-- 이슈사항 -->
+          <div class="panel-section">
+            <h4 class="subsection-title">이슈사항</h4>
+            <div class="info-grid">
+              <div class="info-row">
+                <span class="info-label">디자인/인허가</span>
+                <input type="text" class="info-value ov-field" data-field="issue_design" placeholder="" />
+              </div>
+              <div class="info-row">
+                <span class="info-label">일정</span>
+                <input type="text" class="info-value ov-field" data-field="issue_schedule" placeholder="" />
+              </div>
+              <div class="info-row">
+                <span class="info-label">예산</span>
+                <input type="text" class="info-value ov-field" data-field="issue_budget" placeholder="" />
+              </div>
+              <div class="info-row">
+                <span class="info-label">운영</span>
+                <input type="text" class="info-value ov-field" data-field="issue_operation" placeholder="" />
+              </div>
+              <div class="info-row">
+                <span class="info-label">하자</span>
+                <input type="text" class="info-value ov-field" data-field="issue_defect" placeholder="" />
+              </div>
+              <div class="info-row">
+                <span class="info-label">기타</span>
+                <input type="text" class="info-value ov-field" data-field="issue_other" placeholder="" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 수금현황 탭 -->
+        <div class="tab-panel" id="panel-collections" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">수금현황</h3>
+            <button class="btn btn-primary btn-sm" id="saveCollectionsBtn">저장</button>
+          </div>
+
+          <!-- 설계 수금 -->
+          <div class="panel-section">
+            <h4 class="subsection-title">설계</h4>
+            <div class="table-wrapper">
+              <table class="data-table" id="collectionDesignTable">
+                <thead>
+                  <tr>
+                    <th>단계</th>
+                    <th class="num">금액</th>
+                    <th class="chk">수금완료</th>
+                  </tr>
+                </thead>
+                <tbody id="collectionDesignBody">
+                  <tr><td colspan="3" class="no-data">데이터 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 시공 수금 -->
+          <div class="panel-section">
+            <h4 class="subsection-title">시공</h4>
+            <div class="table-wrapper">
+              <table class="data-table" id="collectionConstructionTable">
+                <thead>
+                  <tr>
+                    <th>단계</th>
+                    <th class="num">금액</th>
+                    <th class="chk">수금완료</th>
+                  </tr>
+                </thead>
+                <tbody id="collectionConstructionBody">
+                  <tr><td colspan="3" class="no-data">데이터 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 수금 합계 -->
+          <div class="summary-cards" id="collectionSummary" style="margin-top: 16px;">
+            <div class="summary-card">
+              <p class="card-label">총 수금액</p>
+              <p class="card-value" id="valTotalCollected">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">총 미수금액</p>
+              <p class="card-value" id="valTotalUncollected">0</p>
+            </div>
+            <div class="summary-card">
+              <p class="card-label">수금율</p>
+              <p class="card-value accent" id="valCollectionRate">0%</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하도급상세 탭 -->
+        <div class="tab-panel" id="panel-subcontracts" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">하도급 상세내역</h3>
+            <div class="toolbar-actions">
+              <button class="btn btn-primary btn-sm" id="addSubcontractBtn">+ 행 추가</button>
+              <button class="btn btn-outlined btn-sm" id="saveSubcontractsBtn">저장</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table editable" id="subcontractTable">
+              <thead>
+                <tr>
+                  <th style="width:40px;">No</th>
+                  <th>공종</th>
+                  <th>업체명</th>
+                  <th class="num">계약금액</th>
+                  <th class="num">1차지급</th>
+                  <th class="num">2차지급</th>
+                  <th class="num">3차지급</th>
+                  <th class="num">4차지급</th>
+                  <th class="num">잔여금액</th>
+                  <th class="num">지급율</th>
+                  <th class="chk">1차확인</th>
+                  <th class="chk">2차확인</th>
+                  <th class="chk">3차확인</th>
+                  <th class="chk">4차확인</th>
+                  <th style="width:60px;">삭제</th>
+                </tr>
+              </thead>
+              <tbody id="subcontractBody">
+                <tr><td colspan="15" class="no-data">데이터 없음</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 연락처 탭 -->
+        <div class="tab-panel" id="panel-contacts" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">거래처 연락처</h3>
+            <button class="btn btn-primary btn-sm" id="addContactBtn">+ 연락처 추가</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="contactTable">
+              <thead>
+                <tr>
+                  <th style="width:40px;">No</th>
+                  <th>업체명</th>
+                  <th>담당자</th>
+                  <th>연락처</th>
+                  <th>이메일</th>
+                  <th>공종</th>
+                  <th>비고</th>
+                  <th style="width:100px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="contactBody">
+                <tr><td colspan="8" class="no-data">데이터 없음</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 이체내역 탭 -->
+        <div class="tab-panel" id="panel-payments" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">이체내역 (GW 연동)</h3>
+            <button class="btn btn-outlined btn-sm" id="refreshPaymentsBtn">새로고침</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="paymentTable">
+              <thead>
+                <tr>
+                  <th style="width:40px;">No</th>
+                  <th>이체일</th>
+                  <th>거래처</th>
+                  <th class="num">이체금액</th>
+                  <th>적요</th>
+                  <th>계좌정보</th>
+                  <th>자금과목</th>
+                </tr>
+              </thead>
+              <tbody id="paymentBody">
+                <tr><td colspan="7" class="no-data">GW에서 데이터를 불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 예실대비 탭 -->
+        <div class="tab-panel" id="panel-budget" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">예산 대비 실적 (GW 연동)</h3>
+            <button class="btn btn-outlined btn-sm" id="refreshBudgetBtn">새로고침</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="budgetTable">
+              <thead>
+                <tr>
+                  <th>과목</th>
+                  <th class="num">예산액</th>
+                  <th class="num">집행액</th>
+                  <th class="num">잔액</th>
+                  <th class="num">집행율</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody id="budgetBody">
+                <tr><td colspan="6" class="no-data">GW에서 데이터를 불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 모달 오버레이 -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none;">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">제목</h3>
+        <button class="modal-close" id="modalClose" title="닫기">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- JS로 동적 생성 -->
+      </div>
+      <div class="modal-footer" id="modalFooter">
+        <button class="btn btn-outlined" id="modalCancelBtn">취소</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/fund.js"></script>
+</body>
+</html>

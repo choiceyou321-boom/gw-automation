@@ -1,0 +1,178 @@
+[
+  {
+    "text": "양식필수정보",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_info_close",
+    "rect": {
+      "x": 495,
+      "y": 120,
+      "w": 121,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 760,
+      "y": 219,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 785,
+      "y": 275,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 843,
+      "y": 275,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 760,
+      "y": 329,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 718,
+      "y": 429,
+      "w": 26,
+      "h": 24
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 816,
+      "y": 429,
+      "w": 26,
+      "h": 24
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 884,
+      "y": 429,
+      "w": 26,
+      "h": 24
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 958,
+      "y": 429,
+      "w": 26,
+      "h": 24
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnImg ml4",
+    "rect": {
+      "x": 1316,
+      "y": 428,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnImg ml4",
+    "rect": {
+      "x": 1316,
+      "y": 457,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "선택",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq",
+    "rect": {
+      "x": 774,
+      "y": 1046,
+      "w": 46,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 918,
+      "y": 1182,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "",
+    "rect": {
+      "x": 1318,
+      "y": 1182,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btnCode",
+    "rect": {
+      "x": 888,
+      "y": 1222,
+      "w": 27,
+      "h": 27
+    }
+  },
+  {
+    "text": "",
+    "id": "",
+    "className": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq btn_reset",
+    "rect": {
+      "x": 917,
+      "y": 1220,
+      "w": 27,
+      "h": 27
+    }
+  }
+]

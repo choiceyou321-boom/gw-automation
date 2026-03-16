@@ -1,0 +1,1192 @@
+[
+  {
+    "tag": "input",
+    "id": "searchInput",
+    "name": "",
+    "type": "text",
+    "placeholder": "통합검색",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "searchInput flex-1",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "08efb918-2181-49e3-b734-e0e2462c3a40",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "stamp4",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "89847f67-baad-4de2-9140-9d640a90d28f",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "stamp3",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "b7151d80-e6e7-47f4-9852-92c9736afb08",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "stamp2",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "2f842cec-9457-4252-9060-26778c52b408",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "stamp",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "5832a479-b42f-4149-9fc7-65a40f9eeb66",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "stamp_de_div",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "f1b2957c-830a-46d0-95a7-e0521177637b",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "img",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "프로필명을 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "전태규",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "사원명을 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "전태규",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": true,
+    "visible": false,
+    "value": "tgjeon",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": true,
+    "visible": false,
+    "value": "tgjeon",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "5077aa9f-7f67-4824-a407-d30cfd722c93",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "F",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "5077aa9f-7f67-4824-a407-d30cfd722c93",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "M",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "010-9067-1690",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "010-9067-1690",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "관계",
+    "disabled": false,
+    "visible": false,
+    "value": "모",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "010-3417-5333",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "우편번호",
+    "disabled": false,
+    "visible": false,
+    "value": "05507",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "주소를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "서울 송파구 올림픽로 435 (신천동, 파크리오)",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "우편번호",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "주소를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "상세주소",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "상세주소",
+    "disabled": false,
+    "visible": false,
+    "value": "227동 2304호",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "906ca34c-f430-4de1-900c-f4fa4f520b6d",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "Y",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "906ca34c-f430-4de1-900c-f4fa4f520b6d",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "N",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "1997-06-08",
+    "className": "OBTDatePickerRebuild_inputYMD__SK3ay OBTDatePickerRebuild_dateInput__tQLeQ",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "8c03e435-4de5-4292-b3c4-8f36a1eae8ba",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "N",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "8c03e435-4de5-4292-b3c4-8f36a1eae8ba",
+    "type": "radio",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "Y",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "OBTDatePickerRebuild_inputYMD__SK3ay OBTDatePickerRebuild_dateInput__tQLeQ",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "SNS를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "textarea",
+    "id": "",
+    "name": "",
+    "type": "textarea",
+    "placeholder": "커리어를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "담당업무를 입력하세요.",
+    "disabled": false,
+    "visible": true,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 1425,
+      "y": 1055,
+      "w": 417,
+      "h": 19
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "담당업무를 입력하세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "단축번호",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "우편번호",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "주소를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "우편번호",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "주소를 입력해주세요.",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "상세주소",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "상세주소",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "picFileUpload",
+    "name": "file[]",
+    "type": "file",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "signFileUpload",
+    "name": "file[]",
+    "type": "file",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a742c560-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a742ec70-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7431380-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7431381-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7431382-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7433a90-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7433a91-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7433a92-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a7433a93-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a74361a0-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a74361a1-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a74388b0-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a74388b1-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a74388b2-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743afc0-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743afc1-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743afc2-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743afc3-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743d6d0-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "grid_a743d6d1-214f-11f1-ab7b-5f2de99240c8_line",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "***1-da*&23%^1//+)(lu%v\\3d!#~`{``~er",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "search_input",
+    "name": "",
+    "type": "text",
+    "placeholder": "통합검색",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "inpBox",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "encAmToken",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "url",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "",
+    "className": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "placeholder": "",
+    "disabled": false,
+    "visible": false,
+    "value": "2026-03",
+    "className": "OBTDatePickerRebuild_inputYM__HMD2_ OBTDatePickerRebuild_dateInput__tQLeQ",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  }
+]

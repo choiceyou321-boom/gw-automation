@@ -1,0 +1,122 @@
+[
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw999A04",
+    "resource_type": "xhr",
+    "post_data": "{\"menuGubun\":\"HP\",\"menuCode\":\"HPG0110\",\"urlPath\":\"BZA0020\",\"type\":\"GNB\",\"searchAllLowerMenu\":true}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/asset-manifest.json?timestamp=1773676140409",
+    "resource_type": "xhr",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+    "resource_type": "other",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw027A21",
+    "resource_type": "xhr",
+    "post_data": "{\"optionId\":\"cm7010\",\"compSeq\":\"0\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw125A05",
+    "resource_type": "xhr",
+    "post_data": "{}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw007A01",
+    "resource_type": "xhr",
+    "post_data": "{}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw032A09",
+    "resource_type": "xhr",
+    "post_data": "{}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/thum_1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+    "resource_type": "image",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/GW107A00",
+    "resource_type": "xhr",
+    "post_data": "[{\"menuNo\":\"406000300\",\"menuName\":\"개인인사정보조회\",\"gnbMenuName\":\"임직원업무관리\",\"moduleCode\":\"HP\",\"menuCode\":\"HPM0110\",\"pageCode\":\"HPM0110\",\"specialContentsUrl\":null,\"menuAuthType\":\"USER\",\"typeCode\":\"0\"}]"
+  },
+  {
+    "method": "GET",
+    "url": "https://support.amaranth10.com/api/user/public/menu/check?moduleGubun=HP&menuCode=HPM0110&urlPath=HPM0110&langCode=ko",
+    "resource_type": "xhr",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/e5d41b13-1e03-4e30-bedf-c31e76f86918_png",
+    "resource_type": "image",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "resource_type": "xhr",
+    "post_data": "{}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2878",
+    "resource_type": "image",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2141",
+    "resource_type": "image",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw015A43",
+    "resource_type": "xhr",
+    "post_data": "{\"gbnOrg\":\"e\",\"optionKey\":\"totalAlert@sort\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/personal/hpm0110/getVisibleList",
+    "resource_type": "xhr",
+    "post_data": "{\"coCd\":\"1000\",\"empCd\":\"GS251105\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/undefined/empPic/thum_undefined",
+    "resource_type": "image",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw066A58",
+    "resource_type": "xhr",
+    "post_data": "{\"langkind\":\"KOR\",\"coCd\":\"1000\",\"empCd\":\"GS251105\",\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\",\"compSeq\":\"1000\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw027A08",
+    "resource_type": "xhr",
+    "post_data": "{\"langkind\":\"KOR\",\"coCd\":\"1000\",\"empCd\":\"GS251105\",\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\",\"compSeq\":\"1000\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+    "resource_type": "image",
+    "post_data": null
+  }
+]

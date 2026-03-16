@@ -1,0 +1,18 @@
+[
+  {
+    "tag": "input",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "value": "",
+    "placeholder": "담당업무를 입력하세요.",
+    "disabled": false,
+    "className": "",
+    "rect": {
+      "x": 1425,
+      "y": 1055,
+      "w": 417,
+      "h": 19
+    }
+  }
+]

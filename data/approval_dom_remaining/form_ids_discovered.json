@@ -1,0 +1,98 @@
+[
+  {
+    "key": "증빙발행",
+    "display": "[회계팀] 증빙발행 신청서",
+    "form_id": null,
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA6000",
+        "input_count": 6
+      }
+    ],
+    "input_count": 1,
+    "status": "explored"
+  },
+  {
+    "key": "선급금요청",
+    "display": "[본사]선급금 요청서",
+    "form_id": "181",
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/HP/APB1020/APB1020?%2F%23%2FHP%2FAPB1020%2FAPB1020=&MicroModuleCode=eap&docWidth=1035&formDTp=APB1020_00001&formId=181",
+        "input_count": 32
+      }
+    ],
+    "input_count": 20,
+    "status": "explored"
+  },
+  {
+    "key": "선급금정산",
+    "display": "[본사]선급금 정산서",
+    "form_id": null,
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/HP/APB1020/APB1020",
+        "input_count": 32
+      }
+    ],
+    "input_count": 20,
+    "status": "explored"
+  },
+  {
+    "key": "연장근무",
+    "display": "연장근무신청서",
+    "form_id": "43",
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/HP/HPD0110/HPD0110?%2F%23%2FHP%2FHPD0110%2FHPD0110=&MicroModuleCode=eap&docWidth=1035&formDTp=HP_HPD0110_00051&formId=43",
+        "input_count": 46
+      }
+    ],
+    "input_count": 14,
+    "status": "explored"
+  },
+  {
+    "key": "외근신청",
+    "display": "외근신청서(당일)",
+    "form_id": "41",
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/HP/HPD0110/HPD0110?%2F%23%2FHP%2FHPD0110%2FHPD0110=&MicroModuleCode=eap&docWidth=1035&formDTp=HP_HPD0110_00031&formId=41",
+        "input_count": 46
+      }
+    ],
+    "input_count": 13,
+    "status": "explored"
+  },
+  {
+    "key": "사내추천비",
+    "display": "사내추천비 자금 요청서",
+    "form_id": null,
+    "open_type": "inline",
+    "frames": [
+      {
+        "index": 0,
+        "name": "",
+        "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA6000",
+        "input_count": 46
+      }
+    ],
+    "input_count": 1,
+    "status": "explored"
+  }
+]

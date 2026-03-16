@@ -1,0 +1,58 @@
+{
+  "discovery_date": "2026-03-08",
+  "session": "XI",
+  "summary": "OBTDataGrid React fiber를 통한 그리드 API 접근 성공",
+  "grid_type": "OBTDataGrid (더존 자체 canvas 그리드, 내부적으로 RealGrid 래핑)",
+  "access_path": {
+    "step1": "document.querySelector('.OBTDataGrid_grid__22Vfl')",
+    "step2": "Object.keys(el).find(k => k.startsWith('__reactFiber'))",
+    "step3": "fiber.return x3 (depth 3) → stateNode.state.interface",
+    "note": "depth 12에서 폼 컴포넌트 (state.grid, state.head) 접근 가능"
+  },
+  "playwright_evaluate_template": "page.evaluate(() => { const el = document.querySelector('.OBTDataGrid_grid__22Vfl'); const fk = Object.keys(el).find(k => k.startsWith('__reactFiber')); let f = el[fk]; for(let i=0;i<3;i++) f=f.return; const iface = f.stateNode.state.interface; /* use iface here */ })",
+  "key_methods": {
+    "read": {
+      "getRowCount()": "행 수 반환",
+      "getRow(rowIndex)": "행 데이터 반환",
+      "getRows()": "전체 행 데이터",
+      "getValue(rowIndex, columnName)": "특정 셀 값",
+      "getValues(rowIndex)": "행의 모든 값",
+      "getColumns()": "컬럼 목록",
+      "getFlatColumns()": "플랫 컬럼 목록",
+      "getColumnByName(name)": "컬럼 조회",
+      "getFocusedIndex()": "현재 포커스 셀",
+      "getCheckedRows()": "체크된 행 목록"
+    },
+    "write": {
+      "setValue(rowIndex, columnName, value)": "특정 셀 값 설정",
+      "setValues(rowIndex, values)": "행 전체 값 설정",
+      "addRow()": "행 추가",
+      "removeRow(rowIndex)": "행 삭제",
+      "commit()": "변경사항 커밋",
+      "setCheck(rowIndex, checked)": "행 체크/해제",
+      "checkAll()": "전체 체크",
+      "unCheckAll()": "전체 해제"
+    },
+    "control": {
+      "focus()": "그리드 포커스",
+      "refresh()": "그리드 새로고침",
+      "setEditable(editable)": "편집 모드 설정",
+      "setSelection(selection)": "셀 선택",
+      "isEditing()": "편집 중 여부",
+      "hasDirtyData()": "미저장 변경 여부"
+    },
+    "column": {
+      "makeAutoCompleteColumn()": "자동완성 컬럼",
+      "makeCodePickerColumn()": "코드도움 컬럼",
+      "makeDropdownColumn()": "드롭다운 컬럼",
+      "setDropDownColumn()": "드롭다운 설정",
+      "makeNumberColumn()": "숫자 컬럼",
+      "makeDateTimeColumn()": "날짜 컬럼"
+    }
+  },
+  "form_component_depth12": {
+    "methods": ["initializeGridFCODE1", "setBudgetColumns", "sumGridDatas", "validateGrid", "resetFcode", "_hasDirtyData"],
+    "state_keys": ["head", "grid", "sumData", "budgetApplyYn", "budgetApplyType", "gisu", "gridRowBudgetData"],
+    "note": "폼 전체 데이터 접근 가능. state.grid = 지출내역 데이터, state.head = 상단 필드 데이터"
+  }
+}

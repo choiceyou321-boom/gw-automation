@@ -1,0 +1,8 @@
+{
+  "api": "gw114A11",
+  "data": {
+    "resultCode": 601,
+    "resultMsg": "허용된 쿠키 인증 URL이 아닙니다.",
+    "statusValue": 401
+  }
+}

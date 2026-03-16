@@ -1,0 +1,332 @@
+[
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw999A04",
+    "post_data": "{\"menuGubun\":\"HP\",\"menuCode\":\"HPM0110\",\"urlPath\":\"HPM0110\",\"searchAllLowerMenu\":true}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/asset-manifest.json?timestamp=1773676874149",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/runtime-main.629306e8.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/css/24.f8b213cc.chunk.css",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/24.2d01abd0.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/css/main.d3da634b.chunk.css",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/main.16b9fe53.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/static/media/icon_misc_search@2x.6bf4b623.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw027A21",
+    "post_data": "{\"optionId\":\"cm7010\",\"compSeq\":\"0\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw125A05",
+    "post_data": "{}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw007A01",
+    "post_data": "{}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw032A09",
+    "post_data": "{}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/thum_1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/GW107A00",
+    "post_data": "[{\"menuNo\":\"406000300\",\"menuName\":\"개인인사정보조회\",\"gnbMenuName\":\"임직원업무관리\",\"moduleCode\":\"HP\",\"menuCode\":\"HPM0110\",\"pageCode\":\"HPM0110\",\"specialContentsUrl\":null,\"menuAuthType\":\"USER\",\"typeCode\":\"0\"}]"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_pagecheck_m_off.c75de4ab.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/icon-func-favorite-off.241daf68.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://support.amaranth10.com/api/user/public/menu/check?moduleGubun=HP&menuCode=HPM0110&urlPath=HPM0110&langCode=ko",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/e5d41b13-1e03-4e30-bedf-c31e76f86918_png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw011A108",
+    "post_data": "{}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2878",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/empImgController/download/gcmsAmaranth36068/empPicSeq/2141",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/18.16d1463f.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/149.e498333c.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-manual-normal.c4adae22.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-video-normal.ff7750be.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-happy-normal.6c1addc8.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/148.e074a696.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/personal/hpm0110/getVisibleList",
+    "post_data": "{\"coCd\":\"1000\",\"empCd\":\"GS251105\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-info-03-m-normal.c1fb3c52.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw015A43",
+    "post_data": "{\"gbnOrg\":\"e\",\"optionKey\":\"totalAlert@sort\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/undefined/empPic/thum_undefined",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_newpage_m_normal.9e616a7a.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/1x1.06c805d5.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_cehcked.e6202f1f.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox.9510b9f1.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_checked_disable.8346786a.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/checkbox_disable.f9b7c270.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/btn_plus.5c8a0ad2.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/btn_minus.ef0b2fb5.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw066A58",
+    "post_data": "{\"langkind\":\"KOR\",\"coCd\":\"1000\",\"empCd\":\"GS251105\",\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\",\"compSeq\":\"1000\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw027A08",
+    "post_data": "{\"langkind\":\"KOR\",\"coCd\":\"1000\",\"empCd\":\"GS251105\",\"groupSeq\":\"gcmsAmaranth36068\",\"empSeq\":\"2922\",\"compSeq\":\"1000\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/empPic/1279b8f5-29da-4ff0-bf38-f0a5a3323f90_png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_inputcal_m_over.34454bf5.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_inputcal_m_normal.dbab1cda.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw999A03",
+    "post_data": "{\"moduleCode\":\"HP\",\"upperMenuNo\":\"406007100\",\"dynamicYn\":\"N\",\"menuType\":null,\"level\":2,\"menuAuthType\":\"USER\",\"searchAuthType\":\"U\",\"microModuleCode\":\"personal\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/gw999A03",
+    "post_data": "{\"moduleCode\":\"HP\",\"upperMenuNo\":\"406008200\",\"dynamicYn\":\"N\",\"menuType\":null,\"level\":2,\"menuAuthType\":\"USER\",\"searchAuthType\":\"U\",\"microModuleCode\":\"personal\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/GW107A00",
+    "post_data": "[{\"menuNo\":\"406008500\",\"menuName\":\"개인지출결의현황\",\"gnbMenuName\":\"임직원업무관리\",\"moduleCode\":\"HP\",\"menuCode\":\"NPA0030\",\"pageCode\":\"NPA0030\",\"specialContentsUrl\":null,\"menuAuthType\":\"USER\",\"typeCode\":\"0\"}]"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/gw/contentsImgController/download/gcmsAmaranth36068/common/65382128-cc97-4079-b4d3-0aa23b35f59b_png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://support.amaranth10.com/api/user/public/menu/check?moduleGubun=HP&menuCode=NPA0030&urlPath=NPA0030&langCode=ko",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/104.9959324a.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/js/110.bfd5ea22.chunk.js",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic-pin-off.80fd6872.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/api/gw080A02",
+    "post_data": "{\"searchAuthType\":\"M\",\"groupSeq\":\"gcmsAmaranth36068\",\"compSeq\":\"0\",\"userSe\":\"ADMIN\",\"hYear\":\"2026\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/btn_sb_open_normal.1f323cc1.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ico_sb_arrow_up_normal.8a58a57c.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/icon-date.eec9cd3e.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/icon-btn-search.ea941f2d.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/icon-func-del-normal.02b180e2.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/img_empty_data_s.410970b4.png",
+    "post_data": null
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ico_sb_cal_normal.a204955d.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/api/gw080A02",
+    "post_data": "{\"searchAuthType\":\"M\",\"groupSeq\":\"gcmsAmaranth36068\",\"compSeq\":\"1000\",\"userSe\":\"ADMIN\",\"hYear\":\"2026\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/personal/NPA0030/0hr00004",
+    "post_data": "{\"vPCoCd\":\"1000\",\"coCd\":\"1000\"}"
+  },
+  {
+    "method": "GET",
+    "url": "https://gw.glowseoul.co.kr/modules/personal/static/media/ic_arrow_up_01_s_Up.b7c20aa8.png",
+    "post_data": null
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/gw/APIHandler/gw114A11",
+    "post_data": "{\"moduleCode\":\"HP\"}"
+  },
+  {
+    "method": "POST",
+    "url": "https://gw.glowseoul.co.kr/personal/menu/getMenuList",
+    "post_data": "{\"moduleCode\":\"HP\"}"
+  }
+]

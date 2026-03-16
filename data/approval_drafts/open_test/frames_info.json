@@ -1,0 +1,26 @@
+[
+  {
+    "index": 0,
+    "name": "",
+    "url": "https://gw.glowseoul.co.kr/#/popup?MicroModuleCode=eap&docAuth=0&docID=58223&formId=255&callComp=UBAP001&popupUUID=256425f0-1585-11f1-889e-1d9d30514e8d",
+    "input_count": 14
+  },
+  {
+    "index": 1,
+    "name": "editorView_UBAP001",
+    "url": "https://gw.glowseoul.co.kr/static/dzEditor/editorView.html?ver=1.3.1.3",
+    "input_count": 3
+  },
+  {
+    "index": 2,
+    "name": "dzeditor_0",
+    "url": "about:blank",
+    "input_count": 0
+  },
+  {
+    "index": 3,
+    "name": "dzeditor_9999",
+    "url": "about:blank",
+    "input_count": 0
+  }
+]

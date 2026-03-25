@@ -19,6 +19,7 @@ Phase 0 DOM 탐색 결과 반영 (2026-03-01):
 - vendor.py: 거래처등록
 - draft.py: 임시보관 문서 상신
 - other_forms.py: 기타 양식 (선급금, 연장근무, 외근 등)
+- attendance.py: 근태신청 (연차/외근/연장근무)
 """
 
 from playwright.sync_api import Page, BrowserContext
@@ -35,6 +36,13 @@ from src.approval.vendor import VendorRegistrationMixin
 from src.approval.draft import DraftSubmissionMixin
 from src.approval.other_forms import OtherFormsMixin
 
+try:
+    from src.approval.attendance import AttendanceMixin
+except ImportError:
+    import warnings
+    warnings.warn("attendance.py를 찾을 수 없습니다. AttendanceMixin 없이 동작합니다.", ImportWarning)
+    AttendanceMixin = object
+
 
 class ApprovalAutomation(
     ApprovalBaseMixin,
@@ -44,6 +52,7 @@ class ApprovalAutomation(
     VendorRegistrationMixin,
     DraftSubmissionMixin,
     OtherFormsMixin,
+    AttendanceMixin,
 ):
     """전자결재 폼 자동화 클래스 (mixin 조합)"""
 

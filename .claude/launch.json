@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "GW 챗봇 웹 서버 (FastAPI)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["run_chatbot.py"],
+      "port": 51749
+    },
+    {
+      "name": "텔레그램 봇",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "src.chatbot.telegram_bot"],
+      "port": 8443
+    },
+    {
+      "name": "Docker Compose (전체 스택)",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up"],
+      "port": 443
+    }
+  ]
+}

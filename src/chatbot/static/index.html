@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" />
   <title>GW 자동화 챗봇</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="/static/style.css?v=20260319" />
 </head>
 <body>
   <!-- 로그인/회원가입 화면 -->
@@ -90,7 +91,7 @@
           <span class="quick-icon">&#128694;</span> 외근신청
         </button>
         <a href="/fund" class="quick-btn" style="text-decoration:none; text-align:center;">
-          <span class="quick-icon">&#128202;</span> 자금관리표
+          <span class="quick-icon">&#128202;</span> 프로젝트 관리
         </a>
       </div>
       <!-- 이전 대화 목록 -->
@@ -120,7 +121,7 @@
       </header>
 
       <!-- 메시지 목록 -->
-      <div class="messages" id="messages">
+      <div class="messages" id="messages" role="log" aria-live="polite" aria-label="대화 내용">
         <!-- 환영 메시지 -->
         <div class="message bot">
           <div class="avatar bot-avatar">AI</div>
@@ -173,6 +174,6 @@
     </main>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20260319"></script>
 </body>
 </html>

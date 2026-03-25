@@ -49,9 +49,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright Chromium 설치 (root로 설치 후 권한 부여)
+# Playwright Chromium 설치 (시스템 패키지는 위 apt-get에서 처리 완료)
 RUN playwright install chromium && \
-    playwright install-deps chromium && \
     chmod -R 755 /root/.cache/ms-playwright 2>/dev/null || true
 
 # 앱 코드 복사

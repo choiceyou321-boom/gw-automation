@@ -46,3 +46,24 @@ nginx/ssl/*.pem
 nginx/ssl/*.key
 nginx/logs/
 data/tmp/
+
+# 구글 서비스 계정 키
+config/*.json
+
+# 개발 임시 파일
+data/approval_docs/
+data/approval_dom/
+data/approval_dom_invoice/
+data/approval_drafts/
+data/approval_screenshots/
+data/available_slots_*.json
+data/gw_inspection/
+data/gw_pages/
+data/sessions/
+
+# Claude 내부 파일
+.claude/
+MEMORY.md
+
+# 기타
+01-OA/

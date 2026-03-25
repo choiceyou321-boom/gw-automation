@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Google Sheets API 연동 — 자금관리표 분석 및 정리
+Google Sheets API 연동 — 프로젝트 관리표 분석 및 정리
 사용법: python scripts/setup_google_sheets.py [--analyze | --beautify | --all]
 
 --analyze  : 시트 구조 및 수식 분석만 수행
@@ -198,7 +198,7 @@ def beautify_sheet(client, sheets_info=None):
     시트 구조 재배치 + 수식 적용 + 서식 정리
 
     최종 레이아웃:
-    행1:  [제목] 종로 메디빌더 오블리브 의원 — 자금관리표
+    행1:  [제목] 종로 메디빌더 오블리브 의원 — 프로젝트 관리표
     행2:  (빈 행)
     행3:  ┌─ 수주/예산 요약 ─────────┬─ 지급/집행 요약 ─────────┐
     행4:  │  설계 수주액   | 값      │  하도급 계약 한도액 | 값  │
@@ -244,7 +244,7 @@ def beautify_sheet(client, sheets_info=None):
     new_data = [[""] * 10 for _ in range(19)]
 
     # 행1: 제목 (B1:I1 병합할 예정)
-    new_data[0][1] = "종로 메디빌더 오블리브 의원 — 자금관리표"
+    new_data[0][1] = "종로 메디빌더 오블리브 의원 — 프로젝트 관리표"
 
     # 행3: 섹션 헤더
     new_data[2][1] = "수주 / 예산 요약"

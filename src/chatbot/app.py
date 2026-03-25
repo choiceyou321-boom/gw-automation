@@ -9,18 +9,24 @@ FastAPI 백엔드
 - POST /chat          : 채팅 메시지 처리 (텍스트 + 파일)
 - POST /upload        : 파일 업로드
 - GET  /              : 프론트엔드 서빙
-- GET  /fund          : 자금관리 웹 페이지
-- /api/fund/*         : 자금관리 API
+- GET  /fund          : 프로젝트 관리 웹 페이지
+- /api/fund/*         : 프로젝트 관리 API
 """
 
 import os
 import json
 import base64
 import uuid
+import secrets
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
+# 업로드 파일 토큰 매핑 (서버 경로를 클라이언트에 노출하지 않기 위한 인메모리 저장소)
+# {token: {"path": str, "gw_id": str, "created": datetime}}
+_upload_tokens: dict[str, dict] = {}
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Response, Cookie
 from fastapi.staticfiles import StaticFiles
@@ -39,7 +45,17 @@ STATIC_DIR = BASE_DIR / "static"
 DATA_DIR = Path(__file__).parent.parent.parent / "data" / "chatbot"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="GW 자동화 챗봇 (웹)", version="2.0.0")
+
+@asynccontextmanager
+async def lifespan(app):
+    """FastAPI lifespan — 스케줄러 시작/종료 관리"""
+    from src.fund_table.scheduler import start_scheduler, stop_scheduler
+    start_scheduler()
+    yield
+    stop_scheduler()
+
+
+app = FastAPI(title="GW 자동화 챗봇 (웹)", version="2.0.0", lifespan=lifespan)
 
 # CORS 설정 (allow_origins 환경변수로 설정, 기본값 localhost)
 _allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:51749").split(",")
@@ -51,10 +67,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# CSRF 미들웨어 (Double-Submit Cookie 패턴)
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class CSRFMiddleware(BaseHTTPMiddleware):
+    """state-changing 요청에 X-CSRF-Token 헤더 검증"""
+    SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+    EXEMPT_PATHS = {"/auth/login", "/auth/register", "/auth/logout"}
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method not in self.SAFE_METHODS and request.url.path not in self.EXEMPT_PATHS:
+            cookie_token = request.cookies.get("csrf_token")
+            header_token = request.headers.get("x-csrf-token")
+            if not cookie_token or not header_token or cookie_token != header_token:
+                return JSONResponse(
+                    {"detail": "CSRF 토큰이 유효하지 않습니다."},
+                    status_code=403
+                )
+        return await call_next(request)
+
+app.add_middleware(CSRFMiddleware)
+
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# 자금관리 라우터 등록
+# 프로젝트 관리 라우터 등록
 from src.fund_table.routes import router as fund_router
 app.include_router(fund_router)
 
@@ -86,7 +123,8 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     files: Optional[list[dict]] = None  # [{name, type, data(base64)}]
-    attachment_path: Optional[str] = None  # GW 결재 첨부파일 경로 (data/tmp/ 하위)
+    attachment_token: Optional[str] = None  # 업로드 토큰 (파일 경로 대신)
+    attachment_path: Optional[str] = None  # 하위 호환 (deprecated, 무시됨)
 
 
 class ChatResponse(BaseModel):
@@ -98,36 +136,12 @@ class ChatResponse(BaseModel):
 
 
 # ─────────────────────────────────────────
-# 인증 유틸
+# 인증 유틸 (공용 미들웨어 사용)
 # ─────────────────────────────────────────
-
-def get_current_user(request: Request) -> dict | None:
-    """JWT 쿠키에서 현재 사용자 정보 추출. 미인증이면 None."""
-    from src.auth.jwt_utils import verify_token
-    from src.auth.user_db import get_user
-
-    token = request.cookies.get("auth_token")
-    if not token:
-        return None
-
-    payload = verify_token(token)
-    if not payload:
-        return None
-
-    user = get_user(payload["gw_id"])
-    return user
-
+from src.auth.middleware import get_current_user, require_auth
 
 # 관리자 GW ID (환경변수 필수, 미설정 시 관리자 기능 비활성화)
 ADMIN_GW_ID = os.environ.get("ADMIN_GW_ID", "")
-
-
-def require_auth(request: Request) -> dict:
-    """인증 필수. 미인증이면 401 에러."""
-    user = get_current_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
-    return user
 
 
 def require_admin(request: Request) -> dict:
@@ -195,6 +209,17 @@ async def login(req: LoginRequest, response: Response):
         path="/",
         secure=is_https,
     )
+    # CSRF 토큰 쿠키 (JS 읽기 가능, httpOnly=False)
+    csrf_token = secrets.token_hex(32)
+    resp.set_cookie(
+        key="csrf_token",
+        value=csrf_token,
+        httponly=False,
+        samesite="lax",
+        max_age=24 * 60 * 60,
+        path="/",
+        secure=is_https,
+    )
     return resp
 
 
@@ -203,6 +228,7 @@ async def logout():
     """로그아웃 → 쿠키 삭제"""
     resp = JSONResponse({"message": "로그아웃되었습니다."})
     resp.delete_cookie("auth_token", path="/")
+    resp.delete_cookie("csrf_token", path="/")
     return resp
 
 
@@ -220,7 +246,21 @@ async def get_me(request: Request):
         "dept_seq": user.get("dept_seq"),
         "is_admin": bool(ADMIN_GW_ID and user["gw_id"] == ADMIN_GW_ID),
     }
-    return JSONResponse({"user": safe_user})
+    resp = JSONResponse({"user": safe_user})
+    # CSRF 쿠키가 없으면 재설정 (이전 세션에서 로그인한 경우 대비)
+    if not request.cookies.get("csrf_token"):
+        is_https = os.environ.get("HTTPS", "false").lower() == "true"
+        csrf_token = secrets.token_hex(32)
+        resp.set_cookie(
+            key="csrf_token",
+            value=csrf_token,
+            httponly=False,
+            samesite="lax",
+            max_age=24 * 60 * 60,
+            path="/",
+            secure=is_https,
+        )
+    return resp
 
 
 @app.put("/auth/profile")
@@ -370,15 +410,18 @@ async def chat(request_body: ChatRequest, request: Request):
     history_rows = get_session_history(gw_id, session_id, limit=40)
     history = [{"role": row["role"], "content": row["content"]} for row in history_rows]
 
-    # 첨부파일 경로 — data/tmp/ 하위 경로만 허용 (경로 트래버설 방지)
+    # 첨부파일 경로 — 토큰 기반 조회 (서버 경로 미노출)
     attachment_path = None
-    if request_body.attachment_path:
-        tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
-        candidate = Path(request_body.attachment_path).resolve()
-        if candidate.is_file() and str(candidate).startswith(str(tmp_dir.resolve())):
-            attachment_path = str(candidate)
+    if request_body.attachment_token:
+        token_info = _upload_tokens.get(request_body.attachment_token)
+        if token_info and token_info["gw_id"] == gw_id:
+            candidate = Path(token_info["path"])
+            if candidate.is_file():
+                attachment_path = str(candidate)
+            else:
+                logger.warning("attachment_token의 파일이 존재하지 않음: %s", request_body.attachment_token)
         else:
-            logger.warning(f"attachment_path 거부 (tmp 범위 외): {request_body.attachment_path}")
+            logger.warning("유효하지 않은 attachment_token: %s", request_body.attachment_token)
 
     try:
         # Gemini 에이전트로 처리 (user_context 전달)
@@ -412,6 +455,9 @@ async def chat(request_body: ChatRequest, request: Request):
                 Path(attachment_path).unlink(missing_ok=True)
             except Exception:
                 pass
+            # 토큰 정리
+            if request_body.attachment_token:
+                _upload_tokens.pop(request_body.attachment_token, None)
 
         # 결과를 로컬 파일로 저장 (이중 백업) — 파일 데이터(base64)는 제외
         timestamp = datetime.now().isoformat()
@@ -430,7 +476,7 @@ async def chat(request_body: ChatRequest, request: Request):
         raise
     except Exception as e:
         logger.error(f"채팅 처리 오류: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"처리 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail="처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
 
 
 @app.post("/upload")
@@ -476,23 +522,24 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
         )
 
     # data/tmp/ 에 저장 (GW 결재 첨부파일 경로로 반환)
+    # data/tmp/ 에 단일 저장 (GW 결재 첨부 + Gemini 분석 공용)
     tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     tmp_path = tmp_dir / f"{user['gw_id']}_{uuid.uuid4()}_{safe_name}"
     tmp_path.write_bytes(contents)
-
-    # 기존 업로드 디렉토리에도 저장 (로그/백업)
-    upload_dir = DATA_DIR / "uploads"
-    upload_dir.mkdir(exist_ok=True)
-    save_path = upload_dir / f"{uuid.uuid4()}_{safe_name}"
-    save_path.write_bytes(contents)
+    # 토큰 기반 파일 참조 (서버 경로를 클라이언트에 노출하지 않음)
+    file_token = secrets.token_urlsafe(32)
+    _upload_tokens[file_token] = {
+        "path": str(tmp_path),
+        "gw_id": user["gw_id"],
+        "created": datetime.now(),
+    }
 
     response_data: dict = {
         "name": file.filename,
         "type": content_type,
         "size": len(contents),
-        "saved_path": str(save_path),
-        "attachment_path": str(tmp_path),  # /chat 요청 시 이 값을 attachment_path로 전달
+        "attachment_token": file_token,  # /chat 요청 시 이 값을 attachment_token으로 전달
     }
 
     # Gemini 분석 가능 타입이면 base64도 반환
@@ -502,7 +549,7 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     # 음성 파일이면 STT 변환 결과 포함
     if content_type in audio_types or ext in audio_exts:
         response_data["is_audio"] = True
-        response_data["audio_path"] = str(tmp_path)
+        response_data["audio_token"] = file_token  # 서버 내부 참조용 (토큰)
 
     return JSONResponse(response_data)
 

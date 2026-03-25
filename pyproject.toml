@@ -1,0 +1,13 @@
+[project]
+name = "gw-automation"
+version = "1.0.0"
+description = "더존 Amaranth10 그룹웨어 자동화 챗봇"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short -q"
+markers = [
+    "integration: 외부 서비스 연동 테스트 (GW 서버 필요)",
+]

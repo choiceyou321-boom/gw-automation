@@ -10,6 +10,7 @@ import hashlib
 import base64
 import json
 import logging
+import os
 import datetime
 import time
 import urllib.parse
@@ -80,7 +81,7 @@ class MeetingRoomAPI:
             base_url=API_BASE_URL,
             cookies=self.cookies,
             timeout=30.0,
-            verify=False,  # 사내 SSL 인증서 이슈 대비
+            verify=not os.environ.get("GW_SKIP_TLS_VERIFY", "").lower() in ("1", "true"),
         )
 
     def close(self):
@@ -222,7 +223,7 @@ class MeetingRoomAPI:
                 base_url=API_BASE_URL,
                 cookies=self.cookies,
                 timeout=30.0,
-                verify=False,
+                verify=not os.environ.get("GW_SKIP_TLS_VERIFY", "").lower() in ("1", "true"),
             )
             logger.info(f"세션 재인증 성공: {gw_id}")
             return True

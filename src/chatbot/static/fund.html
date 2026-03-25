@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>자금관리 - GW 자동화</title>
-  <link rel="stylesheet" href="/static/fund.css" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" />
+  <title>프로젝트 관리 - GW 자동화</title>
+  <link rel="stylesheet" href="/static/fund.css?v=20260319r9" />
 </head>
 <body>
   <!-- 전체 레이아웃 -->
@@ -13,11 +14,14 @@
     <aside class="fund-sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <span class="logo-icon">&#9881;</span>
-          <span class="logo-text">자금관리</span>
+          <svg class="logo-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7-7H4a2 2 0 0 0-2 2v17Z"/>
+            <path d="M14 2v7h7"/>
+          </svg>
+          <span class="logo-text">프로젝트 관리</span>
         </div>
         <a href="/" class="back-link" title="챗봇으로 돌아가기">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
           챗봇
@@ -25,6 +29,12 @@
       </div>
 
       <div class="sidebar-actions">
+        <div class="sidebar-search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="sidebar-search" id="projectSearch" placeholder="프로젝트 검색..." />
+        </div>
         <button class="new-project-btn" id="newProjectBtn" title="새 프로젝트 추가">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -34,7 +44,10 @@
       </div>
 
       <div class="project-list-container">
-        <p class="section-label">프로젝트 목록</p>
+        <div class="section-label-row">
+          <p class="section-label">프로젝트 목록</p>
+          <span class="project-count" id="projectCount">0</span>
+        </div>
         <ul class="project-list" id="projectList">
           <!-- JS로 동적 생성 -->
         </ul>
@@ -62,6 +75,16 @@
         </button>
         <h1 class="page-title" id="pageTitle">프로젝트를 선택하세요</h1>
         <div class="header-right">
+          <button class="header-btn portfolio-btn" id="portfolioBtn" title="포트폴리오 현황" style="display:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            포트폴리오
+          </button>
+          <span class="notification-badge-wrap" id="notificationBadgeWrap">
+            <button class="header-btn notification-btn" id="notificationBtn" title="알림">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="notification-count" id="notificationCount">0</span>
+            </button>
+          </span>
           <span class="header-user-name" id="headerUserName"></span>
           <button class="header-btn logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
         </div>
@@ -69,74 +92,411 @@
 
       <!-- 탭 바 -->
       <nav class="tab-bar" id="tabBar" style="display:none;">
-        <button class="tab-item active" data-tab="dashboard">대시보드</button>
-        <button class="tab-item" data-tab="overview">개요</button>
-        <button class="tab-item" data-tab="collections">수금현황</button>
-        <button class="tab-item" data-tab="subcontracts">하도급상세</button>
-        <button class="tab-item" data-tab="contacts">연락처</button>
-        <button class="tab-item" data-tab="payments">이체내역</button>
-        <button class="tab-item" data-tab="budget">예실대비</button>
+        <div class="tab-bar-inner">
+          <button class="tab-item active" data-tab="dashboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            대시보드
+          </button>
+          <button class="tab-item" data-tab="overview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            개요
+          </button>
+          <button class="tab-item" data-tab="collections">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+            수금현황
+          </button>
+          <button class="tab-item" data-tab="budget-payment">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            예산&지급관리
+          </button>
+          <button class="tab-item" data-tab="vendors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            하도급 업체
+          </button>
+          <button class="tab-item" data-tab="payments">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            이체내역
+          </button>
+        </div>
       </nav>
 
       <!-- 탭 콘텐츠 -->
       <div class="tab-content" id="tabContent">
         <!-- 초기 안내 -->
-        <div class="empty-state" id="emptyState">
-          <div class="empty-state-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-              <rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
-            </svg>
+        <!-- 포트폴리오 비교 뷰 (프로젝트 미선택 시) -->
+        <div class="portfolio-view" id="emptyState">
+          <div class="portfolio-header-bar">
+            <h2 class="portfolio-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              포트폴리오 현황
+            </h2>
+            <button class="btn btn-sm btn-outlined pf-refresh-btn" id="pfRefreshBtn" title="새로고침">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              새로고침
+            </button>
+            <button class="btn btn-sm btn-outlined" id="pfSyncGwBtn" title="사업코드가 등록된 모든 프로젝트의 GW 정보를 일괄 동기화합니다">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+              전체 GW 동기화
+            </button>
+            <button class="btn btn-sm btn-outlined" id="pfImportPmBtn" title="PM팀 Official 시트에서 프로젝트 기본정보를 가져옵니다">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              PM 시트 가져오기
+            </button>
           </div>
-          <p class="empty-state-text">좌측에서 프로젝트를 선택하거나<br/>새 프로젝트를 생성하세요.</p>
+          <!-- 포트폴리오 요약 카드 -->
+          <div class="pf-summary-row" id="pfSummaryRow">
+            <div class="pf-summary-item">
+              <span class="pf-sum-label">전체 프로젝트</span>
+              <span class="pf-sum-value" id="pfTotalProjects">0</span>
+            </div>
+            <div class="pf-summary-item">
+              <span class="pf-sum-label">총 수주액</span>
+              <span class="pf-sum-value" id="pfTotalOrder">0</span>
+            </div>
+            <div class="pf-summary-item">
+              <span class="pf-sum-label">총 수금액</span>
+              <span class="pf-sum-value" id="pfTotalCollected">0</span>
+            </div>
+            <div class="pf-summary-item">
+              <span class="pf-sum-label">총 미수금</span>
+              <span class="pf-sum-value pf-danger" id="pfTotalUncollected">0</span>
+            </div>
+          </div>
+          <!-- 프로젝트 비교 테이블 -->
+          <div class="pf-compare-table-wrap">
+            <table class="pf-compare-table" id="pfCompareTable">
+              <thead>
+                <tr>
+                  <th>프로젝트</th>
+                  <th>등급</th>
+                  <th class="num">수주액</th>
+                  <th class="num">실행예산</th>
+                  <th class="num">수금율</th>
+                  <th class="num">지급율</th>
+                  <th class="num">이익율</th>
+                  <th>수금 진행</th>
+                </tr>
+              </thead>
+              <tbody id="pfCompareBody">
+                <tr><td colspan="8" class="no-data">프로젝트를 추가하세요.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- AI 포트폴리오 분석 -->
+          <div class="pf-analysis-section" id="pfAnalysisSection">
+            <div class="pf-analysis-header">
+              <h3 class="pf-analysis-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-.75-12.07A4.001 4.001 0 0 1 12 2z"/><path d="M8.5 8.5 4 13l2.5 2L12 22l5.5-7-2.5-2L19.5 8.5"/></svg>
+                AI 포트폴리오 분석
+              </h3>
+              <div class="pf-analysis-actions">
+                <span class="pf-analysis-time" id="pfAnalysisTime"></span>
+                <button class="btn btn-sm btn-primary" id="pfAnalyzeBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-.75-12.07A4.001 4.001 0 0 1 12 2z"/></svg>
+                  새로 분석하기
+                </button>
+              </div>
+            </div>
+            <div class="pf-analysis-body" id="pfAnalysisBody">
+              <p class="pf-analysis-empty">아직 분석 결과가 없습니다. '새로 분석하기'를 눌러 AI 분석을 시작하세요.</p>
+            </div>
+          </div>
         </div>
 
         <!-- 대시보드 탭 -->
         <div class="tab-panel" id="panel-dashboard" style="display:none;">
-          <div class="summary-cards" id="summaryCards">
+          <!-- 금액 요약 카드 (1행: 수주~수금율~이익율) -->
+          <div class="summary-cards summary-cards-top" id="summaryCards">
+            <div class="summary-card card-blue">
+              <div class="card-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <div class="card-body">
+                <p class="card-label">수주액</p>
+                <p class="card-value" id="valContract">0</p>
+              </div>
+            </div>
+            <div class="summary-card card-violet">
+              <div class="card-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="card-body">
+                <p class="card-label">실행예산</p>
+                <p class="card-value" id="valBudget">0</p>
+              </div>
+            </div>
+            <div class="summary-card card-green">
+              <div class="card-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </div>
+              <div class="card-body">
+                <p class="card-label">수익금</p>
+                <p class="card-value" id="valProfit">0</p>
+              </div>
+            </div>
+            <div class="summary-card card-green">
+              <div class="card-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+              </div>
+              <div class="card-body">
+                <p class="card-label">수금액</p>
+                <p class="card-value" id="valDashCollected">0</p>
+              </div>
+            </div>
+            <div class="summary-card card-accent">
+              <div class="card-body">
+                <p class="card-label">수금율</p>
+                <p class="card-value accent" id="valDashCollectionRate">0%</p>
+              </div>
+            </div>
+            <div class="summary-card card-accent">
+              <div class="card-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="card-body">
+                <p class="card-label">이익율</p>
+                <p class="card-value accent" id="valMargin">0%</p>
+              </div>
+            </div>
+          </div>
+          <!-- 2행: 지급 관련 -->
+          <div class="summary-cards summary-cards-sub" id="summaryCards2">
             <div class="summary-card">
-              <p class="card-label">수주액</p>
-              <p class="card-value" id="valContract">0</p>
+              <div class="card-body">
+                <p class="card-label">지급총한도</p>
+                <p class="card-value" id="valPaymentLimit">0</p>
+              </div>
             </div>
             <div class="summary-card">
-              <p class="card-label">실행예산</p>
-              <p class="card-value" id="valBudget">0</p>
+              <div class="card-body">
+                <p class="card-label">기지급액</p>
+                <p class="card-value" id="valTotalPaid">0</p>
+              </div>
             </div>
             <div class="summary-card">
-              <p class="card-label">수익금</p>
-              <p class="card-value" id="valProfit">0</p>
-            </div>
-            <div class="summary-card">
-              <p class="card-label">이익율</p>
-              <p class="card-value accent" id="valMargin">0%</p>
-            </div>
-            <div class="summary-card">
-              <p class="card-label">수금액</p>
-              <p class="card-value" id="valDashCollected">0</p>
-            </div>
-            <div class="summary-card">
-              <p class="card-label">수금율</p>
-              <p class="card-value accent" id="valDashCollectionRate">0%</p>
+              <div class="card-body">
+                <p class="card-label">잔여지급한도</p>
+                <p class="card-value" id="valRemainingLimit">0</p>
+              </div>
             </div>
           </div>
 
-          <div class="panel-section">
-            <h3 class="section-title">공종별 지급현황</h3>
+          <!-- 진행률 차트 -->
+          <div class="dash-progress-charts" id="dashProgressCharts">
+            <div class="progress-chart-card">
+              <div class="progress-chart-header">
+                <span class="progress-chart-label">수금 진행률</span>
+                <span class="progress-chart-value" id="chartCollectionPct">0%</span>
+              </div>
+              <div class="progress-chart-bar">
+                <div class="progress-chart-fill fill-blue" id="chartCollectionFill" style="width:0%"></div>
+              </div>
+              <div class="progress-chart-detail">
+                <span class="detail-item"><span class="dot dot-blue"></span>수금완료 <strong id="chartCollected">0</strong></span>
+                <span class="detail-item"><span class="dot dot-gray"></span>미수금 <strong id="chartUncollected">0</strong></span>
+              </div>
+            </div>
+            <div class="progress-chart-card">
+              <div class="progress-chart-header">
+                <span class="progress-chart-label">지급 진행률</span>
+                <span class="progress-chart-value" id="chartPaymentPct">0%</span>
+              </div>
+              <div class="progress-chart-bar">
+                <div class="progress-chart-fill fill-violet" id="chartPaymentFill" style="width:0%"></div>
+              </div>
+              <div class="progress-chart-detail">
+                <span class="detail-item"><span class="dot dot-violet"></span>기지급 <strong id="chartPaid">0</strong></span>
+                <span class="detail-item"><span class="dot dot-gray"></span>잔여 <strong id="chartRemaining">0</strong></span>
+              </div>
+            </div>
+            <div class="progress-chart-card">
+              <div class="progress-chart-header">
+                <span class="progress-chart-label">예산 집행률</span>
+                <span class="progress-chart-value" id="chartBudgetPct">0%</span>
+              </div>
+              <div class="progress-chart-bar">
+                <div class="progress-chart-fill fill-green" id="chartBudgetFill" style="width:0%"></div>
+              </div>
+              <div class="progress-chart-detail">
+                <span class="detail-item"><span class="dot dot-green"></span>집행액 <strong id="chartExecuted">0</strong></span>
+                <span class="detail-item"><span class="dot dot-gray"></span>잔여 <strong id="chartBudgetRemain">0</strong></span>
+              </div>
+            </div>
+            <div class="progress-chart-card">
+              <div class="progress-chart-header">
+                <span class="progress-chart-label">공정 진행률</span>
+                <span class="progress-chart-value" id="chartMilestonePct">0%</span>
+              </div>
+              <div class="progress-chart-bar">
+                <div class="progress-chart-fill fill-accent" id="chartMilestoneFill" style="width:0%"></div>
+              </div>
+              <div class="progress-chart-detail">
+                <span class="detail-item"><span class="dot dot-accent"></span>완료 <strong id="chartMsDone">0</strong></span>
+                <span class="detail-item"><span class="dot dot-gray"></span>잔여 <strong id="chartMsRemain">0</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 프로젝트 정보 + 배정인원 -->
+          <div class="dash-grid dash-grid-3col">
+            <div class="panel-section dash-section dash-card-bordered">
+              <h3 class="section-title clickable-title" data-switch-tab="overview">
+                <span class="section-icon">&#9432;</span> 프로젝트 정보
+                <span class="section-link">상세 →</span>
+              </h3>
+              <table class="dash-kv-table" id="dashOverviewInfo">
+                <tr><th>카테고리</th><td id="dashCategory">-</td></tr>
+                <tr><th>위치</th><td id="dashLocation">-</td></tr>
+                <tr><th>용도</th><td id="dashUsage">-</td></tr>
+                <tr><th>규모</th><td id="dashScale">-</td></tr>
+                <tr><th>연면적</th><td id="dashArea">-</td></tr>
+                <tr><th>현황</th><td id="dashStatus">-</td></tr>
+              </table>
+            </div>
+
+            <div class="panel-section dash-section dash-card-bordered">
+              <h3 class="section-title clickable-title" data-switch-tab="overview">
+                <span class="section-icon">&#128197;</span> 일정 / 계약
+                <span class="section-link">상세 →</span>
+              </h3>
+              <table class="dash-kv-table" id="dashScheduleInfo">
+                <tr><th>설계기간</th><td id="dashDesignPeriod">-</td></tr>
+                <tr><th>시공기간</th><td id="dashConstructionPeriod">-</td></tr>
+                <tr><th>오픈예정</th><td id="dashOpenDate">-</td></tr>
+                <tr><th>설계계약</th><td id="dashDesignContract">-</td></tr>
+                <tr><th>시공계약</th><td id="dashConstructionContract">-</td></tr>
+              </table>
+            </div>
+
+            <div class="panel-section dash-section dash-card-bordered">
+              <h3 class="section-title clickable-title" data-switch-tab="overview">
+                <span class="section-icon">&#128101;</span> 배정인원
+                <span class="section-link">상세 →</span>
+              </h3>
+              <div id="dashMembers" class="dash-member-list">
+                <p class="no-data-text">배정인원 없음</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 진행상황 + 이슈 -->
+          <div class="dash-grid">
+            <div class="panel-section dash-section dash-card-bordered">
+              <h3 class="section-title clickable-title" data-switch-tab="overview">
+                진행상황
+                <span class="section-link">상세 →</span>
+              </h3>
+              <div id="dashMilestones" class="dash-milestone-list">
+                <p class="no-data-text">진행 단계 없음</p>
+              </div>
+            </div>
+
+            <div class="panel-section dash-section dash-card-bordered">
+              <h3 class="section-title">이슈사항</h3>
+              <div id="dashIssues" class="dash-issue-list">
+                <p class="no-data-text">이슈 없음</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 수금현황 요약 -->
+          <div class="panel-section dash-card-bordered">
+            <h3 class="section-title clickable-title" data-switch-tab="collections">
+              수금현황
+              <span class="section-link">상세 →</span>
+            </h3>
             <div class="table-wrapper">
-              <table class="data-table" id="dashTradeTable">
+              <table class="data-table compact" id="dashCollectionTable">
                 <thead>
                   <tr>
-                    <th>공종</th>
-                    <th>업체명</th>
-                    <th class="num">계약금액</th>
-                    <th class="num">기지급액</th>
-                    <th class="num">잔여금액</th>
-                    <th class="num">지급율</th>
+                    <th>구분</th>
+                    <th>단계</th>
+                    <th class="num">금액(원)</th>
+                    <th class="chk">수금완료</th>
                   </tr>
                 </thead>
-                <tbody id="dashTradeBody">
-                  <tr><td colspan="6" class="no-data">데이터 없음</td></tr>
+                <tbody id="dashCollectionBody">
+                  <tr><td colspan="4" class="no-data">데이터 없음</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- AI 인사이트 섹션 -->
+          <div class="panel-section insights-section" id="insightsSection">
+            <div class="insights-header">
+              <h3 class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                AI 인사이트
+              </h3>
+              <div class="insights-actions">
+                <span class="last-generated-text" id="lastGeneratedText"></span>
+                <button class="btn btn-primary btn-sm" id="generateInsightsBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                  인사이트 생성
+                </button>
+              </div>
+            </div>
+
+            <!-- 인사이트 로딩 오버레이 -->
+            <div class="insights-loading" id="insightsLoading" style="display:none;">
+              <div class="loading-spinner"></div>
+              <span>AI가 분석 중...</span>
+            </div>
+
+            <!-- 포트폴리오 인사이트 -->
+            <div class="portfolio-insight-box" id="portfolioInsightBox" style="display:none;">
+              <h4 class="portfolio-insight-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                포트폴리오 종합 인사이트
+              </h4>
+              <div class="portfolio-insight-content" id="portfolioInsightContent"></div>
+            </div>
+
+            <!-- 프로젝트별 인사이트 카드 -->
+            <div class="project-insights-list" id="projectInsightsList">
+              <p class="no-data-text">"인사이트 생성" 버튼을 눌러 AI 분석을 시작하세요.</p>
+            </div>
+
+            <!-- TODO 리스트 -->
+            <div class="insights-todo-section" id="insightsTodoSection">
+              <div class="todo-header">
+                <h4 class="subsection-title" style="margin:0; border:none; padding:0;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  TODO 리스트
+                </h4>
+                <div class="todo-controls">
+                  <select class="todo-filter-select" id="todoFilter">
+                    <option value="all">전체</option>
+                    <option value="pending">미완료</option>
+                    <option value="completed">완료</option>
+                  </select>
+                  <button class="btn btn-sm btn-outlined" id="addTodoBtn">+ 추가</button>
+                </div>
+              </div>
+              <div class="todo-list" id="todoList">
+                <p class="no-data-text">TODO 항목이 없습니다.</p>
+              </div>
+            </div>
+
+            <!-- 자료실 (Phase 2) -->
+            <div class="materials-section" id="materialsSection">
+              <div class="materials-header">
+                <h4 class="subsection-title" style="margin:0; border:none; padding:0;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  자료실
+                </h4>
+                <div class="materials-actions">
+                  <button class="btn btn-sm btn-outlined" id="addMaterialTextBtn">+ 메모</button>
+                  <label class="btn btn-sm btn-outlined material-upload-label">
+                    + 파일 업로드
+                    <input type="file" id="materialFileInput" style="display:none;" accept=".xlsx,.xls,.pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.csv" multiple />
+                  </label>
+                </div>
+              </div>
+              <div class="materials-list" id="materialsList">
+                <p class="no-data-text">등록된 자료가 없습니다.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -145,7 +505,13 @@
         <div class="tab-panel" id="panel-overview" style="display:none;">
           <div class="panel-toolbar">
             <h3 class="section-title">프로젝트 개요</h3>
-            <button class="btn btn-primary btn-sm" id="saveOverviewBtn">저장</button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outlined btn-sm" id="crawlGwBtn" title="GW 예산관리에서 프로젝트 정보를 가져옵니다">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+                그룹웨어에서 가져오기
+              </button>
+              <button class="btn btn-primary btn-sm" id="saveOverviewBtn">저장</button>
+            </div>
           </div>
 
           <!-- 기본정보 -->
@@ -153,6 +519,7 @@
             <div class="overview-section">
               <h4 class="subsection-title">기본정보</h4>
               <div class="info-grid">
+                <input type="hidden" id="ovProjectCode" />
                 <div class="info-row">
                   <span class="info-label">프로젝트 카테고리</span>
                   <select class="info-value ov-field" data-field="project_category">
@@ -164,6 +531,16 @@
                     <option value="운영">운영 (위탁운영 계약)</option>
                     <option value="직영">직영 (직영 프로젝트)</option>
                     <option value="기획">기획 (기획 프로젝트/컨셉만)</option>
+                  </select>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">등급</span>
+                  <select class="info-value ov-field" data-field="grade" id="ovGradeSelect">
+                    <option value="">-- 선택 --</option>
+                    <option value="1등급">1등급 (최중요 — 당사 직영/ETF)</option>
+                    <option value="2등급">2등급 (KOM, 2~3차 보고)</option>
+                    <option value="3등급">3등급 (KOM, 2차 보고)</option>
+                    <option value="4등급">4등급 (여유)</option>
                   </select>
                 </div>
                 <div class="info-row">
@@ -247,21 +624,32 @@
 
           <!-- 진행상황 체크리스트 -->
           <div class="panel-section">
-            <h4 class="subsection-title">진행상황</h4>
+            <h4 class="subsection-title">진행상황
+              <span class="ms-progress-badge" id="msProgressBadge"></span>
+            </h4>
+            <div class="ms-progress-bar-wrapper">
+              <div class="ms-progress-bar" id="msProgressBar">
+                <div class="ms-progress-fill" id="msProgressFill"></div>
+              </div>
+              <span class="ms-progress-text" id="msProgressText"></span>
+            </div>
             <div class="table-wrapper">
               <table class="data-table" id="milestoneTable">
                 <thead>
                   <tr>
+                    <th style="width:40px;">#</th>
                     <th>단계</th>
-                    <th class="chk" style="width:70px;">완료</th>
-                    <th style="width:120px;">날짜</th>
+                    <th class="chk" style="width:60px;">완료</th>
+                    <th style="width:110px;">날짜</th>
+                    <th style="width:40px;"></th>
                   </tr>
                 </thead>
                 <tbody id="milestoneBody">
-                  <tr><td colspan="3" class="no-data">진행 단계 없음</td></tr>
+                  <tr><td colspan="5" class="no-data">진행 단계 없음</td></tr>
                 </tbody>
               </table>
             </div>
+            <button class="btn btn-sm" id="btnAddMilestone" style="margin-top:6px;">+ 단계 추가</button>
           </div>
 
           <!-- 배정인원 -->
@@ -331,7 +719,7 @@
                 <thead>
                   <tr>
                     <th>단계</th>
-                    <th class="num">금액</th>
+                    <th class="num">금액(원)</th>
                     <th class="chk">수금완료</th>
                   </tr>
                 </thead>
@@ -350,7 +738,7 @@
                 <thead>
                   <tr>
                     <th>단계</th>
-                    <th class="num">금액</th>
+                    <th class="num">금액(원)</th>
                     <th class="chk">수금완료</th>
                   </tr>
                 </thead>
@@ -364,11 +752,11 @@
           <!-- 수금 합계 -->
           <div class="summary-cards" id="collectionSummary" style="margin-top: 16px;">
             <div class="summary-card">
-              <p class="card-label">총 수금액</p>
+              <p class="card-label">총 수금액 (원)</p>
               <p class="card-value" id="valTotalCollected">0</p>
             </div>
             <div class="summary-card">
-              <p class="card-label">총 미수금액</p>
+              <p class="card-label">총 미수금액 (원)</p>
               <p class="card-value" id="valTotalUncollected">0</p>
             </div>
             <div class="summary-card">
@@ -379,64 +767,134 @@
         </div>
 
         <!-- 하도급상세 탭 -->
-        <div class="tab-panel" id="panel-subcontracts" style="display:none;">
-          <div class="panel-toolbar">
-            <h3 class="section-title">하도급 상세내역</h3>
-            <div class="toolbar-actions">
-              <button class="btn btn-primary btn-sm" id="addSubcontractBtn">+ 행 추가</button>
-              <button class="btn btn-outlined btn-sm" id="saveSubcontractsBtn">저장</button>
+        <!-- 예산&지급관리 탭 (하도급상세 + 예실대비 통합) -->
+        <div class="tab-panel" id="panel-budget-payment" style="display:none;">
+          <div class="sub-tab-bar">
+            <button class="sub-tab-item active" data-subtab="subcontracts">하도급 상세</button>
+            <button class="sub-tab-item" data-subtab="budget">예실대비</button>
+          </div>
+
+          <div class="sub-tab-panel" id="subpanel-subcontracts">
+            <div class="panel-toolbar">
+              <h3 class="section-title">하도급 상세내역</h3>
+              <div class="toolbar-actions">
+                <button class="btn btn-primary btn-sm" id="addSubcontractBtn">+ 행 추가</button>
+                <button class="btn btn-outlined btn-sm" id="saveSubcontractsBtn">저장</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table editable" id="subcontractTable">
+                <thead>
+                  <tr>
+                    <th style="width:40px;">No</th>
+                    <th>공종</th>
+                    <th>업체명</th>
+                    <th class="num">계약금액(원)</th>
+                    <th class="num">1차지급(원)</th>
+                    <th class="num">2차지급(원)</th>
+                    <th class="num">3차지급(원)</th>
+                    <th class="num">4차지급(원)</th>
+                    <th class="num">잔여금액(원)</th>
+                    <th class="num">지급율</th>
+                    <th class="chk">1차확인</th>
+                    <th class="chk">2차확인</th>
+                    <th class="chk">3차확인</th>
+                    <th class="chk">4차확인</th>
+                    <th style="width:60px;">삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="subcontractBody">
+                  <tr><td colspan="15" class="no-data">데이터 없음</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <div class="table-wrapper">
-            <table class="data-table editable" id="subcontractTable">
-              <thead>
-                <tr>
-                  <th style="width:40px;">No</th>
-                  <th>공종</th>
-                  <th>업체명</th>
-                  <th class="num">계약금액</th>
-                  <th class="num">1차지급</th>
-                  <th class="num">2차지급</th>
-                  <th class="num">3차지급</th>
-                  <th class="num">4차지급</th>
-                  <th class="num">잔여금액</th>
-                  <th class="num">지급율</th>
-                  <th class="chk">1차확인</th>
-                  <th class="chk">2차확인</th>
-                  <th class="chk">3차확인</th>
-                  <th class="chk">4차확인</th>
-                  <th style="width:60px;">삭제</th>
-                </tr>
-              </thead>
-              <tbody id="subcontractBody">
-                <tr><td colspan="15" class="no-data">데이터 없음</td></tr>
-              </tbody>
-            </table>
+
+          <div class="sub-tab-panel" id="subpanel-budget" style="display:none;">
+            <div class="panel-toolbar">
+              <h3 class="section-title">예산 대비 실적</h3>
+              <div class="toolbar-actions">
+                <button class="btn btn-primary btn-sm" id="crawlBudgetBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  GW에서 가져오기
+                </button>
+                <button class="btn btn-outlined btn-sm" id="refreshBudgetBtn">새로고침</button>
+              </div>
+            </div>
+
+            <!-- 요약 카드 -->
+            <div class="budget-summary-cards" id="budgetSummaryCards" style="display:none;">
+              <div class="budget-card">
+                <div class="budget-card-label">총 예산액</div>
+                <div class="budget-card-value" id="budgetTotalAmount">-</div>
+              </div>
+              <div class="budget-card">
+                <div class="budget-card-label">총 집행액</div>
+                <div class="budget-card-value" id="budgetTotalActual">-</div>
+              </div>
+              <div class="budget-card">
+                <div class="budget-card-label">총 잔액</div>
+                <div class="budget-card-value" id="budgetTotalRemain">-</div>
+              </div>
+              <div class="budget-card">
+                <div class="budget-card-label">평균 집행율</div>
+                <div class="budget-card-value" id="budgetAvgRate">-</div>
+              </div>
+            </div>
+
+            <!-- GW 합계 데이터 (수입합계/지출합계/총잔액) -->
+            <div id="budgetSummaryTotals" style="display:none;"></div>
+
+            <!-- 마지막 크롤링 시각 + 연도 정보 -->
+            <div class="budget-meta" id="budgetMeta" style="display:none;">
+              <span class="budget-meta-text">마지막 GW 동기화: <span id="budgetLastSync">-</span></span>
+              <span id="budgetYearInfo" class="budget-year-info" style="display:none;margin-left:12px;"></span>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="data-table" id="budgetTable">
+                <thead>
+                  <tr>
+                    <th>예산과목</th>
+                    <th style="width:90px;">과목코드</th>
+                    <th>세부분류</th>
+                    <th class="num">예산액(원)</th>
+                    <th class="num">집행액(원)</th>
+                    <th class="num">잔액(원)</th>
+                    <th class="num" style="width:150px;">집행율</th>
+                  </tr>
+                </thead>
+                <tbody id="budgetBody">
+                  <tr><td colspan="7" class="no-data">GW에서 데이터를 가져오세요</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <!-- 연락처 탭 -->
-        <div class="tab-panel" id="panel-contacts" style="display:none;">
+        <!-- 하도급 업체 관리 탭 (통합 단일 테이블) -->
+        <div class="tab-panel" id="panel-vendors" style="display:none;">
           <div class="panel-toolbar">
-            <h3 class="section-title">거래처 연락처</h3>
-            <button class="btn btn-primary btn-sm" id="addContactBtn">+ 연락처 추가</button>
+            <h3 class="section-title">하도급 업체 관리</h3>
+            <div class="toolbar-actions">
+              <button class="btn btn-primary btn-sm" id="addVendorBtn">+ 업체 추가</button>
+            </div>
           </div>
           <div class="table-wrapper">
-            <table class="data-table" id="contactTable">
+            <table class="data-table" id="vendorTable">
               <thead>
                 <tr>
                   <th style="width:40px;">No</th>
+                  <th>공종</th>
                   <th>업체명</th>
                   <th>담당자</th>
-                  <th>연락처</th>
-                  <th>이메일</th>
-                  <th>공종</th>
-                  <th>비고</th>
+                  <th>담당자 연락처</th>
+                  <th>등록일</th>
                   <th style="width:100px;">관리</th>
                 </tr>
               </thead>
-              <tbody id="contactBody">
-                <tr><td colspan="8" class="no-data">데이터 없음</td></tr>
+              <tbody id="vendorBody">
+                <tr><td colspan="7" class="no-data">등록된 하도급 업체가 없습니다.</td></tr>
               </tbody>
             </table>
           </div>
@@ -455,7 +913,7 @@
                   <th style="width:40px;">No</th>
                   <th>이체일</th>
                   <th>거래처</th>
-                  <th class="num">이체금액</th>
+                  <th class="num">이체금액(원)</th>
                   <th>적요</th>
                   <th>계좌정보</th>
                   <th>자금과목</th>
@@ -468,30 +926,7 @@
           </div>
         </div>
 
-        <!-- 예실대비 탭 -->
-        <div class="tab-panel" id="panel-budget" style="display:none;">
-          <div class="panel-toolbar">
-            <h3 class="section-title">예산 대비 실적 (GW 연동)</h3>
-            <button class="btn btn-outlined btn-sm" id="refreshBudgetBtn">새로고침</button>
-          </div>
-          <div class="table-wrapper">
-            <table class="data-table" id="budgetTable">
-              <thead>
-                <tr>
-                  <th>과목</th>
-                  <th class="num">예산액</th>
-                  <th class="num">집행액</th>
-                  <th class="num">잔액</th>
-                  <th class="num">집행율</th>
-                  <th>비고</th>
-                </tr>
-              </thead>
-              <tbody id="budgetBody">
-                <tr><td colspan="6" class="no-data">GW에서 데이터를 불러오는 중...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- 예실대비 탭: 예산&지급관리 통합 패널로 이동됨 -->
       </div>
     </main>
   </div>
@@ -513,6 +948,77 @@
     </div>
   </div>
 
-  <script src="/static/fund.js"></script>
+  <!-- TODO 모달 -->
+  <div class="modal-overlay" id="todoModalOverlay" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="todoModalTitle">TODO 추가</h3>
+        <button class="modal-close" id="todoModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>내용</label>
+          <input type="text" id="todoContentInput" placeholder="할 일을 입력하세요" />
+        </div>
+        <div class="form-group">
+          <label>프로젝트</label>
+          <select id="todoProjectSelect"><option value="">-- 전체 --</option></select>
+        </div>
+        <div class="form-group">
+          <label>우선순위</label>
+          <select id="todoPrioritySelect">
+            <option value="high">높음</option>
+            <option value="medium" selected>보통</option>
+            <option value="low">낮음</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>카테고리</label>
+          <input type="text" id="todoCategoryInput" placeholder="예: 수금, 일정, 계약 (선택)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outlined" id="todoModalCancelBtn">취소</button>
+        <button class="btn btn-primary" id="todoModalSaveBtn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메모 추가 모달 -->
+  <div class="modal-overlay" id="memoModalOverlay" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">메모 추가</h3>
+        <button class="modal-close" id="memoModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>제목</label>
+          <input type="text" id="memoTitleInput" placeholder="자료 제목" />
+        </div>
+        <div class="form-group">
+          <label>내용</label>
+          <textarea id="memoContentInput" rows="5" placeholder="메모 내용을 입력하세요"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outlined" id="memoModalCancelBtn">취소</button>
+        <button class="btn btn-primary" id="memoModalSaveBtn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 알림 패널 -->
+  <div class="notification-panel" id="notificationPanel" style="display:none;">
+    <div class="notification-panel-header">
+      <h4>알림</h4>
+      <button class="btn btn-sm btn-outlined" id="markAllReadBtn">모두 읽음</button>
+    </div>
+    <div class="notification-list" id="notificationList">
+      <p class="no-data-text">알림이 없습니다.</p>
+    </div>
+  </div>
+
+  <script src="/static/fund.js?v=20260319r11"></script>
 </body>
 </html>

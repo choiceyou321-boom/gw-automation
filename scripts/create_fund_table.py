@@ -1,10 +1,10 @@
 """
-프로젝트 자금관리표 xlsx 양식 생성 스크립트
+프로젝트 프로젝트 관리표 xlsx 양식 생성 스크립트
 글로우서울 인테리어/건축 시공 회사
 
-생성 파일: data/프로젝트_자금관리표_양식.xlsx
+생성 파일: data/프로젝트_프로젝트 관리표_양식.xlsx
 시트 구성:
-  1. 자금관리표 (메인)
+  1. 프로젝트 관리표 (메인)
   2. 지출내역
   3. 발주현황
 """
@@ -70,10 +70,10 @@ def apply_even_row(ws, row, max_col):
             ws.cell(row=row, column=col).fill = EVEN_FILL
 
 
-# ── 시트1: 자금관리표 (메인) ──────────────────────────────────────────────────
+# ── 시트1: 프로젝트 관리표 (메인) ──────────────────────────────────────────────────
 
 def build_sheet1(wb):
-    ws = wb.create_sheet("자금관리표")
+    ws = wb.create_sheet("프로젝트 관리표")
 
     # 헤더 정의: (col, 헤더명, 열너비)
     headers = [
@@ -371,7 +371,7 @@ def build_sheet3(wb):
 
 def main():
     base_dir  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    out_path  = os.path.join(base_dir, "data", "프로젝트_자금관리표_양식.xlsx")
+    out_path  = os.path.join(base_dir, "data", "프로젝트_프로젝트 관리표_양식.xlsx")
 
     wb = Workbook()
     # 기본 시트 제거

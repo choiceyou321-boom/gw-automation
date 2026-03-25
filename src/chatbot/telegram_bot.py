@@ -39,6 +39,9 @@ from src.auth.user_db import verify_login, register as db_register, get_approval
 # 텔레그램 유저 ID → { user_context, history }
 tg_sessions: dict[int, dict] = {}
 
+# 비밀번호 대기 상태 (2-step 인증): {tg_user_id: {"type": "login"|"register", ...}}
+_pending_auth: dict[int, dict] = {}
+
 # 임시 파일 저장 경로
 TMP_DIR = ROOT_DIR / "data" / "tmp"
 TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -56,11 +59,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "안녕하세요! 그룹웨어 업무 자동화 봇입니다.\n\n"
         "사용하시려면 그룹웨어 계정 인증이 필요합니다.\n"
         "아직 가입하지 않으셨다면 회원가입을 먼저 진행해주세요:\n"
-        "`/register [아이디] [비밀번호] [이름] [직급(선택)]`\n"
-        "예시: `/register tgjeon mypass123 전태규 대리`\n\n"
+        "`/register [아이디] [이름] [직급(선택)]`\n"
+        "예시: `/register tgjeon 전태규 대리`\n"
+        "(비밀번호는 다음 단계에서 별도 입력)\n\n"
         "이미 가입하셨다면 아래 명령어로 로그인해 주세요:\n"
-        "`/login [아이디] [비밀번호]`\n"
-        "예시: `/login tgjeon mypass123`\n\n"
+        "`/login [아이디]`\n"
+        "예시: `/login tgjeon`\n"
+        "(비밀번호는 다음 단계에서 별도 입력)\n\n"
         "기타 명령어:\n"
         "`/mail` (또는 `/mailcheck`) - 안 읽은 메일 AI 요약 + Notion 저장\n"
         "`/setline 검토:이름 승인:이름` - 결재선 설정\n"
@@ -71,63 +76,113 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def register_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """텔레그램에서 회원가입 처리"""
+    """
+    텔레그램에서 회원가입 처리 (2-step 보안 플로우)
+    Step 1: /register [아이디] [이름] [직급] → 비밀번호 요청
+    Step 2: 사용자가 비밀번호만 별도 전송 → 즉시 삭제 후 가입 처리
+    (하위호환: /register [아이디] [비밀번호] [이름] 도 지원하되 메시지 삭제)
+    """
     args = context.args
-    if len(args) < 3:
+    tg_user_id = update.effective_user.id
+
+    if len(args) < 2:
         await update.message.reply_text(
-            "사용법: `/register [아이디] [비밀번호] [이름] [직급(선택)]`\n"
-            "예시: `/register tgjeon 1234 홍길동 선임`",
+            "사용법: `/register [아이디] [이름] [직급(선택)]`\n"
+            "예시: `/register tgjeon 홍길동 선임`\n\n"
+            "비밀번호는 다음 단계에서 별도로 입력합니다. (보안)",
             parse_mode='Markdown'
         )
         return
 
-    gw_id, gw_pw, name = args[0], args[1], args[2]
-    position = args[3] if len(args) > 3 else ""
+    # 하위호환: 3개 이상 인자 + 2번째가 한글이 아니면 기존 방식 (id pw name)
+    if len(args) >= 3 and not any('\uac00' <= c <= '\ud7a3' for c in args[1]):
+        # 기존 방식: /register id pw name [position]
+        gw_id, gw_pw, name = args[0], args[1], args[2]
+        position = args[3] if len(args) > 3 else ""
+        try:
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=update.message.message_id,
+            )
+        except Exception as e:
+            logger.warning(f"메시지 삭제 실패: {e}")
+        result = db_register(gw_id=gw_id, gw_pw=gw_pw, name=name, position=position)
+        if result["success"]:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"회원가입 성공!\n이제 `/login {gw_id}`를 입력해 로그인해 주세요.",
+                parse_mode='Markdown',
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"회원가입 실패: {result['message']}",
+            )
+        return
 
-    # 보안: 비밀번호 포함 메시지 삭제
-    try:
-        await context.bot.delete_message(
-            chat_id=update.effective_chat.id,
-            message_id=update.message.message_id,
-        )
-    except Exception as e:
-        logger.warning(f"메시지 삭제 실패: {e}")
-
-    result = db_register(gw_id=gw_id, gw_pw=gw_pw, name=name, position=position)
-
-    if result["success"]:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"회원가입 성공!\n이제 `/login {gw_id} [비밀번호]`를 입력해 로그인해 주세요.",
-            parse_mode='Markdown',
-        )
-    else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"회원가입 실패: {result['message']}",
-        )
+    # 2-step 방식: /register id name [position]
+    gw_id = args[0]
+    name = args[1]
+    position = args[2] if len(args) > 2 else ""
+    _pending_auth[tg_user_id] = {
+        "type": "register",
+        "gw_id": gw_id,
+        "name": name,
+        "position": position,
+    }
+    await update.message.reply_text(
+        f"아이디: `{gw_id}`, 이름: `{name}`\n\n"
+        "비밀번호를 다음 메시지로 입력해주세요.\n"
+        "(입력 즉시 메시지가 삭제됩니다)",
+        parse_mode='Markdown',
+    )
 
 
 async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """텔레그램 채팅방에서 그룹웨어 계정 연동"""
+    """
+    텔레그램 채팅방에서 그룹웨어 계정 연동 (2-step 보안 플로우)
+    Step 1: /login [아이디] → 비밀번호 요청
+    Step 2: 사용자가 비밀번호만 별도 전송 → 즉시 삭제 후 인증
+    (하위호환: /login [아이디] [비밀번호] 도 지원하되 메시지 삭제)
+    """
     args = context.args
-    if len(args) != 2:
+    tg_user_id = update.effective_user.id
+
+    if not args:
         await update.message.reply_text(
-            "사용법: `/login [아이디] [비밀번호]`", parse_mode='Markdown'
+            "사용법: `/login [아이디]`\n"
+            "예시: `/login tgjeon`\n\n"
+            "비밀번호는 다음 단계에서 별도로 입력합니다. (보안)",
+            parse_mode='Markdown',
         )
         return
 
-    gw_id, gw_pw = args[0], args[1]
+    # 하위호환: /login id pw (2개 인자)
+    if len(args) == 2:
+        gw_id, gw_pw = args[0], args[1]
+        try:
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=update.message.message_id,
+            )
+        except Exception as e:
+            logger.warning(f"메시지 삭제 실패 (관리자 권한 필요): {e}")
+        await _do_login(update, context, gw_id, gw_pw)
+        return
 
-    # 보안: 비밀번호 포함 메시지 삭제
-    try:
-        await context.bot.delete_message(
-            chat_id=update.effective_chat.id,
-            message_id=update.message.message_id,
-        )
-    except Exception as e:
-        logger.warning(f"메시지 삭제 실패 (관리자 권한 필요): {e}")
+    # 2-step 방식: /login id → 비밀번호 대기
+    gw_id = args[0]
+    _pending_auth[tg_user_id] = {"type": "login", "gw_id": gw_id}
+    await update.message.reply_text(
+        f"아이디: `{gw_id}`\n\n"
+        "비밀번호를 다음 메시지로 입력해주세요.\n"
+        "(입력 즉시 메시지가 삭제됩니다)",
+        parse_mode='Markdown',
+    )
 
+
+async def _do_login(update: Update, context: ContextTypes.DEFAULT_TYPE, gw_id: str, gw_pw: str):
+    """실제 로그인 처리 (공통)"""
     user = verify_login(gw_id, gw_pw)
     if user:
         tg_sessions[update.effective_user.id] = {
@@ -137,7 +192,7 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "emp_seq": user.get("emp_seq", ""),
             "dept_seq": user.get("dept_seq", ""),
             "email_addr": user.get("email_addr", ""),
-            "history": [],  # 인메모리 대화 히스토리
+            "history": [],
         }
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -362,6 +417,40 @@ def _append_history(session: dict, role: str, content: str):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """일반 텍스트 메시지 처리"""
     tg_user_id = update.effective_user.id
+
+    # ── 2-step 인증: 비밀번호 대기 중이면 여기서 처리 ──
+    pending = _pending_auth.pop(tg_user_id, None)
+    if pending:
+        gw_pw = update.message.text.strip()
+        # 비밀번호 메시지 즉시 삭제
+        try:
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=update.message.message_id,
+            )
+        except Exception as e:
+            logger.warning(f"비밀번호 메시지 삭제 실패: {e}")
+
+        if pending["type"] == "login":
+            await _do_login(update, context, pending["gw_id"], gw_pw)
+        elif pending["type"] == "register":
+            result = db_register(
+                gw_id=pending["gw_id"], gw_pw=gw_pw,
+                name=pending["name"], position=pending.get("position", ""),
+            )
+            if result["success"]:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=f"회원가입 성공!\n이제 `/login {pending['gw_id']}`를 입력해 로그인해 주세요.",
+                    parse_mode='Markdown',
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=f"회원가입 실패: {result['message']}",
+                )
+        return
+
     session = _check_login(tg_user_id)
 
     if not session:

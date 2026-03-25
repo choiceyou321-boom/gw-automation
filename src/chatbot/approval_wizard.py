@@ -452,7 +452,7 @@ class ApprovalWizard:
 
     def _execute(self) -> tuple[str, bool]:
         """지출결의서 실제 작성 실행"""
-        from src.chatbot.agent import handle_submit_expense_approval
+        from src.chatbot.handlers import handle_submit_expense_approval
         params = {
             **self.data,
             "action": "draft",
@@ -465,7 +465,7 @@ class ApprovalWizard:
     def _search_projects(self, keyword: str) -> list | None:
         """GW 프로젝트 코드 검색 (동기, executor 사용)"""
         try:
-            from src.chatbot.agent import handle_search_project_code
+            from src.chatbot.handlers import handle_search_project_code
             raw = handle_search_project_code(
                 {"keyword": keyword},
                 user_context=self.user_context,

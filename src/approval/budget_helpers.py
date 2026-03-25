@@ -344,18 +344,57 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
         pass
 
     if not sub_popup_visible:
-        # 코드도움 아이콘 클릭 (input 옆 돋보기/버튼)
+        # 코드도움 트리거: Enter 키 재시도 (SearchHelp는 Enter로 팝업 열림)
+        icon_clicked = False
         try:
-            box = budget_input.bounding_box()
-            if box:
-                # 코드도움 아이콘은 input 오른쪽에 위치
-                icon_x = box["x"] + box["width"] + 15
-                icon_y = box["y"] + box["height"] / 2
-                page.mouse.click(icon_x, icon_y)
-                logger.info(f"예산과목 코드도움 아이콘 좌표 클릭: ({icon_x:.0f}, {icon_y:.0f})")
-                time.sleep(1.0)
-        except Exception as e:
-            logger.debug(f"코드도움 아이콘 클릭 실패: {e}")
+            budget_input.press("Enter")
+            logger.info("예산과목 코드도움 트리거 재시도 (Enter)")
+            time.sleep(1.5)
+            try:
+                if page.locator("text=예산과목코드도움").first.is_visible(timeout=2000):
+                    icon_clicked = True
+                    logger.info("Enter 재시도로 서브 팝업 열림")
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+        # 방법 1: input 인접 코드도움 아이콘 CSS 셀렉터 탐색
+        if not icon_clicked:
+            icon_selectors = [
+                "input[placeholder='예산과목코드도움'] + button",
+                "input[placeholder='예산과목코드도움'] ~ button",
+                "input[placeholder='예산과목코드도움'] + * button",
+                "input[placeholder='예산과목코드도움'] ~ [class*='icon']",
+                "input[placeholder='예산과목코드도움'] ~ [class*='search']",
+                "input[placeholder='예산과목코드도움'] ~ [class*='btn']",
+            ]
+            for sel in icon_selectors:
+                try:
+                    icon = page.locator(sel).first
+                    if icon.is_visible(timeout=1000):
+                        icon.click(force=True)
+                        logger.info(f"예산과목 코드도움 아이콘 CSS 클릭: '{sel}'")
+                        icon_clicked = True
+                        time.sleep(1.0)
+                        break
+                except Exception:
+                    continue
+
+        # 방법 2: input bounding_box 기반 상대좌표 계산 (폴백)
+        if not icon_clicked:
+            try:
+                box = budget_input.bounding_box()
+                if box:
+                    # 코드도움 아이콘은 input 오른쪽에 위치
+                    icon_x = box["x"] + box["width"] + 15
+                    icon_y = box["y"] + box["height"] / 2
+                    logger.warning(f"예산과목 코드도움 아이콘 CSS 실패, 상대좌표 폴백: ({icon_x:.0f}, {icon_y:.0f})")
+                    page.mouse.click(icon_x, icon_y)
+                    logger.info(f"예산과목 코드도움 아이콘 상대좌표 클릭: ({icon_x:.0f}, {icon_y:.0f})")
+                    time.sleep(1.0)
+            except Exception as e:
+                logger.debug(f"코드도움 아이콘 클릭 실패: {e}")
 
     return True
 
@@ -620,3 +659,87 @@ def _click_confirm_button(page: Page, context_name: str) -> bool:
 
     logger.warning(f"{context_name} 확인 버튼 미발견")
     return False
+
+
+def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword: str) -> dict:
+    """
+    용도코드(usage_code) 입력+Enter 후 자동 트리거된 '공통 예산잔액 조회' 팝업 처리.
+
+    select_budget_code()와 달리 예산과목 필드를 클릭하지 않고,
+    이미 열린 팝업을 바로 처리한다.
+
+    흐름:
+    1. 팝업이 자동으로 열렸는지 확인 (3초 대기)
+    2. 모달 내 프로젝트(사업코드도움) 입력 → 자동완성 선택
+    3. 예산과목코드도움 입력 → 서브 팝업 → 행 선택 → 확인
+    4. 모달 확인 버튼 클릭
+
+    Args:
+        page: Playwright Page 인스턴스
+        project_keyword: 프로젝트 검색어 (예: "메디빌더")
+        budget_keyword: 예산과목 검색어 (예: "냉난방")
+
+    Returns:
+        {"success": bool, "budget_code": str, "budget_name": str, "message": str}
+        success=False + message 포함 "팝업 미감지" → 자동 트리거 없음, 폴백 필요
+    """
+    result = {"success": False, "budget_code": "", "budget_name": "", "message": ""}
+    try:
+        # ── 팝업 자동 트리거 확인 (timeout 3초: 자동 트리거는 즉시 열림) ──
+        if not _wait_for_budget_modal(page, timeout_ms=3000):
+            result["message"] = "팝업 미감지 — 자동 트리거 없음, select_budget_code() 폴백 필요"
+            return result
+
+        logger.info("공통 예산잔액 조회 자동 트리거 팝업 감지")
+        _save_debug_screenshot(page, "auto_popup_13_modal_opened")
+
+        # ── 프로젝트 입력 + 자동완성 선택 ──
+        if not _fill_modal_project(page, project_keyword):
+            result["message"] = f"모달 프로젝트 입력 실패: '{project_keyword}'"
+            return result
+        _save_debug_screenshot(page, "auto_popup_15_after_project")
+
+        # ── 예산과목코드도움 입력 → 코드도움 서브 팝업 ──
+        if not _fill_modal_budget_keyword(page, budget_keyword):
+            result["message"] = f"예산과목 키워드 입력 실패: '{budget_keyword}'"
+            return result
+        _save_debug_screenshot(page, "auto_popup_16_after_keyword")
+
+        # ── 서브 팝업에서 2로 시작하는 코드 선택 ──
+        code, name = _select_budget_from_sub_popup(page)
+        if not code:
+            result["message"] = "서브 팝업에서 예산과목코드를 찾지 못함"
+            return result
+
+        logger.info(f"자동팝업 예산과목 선택 완료: {code}. {name}")
+
+        # ── 메인 모달 확인 버튼 클릭 ──
+        _save_debug_screenshot(page, "auto_popup_17_before_confirm")
+        if not _confirm_budget_modal(page):
+            result["message"] = "모달 확인 버튼 클릭 실패"
+            return result
+
+        time.sleep(0.5)
+        _save_debug_screenshot(page, "auto_popup_17b_after_confirm")
+
+        # 모달이 여전히 열려있으면 Escape로 강제 닫기
+        try:
+            if page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=500):
+                logger.warning("자동팝업: 확인 후에도 모달 잔존 — Escape로 강제 닫기")
+                page.keyboard.press("Escape")
+                time.sleep(0.5)
+        except Exception:
+            pass
+
+        result["success"] = True
+        result["budget_code"] = code
+        result["budget_name"] = name
+        result["message"] = f"예산과목 {code}. {name} 자동팝업 설정 완료"
+        logger.info(result["message"])
+        return result
+
+    except Exception as e:
+        logger.error(f"handle_auto_triggered_popup 예외: {e}", exc_info=True)
+        _save_debug_screenshot(page, "auto_popup_error")
+        result["message"] = f"예외: {e}"
+        return result

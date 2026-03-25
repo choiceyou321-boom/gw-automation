@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 환경 변수 / 시크릿
+config/.env
+.env
+config/google_service_account.json
+config/support-officer-gmail-*.json
+nginx/ssl/*.pem
+nginx/ssl/*.key
+
+# 데이터 (런타임 생성)
+data/
+logs/
+playwright-report/
+
+# 문서 / 테스트
+docs/
+*.md
+test */
+이전/
+
+# Claude / Agent 설정
+.claude/
+.agent/
+.agents/

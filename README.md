@@ -9,8 +9,7 @@
 
 | 문서 | 내용 |
 |------|------|
-| [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | 프로젝트 진행 현황 및 세션별 작업 로그 |
-| [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | 개발자 가이드 — 기술 패턴, GW API, 양식 관리 |
+| [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | 개발자 가이드 — 기술 패턴, GW API, 양식 관리, 프로젝트 구조 |
 | [`USER_MANUAL.md`](USER_MANUAL.md) | 사용자 매뉴얼 — 웹 챗봇/텔레그램 봇 사용법 |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code 프로젝트 지침 (자동 로드) |
 
@@ -23,11 +22,8 @@
 ├── config/.env                    # 환경변수 (GW계정, API키, 암호화키)
 ├── data/
 │   ├── users.db                   # 사용자 DB (SQLite + Fernet 암호화)
-│   ├── chatbot/chat_history.db    # 대화 히스토리 DB
-│   ├── approval_dom_v2/           # 지출결의서 DOM 탐색 데이터
-│   ├── approval_dom_vendor/       # 거래처등록 DOM 탐색 데이터
-│   ├── approval_drafts/           # 임시보관문서 스크린샷/API 응답
-│   └── gw_analysis/               # GW API 분석 데이터
+│   ├── fund_management.db         # 프로젝트 관리 DB
+│   └── chatbot/                   # 대화 히스토리 DB + 로그
 ├── src/
 │   ├── auth/                      # 인증 모듈
 │   │   ├── login.py               # GW 로그인 (Playwright)
@@ -35,15 +31,23 @@
 │   │   ├── jwt_utils.py           # JWT 토큰
 │   │   └── session_manager.py     # GW 세션 캐시
 │   ├── chatbot/                   # 챗봇 모듈
-│   │   ├── agent.py               # Gemini AI 에이전트 (의도 분석 + 도구 호출)
+│   │   ├── agent.py               # Gemini 라우팅 (244줄)
+│   │   ├── tools_schema.py        # 도구 스키마 정의
+│   │   ├── prompts.py             # 시스템 프롬프트
+│   │   ├── handlers.py            # 16개 핸들러 함수
 │   │   ├── app.py                 # FastAPI 서버
 │   │   ├── chat_db.py             # 대화 히스토리 DB
 │   │   ├── telegram_bot.py        # 텔레그램 봇
 │   │   └── static/                # 웹 프론트엔드 (HTML/CSS/JS)
-│   ├── approval/                  # 전자결재 자동화
-│   │   ├── approval_automation.py # Playwright 폼 자동화 (핵심)
-│   │   ├── form_templates.py      # 양식 8개 필드 매핑
-│   │   └── history.py             # 결재 이력 조회
+│   ├── approval/                  # 전자결재 자동화 (7개 Mixin 모듈)
+│   │   ├── approval_automation.py # Mixin 조합 클래스 (54줄)
+│   │   ├── base.py                # 공통 유틸/네비게이션
+│   │   ├── expense.py             # 지출결의서
+│   │   ├── grid.py                # OBTDataGrid 조작
+│   │   ├── vendor.py              # 거래처등록
+│   │   ├── draft.py               # 임시보관 상신
+│   │   ├── other_forms.py         # 기타 양식
+│   │   └── form_templates.py      # 양식 8개 필드 매핑
 │   └── meeting/                   # 회의실 예약
 │       └── reservation_api.py     # WEHAGO API (httpx + HMAC)
 ├── scripts/                       # 탐색/테스트 스크립트

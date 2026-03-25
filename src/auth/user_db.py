@@ -26,43 +26,50 @@ DB_PATH = DATA_DIR / "users.db"
 
 
 def _get_fernet() -> Fernet:
-    """Fernet 인스턴스 반환. ENCRYPTION_KEY 없으면 자동 생성."""
+    """Fernet 인스턴스 반환. ENCRYPTION_KEY 필수."""
     key = os.getenv("ENCRYPTION_KEY")
     if not key:
-        key = Fernet.generate_key().decode()
-        # .env에 자동 추가
-        env_path = CONFIG_DIR / ".env"
-        with open(env_path, "a", encoding="utf-8") as f:
-            f.write(f"\n# 사용자 비밀번호 암호화 키 (자동 생성)\nENCRYPTION_KEY={key}\n")
-        os.environ["ENCRYPTION_KEY"] = key
-        logger.info("ENCRYPTION_KEY 자동 생성 완료")
+        raise RuntimeError(
+            "ENCRYPTION_KEY 환경변수가 설정되지 않았습니다. "
+            "config/.env 파일에 ENCRYPTION_KEY=<Fernet키>를 추가해주세요. "
+            "생성 예시: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
+        )
     return Fernet(key.encode() if isinstance(key, str) else key)
 
 
+_db_initialized = False
+
+
 def _get_db() -> sqlite3.Connection:
-    """SQLite 연결 반환 + 테이블 자동 생성"""
+    """SQLite 연결 반환 + 테이블 자동 생성 (최초 1회)"""
+    global _db_initialized
     DATA_DIR.mkdir(exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            gw_id TEXT PRIMARY KEY,
-            gw_pw_encrypted TEXT NOT NULL,
-            name TEXT NOT NULL,
-            position TEXT DEFAULT '',
-            emp_seq TEXT DEFAULT '',
-            dept_seq TEXT DEFAULT '',
-            email_addr TEXT DEFAULT '',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    # 기존 테이블에 approval_config 컬럼 추가 (없으면 추가, 있으면 무시)
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN approval_config TEXT DEFAULT ''")
-    except sqlite3.OperationalError as e:
-        if "duplicate column" not in str(e):
-            raise  # 예상치 못한 DB 오류는 재발생
-    conn.commit()
+    conn.execute("PRAGMA journal_mode=WAL")
+
+    if not _db_initialized:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                gw_id TEXT PRIMARY KEY,
+                gw_pw_encrypted TEXT NOT NULL,
+                name TEXT NOT NULL,
+                position TEXT DEFAULT '',
+                emp_seq TEXT DEFAULT '',
+                dept_seq TEXT DEFAULT '',
+                email_addr TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        # 기존 테이블에 approval_config 컬럼 추가 (없으면 추가, 있으면 무시)
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN approval_config TEXT DEFAULT ''")
+        except sqlite3.OperationalError as e:
+            if "duplicate column" not in str(e):
+                raise
+        conn.commit()
+        _db_initialized = True
+
     return conn
 
 

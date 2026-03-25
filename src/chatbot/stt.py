@@ -72,8 +72,10 @@ def _get_audio_duration(file_path: str) -> float:
 
 def _convert_to_wav(input_path: str) -> str:
     """ffmpeg로 오디오를 16kHz mono WAV로 변환"""
-    output_path = tempfile.mktemp(suffix=".wav", dir=str(_PROJECT_ROOT / "data" / "tmp"))
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    tmp_dir = str(_PROJECT_ROOT / "data" / "tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
+    fd, output_path = tempfile.mkstemp(suffix=".wav", dir=tmp_dir)
+    os.close(fd)  # ffmpeg가 직접 쓸 수 있도록 fd 닫기
 
     try:
         subprocess.run(
@@ -94,8 +96,15 @@ def _convert_to_wav(input_path: str) -> str:
         raise RuntimeError(f"오디오 변환 실패: {e.stderr[:200]}")
 
 
+_speech_client = None
+
+
 def _get_client():
-    """Speech-to-Text 클라이언트 생성 (서비스 계정 인증)"""
+    """Speech-to-Text 클라이언트 싱글톤 (서비스 계정 인증)"""
+    global _speech_client
+    if _speech_client is not None:
+        return _speech_client
+
     from google.cloud import speech
 
     if _CREDENTIALS_PATH.exists():
@@ -103,10 +112,11 @@ def _get_client():
     elif not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
         raise RuntimeError(
             "Google 서비스 계정 키가 없습니다. "
-            f"config/google_service_account.json을 생성해주세요."
+            "config/google_service_account.json을 생성해주세요."
         )
 
-    return speech.SpeechClient()
+    _speech_client = speech.SpeechClient()
+    return _speech_client
 
 
 def transcribe_audio(file_path: str, language: str = "ko-KR") -> dict:

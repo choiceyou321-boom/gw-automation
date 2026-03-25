@@ -19,13 +19,11 @@ logger = logging.getLogger("jwt_utils")
 # JWT 설정
 JWT_SECRET = os.getenv("JWT_SECRET")
 if not JWT_SECRET:
-    import secrets
-    JWT_SECRET = secrets.token_hex(32)
-    env_path = PROJECT_ROOT / "config" / ".env"
-    with open(env_path, "a", encoding="utf-8") as f:
-        f.write(f"\n# JWT 서명 키 (자동 생성)\nJWT_SECRET={JWT_SECRET}\n")
-    os.environ["JWT_SECRET"] = JWT_SECRET
-    logger.info("JWT_SECRET 자동 생성 완료")
+    raise RuntimeError(
+        "JWT_SECRET 환경변수가 설정되지 않았습니다. "
+        "config/.env 파일에 JWT_SECRET=<랜덤문자열>을 추가해주세요. "
+        "생성 예시: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
 
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 24

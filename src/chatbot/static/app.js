@@ -3,11 +3,29 @@
  * 기능: 인증(로그인/회원가입), 채팅 UI, 파일 드래그앤드랍, 메시지 송수신
  */
 
+// ===== CSRF 토큰 유틸리티 =====
+function getCsrfToken() {
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : '';
+}
+async function safeFetch(url, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD') {
+    options.headers = options.headers || {};
+    if (options.headers instanceof Headers) {
+      options.headers.set('X-CSRF-Token', getCsrfToken());
+    } else {
+      options.headers['X-CSRF-Token'] = getCsrfToken();
+    }
+  }
+  return fetch(url, options);
+}
+
 // 상태 관리
 const state = {
   sessionId: null,
   pendingFiles: [],        // [{name, type, data(base64), preview}]  이미지/PDF
-  pendingAttachPath: null, // XLSX 등 /upload 후 받은 attachment_path
+  pendingAttachPath: null, // XLSX 등 /upload 후 받은 attachment_token
   pendingAttachName: null, // 표시용 파일명
   isLoading: false,
   currentUser: null,  // {gw_id, name, position, ...}
@@ -25,7 +43,7 @@ async function init() {
 // ===== 인증 관련 =====
 async function checkAuth() {
   try {
-    const res = await fetch('/auth/me', { credentials: 'same-origin' });
+    const res = await safeFetch('/auth/me', { credentials: 'same-origin' });
     if (res.ok) {
       const data = await res.json();
       state.currentUser = data.user;
@@ -101,7 +119,7 @@ function setupAuthEvents() {
     errorEl.textContent = '';
 
     try {
-      const res = await fetch('/auth/login', {
+      const res = await safeFetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gw_id, gw_pw }),
@@ -130,7 +148,7 @@ function setupAuthEvents() {
     errorEl.textContent = '';
 
     try {
-      const res = await fetch('/auth/register', {
+      const res = await safeFetch('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gw_id, gw_pw, name, position }),
@@ -139,7 +157,7 @@ function setupAuthEvents() {
       const data = await res.json();
       if (res.ok) {
         // 회원가입 성공 → 자동 로그인
-        const loginRes = await fetch('/auth/login', {
+        const loginRes = await safeFetch('/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ gw_id, gw_pw }),
@@ -171,7 +189,7 @@ function clearAuthErrors() {
 
 async function doLogout() {
   try {
-    await fetch('/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    await safeFetch('/auth/logout', { method: 'POST', credentials: 'same-origin' });
   } catch (e) { /* 무시 */ }
   state.currentUser = null;
   state.sessionId = null;
@@ -259,10 +277,15 @@ async function sendMessage() {
       files: files.map(f => ({ name: f.name, type: f.type, data: f.data })),
     };
     if (attachPath) {
-      payload.attachment_path = attachPath;
+      payload.attachment_token = attachPath;
+    }
+    // 오디오 파일의 토큰도 attachment_token으로 전달
+    const audioFile = files.find(f => f.isAudio && f.audioToken);
+    if (audioFile && !payload.attachment_token) {
+      payload.attachment_token = audioFile.audioToken;
     }
 
-    const res = await fetch('/chat', {
+    const res = await safeFetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -274,6 +297,28 @@ async function sendMessage() {
       appendMessage('error', '세션이 만료되었습니다. 다시 로그인해주세요.');
       setTimeout(() => doLogout(), 2000);
       return;
+    }
+
+    // CSRF 토큰 만료 시 자동 복구: /auth/me 호출로 쿠키 재설정 후 재시도
+    if (res.status === 403) {
+      const errData = await res.json().catch(() => ({}));
+      if (errData.detail && errData.detail.includes('CSRF')) {
+        await fetch('/auth/me', { credentials: 'same-origin' });
+        const retryRes = await safeFetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          credentials: 'same-origin',
+        });
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          if (retryData.session_id) state.sessionId = retryData.session_id;
+          loadingEl.remove();
+          appendMessage('bot', retryData.response, [], retryData.action, retryData.action_result);
+          loadSessions();
+          return;
+        }
+      }
     }
 
     if (!res.ok) {
@@ -345,8 +390,22 @@ function appendMessage(role, text, files = [], action = null, actionResult = nul
     }
   }
 
-  // 액션 카드 (봇 응답)
-  if (action && actionResult) {
+  // 액션 카드 (봇 응답) — response가 이미 도구 결과를 포함하면 숨김
+  if (action && actionResult && text) {
+    // Gemini가 도구 결과를 자연어로 재가공하여 response에 포함하므로
+    // action_result를 접을 수 있는 상세 영역으로만 표시
+    const details = document.createElement('details');
+    details.className = 'action-card';
+    const summary = document.createElement('summary');
+    summary.className = 'action-label';
+    summary.textContent = getActionLabel(action);
+    summary.style.cursor = 'pointer';
+    details.appendChild(summary);
+    const result = document.createElement('p');
+    result.textContent = actionResult;
+    details.appendChild(result);
+    bubble.appendChild(details);
+  } else if (action && actionResult) {
     const card = document.createElement('div');
     card.className = 'action-card';
     const label = document.createElement('div');
@@ -522,7 +581,7 @@ async function processFiles(files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/upload', {
+        const res = await safeFetch('/upload', {
           method: 'POST',
           body: formData,
           credentials: 'same-origin',
@@ -540,14 +599,14 @@ async function processFiles(files) {
           data: null,
           preview: null,
           isAudio: true,
-          audioPath: data.audio_path || data.attachment_path,
+          audioToken: data.audio_token || data.attachment_token,
         });
       } catch (err) {
         console.error('오디오 업로드 오류:', err);
         alert('오디오 파일 업로드 중 오류가 발생했습니다.');
       }
     } else if (isXlsx) {
-      // XLSX → /upload 엔드포인트로 전송, attachment_path 저장
+      // XLSX → /upload 엔드포인트로 전송, attachment_token 저장
       if (file.size > MAX_SIZE_UPLOAD) {
         alert(`'${file.name}'의 크기가 20MB를 초과합니다.`);
         continue;
@@ -555,7 +614,7 @@ async function processFiles(files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/upload', {
+        const res = await safeFetch('/upload', {
           method: 'POST',
           body: formData,
           credentials: 'same-origin',
@@ -566,7 +625,7 @@ async function processFiles(files) {
           continue;
         }
         const data = await res.json();
-        state.pendingAttachPath = data.attachment_path;
+        state.pendingAttachPath = data.attachment_token;
         state.pendingAttachName = file.name;
       } catch (err) {
         console.error('XLSX 업로드 오류:', err);
@@ -664,7 +723,7 @@ function renderAttachments() {
     dom.attachmentsList.appendChild(item);
   });
 
-  // XLSX 파일 (attachment_path 방식)
+  // XLSX 파일 (attachment_token 방식)
   if (state.pendingAttachPath) {
     const item = document.createElement('div');
     item.className = 'attachment-item';
@@ -765,7 +824,7 @@ async function clearChat() {
 
   try {
     if (state.sessionId) {
-      await fetch(`/history/${state.sessionId}`, {
+      await safeFetch(`/history/${state.sessionId}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       });
@@ -816,7 +875,7 @@ async function loadSessions() {
   if (!listEl) return;
 
   try {
-    const res = await fetch('/sessions', { credentials: 'same-origin' });
+    const res = await safeFetch('/sessions', { credentials: 'same-origin' });
     if (!res.ok) return;
     const data = await res.json();
     const sessions = data.sessions || [];
@@ -867,7 +926,7 @@ async function loadSessions() {
 /** 특정 세션의 히스토리를 로드하여 채팅 영역에 표시 */
 async function loadSession(sessionId) {
   try {
-    const res = await fetch(`/history/${sessionId}`, { credentials: 'same-origin' });
+    const res = await safeFetch(`/history/${sessionId}`, { credentials: 'same-origin' });
     if (!res.ok) return;
     const data = await res.json();
     const history = data.history || [];
@@ -907,7 +966,7 @@ async function deleteSession(sessionId) {
   if (!confirm('이 대화를 삭제하시겠습니까?')) return;
 
   try {
-    await fetch(`/history/${sessionId}`, {
+    await safeFetch(`/history/${sessionId}`, {
       method: 'DELETE',
       credentials: 'same-origin',
     });

@@ -89,7 +89,7 @@ def _fetch_via_api(
             base_url=base_url,
             cookies=cookie_dict,
             timeout=20.0,
-            verify=False,
+            verify=not os.environ.get("GW_SKIP_TLS_VERIFY", "").lower() in ("1", "true"),
         ) as client:
             resp = client.post(endpoint, json=body)
             if not resp.is_success:
@@ -188,7 +188,7 @@ def _fetch_mail_body_via_api(client_cookies: dict, mail_seq: str) -> str:
             base_url=GW_URL,
             cookies=client_cookies,
             timeout=15.0,
-            verify=False,
+            verify=not os.environ.get("GW_SKIP_TLS_VERIFY", "").lower() in ("1", "true"),
         ) as client:
             resp = client.post(endpoint, json=body)
             if not resp.is_success:
@@ -722,7 +722,7 @@ def run_for_chatbot(user_context: dict = None) -> str:
 
     except Exception as e:
         logger.error(f"메일 요약 중 오류: {e}", exc_info=True)
-        return f"메일 요약 중 오류가 발생했습니다: {str(e)}"
+        return "메일 요약 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
     finally:
         if browser:
             close_session(browser)
@@ -812,7 +812,7 @@ async def run_mail_push_for_user(
         mails = await loop.run_in_executor(None, _collect)
     except Exception as e:
         logger.error(f"메일 수집 실패: {e}", exc_info=True)
-        return {"success": False, "count": 0, "message": f"메일 수집 오류: {str(e)}"}
+        return {"success": False, "count": 0, "message": "메일 수집 중 오류가 발생했습니다."}
 
     if not mails:
         return {"success": True, "count": 0, "message": "안 읽은 메일이 없습니다."}

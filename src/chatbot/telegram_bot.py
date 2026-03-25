@@ -14,8 +14,8 @@ import logging
 import time
 from pathlib import Path
 
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 from dotenv import load_dotenv
 
 # 루트 경로 설정 (자동화 work)
@@ -459,6 +459,39 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    # ── dispatch 수정 모드 처리 ──
+    if session.get("dispatch_edit_mode") and session.get("pending_dispatch"):
+        user_text = update.message.text.strip()
+        if user_text == "확인":
+            # 수정 완료 → confirm 처리 실행
+            session.pop("dispatch_edit_mode", None)
+            pending = session["pending_dispatch"]
+            await update.message.reply_text("⏳ GW에 작성 중입니다...")
+            form_type = pending["form_type"]
+            extracted_data = pending["extracted_data"].copy()
+            clean_data = {k: v for k, v in extracted_data.items() if not k.startswith("_")}
+            user_ctx = _get_user_context(session)
+            try:
+                from src.chatbot.handlers import TOOL_HANDLERS
+                if form_type == "지출결의서":
+                    handler = TOOL_HANDLERS.get("submit_expense_approval")
+                    result_str = handler(clean_data, user_context=user_ctx)
+                else:
+                    handler = TOOL_HANDLERS.get("submit_approval_form")
+                    result_str = handler({"form_type": form_type, "data": clean_data}, user_context=user_ctx)
+                session.pop("pending_dispatch", None)
+                await update.message.reply_text(f"✅ 완료!\n\n{result_str}")
+            except Exception as e:
+                await update.message.reply_text(f"❌ GW 작성 중 오류가 발생했습니다.\n{str(e)}")
+        else:
+            # 필드 수정 파싱: "날짜 2026-03-25" 형식
+            _parse_edit_command(session, user_text)
+            await update.message.reply_text(
+                "수정됐습니다. 계속 수정하거나 `확인`을 입력하세요.",
+                parse_mode="Markdown",
+            )
+        return
+
     user_message = update.message.text
 
     await context.bot.send_chat_action(
@@ -525,16 +558,37 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         file = await context.bot.get_file(photo.file_id)
         photo_bytes = await file.download_as_bytearray()
-        encoded = base64.b64encode(bytes(photo_bytes)).decode("utf-8")
 
-        files = [{"name": "photo.jpg", "type": "image/jpeg", "data": encoded}]
-        user_message = update.message.caption or "이 이미지를 분석해주세요."
-
-        # 지출결의서/결재 첨부용으로 임시 파일에도 저장
+        # 지출결의서/결재 첨부용으로 임시 파일 저장
         gw_id = session.get("gw_id", "unknown")
         tmp_path = TMP_DIR / f"{gw_id}_{int(time.time())}_photo.jpg"
         tmp_path.write_bytes(bytes(photo_bytes))
         session["pending_attachment_path"] = str(tmp_path)
+
+        # ── Vision Dispatch 우선 처리 ──
+        try:
+            from src.vision import dispatch_document
+            parse_result = await dispatch_document(bytes(photo_bytes), "image/jpeg")
+
+            if parse_result.form_type and parse_result.confidence >= 0.7:
+                # 신뢰도 70% 이상 → 확인 메시지 + 인라인 버튼 전송
+                await _send_dispatch_confirm(update, context, session, parse_result, tmp_path)
+                return
+            elif parse_result.confidence < 0.4:
+                # 신뢰도 40% 미만 → 불명확 안내
+                await update.message.reply_text(
+                    "📷 사진이 불명확하거나 지원하지 않는 문서입니다.\n"
+                    "더 선명하게 찍어서 다시 올려주세요."
+                )
+                return
+            # 신뢰도 0.4~0.7: 일반 Gemini 대화로 폴백
+        except ImportError:
+            pass  # vision 모듈 없으면 기존 방식으로 폴백
+
+        # ── 기존 Gemini 대화 방식 (폴백) ──
+        encoded = base64.b64encode(bytes(photo_bytes)).decode("utf-8")
+        files = [{"name": "photo.jpg", "type": "image/jpeg", "data": encoded}]
+        user_message = update.message.caption or "이 이미지를 분석해주세요."
 
         result = await analyze_and_route(
             user_message=user_message,
@@ -563,6 +617,182 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"사진 처리 실패: {str(e)}", exc_info=True)
         await update.message.reply_text("사진 처리 중 오류가 발생했습니다.")
+
+
+async def _send_dispatch_confirm(update, context, session, parse_result, image_path):
+    """Vision Dispatch 확인 메시지 + 인라인 버튼 전송"""
+    doc_type = parse_result.document_type
+    form_type = parse_result.form_type
+    data = parse_result.extracted_data
+    confidence_pct = int(parse_result.confidence * 100)
+
+    # 추출 데이터 요약 텍스트 생성
+    lines = [f"📄 *{doc_type}* 감지됨 (신뢰도 {confidence_pct}%)\n"]
+    lines.append(f"➡️ *{form_type}*으로 작성할게요:\n")
+
+    # 문서 타입별 표시 필드
+    field_display = {
+        "지출결의서": [
+            ("날짜", "date"),
+            ("금액", "total_amount"),
+            ("항목", "_merchant"),
+            ("용도", "_category"),
+            ("결제수단", "_payment_method"),
+        ],
+        "거래처등록신청서": [
+            ("회사명", "company_name"),
+            ("사업자번호", "business_number"),
+            ("대표자", "representative"),
+            ("업태/종목", None),  # 업태와 종목 합쳐서 표시
+        ],
+    }
+
+    fields = field_display.get(form_type, [])
+    for label, key in fields:
+        if key is None:
+            # 업태/종목 특수 처리
+            val = f"{data.get('business_type', '?')} / {data.get('business_item', '?')}"
+        else:
+            val = data.get(key, "미확인")
+        if val and val != "미확인":
+            if key == "total_amount" and isinstance(val, int):
+                val = f"{val:,}원"
+            lines.append(f"  ├ {label}: {val}")
+
+    if parse_result.missing_fields:
+        lines.append(f"\n⚠️ 미확인 필드: {', '.join(parse_result.missing_fields)}")
+    if parse_result.warnings:
+        for w in parse_result.warnings:
+            lines.append(f"⚠️ {w}")
+
+    lines.append("\n어떻게 할까요?")
+
+    # 인라인 버튼 구성
+    keyboard = [
+        [
+            InlineKeyboardButton("✅ GW에 작성 (보관)", callback_data="dispatch_confirm"),
+            InlineKeyboardButton("❌ 취소", callback_data="dispatch_cancel"),
+        ],
+        [InlineKeyboardButton("✏️ 내용 수정 후 작성", callback_data="dispatch_edit")],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # 세션에 pending_dispatch 저장
+    session["pending_dispatch"] = {
+        "document_type": doc_type,
+        "form_type": form_type,
+        "extracted_data": data,
+        "image_path": str(image_path),
+        "confidence": parse_result.confidence,
+        "missing_fields": parse_result.missing_fields,
+        "warnings": parse_result.warnings,
+    }
+
+    await update.message.reply_text(
+        "\n".join(lines),
+        reply_markup=reply_markup,
+        parse_mode="Markdown",
+    )
+
+
+def _parse_edit_command(session: dict, user_text: str):
+    """
+    dispatch 수정 명령 파싱.
+    형식: "날짜 2026-03-25", "금액 50000", "항목 점심식사" 등
+    세션의 pending_dispatch.extracted_data를 직접 갱신한다.
+    """
+    # 한국어 레이블 → extracted_data 키 매핑
+    label_to_key = {
+        "날짜": "date",
+        "금액": "total_amount",
+        "항목": "_merchant",
+        "용도": "_category",
+        "결제수단": "_payment_method",
+        "회사명": "company_name",
+        "사업자번호": "business_number",
+        "대표자": "representative",
+        "업태": "business_type",
+        "종목": "business_item",
+    }
+    parts = user_text.split(maxsplit=1)
+    if len(parts) < 2:
+        return  # 형식 불일치는 무시
+
+    label, value = parts[0].strip(), parts[1].strip()
+    key = label_to_key.get(label)
+    if key and session.get("pending_dispatch"):
+        # 금액 필드는 숫자로 변환 시도
+        if key == "total_amount":
+            try:
+                value = int(value.replace(",", "").replace("원", ""))
+            except ValueError:
+                pass
+        session["pending_dispatch"]["extracted_data"][key] = value
+
+
+async def handle_dispatch_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """인라인 버튼 클릭 처리 (Vision Dispatch 확인/수정/취소)"""
+    query = update.callback_query
+    await query.answer()  # 버튼 로딩 스피너 제거
+
+    tg_user_id = update.effective_user.id
+    session = _check_login(tg_user_id)
+    if not session:
+        await query.edit_message_text("세션이 만료되었습니다. 다시 로그인해주세요.")
+        return
+
+    pending = session.get("pending_dispatch")
+    if not pending:
+        await query.edit_message_text("처리할 문서가 없습니다.")
+        return
+
+    action = query.data  # "dispatch_confirm" | "dispatch_cancel" | "dispatch_edit"
+
+    if action == "dispatch_cancel":
+        # 취소 처리
+        session.pop("pending_dispatch", None)
+        session.pop("dispatch_edit_mode", None)
+        await query.edit_message_text("❌ 취소되었습니다.")
+        return
+
+    if action == "dispatch_edit":
+        # 수정 모드 진입: 다음 텍스트 메시지에서 필드 수정 입력 대기
+        session["dispatch_edit_mode"] = True
+        await query.edit_message_text(
+            "✏️ 수정할 내용을 입력해주세요.\n"
+            "형식: `레이블 값` (예: `날짜 2026-03-25`, `금액 50000`, `항목 점심식사`)\n\n"
+            "수정 완료 후 `확인`을 입력하면 GW에 작성합니다.",
+            parse_mode="Markdown",
+        )
+        return
+
+    if action == "dispatch_confirm":
+        # GW 자동 입력 실행
+        await query.edit_message_text("⏳ GW에 작성 중입니다...")
+
+        form_type = pending["form_type"]
+        extracted_data = pending["extracted_data"].copy()
+        # 내부 메타 필드(_로 시작) 제거
+        clean_data = {k: v for k, v in extracted_data.items() if not k.startswith("_")}
+
+        user_ctx = _get_user_context(session)
+
+        try:
+            from src.chatbot.handlers import TOOL_HANDLERS
+            if form_type == "지출결의서":
+                handler = TOOL_HANDLERS.get("submit_expense_approval")
+                result_str = handler(clean_data, user_context=user_ctx)
+            else:
+                handler = TOOL_HANDLERS.get("submit_approval_form")
+                result_str = handler(
+                    {"form_type": form_type, "data": clean_data},
+                    user_context=user_ctx,
+                )
+            session.pop("pending_dispatch", None)
+            await query.edit_message_text(f"✅ 완료!\n\n{result_str}")
+        except Exception as e:
+            logger.error(f"dispatch_confirm GW 작성 실패: {e}", exc_info=True)
+            await query.edit_message_text(f"❌ GW 작성 중 오류가 발생했습니다.\n{str(e)}")
 
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -874,6 +1104,9 @@ def main():
     app.add_handler(CommandHandler("mail", mailcheck))  # /mail 단축 별칭
     app.add_handler(CommandHandler("setline", setline))
     app.add_handler(CommandHandler("myline", myline))
+
+    # 인라인 버튼 콜백 핸들러 (Vision Dispatch 확인/수정/취소)
+    app.add_handler(CallbackQueryHandler(handle_dispatch_callback, pattern="^dispatch_"))
 
     # 메시지 핸들러
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

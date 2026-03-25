@@ -168,6 +168,66 @@
     }
     .toast.error { border-color: rgba(255, 107, 107, 0.5); color: #ff6b6b; }
     .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+    /* 트래픽 탭 */
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      min-width: 160px;
+      flex: 1;
+    }
+    .stat-card .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .stat-card .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .tunnel-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      flex: 1;
+    }
+    .tunnel-card .tunnel-url {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+    .tunnel-card .tunnel-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .tunnel-online { color: #4caf50; font-weight: 600; }
+    .status-2xx { color: #4caf50; }
+    .status-3xx { color: #ffa500; }
+    .status-4xx { color: #ff6b6b; }
+    .status-5xx { color: #ff6b6b; font-weight: 700; }
+    .refresh-btn {
+      padding: 6px 14px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
     @media (max-width: 768px) {
       .admin-container { padding: 20px 12px; }
       .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
@@ -185,6 +245,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="users">사용자 관리</button>
       <button class="tab-btn" data-tab="unsupported">미지원 요청</button>
+      <button class="tab-btn" data-tab="traffic">외부 트래픽</button>
     </div>
 
     <!-- 탭1: 사용자 관리 -->
@@ -195,6 +256,20 @@
       <div id="usersContent">
         <div class="loading">불러오는 중...</div>
       </div>
+    </div>
+
+    <!-- 탭3: 외부 트래픽 -->
+    <div class="tab-pane" id="tab-traffic">
+      <div class="meta-row" id="trafficMeta"></div>
+
+      <!-- 터널 상태 카드 -->
+      <div id="tunnelCards" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
+
+      <!-- 요약 카드 -->
+      <div id="trafficSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
+
+      <!-- 요청 목록 -->
+      <div id="trafficContent"><div class="loading">불러오는 중...</div></div>
     </div>
 
     <!-- 탭2: 미지원 요청 -->
@@ -229,6 +304,7 @@
       btn.classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'unsupported') loadUnsupported();
+      if (tab === 'traffic') loadTraffic();
     });
 
     // ── 사용자 관리 ──
@@ -413,6 +489,140 @@
         loadUnsupported();
       } catch (e) { showToast('서버 오류', true); }
     });
+
+    // ── 트래픽 탭 ──
+    async function loadTraffic() {
+      document.getElementById('trafficContent').innerHTML = '<div class="loading">불러오는 중...</div>';
+      document.getElementById('tunnelCards').innerHTML = '';
+      document.getElementById('trafficSummary').innerHTML = '';
+      try {
+        const res = await fetch(`${BASE}/admin/ngrok-traffic`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        renderTraffic(data);
+      } catch (e) {
+        document.getElementById('trafficContent').innerHTML =
+          `<div class="loading" style="color:#ff6b6b;">ngrok 연결 실패 — ngrok이 실행 중인지 확인하세요.<br><small>${esc(String(e))}</small></div>`;
+      }
+    }
+
+    function fmtBytes(b) {
+      if (b === 0) return '0 B';
+      if (b < 1024) return b + ' B';
+      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+      return (b / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function fmtTime(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }) + ' ' +
+             d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function statusClass(s) {
+      if (s >= 500) return 'status-5xx';
+      if (s >= 400) return 'status-4xx';
+      if (s >= 300) return 'status-3xx';
+      if (s >= 200) return 'status-2xx';
+      return '';
+    }
+
+    function renderTraffic(data) {
+      // 메타 행
+      document.getElementById('trafficMeta').innerHTML = `
+        <span>최근 요청 <strong>${data.total_requests}</strong>건</span>
+        <button class="refresh-btn" id="trafficRefreshBtn">새로고침</button>
+      `;
+      document.getElementById('trafficRefreshBtn').addEventListener('click', loadTraffic);
+
+      // 터널 카드
+      const tunnelHtml = data.tunnels.length === 0
+        ? '<div class="tunnel-card"><div class="tunnel-meta">활성 터널 없음</div></div>'
+        : data.tunnels.map(t => `
+          <div class="tunnel-card">
+            <div class="tunnel-meta" style="margin-bottom:4px">
+              <span class="tunnel-online">● 온라인</span>
+            </div>
+            <div class="tunnel-url">${esc(t.public_url)}</div>
+            <div class="tunnel-meta">
+              ${esc(t.proto.toUpperCase())} → ${esc(t.addr)} &nbsp;|&nbsp;
+              총 연결 ${t.conn_count}회 &nbsp;|&nbsp; HTTP 요청 ${t.http_count}회
+            </div>
+          </div>
+        `).join('');
+      document.getElementById('tunnelCards').innerHTML = tunnelHtml;
+
+      // 요약 카드
+      const total = data.total_requests;
+      const ok = data.requests.filter(r => r.status >= 200 && r.status < 300).length;
+      const err = data.requests.filter(r => r.status >= 400).length;
+      const avgMs = total > 0
+        ? Math.round(data.requests.reduce((s, r) => s + r.duration_ms, 0) / total)
+        : 0;
+      document.getElementById('trafficSummary').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">총 요청</div>
+          <div class="stat-value">${total}</div>
+          <div class="stat-sub">최근 기록 기준</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">성공 (2xx)</div>
+          <div class="stat-value" style="color:#4caf50">${ok}</div>
+          <div class="stat-sub">${total > 0 ? Math.round(ok/total*100) : 0}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">에러 (4xx+5xx)</div>
+          <div class="stat-value" style="color:#ff6b6b">${err}</div>
+          <div class="stat-sub">${total > 0 ? Math.round(err/total*100) : 0}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">평균 응답시간</div>
+          <div class="stat-value">${avgMs}</div>
+          <div class="stat-sub">ms</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">전송 데이터</div>
+          <div class="stat-value">${fmtBytes(data.total_bytes)}</div>
+          <div class="stat-sub">응답 기준</div>
+        </div>
+      `;
+
+      // 요청 목록
+      if (!data.requests.length) {
+        document.getElementById('trafficContent').innerHTML =
+          '<div class="loading">아직 외부 요청이 없습니다.</div>';
+        return;
+      }
+      const rows = data.requests.map(r => `
+        <tr>
+          <td style="white-space:nowrap;color:var(--text-muted)">${esc(fmtTime(r.start))}</td>
+          <td><strong>${esc(r.method)}</strong></td>
+          <td class="msg-cell" title="${esc(r.uri)}">${esc(r.uri)}</td>
+          <td class="${statusClass(r.status)}">${r.status || '-'}</td>
+          <td style="text-align:right">${r.duration_ms} ms</td>
+          <td style="text-align:right">${fmtBytes(r.bytes)}</td>
+          <td style="color:var(--text-muted);font-size:12px">${esc(r.remote_addr)}</td>
+        </tr>
+      `).join('');
+      document.getElementById('trafficContent').innerHTML = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>메서드</th>
+              <th>경로</th>
+              <th>상태</th>
+              <th style="text-align:right">응답시간</th>
+              <th style="text-align:right">크기</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
 
     // ── 공통 토스트 ──
     function showToast(msg, isError = false) {

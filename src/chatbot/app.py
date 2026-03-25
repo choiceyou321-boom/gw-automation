@@ -352,6 +352,69 @@ async def admin_delete_unsupported(request_id: int, request: Request):
     return JSONResponse({"message": "삭제 완료"})
 
 
+@app.get("/admin/ngrok-traffic")
+async def admin_ngrok_traffic(request: Request):
+    """ngrok 트래픽 현황 조회 (관리자 전용)"""
+    require_admin(request)
+    import httpx as _httpx
+    ngrok_base = "http://localhost:4040"
+    try:
+        async with _httpx.AsyncClient(timeout=3.0) as client:
+            tunnels_res = await client.get(f"{ngrok_base}/api/tunnels")
+            requests_res = await client.get(f"{ngrok_base}/api/requests/http?limit=100")
+        tunnels = tunnels_res.json().get("tunnels", [])
+        reqs = requests_res.json().get("requests", [])
+
+        # 요청 목록 정리
+        req_list = []
+        total_bytes = 0
+        for r in reqs:
+            resp = r.get("response", {})
+            req_obj = r.get("request", {})
+            status = resp.get("status_code", 0)
+            resp_headers = resp.get("headers", {})
+            content_len = 0
+            for k, v in resp_headers.items():
+                if k.lower() == "content-length":
+                    try:
+                        content_len = int(v[0]) if isinstance(v, list) else int(v)
+                    except Exception:
+                        pass
+            total_bytes += content_len
+            req_list.append({
+                "id": r.get("id"),
+                "start": r.get("start"),
+                "method": req_obj.get("method", "-"),
+                "uri": req_obj.get("uri", "-"),
+                "status": status,
+                "duration_ms": round(r.get("duration", 0) / 1_000_000, 1),
+                "remote_addr": r.get("remote_addr", "-"),
+                "bytes": content_len,
+            })
+
+        # 터널 요약
+        tunnel_info = []
+        for t in tunnels:
+            m = t.get("metrics", {})
+            tunnel_info.append({
+                "name": t.get("name"),
+                "public_url": t.get("public_url"),
+                "proto": t.get("proto"),
+                "addr": t.get("config", {}).get("addr"),
+                "conn_count": m.get("conns", {}).get("count", 0),
+                "http_count": m.get("http", {}).get("count", 0),
+            })
+
+        return JSONResponse({
+            "tunnels": tunnel_info,
+            "requests": req_list,
+            "total_requests": len(req_list),
+            "total_bytes": total_bytes,
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e), "tunnels": [], "requests": [], "total_requests": 0, "total_bytes": 0})
+
+
 @app.get("/admin")
 async def serve_admin_page(request: Request):
     """관리자 페이지 서빙"""

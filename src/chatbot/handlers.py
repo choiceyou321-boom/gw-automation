@@ -8,6 +8,7 @@ import logging
 import threading
 import concurrent.futures
 from pathlib import Path
+from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,36 @@ def _get_user_lock(gw_id: str) -> threading.Lock:
         if gw_id not in _user_locks:
             _user_locks[gw_id] = threading.Lock()
         return _user_locks[gw_id]
+
+
+@contextmanager
+def _playwright_session(gw_id: str, encrypted_pw: str):
+    """Playwright 세션 생성/정리 컨텍스트 매니저"""
+    from playwright.sync_api import sync_playwright
+    from src.auth.login import login_and_get_context, close_session
+
+    pw = None
+    browser = None
+    try:
+        pw = sync_playwright().start()
+        browser, context, page = login_and_get_context(
+            playwright_instance=pw,
+            headless=True,
+            user_id=gw_id,
+            user_pw=encrypted_pw,
+        )
+        yield browser, context, page
+    finally:
+        if browser:
+            try:
+                close_session(browser)
+            except Exception:
+                pass
+        if pw:
+            try:
+                pw.stop()
+            except Exception:
+                pass
 
 # 자동화 모듈 실행 함수들
 
@@ -355,7 +386,7 @@ def handle_list_my_reservations(params: dict, user_context: dict = None) -> str:
                 cleanup()
 
         future = _executor.submit(_run_list)
-        my_reservations = future.result(timeout=30)
+        my_reservations = future.result(timeout=120)
 
         if not my_reservations:
             return f"향후 {days}일간 본인 예약이 없습니다."
@@ -486,7 +517,7 @@ def handle_cleanup_test_reservations(params: dict, user_context: dict = None) ->
                 cleanup()
 
         future = _executor.submit(_run_cleanup)
-        result = future.result(timeout=30)
+        result = future.result(timeout=120)
 
         cancelled_count = result["cancelled_count"]
         skipped_others = result["skipped_others"]
@@ -829,8 +860,6 @@ def handle_submit_draft_approval(params: dict, user_context: dict = None) -> str
             if not user_lock.acquire(blocking=False):
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
-                from playwright.sync_api import sync_playwright
-                from src.auth.login import login_and_get_context, close_session
                 from src.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
@@ -838,28 +867,15 @@ def handle_submit_draft_approval(params: dict, user_context: dict = None) -> str
                 if not gw_pw:
                     return {"success": False, "message": "비밀번호를 찾을 수 없습니다. /login으로 다시 로그인해주세요."}
 
-                pw = sync_playwright().start()
                 try:
-                    browser, context, page = login_and_get_context(
-                        playwright_instance=pw,
-                        headless=True,
-                        user_id=gw_id,
-                        user_pw=gw_pw,
-                    )
-                    page.set_viewport_size({"width": 1920, "height": 1080})
-                    automation = ApprovalAutomation(page, context)
-                    result = automation.open_draft_and_submit(doc_title=doc_title or None)
-                    close_session(browser)
-                    return result
+                    with _playwright_session(gw_id, gw_pw) as (browser, context, page):
+                        page.set_viewport_size({"width": 1920, "height": 1080})
+                        automation = ApprovalAutomation(page, context)
+                        return automation.open_draft_and_submit(doc_title=doc_title or None)
                 except RuntimeError as e:
                     return {"success": False, "message": str(e)}
                 except Exception as e:
                     return {"success": False, "message": f"브라우저 자동화 오류: {str(e)}"}
-                finally:
-                    try:
-                        pw.stop()
-                    except Exception:
-                        pass
             finally:
                 user_lock.release()
 
@@ -1126,8 +1142,6 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
             if not user_lock.acquire(blocking=False):
                 return {"success": False, "results": [], "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
-                from playwright.sync_api import sync_playwright
-                from src.auth.login import login_and_get_context, close_session
                 from src.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
@@ -1135,28 +1149,14 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
                 if not gw_pw:
                     return {"success": False, "results": [], "message": "비밀번호를 찾을 수 없습니다."}
 
-                pw = sync_playwright().start()
                 try:
-                    browser, context, page = login_and_get_context(
-                        playwright_instance=pw,
-                        headless=True,
-                        user_id=gw_id,
-                        user_pw=gw_pw,
-                    )
-                    page.set_viewport_size({"width": 1920, "height": 1080})
-
-                    automation = ApprovalAutomation(page, context)
-                    results = automation.search_project_codes(keyword, max_results=8)
-
-                    close_session(browser)
-                    return {"success": True, "results": results}
+                    with _playwright_session(gw_id, gw_pw) as (browser, context, page):
+                        page.set_viewport_size({"width": 1920, "height": 1080})
+                        automation = ApprovalAutomation(page, context)
+                        results = automation.search_project_codes(keyword, max_results=8)
+                        return {"success": True, "results": results}
                 except Exception as e:
                     return {"success": False, "results": [], "message": f"검색 오류: {str(e)}"}
-                finally:
-                    try:
-                        pw.stop()
-                    except Exception:
-                        pass
             finally:
                 user_lock.release()
 
@@ -1242,6 +1242,8 @@ def handle_generate_contracts_from_file(params: dict, user_context: dict = None)
         # data/tmp/ 에 생성 → /download/ 엔드포인트로 제공
         tmp_dir = pathlib.Path(__file__).parent.parent.parent / "data" / "tmp"
         tmp_dir.mkdir(parents=True, exist_ok=True)
+        gw_id = (user_context or {}).get("gw_id", "")
+        from src.chatbot._download_registry import register as register_download
         results = generate_from_excel(file_path, str(tmp_dir))
         ok = [r for r in results if r["status"] == "ok"]
         err = [r for r in results if r["status"] == "error"]
@@ -1249,7 +1251,8 @@ def handle_generate_contracts_from_file(params: dict, user_context: dict = None)
         lines.append("📥 아래 링크를 클릭해서 다운로드하세요:\n")
         for r in ok:
             fname = pathlib.Path(r["file"]).name
-            lines.append(f"[📄 {fname}](/download/{fname})")
+            token = register_download(r["file"], gw_id)
+            lines.append(f"[📄 {fname}](/download/{token})")
         for r in err:
             lines.append(f"  ❌ {r['file']}: {r['msg']}")
         return "\n".join(lines)
@@ -1279,12 +1282,12 @@ def handle_get_mail_summary(params: dict, user_context: dict = None) -> str:
         return f"메일 요약 중 오류가 발생했습니다: {str(e)}"
 
 
-def handle_transcribe_audio(args: dict, user_context: dict = None, **kwargs) -> str:
+def handle_transcribe_audio(params: dict, user_context: dict = None) -> str:
     """
     음성 파일을 텍스트로 변환 (Google Cloud Speech-to-Text API).
     """
-    file_path = args.get("file_path", "")
-    language = args.get("language", "ko-KR")
+    file_path = params.get("file_path", "")
+    language = params.get("language", "ko-KR")
 
     if not file_path:
         return "음성 파일 경로가 필요합니다."
@@ -1814,7 +1817,7 @@ def handle_get_overdue_items(params: dict, user_context: dict = None) -> str:
     return "\n".join(lines)
 
 
-async def handle_compare_projects(args: dict, context: dict) -> str:
+def handle_compare_projects(params: dict, user_context: dict = None) -> str:
     """프로젝트 포트폴리오 비교"""
     from src.fund_table import db as fund_db
     data = fund_db.get_portfolio_summary()
@@ -1849,11 +1852,11 @@ async def handle_compare_projects(args: dict, context: dict) -> str:
     return "\n".join(lines)
 
 
-async def handle_generate_project_report(args: dict, context: dict) -> str:
+def handle_generate_project_report(params: dict, user_context: dict = None) -> str:
     """프로젝트 종합 보고서 생성"""
     from src.fund_table import db as fund_db
-    project_name = args.get("project_name", "")
-    project = _find_project(project_name)
+    project_name = params.get("project_name", "")
+    project, _ = _find_project(project_name)
     if not project:
         return f"'{project_name}' 프로젝트를 찾을 수 없습니다."
 
@@ -1927,15 +1930,15 @@ async def handle_generate_project_report(args: dict, context: dict) -> str:
     return "\n".join(lines)
 
 
-async def handle_update_project_milestone(args: dict, context: dict) -> str:
+def handle_update_project_milestone(params: dict, user_context: dict = None) -> str:
     """마일스톤 완료처리 또는 신규추가"""
     from src.fund_table import db as fund_db
-    project_name = args.get("project_name", "")
-    milestone_name = args.get("milestone_name", "")
-    action = args.get("action", "complete")
-    date_str = args.get("date", "")
+    project_name = params.get("project_name", "")
+    milestone_name = params.get("milestone_name", "")
+    action = params.get("action", "complete")
+    date_str = params.get("date", "")
 
-    project = _find_project(project_name)
+    project, _ = _find_project(project_name)
     if not project:
         return f"'{project_name}' 프로젝트를 찾을 수 없습니다."
 
@@ -1970,6 +1973,377 @@ async def handle_update_project_milestone(args: dict, context: dict) -> str:
 
 
 # 도구 이름 → 핸들러 매핑
+
+def handle_add_cc_to_approval_doc(params: dict, user_context: dict = None) -> str:
+    """
+    기결재 문서에 수신참조 추가.
+    - doc_ids 제공 시: CcManagerMixin.batch_add_cc() 호출
+    - doc_title 제공 시: CcManagerMixin.add_cc_by_title() 호출 (기안문서함에서 제목 검색)
+
+    params:
+        doc_ids:   문서 ID 목록 (str 또는 int). doc_title 미제공 시 필수.
+        doc_title: 문서 제목 키워드. doc_ids 모를 때 사용.
+        cc_name:   추가할 이름
+        confirm:   True이면 즉시 실행, 생략/False이면 확인 요청
+    """
+    doc_ids    = params.get("doc_ids", [])
+    doc_title  = params.get("doc_title", "").strip()
+    cc_name    = params.get("cc_name", "").strip()
+    confirm    = params.get("confirm", False)
+
+    # 필수값 검증: cc_name 필수, doc_ids 또는 doc_title 중 하나 필수
+    if not cc_name:
+        return "❌ cc_name(추가할 사람 이름)을 입력해주세요."
+    if not doc_ids and not doc_title:
+        return (
+            "❌ 문서를 특정해주세요.\n"
+            "- doc_ids: 문서 번호를 알고 있으면 목록으로 입력 (예: [55700, 55654])\n"
+            "- doc_title: 문서 제목 키워드로 검색 (예: 'GS-24-0025', '청수당 12월')"
+        )
+
+    # ── 확인 메시지 단계 (confirm=False) ──────────────────────────────────────
+    if not confirm:
+        if doc_title:
+            target_desc = f"제목 키워드 '{doc_title}'로 검색된 문서"
+        else:
+            ids_str = ", ".join(str(d) for d in doc_ids)
+            target_desc = f"문서 {ids_str} ({len(doc_ids)}건)"
+
+        return (
+            f"📋 **수신참조 추가 확인**\n\n"
+            f"- 대상: {target_desc}\n"
+            f"- 추가할 사람: **{cc_name}**\n\n"
+            f"실행하려면 confirm: true로 다시 요청해주세요."
+        )
+
+    # ── 실제 실행 ─────────────────────────────────────────────────────────────
+    use_title_search = bool(doc_title) and not doc_ids
+
+    try:
+        def _run():
+            gw_id = (user_context or {}).get("gw_id")
+            if not gw_id:
+                return {"success": False, "message": "로그인 정보가 없습니다. 먼저 /login으로 로그인해주세요."}
+
+            user_lock = _get_user_lock(gw_id)
+            if not user_lock.acquire(blocking=False):
+                return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
+            try:
+                from playwright.sync_api import sync_playwright
+                from src.auth.login import login_and_get_context, close_session
+                from src.auth.user_db import get_decrypted_password
+                from src.approval.approval_automation import ApprovalAutomation
+
+                gw_pw = get_decrypted_password(gw_id)
+                if not gw_pw:
+                    return {"success": False, "message": "비밀번호를 찾을 수 없습니다. /login으로 다시 로그인해주세요."}
+
+                pw = sync_playwright().start()
+                try:
+                    browser, ctx, page = login_and_get_context(pw, gw_id, gw_pw)
+                    auto = ApprovalAutomation(page, ctx)
+
+                    if use_title_search:
+                        # 제목 키워드로 검색 후 수신참조 추가
+                        result = auto.add_cc_by_title(doc_title, cc_name, context=ctx)
+                        return {"success": True, "mode": "title", "result": result}
+                    else:
+                        # 문서 ID 목록으로 일괄 추가
+                        results = auto.batch_add_cc(doc_ids, cc_name, context=ctx)
+                        return {"success": True, "mode": "ids", "results": results}
+                finally:
+                    try:
+                        close_session(browser, ctx)
+                    except Exception:
+                        pass
+                    pw.stop()
+            finally:
+                user_lock.release()
+
+        future = _executor.submit(_run)
+        outcome = future.result(timeout=180)  # 제목 검색은 시간이 더 걸릴 수 있음
+
+        if not outcome.get("success"):
+            return f"❌ 수신참조 추가 실패: {outcome.get('message', '알 수 없는 오류')}"
+
+        mode = outcome.get("mode")
+
+        # ── 제목 검색 결과 포맷 ────────────────────────────────────────────
+        if mode == "title":
+            res = outcome.get("result", {})
+            if not res.get("success"):
+                return f"❌ 제목 검색 실패: {res.get('message', '알 수 없는 오류')}"
+
+            found = res.get("found_count", 0)
+            ok_count = res.get("success_count", 0)
+            details = res.get("details", [])
+
+            lines = [
+                f"✅ 수신참조 추가 완료 — **{cc_name}**",
+                f"   검색 키워드: '{doc_title}' | 매칭 {found}건 | 성공 {ok_count}건",
+            ]
+            for d in details:
+                icon = "✓" if d.get("success") else "✗"
+                doc_id_str = f"docID {d.get('doc_id', '?')}"
+                lines.append(f"  {icon} {doc_id_str}: {d.get('message', '')}")
+            return "\n".join(lines)
+
+        # ── doc_ids 결과 포맷 ─────────────────────────────────────────────
+        results = outcome.get("results", [])
+        ok   = [r for r in results if r["success"]]
+        fail = [r for r in results if not r["success"]]
+
+        lines = [f"✅ 수신참조 추가 완료 — **{cc_name}** ({len(ok)}/{len(results)}건 성공)"]
+        for r in ok:
+            lines.append(f"  • 문서 {r['doc_id']}: {r['message']}")
+        if fail:
+            lines.append(f"\n⚠️ 실패 {len(fail)}건:")
+            for r in fail:
+                lines.append(f"  • 문서 {r['doc_id']}: {r['message']}")
+
+        return "\n".join(lines)
+
+    except concurrent.futures.TimeoutError:
+        return "⏱️ 수신참조 추가 시간 초과 (180초). 문서 수가 많으면 나눠서 요청해주세요."
+    except Exception as e:
+        logger.exception("handle_add_cc_to_approval_doc 오류")
+        return f"❌ 수신참조 추가 중 오류: {e}"
+
+def handle_get_project_schedule(params: dict, user_context: dict = None) -> str:
+    """
+    특정 프로젝트의 공정 일정표를 조회하여 스릴 있게 설명합니다.
+    group_name 별로 뭔어서, 진행상태와 날짜를 함께 보여줍니다.
+    """
+    import datetime as _dt
+    from src.fund_table.db import list_schedule_items, get_project_overview
+
+    project_name = params.get("project_name", "")
+    project, all_projects = _find_project(project_name)
+    if not project:
+        names = ", ".join(p["name"] for p in all_projects[:10])
+        return f"'{project_name}' 프로젝트를 찾을 수 없습니다.\n등록된 프로젝트: {names}"
+
+    pid = project["id"]
+    items = list_schedule_items(pid)
+    ov = get_project_overview(pid)
+
+    if not items:
+        # 기본 일정정보(설계/시공 기간)만이라도 보여줍니다
+        lines = [f"📅 **{project['name']}** 일정 요약\n"]
+        if ov:
+            if ov.get('design_start') or ov.get('design_end'):
+                lines.append(f"✏️ 설계 기간: {ov.get('design_start','-')} ~ {ov.get('design_end','-')}")
+            if ov.get('construction_start') or ov.get('construction_end'):
+                lines.append(f"🔨 시공 기간: {ov.get('construction_start','-')} ~ {ov.get('construction_end','-')}")
+            if ov.get('open_date'):
+                lines.append(f"🎉 오픈일: {ov['open_date']}")
+        if len(lines) == 1:
+            return f"'{project['name']}' 프로젝트에 등록된 공정 일정표가 없습니다.\n프로젝트 관리 탭에서 일정표를 먼저 등록해주세요."
+        return "\n".join(lines)
+
+    # 상태 한글화
+    status_map = {
+        "done":     ("✅", "완료"),
+        "ongoing":  ("🟡", "진행 중"),
+        "planned":  ("⏳", "예정"),
+        "delayed":  ("🔴", "지연"),
+        "hold":     ("⏸️", "보류"),
+    }
+
+    today = _dt.date.today()
+
+    # group_name 별 묶기
+    from collections import defaultdict, OrderedDict
+    groups: dict[str, list] = OrderedDict()
+    no_group: list = []
+    for item in items:
+        g = item.get("group_name") or ""
+        if g:
+            groups.setdefault(g, [])
+            groups[g].append(item)
+        else:
+            no_group.append(item)
+
+    lines = [f"📊 **{project['name']}** 공정 일정표"]
+
+    # 기본 일정정보
+    if ov:
+        parts = []
+        if ov.get('design_start'):
+            parts.append(f"설계: {ov.get('design_start','')}~{ov.get('design_end','')}")
+        if ov.get('construction_start'):
+            parts.append(f"시공: {ov.get('construction_start','')}~{ov.get('construction_end','')}")
+        if ov.get('open_date'):
+            parts.append(f"오픈: {ov['open_date']}")
+        if parts:
+            lines.append("📆 " + " | ".join(parts))
+    lines.append("")
+
+    # 진행중 항목 먼저 하이라이트
+    ongoing_items = [it for it in items if it.get("status") == "ongoing"]
+    if ongoing_items:
+        lines.append("🟡 **현재 진행 중**")
+        for it in ongoing_items:
+            lines.append(f"  • {it['item_name']}  ({it.get('start_date','')} ~ {it.get('end_date','')})")
+        lines.append("")
+
+    # 그룹별 표시
+    def _fmt_item(it: dict) -> str:
+        icon, label = status_map.get(it.get("status", "planned"), ("□", it.get("status", "")))
+        s = it.get("start_date", "")
+        e = it.get("end_date", "")
+        name = it.get("item_name", "")
+        subtitle = it.get("subtitle", "")
+        sub_str = f" ({subtitle})" if subtitle else ""
+        notes = it.get("notes", "")
+        note_str = f" — {notes}" if notes else ""
+        # 남은 일수 계산 (planned/ongoing)
+        remaining = ""
+        if it.get("status") in ("planned", "ongoing") and e:
+            try:
+                end_d = _dt.date.fromisoformat(e)
+                diff = (end_d - today).days
+                if diff < 0:
+                    remaining = f" [토{abs(diff)}일 지연]"
+                elif diff == 0:
+                    remaining = " [D-Day]"
+                else:
+                    remaining = f" [D-{diff}]"
+            except Exception:
+                pass
+        return f"  {icon} {name}{sub_str}  {s}~{e}{remaining}{note_str}"
+
+    for g_name, g_items in groups.items():
+        done_cnt = sum(1 for it in g_items if it.get("status") == "done")
+        lines.append(f"📁 **{g_name}** ({done_cnt}/{len(g_items)} 완료)")
+        for it in g_items:
+            lines.append(_fmt_item(it))
+        lines.append("")
+
+    if no_group:
+        lines.append("**기타**")
+        for it in no_group:
+            lines.append(_fmt_item(it))
+        lines.append("")
+
+    # 완료율 요약
+    done_total = sum(1 for it in items if it.get("status") == "done")
+    delayed = sum(1 for it in items if it.get("status") == "delayed")
+    lines.append(f"---")
+    lines.append(f"📊 전체 진행률: {done_total}/{len(items)}건 완료 ({done_total/len(items)*100:.0f}%)")
+    if delayed:
+        lines.append(f"🔴 지연 항목 {delayed}건 주의 필요")
+
+    return "\n".join(lines)
+
+
+def handle_get_my_schedule(params: dict, user_context: dict = None) -> str:
+    """
+    GW 개인 일정 조회.
+    오늘부터 N일치 일정을 조회해서 날짜별로 정리.
+    """
+    import datetime as _dt
+
+    days = int(params.get("days", 7))
+    days = min(days, 30)
+    start_date = params.get("start_date") or _dt.date.today().strftime("%Y-%m-%d")
+    try:
+        start = _dt.date.fromisoformat(start_date)
+    except Exception:
+        start = _dt.date.today()
+
+    try:
+        api, cleanup = _get_api_for_user(user_context)
+
+        try:
+            from_dt = start.strftime("%Y%m%d")
+            to_dt   = (start + _dt.timedelta(days=days - 1)).strftime("%Y%m%d")
+
+            # GW 개인 일정 API (bizcube wehago 일반 패턴)
+            result = api.call_api("/schd/api/schd001A01", {
+                "fromYmd": from_dt,
+                "toYmd":   to_dt,
+            })
+
+            if not result.get("ok"):
+                # fallback: 개인일정 다른 엔드포인트 시도
+                result = api.call_api("/schedule/api/schd001A01", {
+                    "fromYmd": from_dt,
+                    "toYmd":   to_dt,
+                })
+
+            data = result.get("data", {})
+            items = (
+                data.get("list")
+                or data.get("result", {}).get("list")
+                or data.get("scheduleList")
+                or data.get("data", {}).get("list")
+                or []
+            )
+
+            if not items:
+                return (
+                    f"{start.strftime('%Y-%m-%d')} ~ "
+                    f"{(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')} "
+                    f"기간 동안 등록된 개인 일정이 없습니다.\n"
+                    "\n💡 GW 캘린더에서 직접 확인하시거나, 회의실 예약 현황은 '회의실 예약 확인해줘'로 물어보세요."
+                )
+
+            # 날짜별 그룹화
+            from collections import defaultdict
+            grouped: dict[str, list] = defaultdict(list)
+            for item in items:
+                ymd = (
+                    item.get("startYmd")
+                    or item.get("schdDt")
+                    or item.get("fromYmd")
+                    or ""
+                )
+                if len(ymd) == 8:
+                    key = f"{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}"
+                else:
+                    key = ymd or "날짜 미상"
+                grouped[key].append(item)
+
+            lines = [f"📅 개인 일정 ({start.strftime('%Y-%m-%d')} ~ {(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')}, 총 {len(items)}건)\n"]
+            weekdays = ["(월)", "(화)", "(수)", "(목)", "(금)", "(토)", "(일)"]
+            for date_key in sorted(grouped.keys()):
+                try:
+                    d = _dt.date.fromisoformat(date_key)
+                    wd = weekdays[d.weekday()]
+                    date_label = f"{date_key} {wd}"
+                except Exception:
+                    date_label = date_key
+                lines.append(f"▸ {date_label}")
+                for ev in grouped[date_key]:
+                    title = (
+                        ev.get("title")
+                        or ev.get("schdNm")
+                        or ev.get("subject")
+                        or ev.get("name")
+                        or "(제목 없음)"
+                    )
+                    s_time = ev.get("startTime") or ev.get("fromTime") or ""
+                    e_time = ev.get("endTime")   or ev.get("toTime")   or ""
+                    time_str = f" {s_time}~{e_time}" if s_time else ""
+                    all_day = ev.get("allDayYn") or ev.get("allDay") or ""
+                    if str(all_day).upper() in ("Y", "1", "TRUE"):
+                        time_str = " [종일]"
+                    location = ev.get("place") or ev.get("location") or ""
+                    loc_str = f" 📍{location}" if location else ""
+                    lines.append(f"  • {title}{time_str}{loc_str}")
+                lines.append("")
+
+            return "\n".join(lines).rstrip()
+
+        finally:
+            cleanup()
+
+    except Exception as e:
+        logger.exception("handle_get_my_schedule 오류")
+        return f"일정 조회 중 오류가 발생했습니다: {e}"
+
+
 TOOL_HANDLERS = {
     "reserve_meeting_room": handle_reserve_meeting_room,
     "check_reservation_status": handle_check_reservation_status,
@@ -1998,4 +2372,7 @@ TOOL_HANDLERS = {
     "compare_projects": handle_compare_projects,
     "generate_project_report": handle_generate_project_report,
     "update_project_milestone": handle_update_project_milestone,
+    "add_cc_to_approval_doc": handle_add_cc_to_approval_doc,
+    "get_my_schedule": handle_get_my_schedule,
+    "get_project_schedule": handle_get_project_schedule,
 }

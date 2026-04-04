@@ -27,6 +27,25 @@ from typing import Optional
 # 업로드 파일 토큰 매핑 (서버 경로를 클라이언트에 노출하지 않기 위한 인메모리 저장소)
 # {token: {"path": str, "gw_id": str, "created": datetime}}
 _upload_tokens: dict[str, dict] = {}
+_UPLOAD_TOKEN_TTL = 3600  # 토큰 만료 시간 (1시간)
+
+
+def _cleanup_expired_tokens():
+    """만료된 업로드 토큰과 연관 임시파일 정리"""
+    now = datetime.now()
+    expired = [
+        token for token, info in _upload_tokens.items()
+        if (now - info["created"]).total_seconds() > _UPLOAD_TOKEN_TTL
+    ]
+    for token in expired:
+        info = _upload_tokens.pop(token, None)
+        if info:
+            try:
+                Path(info["path"]).unlink(missing_ok=True)
+            except Exception:
+                pass
+    if expired:
+        logger.info("만료 업로드 토큰 %d건 정리", len(expired))
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Response, Cookie
 from fastapi.staticfiles import StaticFiles
@@ -48,11 +67,14 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app):
-    """FastAPI lifespan — 스케줄러 시작/종료 관리"""
+    """FastAPI lifespan — 스케줄러 + 텔레그램 봇 시작/종료 관리"""
     from src.fund_table.scheduler import start_scheduler, stop_scheduler
+    from src.chatbot.telegram_bot import start_telegram_bot, stop_telegram_bot
     start_scheduler()
+    start_telegram_bot()
     yield
     stop_scheduler()
+    stop_telegram_bot()
 
 
 app = FastAPI(title="GW 자동화 챗봇 (웹)", version="2.0.0", lifespan=lifespan)
@@ -488,6 +510,8 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     반환값에 attachment_path 포함 — 이후 /chat 요청 시 전달하면 결재 첨부파일로 자동 업로드
     """
     user = require_auth(request)
+    # 만료된 토큰/임시파일 정리
+    _cleanup_expired_tokens()
     if not file.filename:
         raise HTTPException(status_code=400, detail="파일 이름이 없습니다.")
 
@@ -554,20 +578,21 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     return JSONResponse(response_data)
 
 
-@app.get("/download/{filename}")
-async def download_file(filename: str, request: Request):
+@app.get("/download/{token}")
+async def download_file(token: str, request: Request):
     """
-    생성된 파일 다운로드 (계약서 DOCX 등)
-    data/tmp/ 하위 파일만 제공 (경로 트래버설 방지)
+    생성된 파일 다운로드 (계약서 DOCX 등).
+    토큰 기반 소유권 검증 — 파일을 생성한 사용자만 다운로드 가능.
     """
-    require_auth(request)
-    # 파일 이름만 허용 (/ 포함 불가)
-    safe_name = Path(filename).name
-    if safe_name != filename:
-        raise HTTPException(status_code=400, detail="잘못된 파일 이름입니다.")
+    user = require_auth(request)
+    gw_id = user.get("gw_id", "")
 
-    tmp_dir = Path(__file__).parent.parent.parent / "data" / "tmp"
-    file_path = tmp_dir / safe_name
+    from src.chatbot._download_registry import validate as validate_download
+    file_path_str = validate_download(token, gw_id)
+    if not file_path_str:
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없거나 접근 권한이 없습니다.")
+
+    file_path = Path(file_path_str)
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
 
@@ -582,7 +607,7 @@ async def download_file(filename: str, request: Request):
 
     return FileResponse(
         path=str(file_path),
-        filename=safe_name,
+        filename=file_path.name,
         media_type=media_type,
     )
 

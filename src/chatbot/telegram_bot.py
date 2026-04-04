@@ -6,12 +6,14 @@
 - 이미지/PDF 파일 첨부 지원
 - 인메모리 대화 히스토리 (단순 유지)
 """
+from __future__ import annotations
 
 import os
 import sys
 import base64
 import logging
 import time
+import threading
 from pathlib import Path
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -1079,20 +1081,8 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("오디오 파일 처리 중 오류가 발생했습니다.")
 
 
-def main():
-    """봇 실행"""
-    if not TELEGRAM_TOKEN:
-        print("=" * 50)
-        print("[오류] config/.env 파일에 TELEGRAM_TOKEN이 없습니다.")
-        print("BotFather를 통해 발급받은 토큰을 다음과 같이 추가해주세요:")
-        print("TELEGRAM_TOKEN=123456789:ABCdefGHI...")
-        print("=" * 50)
-        sys.exit(1)
-
-    print("=" * 50)
-    print("  텔레그램 서버 시작")
-    print("=" * 50)
-
+def _build_application() -> Application:
+    """봇 Application 인스턴스 생성 (핸들러 포함)"""
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # 명령어 핸들러
@@ -1115,8 +1105,74 @@ def main():
     app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
 
+    return app
+
+
+# ── 백그라운드 실행용 전역 상태 ──────────────────────────
+_tg_app: Application | None = None
+_tg_thread: threading.Thread | None = None
+_stop_event = threading.Event()
+
+
+def start_telegram_bot() -> None:
+    """챗봇 서버와 함께 텔레그램 봇을 백그라운드 스레드로 시작."""
+    global _tg_app, _tg_thread
+
+    if not TELEGRAM_TOKEN:
+        logger.warning("TELEGRAM_TOKEN 없음 — 텔레그램 봇 비활성화")
+        return
+
+    if _tg_thread and _tg_thread.is_alive():
+        logger.info("텔레그램 봇이 이미 실행 중")
+        return
+
+    _stop_event.clear()
+
+    def _run():
+        global _tg_app
+        import asyncio
+
+        async def _poll():
+            global _tg_app
+            _tg_app = _build_application()
+            logger.info("텔레그램 봇 폴링 시작 (@GlowSeoul_PM_Team_bot)")
+            async with _tg_app:
+                await _tg_app.updater.start_polling(drop_pending_updates=True)
+                await _tg_app.start()
+                # 실행 중 대기 — stop_telegram_bot() 호출 시 _stop_event 세팅
+                while not _stop_event.is_set():
+                    await asyncio.sleep(0.5)
+                await _tg_app.updater.stop()
+                await _tg_app.stop()
+
+        asyncio.run(_poll())
+
+    _tg_thread = threading.Thread(target=_run, daemon=True, name="telegram-bot")
+    _tg_thread.start()
+    logger.info("텔레그램 봇 스레드 시작됨")
+
+
+def stop_telegram_bot() -> None:
+    """텔레그램 봇 종료 (서버 종료 시 호출)."""
+    _stop_event.set()
+    logger.info("텔레그램 봇 종료 요청 전송")
+
+
+def main():
+    """단독 실행용 엔트리포인트"""
+    if not TELEGRAM_TOKEN:
+        print("=" * 50)
+        print("[오류] config/.env 파일에 TELEGRAM_TOKEN이 없습니다.")
+        print("BotFather를 통해 발급받은 토큰을 다음과 같이 추가해주세요:")
+        print("TELEGRAM_TOKEN=123456789:ABCdefGHI...")
+        print("=" * 50)
+        sys.exit(1)
+
+    print("=" * 50)
+    print("  텔레그램 서버 시작")
+    print("=" * 50)
     print("텔레그램 메시지 수신 대기 중... (종료: Ctrl+C)")
-    app.run_polling()
+    _build_application().run_polling(drop_pending_updates=True)
 
 
 if __name__ == "__main__":

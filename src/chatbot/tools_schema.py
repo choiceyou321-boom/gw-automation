@@ -485,5 +485,86 @@ AUTOMATION_TOOLS = [
                 required=["project_name", "milestone_name", "action"],
             ),
         ),
+        types.FunctionDeclaration(
+            name="add_cc_to_approval_doc",
+            description=(
+                "전자결재 기결재 문서에 수신참조(CC)를 추가합니다. "
+                "이미 결재가 진행 중이거나 완료된 문서에 수신참조 대상을 추가할 때 사용합니다. "
+                "doc_ids(문서 번호)를 알면 바로 사용하고, 모를 경우 doc_title로 문서 제목을 검색해서 처리합니다. "
+                "사용자가 '문서에 수신참조 걸어줘', '결재 문서 CC 추가', '수신참조 추가', "
+                "'docID XXXX에 홍길동 수신참조', 'GS-24-0025 계약서에 김부장 수신참조' 등을 요청할 때 사용합니다."
+            ),
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "doc_ids": types.Schema(
+                        type="ARRAY",
+                        description=(
+                            "수신참조를 추가할 문서 ID 목록 (예: [55700, 55654]). 단건이면 1개짜리 리스트. "
+                            "doc_title 미입력 시 필수."
+                        ),
+                        items=types.Schema(type="STRING"),
+                    ),
+                    "doc_title": types.Schema(
+                        type="STRING",
+                        description=(
+                            "문서 제목 키워드로 검색 (예: 'GS-24-0025', '청수당 12월', '경비정산'). "
+                            "doc_ids를 모를 때 사용. 입력 시 기안문서함에서 검색하여 매칭 문서에 수신참조 추가."
+                        ),
+                    ),
+                    "cc_name": types.Schema(
+                        type="STRING",
+                        description="수신참조로 추가할 사람 이름 (예: '임종훈', '이재명'). 한 번에 한 명.",
+                    ),
+                    "confirm": types.Schema(
+                        type="BOOLEAN",
+                        description="True이면 즉시 실행. False이거나 생략 시 실행 전 확인 메시지 반환.",
+                    ),
+                },
+                required=["cc_name"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="get_project_schedule",
+            description=(
+                "프로젝트의 공정 일정표를 조회합니다. "
+                "사용자가 '일정표', '공정 일정', '진행 상황', '언제 끋나', '스케줄' "
+                "등을 특정 프로젝트와 함께 요청할 때 사용합니다. "
+                "그룹별 일정 항목, 진행상태(완료/진행중/예정/지연), D-day 등을 포함합니다."
+            ),
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "project_name": types.Schema(
+                        type="STRING",
+                        description="일정표를 볼 프로젝트 이름 (일부만 입력해도 검색 가능)"
+                    ),
+                },
+                required=["project_name"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="get_my_schedule",
+            description=(
+                "개인 일정을 조회합니다. "
+                "사용자가 '내 일정', '일정 확인', '일정 보여줘', '오늘 일정', '이번주 일정' "
+                "등을 요청할 때 사용합니다. "
+                "GW 개인 캘린더에 등록된 일정을 날짜별로 정리해서 보여줍니다."
+            ),
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "days": types.Schema(
+                        type="INTEGER",
+                        description="조회할 일수 (기본값 7, 최대 30). 예: '7일치' 또는 '이번 주' = 7"
+                    ),
+                    "start_date": types.Schema(
+                        type="STRING",
+                        description="조회 시작일 (YYYY-MM-DD, 기본값 오늘). 예: '다음 주' 조회 시 '다음 주 월요일' 날짜"
+                    ),
+                },
+                required=[],
+            ),
+        ),
     ])
 ]

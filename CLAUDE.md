@@ -58,14 +58,17 @@ docker-compose up -d
 - Playwright: `page.wait_for_timeout()` 사용 (`time.sleep` 금지)
 - Gemini SDK: `asyncio.to_thread()`로 비동기 래핑
 - DB 연결: WAL 모드 필수 (`PRAGMA journal_mode=WAL`)
+- Playwright sync API는 반드시 `_executor` 스레드풀로 실행 (asyncio 루프와 충돌 방지)
 
 ## HOW — 작업 규칙
 
 ### 필수
-- 코드 수정 후 `pytest` 통과 확인 (현재 94/94 PASS)
+- 코드 수정 후 `pytest` 통과 확인 (현재 133/133 PASS)
 - 커밋 전 테스트 실행
 - `config/.env` 파일 절대 커밋 금지
 - GW 비밀번호는 반드시 Fernet 암호화 후 저장
+- 새 핸들러 추가 시 `TOOL_HANDLERS` dict와 `tools_schema.py` 양쪽 등록 필수
+- Telegram 봇은 `launchctl stop/start com.gw-chatbot.server` 로 재시작 (별도 프로세스 불필요)
 
 ### 전자결재 작업 시
 - CSS 셀렉터 우선, 좌표 클릭은 최후 수단
@@ -104,6 +107,12 @@ docker-compose up -d
 2. `MEMORY.md` — 세션 작업 기록, 발견사항
 3. `user_task_list.md` — 완료/추가 작업 업데이트
 4. `pytest` 전체 통과 확인
+
+## 현재 추가된 도구 (2026-04)
+- `analyze_youtube` — YouTube 영상/재생목록 요약 (yt-dlp 자막 + Gemini 분석)
+- `get_project_schedule` — 프로젝트 공정 일정표 조회
+- `get_my_schedule` — GW 개인 일정 조회
+- Telegram 봇 + 첫봇 서버 통합 (lifespan)
 
 ## 참고 문서
 - @DEVELOPER_GUIDE.md — 기술 상세 (GW API, 양식 관리, DB 구조, 테스트)

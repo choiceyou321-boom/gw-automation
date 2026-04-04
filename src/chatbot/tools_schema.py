@@ -525,6 +525,45 @@ AUTOMATION_TOOLS = [
             ),
         ),
         types.FunctionDeclaration(
+            name="analyze_youtube",
+            description=(
+                "YouTube 영상 또는 재생목록의 내용을 Gemini AI로 분석합니다. "
+                "사용자가 '유튜브 요약', '영상 내용 알려줘', '이 영상 설명해줘', "
+                "'재생목록 분석', '자막 보여줘' 등을 요청할 때 사용합니다. "
+                "yt-dlp로 자막과 메타데이터를 추출하고 Gemini가 요약/분석합니다."
+            ),
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "url": types.Schema(
+                        type="STRING",
+                        description="YouTube 영상 URL 또는 재생목록 URL"
+                    ),
+                    "mode": types.Schema(
+                        type="STRING",
+                        description=(
+                            "'summary' (기본값, 핵심 요약) | "
+                            "'transcript' (자막 전문 추출) | "
+                            "'playlist' (재생목록 일괄 분석)"
+                        )
+                    ),
+                    "instruction": types.Schema(
+                        type="STRING",
+                        description="분석 지시사항. 예: '핵심 포인트 5가지만', '실업에 바로 쓸 수 있는 구체적인 방법 중심'"
+                    ),
+                    "limit": types.Schema(
+                        type="INTEGER",
+                        description="재생목록 모드에서 최대 분석할 영상 수 (기본값 5, 최대 20)"
+                    ),
+                    "analyze_each": types.Schema(
+                        type="BOOLEAN",
+                        description="재생목록에서 각 영상을 개별 상세 분석할지 (True이면 느림, False이면 빠름)"
+                    ),
+                },
+                required=["url"],
+            ),
+        ),
+        types.FunctionDeclaration(
             name="get_project_schedule",
             description=(
                 "프로젝트의 공정 일정표를 조회합니다. "

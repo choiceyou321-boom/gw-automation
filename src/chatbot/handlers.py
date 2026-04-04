@@ -2109,6 +2109,53 @@ def handle_add_cc_to_approval_doc(params: dict, user_context: dict = None) -> st
         logger.exception("handle_add_cc_to_approval_doc 오류")
         return f"❌ 수신참조 추가 중 오류: {e}"
 
+def handle_analyze_youtube(params: dict, user_context: dict = None) -> str:
+    """
+    YouTube 영상 또는 재생목록 URL을 Gemini로 분석.
+    자막 추출 + Gemini 요약/분석.
+    """
+    from src.chatbot.youtube_analyzer import (
+        analyze_youtube_video, analyze_youtube_playlist, get_video_transcript
+    )
+
+    url = params.get("url", "")
+    mode = params.get("mode", "summary")       # summary | transcript | playlist
+    instruction = params.get("instruction", "")
+    limit = int(params.get("limit", 5))
+
+    if not url:
+        return "❌ YouTube URL을 입력해주세요."
+
+    # 재생목록인지 단일 영상인지 판단
+    is_playlist = 'list=' in url and 'v=' not in url
+
+    try:
+        if mode == "transcript":
+            future = _executor.submit(get_video_transcript, url)
+            return future.result(timeout=60)
+
+        elif is_playlist or mode == "playlist":
+            analyze_each = params.get("analyze_each", False)
+            instr = instruction or "이 재생목록의 영상들을 주제별로 분류하고 핵심 내용을 한국어로 요약해줘."
+            future = _executor.submit(
+                analyze_youtube_playlist, url, instr, limit, analyze_each
+            )
+            return future.result(timeout=120)
+
+        else:
+            instr = instruction or "이 유튜브 영상의 핵심 내용을 한국어로 요약해줘. \n주요 포인트를 항목별로 정리하고 실용적인 인사이트를 강조해줘."
+            future = _executor.submit(
+                analyze_youtube_video, url, instr, True
+            )
+            return future.result(timeout=90)
+
+    except concurrent.futures.TimeoutError:
+        return "⏱️ YouTube 분석 시간 초과. 영상이 너무 길거나 자막이 없을 수 있어요."
+    except Exception as e:
+        logger.exception("handle_analyze_youtube 오류")
+        return f"❌ YouTube 분석 중 오류: {e}"
+
+
 def handle_get_project_schedule(params: dict, user_context: dict = None) -> str:
     """
     특정 프로젝트의 공정 일정표를 조회하여 스릴 있게 설명합니다.
@@ -2376,4 +2423,5 @@ TOOL_HANDLERS = {
     "add_cc_to_approval_doc": handle_add_cc_to_approval_doc,
     "get_my_schedule": handle_get_my_schedule,
     "get_project_schedule": handle_get_project_schedule,
+    "analyze_youtube": handle_analyze_youtube,
 }

@@ -2241,6 +2241,7 @@ def handle_get_my_schedule(params: dict, user_context: dict = None) -> str:
     """
     GW 개인 일정 조회.
     오늘부터 N일치 일정을 조회해서 날짜별로 정리.
+    (_executor 사용 — asyncio/테레그램 환경에서도 안전)
     """
     import datetime as _dt
 
@@ -2253,91 +2254,91 @@ def handle_get_my_schedule(params: dict, user_context: dict = None) -> str:
         start = _dt.date.today()
 
     try:
-        api, cleanup = _get_api_for_user(user_context)
+        def _run_schedule():
+            api, cleanup = _get_api_for_user(user_context)
+            try:
+                from_dt = start.strftime("%Y%m%d")
+                to_dt   = (start + _dt.timedelta(days=days - 1)).strftime("%Y%m%d")
 
-        try:
-            from_dt = start.strftime("%Y%m%d")
-            to_dt   = (start + _dt.timedelta(days=days - 1)).strftime("%Y%m%d")
-
-            # GW 개인 일정 API (bizcube wehago 일반 패턴)
-            result = api.call_api("/schd/api/schd001A01", {
-                "fromYmd": from_dt,
-                "toYmd":   to_dt,
-            })
-
-            if not result.get("ok"):
-                # fallback: 개인일정 다른 엔드포인트 시도
-                result = api.call_api("/schedule/api/schd001A01", {
+                # GW 개인 일정 API
+                result = api.call_api("/schd/api/schd001A01", {
                     "fromYmd": from_dt,
                     "toYmd":   to_dt,
                 })
+                if not result.get("ok"):
+                    result = api.call_api("/schedule/api/schd001A01", {
+                        "fromYmd": from_dt,
+                        "toYmd":   to_dt,
+                    })
+                return result
+            finally:
+                cleanup()
 
-            data = result.get("data", {})
-            items = (
-                data.get("list")
-                or data.get("result", {}).get("list")
-                or data.get("scheduleList")
-                or data.get("data", {}).get("list")
-                or []
+        result = _executor.submit(_run_schedule).result(timeout=60)
+
+        data = result.get("data", {})
+        items = (
+            data.get("list")
+            or data.get("result", {}).get("list")
+            or data.get("scheduleList")
+            or data.get("data", {}).get("list")
+            or []
+        )
+
+        if not items:
+            return (
+                f"{start.strftime('%Y-%m-%d')} ~ "
+                f"{(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')} "
+                f"기간 동안 등록된 개인 일정이 없습니다.\n"
+                "\n💡 GW 캘린더에서 직접 확인하시거나, 회의실 예약 현황은 '회의실 예약 확인해줘'로 물어보세요."
             )
 
-            if not items:
-                return (
-                    f"{start.strftime('%Y-%m-%d')} ~ "
-                    f"{(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')} "
-                    f"기간 동안 등록된 개인 일정이 없습니다.\n"
-                    "\n💡 GW 캘린더에서 직접 확인하시거나, 회의실 예약 현황은 '회의실 예약 확인해줘'로 물어보세요."
+        # 날짜별 그룹화
+        from collections import defaultdict
+        grouped: dict[str, list] = defaultdict(list)
+        for item in items:
+            ymd = (
+                item.get("startYmd")
+                or item.get("schdDt")
+                or item.get("fromYmd")
+                or ""
+            )
+            if len(ymd) == 8:
+                key = f"{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}"
+            else:
+                key = ymd or "날짜 미상"
+            grouped[key].append(item)
+
+        lines = [f"📅 개인 일정 ({start.strftime('%Y-%m-%d')} ~ {(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')}, 총 {len(items)}건)\n"]
+        weekdays = ["(월)", "(화)", "(수)", "(목)", "(금)", "(토)", "(일)"]
+        for date_key in sorted(grouped.keys()):
+            try:
+                d = _dt.date.fromisoformat(date_key)
+                wd = weekdays[d.weekday()]
+                date_label = f"{date_key} {wd}"
+            except Exception:
+                date_label = date_key
+            lines.append(f"▸ {date_label}")
+            for ev in grouped[date_key]:
+                title = (
+                    ev.get("title")
+                    or ev.get("schdNm")
+                    or ev.get("subject")
+                    or ev.get("name")
+                    or "(제목 없음)"
                 )
+                s_time = ev.get("startTime") or ev.get("fromTime") or ""
+                e_time = ev.get("endTime")   or ev.get("toTime")   or ""
+                time_str = f" {s_time}~{e_time}" if s_time else ""
+                all_day = ev.get("allDayYn") or ev.get("allDay") or ""
+                if str(all_day).upper() in ("Y", "1", "TRUE"):
+                    time_str = " [종일]"
+                location = ev.get("place") or ev.get("location") or ""
+                loc_str = f" 📍{location}" if location else ""
+                lines.append(f"  • {title}{time_str}{loc_str}")
+            lines.append("")
 
-            # 날짜별 그룹화
-            from collections import defaultdict
-            grouped: dict[str, list] = defaultdict(list)
-            for item in items:
-                ymd = (
-                    item.get("startYmd")
-                    or item.get("schdDt")
-                    or item.get("fromYmd")
-                    or ""
-                )
-                if len(ymd) == 8:
-                    key = f"{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}"
-                else:
-                    key = ymd or "날짜 미상"
-                grouped[key].append(item)
-
-            lines = [f"📅 개인 일정 ({start.strftime('%Y-%m-%d')} ~ {(start + _dt.timedelta(days=days-1)).strftime('%Y-%m-%d')}, 총 {len(items)}건)\n"]
-            weekdays = ["(월)", "(화)", "(수)", "(목)", "(금)", "(토)", "(일)"]
-            for date_key in sorted(grouped.keys()):
-                try:
-                    d = _dt.date.fromisoformat(date_key)
-                    wd = weekdays[d.weekday()]
-                    date_label = f"{date_key} {wd}"
-                except Exception:
-                    date_label = date_key
-                lines.append(f"▸ {date_label}")
-                for ev in grouped[date_key]:
-                    title = (
-                        ev.get("title")
-                        or ev.get("schdNm")
-                        or ev.get("subject")
-                        or ev.get("name")
-                        or "(제목 없음)"
-                    )
-                    s_time = ev.get("startTime") or ev.get("fromTime") or ""
-                    e_time = ev.get("endTime")   or ev.get("toTime")   or ""
-                    time_str = f" {s_time}~{e_time}" if s_time else ""
-                    all_day = ev.get("allDayYn") or ev.get("allDay") or ""
-                    if str(all_day).upper() in ("Y", "1", "TRUE"):
-                        time_str = " [종일]"
-                    location = ev.get("place") or ev.get("location") or ""
-                    loc_str = f" 📍{location}" if location else ""
-                    lines.append(f"  • {title}{time_str}{loc_str}")
-                lines.append("")
-
-            return "\n".join(lines).rstrip()
-
-        finally:
-            cleanup()
+        return "\n".join(lines).rstrip()
 
     except Exception as e:
         logger.exception("handle_get_my_schedule 오류")

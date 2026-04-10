@@ -1972,6 +1972,232 @@ def handle_update_project_milestone(params: dict, user_context: dict = None) -> 
     return f"✅ **{project['name']}** '{milestone_name}' 완료 처리! ({done_count}/{len(milestones)} 완료)"
 
 
+def handle_request_annual_leave(params: dict, user_context: dict = None) -> str:
+    """연차휴가신청서 작성 처리"""
+    leave_type = params.get("leave_type", "연차")
+    leave_start = params.get("leave_start", "")
+    leave_end = params.get("leave_end", leave_start)
+    save_mode = params.get("save_mode", "verify")
+
+    if not leave_start:
+        return "휴가 시작일을 알려주세요. (예: 2026-03-25)"
+
+    try:
+        def _run():
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context
+            from src.auth.user_db import get_decrypted_password
+            from src.approval.approval_automation import ApprovalAutomation
+
+            gw_id = (user_context or {}).get("gw_id")
+            if not gw_id:
+                return {"success": False, "message": "로그인 정보가 없습니다. 먼저 /login으로 로그인해주세요."}
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                return {"success": False, "message": "비밀번호를 찾을 수 없습니다. /login으로 다시 로그인해주세요."}
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                page.set_viewport_size({"width": 1920, "height": 1080})
+                automation = ApprovalAutomation(page, context)
+                data = {
+                    "leave_type": leave_type,
+                    "leave_start": leave_start,
+                    "leave_end": leave_end,
+                    "save_mode": save_mode,
+                }
+                return automation.create_annual_leave_request(data)
+            finally:
+                try:
+                    pw.stop()
+                except Exception:
+                    pass
+
+        future = _executor.submit(_run)
+        result = future.result(timeout=180)
+
+        if result.get("success"):
+            mode_str = "신청이 완료되었습니다." if save_mode == "submit" else "내용을 확인해주세요."
+            return (
+                f"연차휴가신청서 {mode_str}\n\n"
+                f"- 휴가 종류: {leave_type}\n"
+                f"- 기간: {leave_start} ~ {leave_end}"
+            )
+        else:
+            return f"연차휴가신청서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+
+    except concurrent.futures.TimeoutError:
+        return "연차휴가신청서 처리 시간이 초과되었습니다 (3분). 다시 시도해주세요."
+    except Exception as e:
+        return f"연차휴가신청서 처리 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_request_overtime(params: dict, user_context: dict = None) -> str:
+    """연장근무신청서 작성 처리"""
+    work_type = params.get("work_type", "연장근무")
+    work_date = params.get("work_date", "")
+    start_time = params.get("start_time", "")
+    end_time = params.get("end_time", "")
+    hours = params.get("hours")
+    minutes = params.get("minutes")
+    reason = params.get("reason", "")
+    save_mode = params.get("save_mode", "verify")
+
+    if not work_date:
+        return "근무 날짜를 알려주세요. (예: 2026-03-25)"
+    if not reason:
+        return "연장근무 사유를 알려주세요."
+
+    try:
+        def _run():
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context
+            from src.auth.user_db import get_decrypted_password
+            from src.approval.approval_automation import ApprovalAutomation
+
+            gw_id = (user_context or {}).get("gw_id")
+            if not gw_id:
+                return {"success": False, "message": "로그인 정보가 없습니다. 먼저 /login으로 로그인해주세요."}
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                return {"success": False, "message": "비밀번호를 찾을 수 없습니다. /login으로 다시 로그인해주세요."}
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                page.set_viewport_size({"width": 1920, "height": 1080})
+                automation = ApprovalAutomation(page, context)
+                data = {
+                    "work_type": work_type,
+                    "work_date": work_date,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "hours": hours,
+                    "minutes": minutes,
+                    "reason": reason,
+                    "save_mode": save_mode,
+                }
+                return automation.create_overtime_request(data)
+            finally:
+                try:
+                    pw.stop()
+                except Exception:
+                    pass
+
+        future = _executor.submit(_run)
+        result = future.result(timeout=180)
+
+        if result.get("success"):
+            mode_str = "신청이 완료되었습니다." if save_mode == "submit" else "내용을 확인해주세요."
+            time_str = f"\n- 시간: {start_time} ~ {end_time}" if start_time and end_time else ""
+            return (
+                f"연장근무신청서 {mode_str}\n\n"
+                f"- 구분: {work_type}\n"
+                f"- 날짜: {work_date}"
+                f"{time_str}\n"
+                f"- 사유: {reason}"
+            )
+        else:
+            return f"연장근무신청서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+
+    except concurrent.futures.TimeoutError:
+        return "연장근무신청서 처리 시간이 초과되었습니다 (3분). 다시 시도해주세요."
+    except Exception as e:
+        return f"연장근무신청서 처리 중 오류가 발생했습니다: {str(e)}"
+
+
+def handle_request_outside_work(params: dict, user_context: dict = None) -> str:
+    """외근신청서 작성 처리"""
+    work_type = params.get("work_type", "종일외근")
+    work_date = params.get("work_date", "")
+    destination = params.get("destination", "")
+    purpose = params.get("purpose", "")
+    transportation = params.get("transportation", "")
+    save_mode = params.get("save_mode", "verify")
+
+    if not work_date:
+        return "외근 날짜를 알려주세요. (예: 2026-03-25)"
+    if not destination:
+        return "방문처를 알려주세요."
+    if not purpose:
+        return "외근 사유(업무내용)를 알려주세요."
+
+    try:
+        def _run():
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context
+            from src.auth.user_db import get_decrypted_password
+            from src.approval.approval_automation import ApprovalAutomation
+
+            gw_id = (user_context or {}).get("gw_id")
+            if not gw_id:
+                return {"success": False, "message": "로그인 정보가 없습니다. 먼저 /login으로 로그인해주세요."}
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                return {"success": False, "message": "비밀번호를 찾을 수 없습니다. /login으로 다시 로그인해주세요."}
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                page.set_viewport_size({"width": 1920, "height": 1080})
+                automation = ApprovalAutomation(page, context)
+                data = {
+                    "work_type": work_type,
+                    "work_date": work_date,
+                    "destination": destination,
+                    "purpose": purpose,
+                    "transportation": transportation,
+                    "save_mode": save_mode,
+                }
+                return automation.create_outside_work_request(data)
+            finally:
+                try:
+                    pw.stop()
+                except Exception:
+                    pass
+
+        future = _executor.submit(_run)
+        result = future.result(timeout=180)
+
+        if result.get("success"):
+            mode_str = "신청이 완료되었습니다." if save_mode == "submit" else "내용을 확인해주세요."
+            trans_str = f"\n- 교통수단: {transportation}" if transportation else ""
+            return (
+                f"외근신청서 {mode_str}\n\n"
+                f"- 구분: {work_type}\n"
+                f"- 날짜: {work_date}\n"
+                f"- 방문처: {destination}\n"
+                f"- 업무내용: {purpose}"
+                f"{trans_str}"
+            )
+        else:
+            return f"외근신청서 작성에 실패했습니다.\n사유: {result.get('message', '알 수 없는 오류')}"
+
+    except concurrent.futures.TimeoutError:
+        return "외근신청서 처리 시간이 초과되었습니다 (3분). 다시 시도해주세요."
+    except Exception as e:
+        return f"외근신청서 처리 중 오류가 발생했습니다: {str(e)}"
+
+
 # 도구 이름 → 핸들러 매핑
 
 def handle_add_cc_to_approval_doc(params: dict, user_context: dict = None) -> str:
@@ -2424,4 +2650,7 @@ TOOL_HANDLERS = {
     "get_my_schedule": handle_get_my_schedule,
     "get_project_schedule": handle_get_project_schedule,
     "analyze_youtube": handle_analyze_youtube,
+    "request_annual_leave": handle_request_annual_leave,
+    "request_overtime": handle_request_overtime,
+    "request_outside_work": handle_request_outside_work,
 }

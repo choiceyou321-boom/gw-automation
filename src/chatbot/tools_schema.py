@@ -486,6 +486,7 @@ AUTOMATION_TOOLS = [
             ),
         ),
         types.FunctionDeclaration(
+<<<<<<< HEAD
             name="add_cc_to_approval_doc",
             description=(
                 "전자결재 기결재 문서에 수신참조(CC)를 추가합니다. "
@@ -603,6 +604,58 @@ AUTOMATION_TOOLS = [
                     ),
                 },
                 required=[],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="request_annual_leave",
+            description="연차, 반차, 대체휴가 등 휴가 신청을 합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "leave_type": types.Schema(
+                        type="STRING",
+                        description="휴가 종류",
+                        enum=["연차", "반차(오전)", "반차(오후)", "대체휴가", "대휴반차(오전)", "대휴반차(오후)", "공가(예비군/민방위)", "반반차", "대휴반반차", "건강검진(반차)"],
+                    ),
+                    "leave_start": types.Schema(type="STRING", description="휴가 시작일 (YYYY-MM-DD)"),
+                    "leave_end": types.Schema(type="STRING", description="휴가 종료일 (YYYY-MM-DD)"),
+                    "save_mode": types.Schema(type="STRING", enum=["submit", "verify"]),
+                },
+                required=["leave_start"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="request_overtime",
+            description="연장근무, 야근, 조기근무, 휴일근무 신청을 합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "work_type": types.Schema(type="STRING", enum=["연장근무", "조기근무", "휴일근무"]),
+                    "work_date": types.Schema(type="STRING", description="근무 날짜 (YYYY-MM-DD)"),
+                    "start_time": types.Schema(type="STRING", description="시작 시간 (HH:MM)"),
+                    "end_time": types.Schema(type="STRING", description="종료 시간 (HH:MM)"),
+                    "hours": types.Schema(type="INTEGER", description="신청 시간 (시간)"),
+                    "minutes": types.Schema(type="INTEGER", description="신청 시간 (분)"),
+                    "reason": types.Schema(type="STRING", description="사유"),
+                    "save_mode": types.Schema(type="STRING", enum=["submit", "verify"]),
+                },
+                required=["work_date", "reason"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="request_outside_work",
+            description="외근 신청을 합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "work_type": types.Schema(type="STRING", enum=["종일외근", "외근후출근", "출근후외근"]),
+                    "work_date": types.Schema(type="STRING", description="외근 날짜 (YYYY-MM-DD)"),
+                    "destination": types.Schema(type="STRING", description="방문처"),
+                    "purpose": types.Schema(type="STRING", description="업무내용/외근 사유"),
+                    "transportation": types.Schema(type="STRING", description="교통수단"),
+                    "save_mode": types.Schema(type="STRING", enum=["submit", "verify"]),
+                },
+                required=["work_date", "destination", "purpose"],
             ),
         ),
     ])

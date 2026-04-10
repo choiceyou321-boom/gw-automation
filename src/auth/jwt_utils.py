@@ -2,6 +2,7 @@
 JWT 토큰 유틸리티
 - 챗봇 로그인 세션 관리용 (GW 인증과는 별개)
 """
+from __future__ import annotations
 
 import os
 import logging

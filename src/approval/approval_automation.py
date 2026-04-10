@@ -13,7 +13,8 @@ Phase 0 DOM 탐색 결과 반영 (2026-03-01):
 
 이 파일은 mixin 조합 클래스입니다. 실제 구현은 각 mixin 모듈을 참조하세요:
 - base.py: 공통 유틸, 네비게이션, 필드 입력, 저장
-- approval_line.py: 결재선/수신참조 설정
+- approval_line.py: 결재선/수신참조 설정 (신규 문서용)
+- cc_manager.py: 기결재 문서 수신참조 추가/수정 (2026-03-26 추가)
 - expense.py: 지출결의서 작성
 - grid.py: OBTDataGrid 그리드 조작
 - vendor.py: 거래처등록
@@ -30,6 +31,7 @@ from src.approval.base import (
     _GET_GRID_IFACE_JS, _save_debug, _parse_project_text,
 )
 from src.approval.approval_line import ApprovalLineMixin
+from src.approval.cc_manager import CcManagerMixin
 from src.approval.expense import ExpenseReportMixin
 from src.approval.grid import GridMixin
 from src.approval.vendor import VendorRegistrationMixin
@@ -47,6 +49,7 @@ except ImportError:
 class ApprovalAutomation(
     ApprovalBaseMixin,
     ApprovalLineMixin,
+    CcManagerMixin,
     ExpenseReportMixin,
     GridMixin,
     VendorRegistrationMixin,

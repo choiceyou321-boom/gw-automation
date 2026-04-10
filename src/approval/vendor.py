@@ -5,6 +5,7 @@
 import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeout
 from src.approval.base import GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR, _save_debug
+from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
 
 logger = logging.getLogger("approval_automation")
 
@@ -555,10 +556,10 @@ class VendorRegistrationMixin:
             editor = popup_page.locator("div[contenteditable='true']").first
             if editor.is_visible(timeout=3000):
                 editor.click()
-                popup_page.evaluate(f"""
+                popup_page.evaluate("""(htmlText) => {
                     const el = document.querySelector("[contenteditable='true']");
-                    if (el) {{ el.innerHTML = `{html_text}`; }}
-                """)
+                    if (el) { el.innerHTML = htmlText; }
+                }""", html_text)
                 logger.info("팝업 본문 입력 완료 (contentEditable)")
                 return
         except Exception:
@@ -573,10 +574,10 @@ class VendorRegistrationMixin:
                     body = frame.locator("body[contenteditable='true'], div[contenteditable='true']").first
                     if body.is_visible(timeout=2000):
                         body.click()
-                        frame.evaluate(f"""
+                        frame.evaluate("""(htmlText) => {
                             const el = document.querySelector('[contenteditable]') || document.body;
-                            el.innerHTML = `{html_text}`;
-                        """)
+                            el.innerHTML = htmlText;
+                        }""", html_text)
                         logger.info("팝업 본문 입력 완료 (iframe)")
                         return
         except Exception:
@@ -750,9 +751,12 @@ class VendorRegistrationMixin:
                             body = frame.locator("body[contenteditable='true'], div[contenteditable='true']").first
                             if body.is_visible(timeout=2000):
                                 body.click()
-                                # 줄바꿈을 위해 HTML로 입력
+                                # 줄바꿈을 위해 HTML로 입력 (인자 전달로 JS 인젝션 방지)
                                 html_text = text.replace("\n", "<br>")
-                                frame.evaluate(f"document.querySelector('[contenteditable]').innerHTML = `{html_text}`")
+                                frame.evaluate(
+                                    "(htmlText) => { const el = document.querySelector('[contenteditable]'); if (el) el.innerHTML = htmlText; }",
+                                    html_text
+                                )
                                 logger.info("본문 입력 완료 (iframe)")
                                 return
                     else:
@@ -766,10 +770,10 @@ class VendorRegistrationMixin:
                 editor.click()
                 # HTML로 줄바꿈 처리
                 html_text = text.replace("\n", "<br>")
-                page.evaluate(f"""
+                page.evaluate("""(htmlText) => {
                     const el = document.querySelector("[contenteditable='true']");
-                    if (el) {{ el.innerHTML = `{html_text}`; }}
-                """)
+                    if (el) { el.innerHTML = htmlText; }
+                }""", html_text)
                 logger.info("본문 입력 완료 (contentEditable)")
                 return
             except Exception as e:

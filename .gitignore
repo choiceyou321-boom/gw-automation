@@ -4,11 +4,25 @@ config/.env
 
 # 사용자 데이터
 data/users.db
+users.db
 data/session_state.json
 data/sessions/
 data/chatbot/chat_history.db
 data/chatbot/logs/
 data/chatbot/uploads/
+data/fund_management.db
+data/fund_management.db.*
+fund_management.db
+
+# 디버그/임시 데이터
+.fuse_hidden*
+**/.fuse_hidden*
+data/debug_*
+data/test_*
+data/pm_sheet_*.json
+data/reservations_*.json
+data/mail_apis.json
+data/approval_dom_remaining/
 
 # Python
 __pycache__/
@@ -37,6 +51,7 @@ playwright-report/
 
 # 로그
 logs/*.log
+*.log
 
 # 구글 서비스 계정 키 (보안)
 config/google_service_account.json
@@ -67,6 +82,13 @@ MEMORY.md
 
 # 대용량 PDF
 data/kshia_translation/*.pdf
+
+# 테스트 스크립트 (임시)
+test_*.py
+tools_test.py
+law_part1.py
+construction_law_notes.py
+EXPENSE_INVOICE_FIX_NOTES.md
 
 # 기타
 01-OA/

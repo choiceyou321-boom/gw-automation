@@ -149,12 +149,17 @@ class TestStopScheduler:
 
 class TestRunSync:
     def test_skip_when_already_running(self, sched):
-        """이미 실행 중이면 건너뜀"""
-        sched.sync_running.set()
-        # run_sync 내부에서 즉시 return해야 함
-        sched.run_sync()
-        # 여전히 set 상태 (clear 호출 안 됨 = 내부 로직 미진입)
-        assert sched.sync_running.is_set()
+        """이미 실행 중이면 건너뜀 (Lock 선점으로 시뮬레이션)"""
+        # _sync_lock을 미리 획득해 '실행 중' 상태를 시뮬레이션
+        acquired = sched._sync_lock.acquire(blocking=False)
+        assert acquired, "_sync_lock 선점 실패"
+        try:
+            # run_sync 내부에서 즉시 return해야 함 (lock 획득 실패)
+            sched.run_sync()
+            # sync_running은 set되지 않아야 함 (내부 로직 미진입)
+            assert not sched.sync_running.is_set()
+        finally:
+            sched._sync_lock.release()
 
     def test_clears_flag_on_no_admin(self, sched, monkeypatch):
         """관리자 ID 없으면 플래그 해제 후 종료"""

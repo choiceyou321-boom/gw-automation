@@ -4,13 +4,14 @@
 - /fund       : 프로젝트 관리 웹 페이지 서빙
 """
 
+import json
 import logging
 import os
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -72,6 +73,8 @@ class ProjectUpdate(BaseModel):
     status: Optional[str] = None
     grade: Optional[str] = None
     project_code: Optional[str] = None  # GW 사업코드
+    timeline_start_month: Optional[str] = None  # 타임라인 시작월 (YYYY-MM)
+    timeline_end_month: Optional[str] = None    # 타임라인 종료월 (YYYY-MM)
 
 
 class TradeCreate(BaseModel):
@@ -180,6 +183,7 @@ class CollectionItem(BaseModel):
     stage: Optional[str] = ""
     amount: Optional[int] = 0
     collected: Optional[int] = 0
+    collection_date: Optional[str] = ""
 
 class CollectionsBulkSave(BaseModel):
     """수금현황 일괄 저장"""
@@ -390,7 +394,8 @@ async def add_trade(project_id: int, req: TradeCreate, request: Request):
 @router.put("/api/fund/projects/{project_id}/trades/{trade_id}")
 async def update_trade(project_id: int, trade_id: int, req: TradeUpdate, request: Request):
     """공종 수정"""
-    require_auth(request)
+    user = require_auth(request)
+    _check_owner(project_id, user)
     kwargs = req.model_dump(exclude_none=True)
     if not kwargs:
         raise HTTPException(status_code=400, detail="수정할 항목이 없습니다.")
@@ -403,7 +408,8 @@ async def update_trade(project_id: int, trade_id: int, req: TradeUpdate, request
 @router.delete("/api/fund/projects/{project_id}/trades/{trade_id}")
 async def delete_trade(project_id: int, trade_id: int, request: Request):
     """공종 삭제"""
-    require_auth(request)
+    user = require_auth(request)
+    _check_owner(project_id, user)
     result = db.delete_trade(trade_id)
     if not result["success"]:
         raise HTTPException(status_code=404, detail=result["message"])
@@ -480,7 +486,16 @@ async def save_subcontracts_bulk(project_id: int, request: Request):
 @router.put("/api/fund/subcontracts/{sub_id}")
 async def update_subcontract(sub_id: int, req: SubcontractUpdate, request: Request):
     """하도급 업체 정보 수정 (개별)"""
-    require_auth(request)
+    user = require_auth(request)
+    # 소유자 검증 — sub_id로 project_id 조회
+    conn = db.get_db()
+    try:
+        row = conn.execute("SELECT project_id FROM subcontracts WHERE id = ?", (sub_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="하도급 항목을 찾을 수 없습니다.")
+        _check_owner(row["project_id"], user)
+    finally:
+        conn.close()
     kwargs = req.model_dump(exclude_none=True)
     if not kwargs:
         raise HTTPException(status_code=400, detail="수정할 항목이 없습니다.")
@@ -493,7 +508,16 @@ async def update_subcontract(sub_id: int, req: SubcontractUpdate, request: Reque
 @router.delete("/api/fund/subcontracts/{sub_id}")
 async def delete_subcontract(sub_id: int, request: Request):
     """하도급 업체 삭제"""
-    require_auth(request)
+    user = require_auth(request)
+    # 소유자 검증 — sub_id로 project_id 조회
+    conn = db.get_db()
+    try:
+        row = conn.execute("SELECT project_id FROM subcontracts WHERE id = ?", (sub_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="하도급 항목을 찾을 수 없습니다.")
+        _check_owner(row["project_id"], user)
+    finally:
+        conn.close()
     result = db.delete_subcontract(sub_id)
     if not result["success"]:
         raise HTTPException(status_code=400, detail=result["message"])
@@ -534,7 +558,8 @@ async def add_contact(project_id: int, req: ContactCreate, request: Request):
 @router.put("/api/fund/projects/{project_id}/contacts/{contact_id}")
 async def update_contact(project_id: int, contact_id: int, req: ContactUpdate, request: Request):
     """연락처 수정"""
-    require_auth(request)
+    user = require_auth(request)
+    _check_owner(project_id, user)
     # vendor_name → company_name으로 변환
     kwargs = req.model_dump(exclude={"vendor_name"}, exclude_none=True)
     resolved = req.resolved_company_name
@@ -551,7 +576,8 @@ async def update_contact(project_id: int, contact_id: int, req: ContactUpdate, r
 @router.delete("/api/fund/projects/{project_id}/contacts/{contact_id}")
 async def delete_contact(project_id: int, contact_id: int, request: Request):
     """연락처 삭제"""
-    require_auth(request)
+    user = require_auth(request)
+    _check_owner(project_id, user)
     result = db.delete_contact(contact_id)
     if not result["success"]:
         raise HTTPException(status_code=400, detail=result["message"])
@@ -603,7 +629,6 @@ async def crawl_gw_project(project_id: int, request: Request):
     순서: 프로젝트정보 → 사업별(메인) → 상세 합계(보충)
     각 단계 독립 try/except (한쪽 실패해도 계속)
     """
-    import threading
     user = require_auth(request)
     project = db.get_project(project_id)
     if not project:
@@ -639,12 +664,11 @@ async def crawl_gw_project(project_id: int, request: Request):
         except Exception as e:
             results["budget_summary"] = {"success": False, "error": f"예실대비(합계): {e}"}
 
-    # 동기 실행 (Playwright는 동기 API)
-    thread = threading.Thread(target=_crawl)
-    thread.start()
-    thread.join(timeout=300)  # 최대 5분 (3개 크롤러 순차: 프로젝트정보 + 사업별 + 상세합계)
-
-    if thread.is_alive():
+    # asyncio.to_thread로 이벤트 루프 블로킹 방지 (Playwright는 동기 API이므로 스레드 풀에서 실행)
+    import asyncio
+    try:
+        await asyncio.wait_for(asyncio.to_thread(_crawl), timeout=300)
+    except asyncio.TimeoutError:
         return JSONResponse({"success": False, "error": "크롤링 시간 초과 (5분)"}, status_code=504)
 
     # 항목별 성공/실패 집계
@@ -690,7 +714,6 @@ async def crawl_gw_all(request: Request):
     순서: 프로젝트정보 → 사업별(메인) → 상세합계(보충)
     각 단계 독립 try/except (한쪽 실패해도 계속)
     """
-    import threading
     from src.fund_table.scheduler import sync_running
 
     # 스케줄러 또는 다른 수동 트리거가 이미 실행 중이면 거부
@@ -823,11 +846,10 @@ async def crawl_gw_all(request: Request):
             "stages": stages,
         }
 
-    thread = threading.Thread(target=_crawl)
-    thread.start()
-    thread.join(timeout=900)  # 최대 15분 (3개 크롤러 순차 실행)
-
-    if thread.is_alive():
+    import asyncio
+    try:
+        await asyncio.wait_for(asyncio.to_thread(_crawl), timeout=900)
+    except asyncio.TimeoutError:
         return JSONResponse({"success": False, "error": "크롤링 시간 초과 (15분)"}, status_code=504)
 
     return JSONResponse(result.get("data", {"success": False, "error": "알 수 없는 오류"}))
@@ -895,7 +917,6 @@ async def search_gw_projects_api(request: Request):
 @router.post("/api/fund/gw/fetch-project-list")
 async def fetch_gw_project_list(request: Request):
     """GW에서 전체 프로젝트 목록 크롤링 → 캐시 저장"""
-    import threading
     import traceback
     user = require_auth(request)
     gw_id = user["gw_id"]
@@ -909,11 +930,10 @@ async def fetch_gw_project_list(request: Request):
             logger.error(f"GW 프로젝트 목록 크롤링 스레드 오류: {e}\n{traceback.format_exc()}")
             result["error"] = str(e)
 
-    thread = threading.Thread(target=_fetch)
-    thread.start()
-    thread.join(timeout=180)
-
-    if thread.is_alive():
+    import asyncio
+    try:
+        await asyncio.wait_for(asyncio.to_thread(_fetch), timeout=180)
+    except asyncio.TimeoutError:
         return JSONResponse({"success": False, "error": "GW 접속 시간 초과 (3분)"}, status_code=504)
 
     if result["error"]:
@@ -925,7 +945,7 @@ async def fetch_gw_project_list(request: Request):
 
     projects = data.get("projects", [])
     if projects:
-        db.save_gw_projects_cache(projects)
+        db.save_gw_projects_cache_v2(projects)
 
     return JSONResponse({
         "success": True,
@@ -944,7 +964,6 @@ async def import_pm_sheet(request: Request):
     PM팀 Official 시트에서 전체 프로젝트 기본정보를 읽어 DB에 반영.
     mode: 'upsert' (기존 업데이트 + 신규 생성) 또는 'insert_only' (신규만)
     """
-    import threading
     user = require_auth(request)
     gw_id = user["gw_id"]
 
@@ -971,11 +990,9 @@ async def import_pm_sheet(request: Request):
             logger.error("PM 시트 임포트 오류: %s", e, exc_info=True)
             result["error"] = str(e)
 
-    thread = threading.Thread(target=_import)
-    thread.start()
-    thread.join(timeout=120)
-
-    if thread.is_alive():
+    try:
+        await asyncio.wait_for(asyncio.to_thread(_import), timeout=120)
+    except asyncio.TimeoutError:
         return JSONResponse(
             {"success": False, "error": "Google Sheets 접속 시간 초과 (2분)"},
             status_code=504,
@@ -1002,7 +1019,7 @@ async def import_pm_sheet(request: Request):
 # ─────────────────────────────────────────
 
 @router.get("/api/fund/projects/{project_id}/payments")
-async def list_payments(project_id: int, request: Request, limit: int = 100):
+async def list_payments(project_id: int, request: Request, limit: int = 500):
     """이체완료 내역 조회"""
     require_auth(request)
     if not db.get_project(project_id):
@@ -1011,6 +1028,126 @@ async def list_payments(project_id: int, request: Request, limit: int = 100):
     limit = min(max(1, limit), 500)
     payments = db.list_payment_history(project_id=project_id, limit=limit)
     return JSONResponse({"payments": payments})
+
+
+@router.post("/api/fund/projects/{project_id}/payments/import")
+async def import_payment_excel(project_id: int, request: Request, file: UploadFile = File(...)):
+    """엑셀 파일에서 이체내역 임포트 (헤더 자동 감지)"""
+    require_auth(request)
+    if not db.get_project(project_id):
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    # 파일 확장자 검증
+    fname = file.filename or ""
+    if not fname.lower().endswith((".xlsx", ".xls")):
+        raise HTTPException(status_code=400, detail="xlsx 또는 xls 파일만 지원합니다.")
+
+    import openpyxl, io, re
+
+    try:
+        content = await file.read()
+        wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+        ws = wb.active
+
+        # 헤더 행 감지 (키워드 매칭)
+        header_row = None
+        col_map = {}
+        for r_idx, row in enumerate(ws.iter_rows(min_row=1, max_row=min(10, ws.max_row), values_only=False), start=1):
+            texts = [str(cell.value or "").replace(" ", "") for cell in row]
+            joined = " ".join(texts)
+            if any(kw in joined for kw in ("확정일", "거래처", "금액", "이체일", "예정일")):
+                header_row = r_idx
+                # 컬럼 매핑
+                for c_idx, cell in enumerate(row):
+                    h = str(cell.value or "").replace(" ", "")
+                    if not h:
+                        continue
+                    if "회계" in h and "단위" in h:
+                        col_map["accounting_unit"] = c_idx
+                    elif "예정" in h and "일" in h:
+                        col_map["scheduled_date"] = c_idx
+                    elif "확정" in h and "일" in h:
+                        col_map["confirmed_date"] = c_idx
+                    elif "자금" in h and "과목" in h:
+                        col_map["fund_category"] = c_idx
+                    elif "거래처" in h and "코드" in h and "카드" not in h:
+                        col_map["vendor_code"] = c_idx
+                    elif "거래처" in h and ("명" in h or "이름" in h) and "카드" not in h:
+                        col_map["vendor_name"] = c_idx
+                    elif "사업자" in h or "주민" in h:
+                        col_map["business_number"] = c_idx
+                    elif h in ("은행", "은행명"):
+                        col_map["bank_name"] = c_idx
+                    elif "계좌" in h and "번호" in h:
+                        col_map["account_number"] = c_idx
+                    elif "예금주" in h and "실제" not in h:
+                        col_map["account_holder"] = c_idx
+                    elif h == "적요" or h == "비고":
+                        col_map["description"] = c_idx
+                    elif h in ("금액", "이체금액"):
+                        col_map["amount"] = c_idx
+                    elif "부서" in h or "사용부서" in h:
+                        col_map["department"] = c_idx
+                    elif "사원" in h and "명" in h:
+                        col_map["employee_name"] = c_idx
+                    elif "프로젝트" in h:
+                        col_map["project_name"] = c_idx
+                break
+
+        if header_row is None:
+            raise HTTPException(status_code=400, detail="헤더 행을 찾을 수 없습니다. (확정일/거래처/금액 컬럼 필요)")
+
+        # 데이터 행 수집
+        def _safe(val):
+            if val is None:
+                return ""
+            if hasattr(val, "strftime"):
+                return val.strftime("%Y-%m-%d")
+            return str(val).strip()
+
+        def _parse_amount(val):
+            if val is None:
+                return 0
+            if isinstance(val, (int, float)):
+                return int(val)
+            s = re.sub(r"[^\d\-]", "", str(val))
+            return int(s) if s else 0
+
+        records = []
+        for row in ws.iter_rows(min_row=header_row + 1, max_row=ws.max_row, values_only=False):
+            cells = [cell.value for cell in row]
+            # 금액 또는 거래처명 없으면 빈 행 — 건너뜀
+            amt_val = cells[col_map["amount"]] if "amount" in col_map else None
+            vendor_val = cells[col_map["vendor_name"]] if "vendor_name" in col_map else None
+            if not amt_val and not vendor_val:
+                continue
+
+            # 합계 행 제외 (거래처 '-' 또는 자금과목 '합계')
+            vendor_str = str(vendor_val or "").strip()
+            fund_cat = str(cells[col_map["fund_category"]] or "").strip() if "fund_category" in col_map else ""
+            if fund_cat == "합계" or (vendor_str in ("-", "") and fund_cat in ("-", "")):
+                continue
+
+            rec = {}
+            for field, c_idx in col_map.items():
+                if field == "amount":
+                    rec[field] = _parse_amount(cells[c_idx])
+                else:
+                    rec[field] = _safe(cells[c_idx])
+            records.append(rec)
+
+        wb.close()
+
+        if not records:
+            return JSONResponse({"success": True, "count": 0, "message": "임포트할 데이터가 없습니다."})
+
+        result = db.save_payment_history(records, project_id=project_id)
+        return JSONResponse({"success": True, "count": len(records), "message": f"이체내역 {len(records)}건 임포트 완료"})
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"엑셀 파싱 오류: {str(e)}")
 
 
 @router.get("/api/fund/projects/{project_id}/budget")
@@ -1084,7 +1221,17 @@ class TodoUpdate(BaseModel):
 @router.put("/api/fund/todos/{todo_id}")
 async def update_todo(todo_id: int, request: Request, body: TodoUpdate):
     """TODO 수정"""
-    require_auth(request)
+    user = require_auth(request)
+    # 소유자 검증 — todo_id로 project_id 조회 후 확인
+    conn = db.get_db()
+    try:
+        row = conn.execute("SELECT project_id FROM project_todos WHERE id = ?", (todo_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="TODO를 찾을 수 없습니다.")
+        if row["project_id"]:
+            _check_owner(row["project_id"], user)
+    finally:
+        conn.close()
     kwargs = {k: v for k, v in body.model_dump().items() if v is not None}
     result = db.update_todo(todo_id, **kwargs)
     return JSONResponse(result)
@@ -1093,7 +1240,17 @@ async def update_todo(todo_id: int, request: Request, body: TodoUpdate):
 @router.delete("/api/fund/todos/{todo_id}")
 async def delete_todo(todo_id: int, request: Request):
     """TODO 삭제"""
-    require_auth(request)
+    user = require_auth(request)
+    # 소유자 검증 — todo_id로 project_id 조회 후 확인
+    conn = db.get_db()
+    try:
+        row = conn.execute("SELECT project_id FROM project_todos WHERE id = ?", (todo_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="TODO를 찾을 수 없습니다.")
+        if row["project_id"]:
+            _check_owner(row["project_id"], user)
+    finally:
+        conn.close()
     result = db.delete_todo(todo_id)
     return JSONResponse(result)
 
@@ -1431,6 +1588,16 @@ async def serve_fund_page(request: Request):
     return FileResponse(str(fund_html))
 
 
+@router.get("/guide")
+async def serve_guide_page(request: Request):
+    """사용방법 가이드 페이지 서빙"""
+    require_auth(request)
+    guide_html = STATIC_DIR / "guide.html"
+    if not guide_html.exists():
+        raise HTTPException(status_code=404, detail="guide.html을 찾을 수 없습니다.")
+    return FileResponse(str(guide_html))
+
+
 @router.get("/insights")
 async def serve_insights_page(request: Request):
     """인사이트 페이지 → fund 페이지로 리다이렉트"""
@@ -1521,12 +1688,18 @@ async def delete_material(material_id: int, request: Request):
 # 알림 엔드포인트
 # ─────────────────────────────────────────
 
+_last_notification_check: float = 0.0  # 마지막 알림 체크 시각 (epoch)
+
 @router.get("/api/fund/notifications")
 async def get_notifications(request: Request):
     """알림 목록"""
+    import time
+    global _last_notification_check
     require_auth(request)
-    # 자동 알림 생성 체크
-    db.check_and_generate_notifications()
+    # 자동 알림 생성: 최대 5분에 1회만 실행 (매 GET마다 DB 쓰기 방지)
+    if time.monotonic() - _last_notification_check > 300:
+        db.check_and_generate_notifications()
+        _last_notification_check = time.monotonic()
     notifications = db.list_notifications()
     return JSONResponse({"notifications": notifications})
 
@@ -1581,3 +1754,1015 @@ async def get_all_project_aliases(request: Request):
     require_auth(request)
     aliases = db.get_all_aliases()
     return JSONResponse({"aliases": aliases})
+
+
+# ─────────────────────────────────────────
+# GW 예산 실적 (budget_actual) — 상세 조회 + 동기화
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/budget/detail")
+async def list_budget_detail(project_id: int, request: Request,
+                              gisu: Optional[int] = None,
+                              leaf_only: bool = False):
+    """예실대비현황(상세) — GW DataProvider 기반 실적 데이터 조회
+    leaf_only=true이면 말단(최하위) 항목만 반환
+    """
+    require_auth(request)
+    if not db.get_project(project_id):
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+    conn = db.get_db()
+    try:
+        query = "SELECT * FROM budget_actual WHERE project_id = ?"
+        params = [project_id]
+        if gisu:
+            query += " AND gisu = ?"
+            params.append(gisu)
+        if leaf_only:
+            query += " AND is_leaf = 1"
+        query += " ORDER BY budget_code ASC"
+        rows = conn.execute(query, params).fetchall()
+        data = [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+    # 집계 계산
+    total_budget = sum(r.get("budget_amount", 0) for r in data if r.get("is_leaf", 1))
+    total_actual = sum(r.get("actual_amount", 0) for r in data if r.get("is_leaf", 1))
+    total_diff   = total_budget - total_actual
+    overall_rate = round(total_actual / total_budget * 100, 2) if total_budget else 0
+
+    return JSONResponse({
+        "budget_detail": data,
+        "summary": {
+            "total_budget": total_budget,
+            "total_actual": total_actual,
+            "total_diff": total_diff,
+            "overall_rate": overall_rate,
+            "item_count": len(data),
+        }
+    })
+
+
+@router.post("/api/fund/projects/{project_id}/budget/sync-actuals")
+async def sync_budget_actuals(project_id: int, request: Request):
+    """단일 프로젝트 예실대비현황 GW 동기화 (RealGrid DataProvider 방식)"""
+    user = require_auth(request)
+    # gw_id는 인증된 사용자에서 파생 (클라이언트 임의 지정 불가)
+    gw_id = user.get("gw_id", "")
+    project = db.get_project(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    body = await request.json()
+    project_code = body.get("project_code") or project.get("project_code", "")
+
+    if not gw_id:
+        raise HTTPException(status_code=400, detail="GW 계정 정보를 찾을 수 없습니다.")
+    if not project_code:
+        raise HTTPException(status_code=400, detail="프로젝트 코드(GS-XX-XXXX)가 필요합니다.")
+
+    results = {"status": "started", "project_id": project_id, "project_code": project_code}
+
+    def _sync():
+        try:
+            from src.fund_table.budget_crawler import crawl_budget_actual
+            r = crawl_budget_actual(gw_id, project_id=project_id, project_code=project_code)
+            logger.info(f"예실대비 동기화 완료: {r}")
+        except Exception as e:
+            logger.error(f"예실대비 동기화 실패: {e}", exc_info=True)
+
+    threading.Thread(target=_sync, daemon=True).start()
+    return JSONResponse({"message": "예실대비현황 GW 동기화 시작됨", **results})
+
+
+@router.post("/api/fund/gw/sync-all-budget-actuals")
+async def sync_all_budget_actuals(request: Request):
+    """모든 프로젝트 예실대비현황 일괄 GW 동기화 (백그라운드)"""
+    user = require_auth(request)
+    # gw_id는 인증된 사용자에서 파생 (클라이언트 임의 지정 불가)
+    gw_id = user.get("gw_id", "")
+    if not gw_id:
+        raise HTTPException(status_code=400, detail="GW 계정 정보를 찾을 수 없습니다.")
+
+    def _sync_all():
+        try:
+            from src.fund_table.budget_crawler import crawl_all_projects
+            r = crawl_all_projects(gw_id)
+            logger.info(f"전체 예실대비 동기화 완료: {r.get('message')}")
+        except Exception as e:
+            logger.error(f"전체 예실대비 동기화 실패: {e}", exc_info=True)
+
+    threading.Thread(target=_sync_all, daemon=True).start()
+    return JSONResponse({"message": "전체 프로젝트 예실대비현황 동기화 시작됨"})
+
+
+@router.get("/api/fund/gw/project-list")
+async def get_gw_project_list(request: Request, keyword: str = ""):
+    """GW 전체 프로젝트 목록 반환 (캐시 우선, 없으면 DB 프로젝트 목록)"""
+    require_auth(request)
+    # GW 캐시에서 먼저 조회
+    cached = db.search_gw_projects_cache(keyword) if keyword else []
+    if not cached:
+        # DB 프로젝트 목록으로 fallback
+        projects = db.list_projects()
+        cached = [
+            {"code": p.get("project_code",""), "name": p.get("name",""), "id": p.get("id")}
+            for p in projects if p.get("project_code")
+        ]
+    return JSONResponse({"projects": cached, "count": len(cached)})
+
+
+@router.get("/api/fund/budget/cross-project")
+async def cross_project_budget(request: Request, gisu: Optional[int] = None, top_n: int = 20):
+    """전체 프로젝트 예실대비 집계 (집행률 상위 N 반환)"""
+    require_auth(request)
+    top_n = min(max(1, top_n), 100)  # 1~100 범위로 제한
+    conn = db.get_db()
+    try:
+        q = """
+        SELECT
+            gw_project_code,
+            project_name,
+            SUM(CASE WHEN is_leaf=1 THEN budget_amount ELSE 0 END) AS total_budget,
+            SUM(CASE WHEN is_leaf=1 THEN actual_amount ELSE 0 END) AS total_actual,
+            SUM(CASE WHEN is_leaf=1 THEN difference   ELSE 0 END) AS total_diff,
+            MAX(scraped_at) AS last_synced
+        FROM budget_actual
+        WHERE gw_project_code != ''
+        """
+        params = []
+        if gisu:
+            q += " AND gisu = ?"
+            params.append(gisu)
+        q += " GROUP BY gw_project_code ORDER BY total_actual DESC LIMIT ?"
+        params.append(top_n)
+        rows = conn.execute(q, params).fetchall()
+        data = []
+        for r in rows:
+            row = dict(r)
+            row["execution_rate"] = (
+                round(row["total_actual"] / row["total_budget"] * 100, 1)
+                if row["total_budget"] else 0
+            )
+            data.append(row)
+    finally:
+        conn.close()
+    return JSONResponse({"projects": data, "count": len(data)})
+
+
+# ─────────────────────────────────────────
+# Pydantic 요청 모델 — 신규 테이블용
+# ─────────────────────────────────────────
+
+class CollectionScheduleCreate(BaseModel):
+    """수금 예정 직접 추가 요청 (수동 입력용)"""
+    item_name: str
+    scheduled_date: str
+    amount: int
+    status: Optional[str] = "pending"
+
+
+class RiskCreate(BaseModel):
+    """리스크 항목 추가 요청"""
+    risk_type: str
+    severity: str
+    description: str
+    source: Optional[str] = ""
+
+
+class RiskUpdate(BaseModel):
+    """리스크 항목 수정 요청"""
+    is_resolved: Optional[bool] = None
+    action_taken: Optional[str] = None
+
+
+# ─────────────────────────────────────────
+# 세금계산서 (gw_tax_invoices)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/tax-invoices")
+async def get_tax_invoices(project_id: int, request: Request):
+    """프로젝트별 세금계산서 목록 조회"""
+    require_auth(request)
+    try:
+        data = db.list_tax_invoices(project_id=project_id)
+        return JSONResponse({"tax_invoices": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"세금계산서 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="세금계산서 조회 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# 예산 변경 이력 (gw_budget_changes)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/budget-changes")
+async def get_budget_changes(project_id: int, request: Request):
+    """프로젝트별 예산 변경 이력 조회"""
+    require_auth(request)
+    try:
+        data = db.list_budget_changes(project_id=project_id)
+        return JSONResponse({"budget_changes": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"예산 변경 이력 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="예산 변경 이력 조회 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# 수금 예정 내역 (gw_collection_schedule)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/collection-schedule")
+async def get_collection_schedule(project_id: int, request: Request, status: Optional[str] = None):
+    """프로젝트별 수금 예정 내역 조회"""
+    require_auth(request)
+    try:
+        data = db.list_collection_schedule(project_id=project_id, status=status)
+        return JSONResponse({"collection_schedule": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"수금 예정 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="수금 예정 조회 중 오류가 발생했습니다.")
+
+
+@router.post("/api/fund/projects/{project_id}/collection-schedule")
+async def create_collection_schedule(project_id: int, req: CollectionScheduleCreate, request: Request):
+    """수금 예정 항목 직접 추가 (수동 입력용)"""
+    require_auth(request)
+    try:
+        result = db.add_collection_schedule(
+            project_id=project_id,
+            item_name=req.item_name,
+            scheduled_date=req.scheduled_date,
+            amount=req.amount,
+            status=req.status,
+        )
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result["message"])
+        return JSONResponse(result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"수금 예정 추가 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="수금 예정 추가 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# 자금집행 승인 현황 (gw_payment_approvals)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/payment-approvals")
+async def get_payment_approvals(project_id: int, request: Request, status: Optional[str] = None):
+    """프로젝트별 자금집행 승인 현황 조회"""
+    require_auth(request)
+    try:
+        data = db.list_payment_approvals(project_id=project_id, status=status)
+        return JSONResponse({"payment_approvals": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"자금집행 승인 현황 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="자금집행 승인 현황 조회 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# 리스크 관리 (project_risk_log)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/risks")
+async def get_risks(project_id: int, request: Request, status: Optional[str] = None):
+    """프로젝트별 리스크 이력 조회"""
+    require_auth(request)
+    try:
+        data = db.list_risks(project_id=project_id, status=status)
+        return JSONResponse({"risks": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"리스크 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="리스크 조회 중 오류가 발생했습니다.")
+
+
+@router.post("/api/fund/projects/{project_id}/risks")
+async def create_risk(project_id: int, req: RiskCreate, request: Request):
+    """프로젝트별 리스크 항목 추가"""
+    require_auth(request)
+    try:
+        result = db.add_risk(
+            project_id=project_id,
+            risk_type=req.risk_type,
+            severity=req.severity,
+            description=req.description,
+            created_by=req.source,
+        )
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result["message"])
+        return JSONResponse(result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"리스크 추가 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="리스크 추가 중 오류가 발생했습니다.")
+
+
+@router.put("/api/fund/risks/{risk_id}")
+async def update_risk(risk_id: int, req: RiskUpdate, request: Request):
+    """리스크 항목 수정 (해결 여부, 조치 내용 업데이트)"""
+    require_auth(request)
+    try:
+        kwargs = {}
+        # is_resolved=True 이면 status를 "resolved"로 변경
+        if req.is_resolved is not None:
+            kwargs["status"] = "resolved" if req.is_resolved else "open"
+        # action_taken은 mitigation 필드에 저장
+        if req.action_taken is not None:
+            kwargs["mitigation"] = req.action_taken
+        result = db.update_risk(risk_id=risk_id, **kwargs)
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result["message"])
+        return JSONResponse(result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"리스크 수정 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="리스크 수정 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# GW 계약 현황 (gw_contracts)
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/gw-contracts")
+async def get_gw_contracts(project_id: int, request: Request):
+    """프로젝트별 GW 계약 현황 조회"""
+    require_auth(request)
+    try:
+        data = db.list_gw_contracts(project_id=project_id)
+        return JSONResponse({"gw_contracts": data, "count": len(data)})
+    except Exception as e:
+        logger.error(f"GW 계약 현황 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="GW 계약 현황 조회 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────
+# 세금계산서 간편 동기화 (D4 요청)
+# ─────────────────────────────────────────
+
+@router.post("/api/fund/projects/{project_id}/tax-invoices/sync")
+async def sync_tax_invoices_simple(project_id: int, request: Request):
+    """
+    단일 프로젝트 세금계산서 발행 내역 GW 동기화 (간편 경로).
+    인증된 사용자의 gw_id를 자동 사용 — gw_id를 body에 별도 전달하지 않아도 됨.
+    """
+    import threading
+    user = require_auth(request)
+    project = db.get_project(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    gw_id = user["gw_id"]
+    project_code = project.get("project_code", "")
+    if not project_code:
+        raise HTTPException(
+            status_code=400,
+            detail="프로젝트 코드(GS-XX-XXXX)가 설정되지 않았습니다. 개요 탭에서 GW 사업코드를 먼저 입력해주세요.",
+        )
+
+    result: dict = {}
+
+    def _sync():
+        try:
+            from src.fund_table.tax_invoice_crawler import TaxInvoiceCrawler
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context, close_session
+            from src.auth.user_db import get_decrypted_password
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                result["error"] = "비밀번호 복호화 실패"
+                return
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                crawler = TaxInvoiceCrawler(gw_id=gw_id, encrypted_pw="")
+                invoices = crawler._navigate_and_extract(page, project_code, year=None)
+                if invoices:
+                    for inv in invoices:
+                        inv["project_id"] = project_id
+                    db.save_tax_invoices(invoices, project_id=project_id)
+                result["count"] = len(invoices) if invoices else 0
+                close_session(browser)
+            finally:
+                pw.stop()
+        except Exception as e:
+            logger.error(f"세금계산서 동기화 실패 (project_id={project_id}): {e}", exc_info=True)
+            result["error"] = str(e)
+
+    try:
+        await asyncio.wait_for(asyncio.to_thread(_sync), timeout=300)
+    except asyncio.TimeoutError:
+        return JSONResponse({"success": False, "error": "GW 접속 시간 초과 (5분)"}, status_code=504)
+
+    if result.get("error"):
+        raise HTTPException(status_code=500, detail=result["error"])
+
+    count = result.get("count", 0)
+    return JSONResponse({
+        "success": True,
+        "count": count,
+        "message": f"세금계산서 {count}건 동기화 완료",
+    })
+
+
+# ─────────────────────────────────────────
+# GW 세금계산서 동기화
+# ─────────────────────────────────────────
+
+@router.post("/api/fund/projects/{project_id}/gw/sync-tax-invoices")
+async def sync_tax_invoices(project_id: int, request: Request):
+    """단일 프로젝트 세금계산서 발행 내역 GW 동기화 (백그라운드)"""
+    require_auth(request)
+    project = db.get_project(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    body = await request.json()
+    gw_id = body.get("gw_id", "")
+    project_code = body.get("project_code") or project.get("project_code", "")
+    year = body.get("year")  # 없으면 None (전체 조회)
+
+    if not gw_id:
+        raise HTTPException(status_code=400, detail="gw_id가 필요합니다.")
+    if not project_code:
+        raise HTTPException(status_code=400, detail="프로젝트 코드(GS-XX-XXXX)가 필요합니다.")
+
+    def _sync():
+        import threading
+        try:
+            from src.fund_table.tax_invoice_crawler import TaxInvoiceCrawler
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context, close_session
+            from src.auth.user_db import get_decrypted_password
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                logger.error(f"세금계산서 동기화: 비밀번호 복호화 실패 gw_id={gw_id}")
+                return
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                crawler = TaxInvoiceCrawler(gw_id=gw_id, encrypted_pw="")
+                invoices = crawler._navigate_and_extract(page, project_code, year)
+                if invoices:
+                    for inv in invoices:
+                        inv["project_id"] = project_id
+                    result = db.save_tax_invoices(invoices, project_id=project_id)
+                    logger.info(f"세금계산서 동기화 완료: {result}")
+                else:
+                    logger.info(f"세금계산서 동기화: 수집 결과 없음 ({project_code})")
+                close_session(browser)
+            finally:
+                pw.stop()
+        except Exception as e:
+            logger.error(f"세금계산서 동기화 실패: {e}", exc_info=True)
+
+    import threading
+    threading.Thread(target=_sync, daemon=True).start()
+    return JSONResponse({
+        "message": "세금계산서 GW 동기화 시작됨",
+        "project_id": project_id,
+        "project_code": project_code,
+        "year": year,
+    })
+
+
+# ─────────────────────────────────────────
+# GW 수금 예정 내역 동기화
+# ─────────────────────────────────────────
+
+@router.post("/api/fund/projects/{project_id}/gw/sync-collection-schedule")
+async def sync_collection_schedule(project_id: int, request: Request):
+    """단일 프로젝트 수금 예정 내역 GW 동기화 (백그라운드)"""
+    require_auth(request)
+    project = db.get_project(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    body = await request.json()
+    gw_id = body.get("gw_id", "")
+    project_code = body.get("project_code") or project.get("project_code", "")
+
+    if not gw_id:
+        raise HTTPException(status_code=400, detail="gw_id가 필요합니다.")
+    if not project_code:
+        raise HTTPException(status_code=400, detail="프로젝트 코드(GS-XX-XXXX)가 필요합니다.")
+
+    def _sync():
+        try:
+            from src.fund_table.collection_schedule_crawler import CollectionScheduleCrawler
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context, close_session
+            from src.auth.user_db import get_decrypted_password
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                logger.error(f"수금예정 동기화: 비밀번호 복호화 실패 gw_id={gw_id}")
+                return
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                crawler = CollectionScheduleCrawler(gw_id=gw_id, encrypted_pw="")
+                items = crawler._navigate_and_extract(page, project_code)
+                if items:
+                    for item in items:
+                        item["project_id"] = project_id
+                    result = db.save_collection_schedule(items, project_id=project_id)
+                    logger.info(f"수금예정 동기화 완료: {result}")
+                else:
+                    logger.info(f"수금예정 동기화: 수집 결과 없음 ({project_code})")
+                close_session(browser)
+            finally:
+                pw.stop()
+        except Exception as e:
+            logger.error(f"수금예정 동기화 실패: {e}", exc_info=True)
+
+    import threading
+    threading.Thread(target=_sync, daemon=True).start()
+    return JSONResponse({
+        "message": "수금 예정 내역 GW 동기화 시작됨",
+        "project_id": project_id,
+        "project_code": project_code,
+    })
+
+
+# ─────────────────────────────────────────
+# GW 자금집행 승인 현황 동기화
+# ─────────────────────────────────────────
+
+@router.post("/api/fund/projects/{project_id}/gw/sync-payment-approvals")
+async def sync_payment_approvals(project_id: int, request: Request):
+    """단일 프로젝트 자금집행 승인 현황 GW 동기화 (백그라운드)"""
+    require_auth(request)
+    project = db.get_project(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="프로젝트를 찾을 수 없습니다.")
+
+    body = await request.json()
+    gw_id = body.get("gw_id", "")
+    project_code = body.get("project_code") or project.get("project_code", "")
+    year = body.get("year")  # 없으면 None (전체 조회)
+
+    if not gw_id:
+        raise HTTPException(status_code=400, detail="gw_id가 필요합니다.")
+    if not project_code:
+        raise HTTPException(status_code=400, detail="프로젝트 코드(GS-XX-XXXX)가 필요합니다.")
+
+    def _sync():
+        try:
+            from src.fund_table.payment_approval_crawler import PaymentApprovalCrawler
+            from playwright.sync_api import sync_playwright
+            from src.auth.login import login_and_get_context, close_session
+            from src.auth.user_db import get_decrypted_password
+
+            gw_pw = get_decrypted_password(gw_id)
+            if not gw_pw:
+                logger.error(f"자금집행승인 동기화: 비밀번호 복호화 실패 gw_id={gw_id}")
+                return
+
+            pw = sync_playwright().start()
+            try:
+                browser, context, page = login_and_get_context(
+                    playwright_instance=pw,
+                    headless=True,
+                    user_id=gw_id,
+                    user_pw=gw_pw,
+                )
+                crawler = PaymentApprovalCrawler(gw_id=gw_id, encrypted_pw="")
+                approvals = crawler._navigate_and_extract(page, project_code, year)
+                if approvals:
+                    for approval in approvals:
+                        approval["project_id"] = project_id
+                    result = db.save_payment_approvals(approvals, project_id=project_id)
+                    logger.info(f"자금집행승인 동기화 완료: {result}")
+                else:
+                    logger.info(f"자금집행승인 동기화: 수집 결과 없음 ({project_code})")
+                close_session(browser)
+            finally:
+                pw.stop()
+        except Exception as e:
+            logger.error(f"자금집행승인 동기화 실패: {e}", exc_info=True)
+
+    import threading
+    threading.Thread(target=_sync, daemon=True).start()
+    return JSONResponse({
+        "message": "자금집행 승인 현황 GW 동기화 시작됨",
+        "project_id": project_id,
+        "project_code": project_code,
+        "year": year,
+    })
+
+
+# ─────────────────────────────────────────
+# 일정표 (공정 일정) 엔드포인트
+# ─────────────────────────────────────────
+
+@router.get("/api/fund/projects/{project_id}/schedule")
+async def get_schedule(project_id: int, request: Request):
+    """공정 일정 항목 조회"""
+    require_auth(request)
+    try:
+        items = db.list_schedule_items(project_id)
+        return JSONResponse({"items": items})
+    except Exception as e:
+        logger.error(f"일정 조회 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="일정 조회 실패")
+
+
+@router.post("/api/fund/projects/{project_id}/schedule")
+async def save_schedule(project_id: int, request: Request):
+    """공정 일정 항목 저장 (전체 교체)"""
+    user = require_auth(request)
+    _check_owner(project_id, user)
+    body = await request.json()
+    items = body.get("items", [])
+    result = db.save_schedule_items(project_id, items)
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result.get("message", "저장 실패"))
+    return JSONResponse(result)
+
+
+@router.post("/api/fund/projects/{project_id}/archive")
+async def archive_project(project_id: int, request: Request):
+    """프로젝트 이전 프로젝트로 이동 (보관) / 복원"""
+    user = require_auth(request)
+    _check_owner(project_id, user)
+    body = await request.json()
+    is_archived = body.get("is_archived", True)
+    result = db.set_project_archived(project_id, bool(is_archived))
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result.get("message", "실패"))
+    return JSONResponse(result)
+
+
+@router.post("/api/fund/import-schedule-from-pm-sheet")
+async def import_schedule_pm_sheet(request: Request):
+    """PM Official 시트에서 프로젝트 일정 데이터를 가져와 일정표에 반영"""
+    require_auth(request)
+    body = await request.json()
+    overwrite = body.get("overwrite", False)
+    try:
+        import asyncio
+        from src.fund_table.sheets_import import import_schedule_from_pm_sheet
+        result = await asyncio.to_thread(import_schedule_from_pm_sheet, overwrite=overwrite)
+        return JSONResponse(result)
+    except Exception as e:
+        logger.error(f"PM 시트 일정 임포트 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/api/fund/import-collections-from-pm-sheet")
+async def import_collections_pm_sheet(request: Request):
+    """PM Official 시트에서 모든 프로젝트 수금일정(수금현황) 가져오기"""
+    require_auth(request)
+    body = await request.json()
+    overwrite = body.get("overwrite", True)
+    try:
+        import asyncio
+        from src.fund_table.sheets_import import import_collections_from_pm_sheet
+        result = await asyncio.to_thread(import_collections_from_pm_sheet, overwrite=overwrite)
+        return JSONResponse(result)
+    except Exception as e:
+        logger.error(f"수금일정 임포트 API 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ────────────────────────────────────────────
+# 공정표 자동 생성 & 내보내기 API
+# ────────────────────────────────────────────
+
+@router.get("/api/fund/process-map/trades")
+async def get_process_map_trades(request: Request, type: str = "오피스"):
+    """공종 마스터 데이터 조회 (DB 우선, 폴백: 하드코딩)"""
+    require_auth(request)
+    trades = db.list_construction_trades()
+    presets = db.list_construction_presets()
+
+    if trades:
+        # DB 데이터를 PROCESS_GROUPS 형태로 변환
+        groups_map: dict[str, dict] = {}
+        for t in trades:
+            gn = t["group_name"]
+            if gn not in groups_map:
+                groups_map[gn] = {"group": gn, "color": t["group_color"], "items": []}
+            groups_map[gn]["items"].append({
+                "id": t["id"],
+                "name": t["name"],
+                "item_type": t.get("item_type", "bar"),
+                "default_days": t.get("default_days", 0),
+                "predecessors": json.loads(t["predecessors"]) if isinstance(t["predecessors"], str) else t.get("predecessors", []),
+                "steps": json.loads(t["steps"]) if isinstance(t["steps"], str) else t.get("steps", []),
+                "is_custom": t.get("is_custom", 0),
+            })
+        groups = list(groups_map.values())
+
+        # 프리셋에서 해당 타입 찾기
+        preset_trades = []
+        for p in presets:
+            if p["preset_name"] == type:
+                preset_trades = p["trade_names"]
+                break
+        if not preset_trades:
+            # 폴백: 전체 공종명
+            preset_trades = [t["name"] for t in trades]
+    else:
+        # DB 비어있으면 하드코딩 폴백
+        from src.fund_table.process_map_master import PROCESS_GROUPS, get_preset_trades
+        groups = PROCESS_GROUPS
+        preset_trades = get_preset_trades(type)
+
+    return JSONResponse({
+        "groups": groups,
+        "preset_trades": preset_trades,
+        "project_type": type,
+        "presets": [{"name": p["preset_name"], "is_custom": p.get("is_custom", 0)} for p in presets],
+    })
+
+
+@router.post("/api/fund/process-map/trades")
+async def add_process_map_trade(request: Request):
+    """공종 추가"""
+    require_auth(request)
+    body = await request.json()
+    name = body.get("name", "").strip()
+    group_name = body.get("group_name", "").strip()
+    if not name or not group_name:
+        raise HTTPException(status_code=400, detail="공종명과 그룹명은 필수입니다.")
+    result = db.add_construction_trade(group_name, name, **{
+        k: body[k] for k in ("group_color", "item_type", "default_days",
+                              "predecessors", "steps", "sort_order", "is_custom")
+        if k in body
+    })
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("message", "추가 실패"))
+    return JSONResponse(result)
+
+
+@router.put("/api/fund/process-map/trades/{trade_id}")
+async def update_process_map_trade(trade_id: int, request: Request):
+    """공종 수정"""
+    require_auth(request)
+    body = await request.json()
+    result = db.update_construction_trade(trade_id, **body)
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("message", "수정 실패"))
+    return JSONResponse(result)
+
+
+@router.delete("/api/fund/process-map/trades/{trade_id}")
+async def delete_process_map_trade(trade_id: int, request: Request):
+    """공종 삭제"""
+    require_auth(request)
+    result = db.delete_construction_trade(trade_id)
+    if not result.get("success"):
+        raise HTTPException(status_code=404, detail=result.get("message", "삭제 실패"))
+    return JSONResponse(result)
+
+
+@router.get("/api/fund/process-map/presets")
+async def get_process_map_presets(request: Request):
+    """프리셋 목록 조회"""
+    require_auth(request)
+    presets = db.list_construction_presets()
+    return JSONResponse({"presets": presets})
+
+
+@router.post("/api/fund/process-map/presets")
+async def save_process_map_preset(request: Request):
+    """프리셋 저장 (upsert)"""
+    require_auth(request)
+    body = await request.json()
+    preset_name = body.get("preset_name", "").strip()
+    trade_names = body.get("trade_names", [])
+    if not preset_name:
+        raise HTTPException(status_code=400, detail="프리셋명은 필수입니다.")
+    result = db.save_construction_preset(
+        preset_name, trade_names,
+        is_custom=body.get("is_custom", 1)
+    )
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("message", "저장 실패"))
+    return JSONResponse(result)
+
+
+@router.post("/api/fund/process-map/parse-estimate")
+async def parse_estimate(request: Request):
+    """내역서 엑셀 파일에서 공종 자동 추출"""
+    require_auth(request)
+    import tempfile
+    form = await request.form()
+    file = form.get("file")
+    if not file:
+        raise HTTPException(status_code=400, detail="파일이 첨부되지 않았습니다.")
+
+    suffix = os.path.splitext(file.filename)[1] if file.filename else ".xlsx"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await file.read()
+        # 파일 크기 제한 (20MB)
+        if len(content) > 20 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="파일 크기가 20MB를 초과합니다.")
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        import asyncio
+        from src.fund_table.estimate_parser import parse_estimate_file
+        result = await asyncio.to_thread(parse_estimate_file, tmp_path)
+        return JSONResponse(result)
+    except Exception as e:
+        logger.error(f"내역서 파싱 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+
+@router.post("/api/fund/projects/{project_id}/generate-schedule")
+async def generate_schedule(project_id: int, request: Request):
+    """공정표 자동 생성 → DB 저장 + 엑셀/PDF 생성"""
+    user = require_auth(request)
+    _check_owner(project_id, user)
+    body = await request.json()
+
+    start_date = body.get("start_date", "")
+    end_date = body.get("end_date", "")
+    area = body.get("area_pyeong", 100)
+    project_type = body.get("project_type", "오피스")
+    selected_trades = body.get("selected_trades")
+    has_import = body.get("has_import_materials", False)
+
+    if not start_date or not end_date:
+        raise HTTPException(status_code=400, detail="착공일과 준공일을 입력하세요.")
+
+    try:
+        import asyncio
+        import tempfile
+        from src.fund_table.schedule_generator import generate_construction_schedule
+        from src.fund_table.schedule_export import export_schedule_xlsx, export_schedule_pdf
+
+        # 1) 공정표 생성
+        result = await asyncio.to_thread(
+            generate_construction_schedule,
+            start_date=start_date,
+            end_date=end_date,
+            area_pyeong=float(area),
+            project_type=project_type,
+            selected_trades=selected_trades,
+            has_import_materials=has_import,
+        )
+
+        if result.get("summary", {}).get("error"):
+            raise HTTPException(status_code=400, detail=result["summary"]["error"])
+
+        # 2) DB 저장 (기존 일정 교체)
+        items = result.get("schedule_items", [])
+        db.save_schedule_items(project_id, items)
+
+        # 3) 프로젝트명 조회
+        project = db.get_project(project_id) if hasattr(db, 'get_project') else {}
+        project_name = project.get("name", "") if project else ""
+
+        # 4) 엑셀 파일 생성
+        data_tmp = Path(__file__).parent.parent.parent / "data" / "tmp"
+        data_tmp.mkdir(parents=True, exist_ok=True)
+        safe_name = project_name.replace("/", "_").replace("\\", "_")[:30] if project_name else "schedule"
+        xlsx_filename = f"공정표_{safe_name}_{start_date}.xlsx"
+        xlsx_path = str(data_tmp / xlsx_filename)
+
+        await asyncio.to_thread(export_schedule_xlsx, result, xlsx_path, project_name)
+
+        # 5) PDF 변환 시도
+        pdf_path = await asyncio.to_thread(export_schedule_pdf, xlsx_path)
+
+        # 6) 다운로드 토큰 생성 (_download_registry 사용)
+        from src.chatbot._download_registry import register as register_download
+        gw_id = user.get("gw_id", "")
+        xlsx_token = register_download(xlsx_path, gw_id)
+        pdf_token = register_download(pdf_path, gw_id) if pdf_path else ""
+
+        response = {
+            "success": True,
+            "schedule_items": items,
+            "milestones": result.get("milestones", []),
+            "summary": result.get("summary", {}),
+            "xlsx_url": f"/download/{xlsx_token}" if xlsx_token else "",
+            "pdf_url": f"/download/{pdf_token}" if pdf_token else "",
+        }
+        return JSONResponse(response)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"공정표 생성 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/api/fund/projects/{project_id}/export-schedule")
+async def export_existing_schedule(project_id: int, request: Request):
+    """기존 저장된 일정 데이터를 엑셀/PDF로 내보내기"""
+    user = require_auth(request)
+    _check_owner(project_id, user)
+    body = await request.json()
+    fmt = body.get("format", "xlsx")  # "xlsx" | "pdf" | "both"
+
+    items = db.list_schedule_items(project_id)
+    if not items:
+        raise HTTPException(status_code=400, detail="저장된 일정 항목이 없습니다.")
+
+    try:
+        import asyncio
+        import tempfile
+        from src.fund_table.schedule_export import export_schedule_xlsx, export_schedule_pdf
+
+        # 기존 데이터로 schedule_data 구성
+        dates = []
+        for it in items:
+            for k in ("start_date", "end_date"):
+                if it.get(k):
+                    dates.append(it[k])
+        sd = min(dates) if dates else ""
+        ed = max(dates) if dates else ""
+        bar_items = [it for it in items if it.get("item_type") != "milestone"]
+
+        # 총 공사일수 계산
+        total_cal_days = 0
+        if sd and ed:
+            from datetime import datetime as _dt
+            try:
+                total_cal_days = (_dt.strptime(ed, "%Y-%m-%d") - _dt.strptime(sd, "%Y-%m-%d")).days
+            except ValueError:
+                pass
+
+        schedule_data = {
+            "schedule_items": items,
+            "milestones": [
+                {"name": it["item_name"], "date": it["start_date"], "completed": it.get("status") == "done"}
+                for it in items if it.get("item_type") == "milestone"
+            ],
+            "summary": {
+                "start_date": sd, "end_date": ed,
+                "total_calendar_days": total_cal_days,
+                "total_trades": len(bar_items),
+                "total_milestones": len([it for it in items if it.get("item_type") == "milestone"]),
+                "area_pyeong": "", "project_type": "",
+            },
+        }
+
+        project = db.get_project(project_id) if hasattr(db, 'get_project') else {}
+        project_name = project.get("name", "") if project else ""
+
+        data_tmp = Path(__file__).parent.parent.parent / "data" / "tmp"
+        data_tmp.mkdir(parents=True, exist_ok=True)
+        safe_name = project_name.replace("/", "_").replace("\\", "_")[:30] if project_name else "schedule"
+        xlsx_filename = f"공정표_{safe_name}.xlsx"
+        xlsx_path = str(data_tmp / xlsx_filename)
+
+        await asyncio.to_thread(export_schedule_xlsx, schedule_data, xlsx_path, project_name)
+
+        from src.chatbot._download_registry import register as register_download
+        gw_id = user.get("gw_id", "")
+
+        xlsx_token = register_download(xlsx_path, gw_id)
+        pdf_token = ""
+        pdf_path = ""
+
+        if fmt in ("pdf", "both"):
+            pdf_path = await asyncio.to_thread(export_schedule_pdf, xlsx_path)
+            if pdf_path:
+                pdf_token = register_download(pdf_path, gw_id)
+
+        response = {
+            "success": True,
+            "xlsx_url": f"/download/{xlsx_token}",
+        }
+        if pdf_token:
+            response["pdf_url"] = f"/download/{pdf_token}"
+        return JSONResponse(response)
+
+    except Exception as e:
+        logger.error(f"공정표 내보내기 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))

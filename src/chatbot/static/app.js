@@ -515,12 +515,44 @@ function appendLoading() {
 
 function getActionLabel(action) {
   const labels = {
+    // 회의실
     reserve_meeting_room: '회의실 예약',
-    submit_expense_approval: '경비 결재',
-    summarize_mail: '메일 요약',
+    cancel_meeting_reservation: '예약 취소',
     check_reservation_status: '예약 현황',
     check_available_rooms: '빈 회의실',
-    cancel_meeting_reservation: '예약 취소',
+    list_my_reservations: '내 예약 목록',
+    cleanup_test_reservations: '테스트 예약 정리',
+    // 전자결재
+    submit_expense_approval: '지출결의서 작성',
+    submit_draft_approval: '임시보관 상신',
+    submit_approval_form: '전자결재 작성',
+    start_approval_wizard: '전자결재 위저드',
+    search_project_code: '프로젝트 코드 검색',
+    add_cc_to_approval_doc: '수신참조 추가',
+    // 계약서
+    start_contract_wizard: '계약서 작성 위저드',
+    generate_contracts_from_file: '계약서 일괄 생성',
+    // 메일
+    get_mail_summary: '메일 요약',
+    summarize_mail: '메일 요약',
+    // 음성
+    transcribe_audio: '음성 변환',
+    // 프로젝트 관리
+    get_fund_summary: '프로젝트 자금현황',
+    get_project_detail: '프로젝트 상세',
+    compare_projects: '포트폴리오 비교',
+    generate_project_report: '프로젝트 보고서',
+    update_project_info: '프로젝트 정보 수정',
+    add_project_note: '프로젝트 메모 추가',
+    add_project_subcontract: '하도급 업체 추가',
+    update_collection_status: '수금 상태 변경',
+    add_project_todo: 'TODO 추가',
+    add_project_contact: '연락처 추가',
+    get_overdue_items: '미결 항목 조회',
+    update_project_milestone: '마일스톤 업데이트',
+    // 위저드 (내부)
+    contract_wizard: '계약서 위저드',
+    approval_wizard: '전자결재 위저드',
   };
   return labels[action] || action;
 }

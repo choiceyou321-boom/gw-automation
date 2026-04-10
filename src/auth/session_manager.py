@@ -4,6 +4,7 @@ GW 세션 관리자
 - 캐시 미스 시 Playwright 로그인 → 쿠키 추출 → 캐시
 - create_api(gw_id) → 해당 사용자의 MeetingRoomAPI 인스턴스 반환
 """
+from __future__ import annotations
 
 import time
 import logging
@@ -28,6 +29,10 @@ class CachedSession:
 # 사용자별 세션 캐시 {gw_id: CachedSession} + 스레드 안전 Lock
 _session_cache: dict[str, CachedSession] = {}
 _cache_lock = threading.Lock()
+
+# 사용자별 로그인 Lock — 동일 사용자의 동시 Playwright 로그인 방지
+_login_locks: dict[str, threading.Lock] = {}
+_login_locks_guard = threading.Lock()
 
 
 def _is_valid(session: CachedSession) -> bool:
@@ -91,13 +96,22 @@ def create_api(gw_id: str, company_info: dict = None):
     from src.auth.user_db import get_decrypted_password, get_company_info
     from src.meeting.reservation_api import MeetingRoomAPI
 
-    # 캐시 확인
+    # 캐시 확인 (Lock 밖에서 먼저 체크 — 캐시 히트 시 Lock 불필요)
     session = get_cached_session(gw_id)
     if not session:
-        gw_pw = get_decrypted_password(gw_id)
-        if not gw_pw:
-            raise RuntimeError(f"사용자 '{gw_id}'의 비밀번호를 찾을 수 없습니다.")
-        session = _login_and_cache(gw_id, gw_pw)
+        # per-user Lock으로 동시 Playwright 로그인 방지
+        with _login_locks_guard:
+            if gw_id not in _login_locks:
+                _login_locks[gw_id] = threading.Lock()
+            login_lock = _login_locks[gw_id]
+        with login_lock:
+            # Lock 획득 후 다시 캐시 확인 (다른 스레드가 이미 로그인했을 수 있음)
+            session = get_cached_session(gw_id)
+            if not session:
+                gw_pw = get_decrypted_password(gw_id)
+                if not gw_pw:
+                    raise RuntimeError(f"사용자 '{gw_id}'의 비밀번호를 찾을 수 없습니다.")
+                session = _login_and_cache(gw_id, gw_pw)
 
     # companyInfo 결정
     if company_info is None:

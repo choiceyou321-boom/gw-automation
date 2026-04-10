@@ -4,7 +4,7 @@
 
 import logging
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
-from src.approval.base import _GET_GRID_IFACE_JS, _save_debug
+from src.approval.base import _GET_GRID_IFACE_JS, _save_debug, _js_str
 
 logger = logging.getLogger("approval_automation")
 
@@ -394,11 +394,11 @@ class GridMixin:
 
                     // 헤더명으로 컬럼 탐색
                     const cols = iface.getColumns();
-                    let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                    let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                     if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
                     if (!col) return {{ success: false, reason: 'no_col', available: cols.map(c => c.header || c.name) }};
 
-                    iface.setValue({row_idx}, col.name, '{value}');
+                    iface.setValue({row_idx}, col.name, {_js_str(value)});
                     iface.commit();
                     return {{ success: true, usedCol: col.name, method: 'setValue' }};
                 }} catch(e) {{
@@ -430,7 +430,7 @@ class GridMixin:
 
                 // 헤더명으로 컬럼 탐색, 없으면 col_idx 순서로 fallback
                 const cols = iface.getColumns();
-                let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                 if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
                 if (!col) return {{ success: false, reason: 'no_col', available: cols.map(c => c.header) }};
 
@@ -465,7 +465,7 @@ class GridMixin:
                 const iface = f.stateNode.state.interface;
                 if (typeof iface.getColumns !== 'function') return null;
                 const cols = iface.getColumns();
-                let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                 if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
                 if (!col) return null;
 
@@ -497,7 +497,7 @@ class GridMixin:
                         if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface) return false;
                         const iface = f.stateNode.state.interface;
                         const cols = iface.getColumns();
-                        let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                        let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                         if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
                         if (!col) return false;
                         iface.setSelection({{ rowIndex: {row_idx}, columnName: col.name }});
@@ -550,7 +550,7 @@ class GridMixin:
                 if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface) return false;
                 const iface = f.stateNode.state.interface;
                 const cols = iface.getColumns();
-                let col = cols.find(c => c.header === '{col_name}' || c.name === '{col_name}');
+                let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                 if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
                 if (!col) return false;
                 iface.setSelection({{ rowIndex: {row_idx}, columnName: col.name }});

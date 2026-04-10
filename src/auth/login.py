@@ -20,17 +20,8 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 # .env 로드
 load_dotenv(CONFIG_DIR / ".env")
 
-# 로깅 설정
 LOGS_DIR.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.FileHandler(LOGS_DIR / "gw-automation.log", encoding="utf-8"),
-        logging.StreamHandler(),
-    ],
-)
-logger = logging.getLogger("auth")
+logger = logging.getLogger(__name__)
 
 # 설정값
 GW_URL = os.getenv("GW_URL", "https://gw.glowseoul.co.kr")
@@ -99,6 +90,10 @@ def login_and_get_context(
                 context.close()
         except Exception as e:
             logger.warning(f"세션 복원 실패: {e}")
+            try:
+                context.close()
+            except Exception:
+                pass
 
     # 새로 로그인
     context = browser.new_context()
@@ -200,56 +195,20 @@ def _do_login(page: Page, login_id: str = None, login_pw: str = None):
         raise RuntimeError("로그인 실패 - data/debug_login_failed.png 확인")
 
 
-def _find_element(page: Page, selectors: list[str], must_be_enabled: bool = True):
-    """여러 셀렉터 중 첫 번째 매칭 요소 반환 (disabled 요소 건너뜀)"""
-    for sel in selectors:
-        try:
-            el = page.locator(sel).first
-            if el.is_visible(timeout=1000):
-                if must_be_enabled and not el.is_enabled(timeout=500):
-                    logger.info(f"셀렉터 '{sel}' → 찾았지만 disabled, 건너뜀")
-                    continue
-                logger.info(f"셀렉터 '{sel}' → 매칭 성공")
-                return el
-        except Exception:
-            continue
-    return None
-
-
-def _find_enabled_text_input(page: Page):
-    """JS로 enabled 상태인 text input을 직접 찾기"""
-    try:
-        idx = page.evaluate("""() => {
-            const inputs = document.querySelectorAll('input[type="text"]');
-            for (let i = 0; i < inputs.length; i++) {
-                if (!inputs[i].disabled && inputs[i].id !== 'reqCompCd') {
-                    return i;
-                }
-            }
-            return -1;
-        }""")
-        if idx >= 0:
-            return page.locator('input[type="text"]').nth(idx)
-    except Exception as e:
-        logger.warning(f"JS text input 탐색 실패: {e}")
-    return None
-
-
 def _check_logged_in(page: Page) -> bool:
     """로그인 상태 확인"""
     url = page.url.lower()
     # 로그인 페이지가 아니면 성공으로 판단
     if "/login" in url:
         return False
-    # 메인 페이지 요소 확인
+    # 메인 페이지 요소 확인 (#app 제외 — 너무 범용적이라 오판 위험)
     try:
-        # 일반적인 GNB/사용자 정보 영역 확인
-        page.locator(".user-info, .gnb, .lnb, .main-content, #app").first.wait_for(
+        page.locator(".user-info, .gnb, .lnb, .main-content").first.wait_for(
             timeout=3000
         )
         return True
     except Exception:
-        return False  # 확인 실패 시 로그인 안 된 것으로 처리
+        return False
 
 
 def close_session(browser: Browser):
@@ -259,3 +218,73 @@ def close_session(browser: Browser):
         logger.info("브라우저 세션 종료")
     except Exception as e:
         logger.warning(f"세션 종료 중 오류: {e}")
+
+
+# ────────────────────────────────────────────
+# GW 자격 증명 검증 (회원가입 시 사용)
+# ────────────────────────────────────────────
+
+import threading
+_validation_semaphore = threading.Semaphore(1)  # 동시 검증 1개 제한
+
+
+def validate_gw_credentials(user_id: str, user_pw: str) -> dict:
+    """GW 로그인으로 자격 증명 유효성 검사.
+
+    회원가입 시 사용: Playwright로 실제 GW 로그인 시도 후 결과 반환.
+    동시 검증 1개로 제한 (세마포어).
+
+    Returns:
+        {"valid": bool, "error": str | None}
+    """
+    acquired = _validation_semaphore.acquire(timeout=90)
+    if not acquired:
+        return {"valid": False, "error": "GW 검증 대기 시간 초과 (다른 검증이 진행 중)"}
+
+    pw = None
+    browser = None
+    try:
+        pw = sync_playwright().start()
+        browser, context, page = login_and_get_context(
+            playwright_instance=pw,
+            headless=True,
+            user_id=user_id,
+            user_pw=user_pw,
+        )
+        close_session(browser)
+        browser = None
+        return {"valid": True, "error": None}
+    except RuntimeError as e:
+        return {"valid": False, "error": str(e)}
+    except Exception as e:
+        return {"valid": False, "error": f"GW 서버 연결 실패: {e}"}
+    finally:
+        if browser:
+            try:
+                close_session(browser)
+            except Exception:
+                pass
+        if pw:
+            try:
+                pw.stop()
+            except Exception:
+                pass
+        # 검증용 세션 파일 정리
+        try:
+            _get_session_file(user_id).unlink(missing_ok=True)
+        except Exception:
+            pass
+        _validation_semaphore.release()
+
+
+def gw_error_to_user_message(error: str) -> str:
+    """GW 검증 오류를 사용자 친화적 메시지로 변환"""
+    if not error:
+        return "GW 인증에 실패했습니다."
+    if "로그인 실패" in error:
+        return "GW 아이디 또는 비밀번호가 올바르지 않습니다. 그룹웨어에서 직접 로그인이 되는지 확인해주세요."
+    if "입력 필드" in error or "서버 연결" in error or "timeout" in error.lower():
+        return "GW 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+    if "대기 시간 초과" in error:
+        return "다른 사용자의 검증이 진행 중입니다. 잠시 후 다시 시도해주세요."
+    return f"GW 인증에 실패했습니다: {error}"

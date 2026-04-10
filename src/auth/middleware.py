@@ -3,6 +3,7 @@
 - JWT 쿠키 기반 사용자 인증
 - app.py, routes.py 등에서 공통 사용
 """
+from __future__ import annotations
 
 from fastapi import HTTPException, Request
 
@@ -20,7 +21,11 @@ def get_current_user(request: Request) -> dict | None:
     if not payload:
         return None
 
-    user = get_user(payload["gw_id"])
+    gw_id = payload.get("gw_id")
+    if not gw_id:
+        return None
+
+    user = get_user(gw_id)
     return user
 
 

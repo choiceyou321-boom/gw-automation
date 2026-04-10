@@ -164,7 +164,11 @@ def crawl_budget_actual(gw_id: str, project_id: int = None, project_code: str = 
             if records:
                 # 기존 데이터 삭제 후 새로 삽입 (최신 데이터만 유지)
                 _clear_old_budget(project_id)
-                save_result = db.save_budget_actual(records, project_id=project_id)
+                save_result = db.save_budget_actual(
+                                    records, project_id=project_id,
+                                    gw_project_code=project_code,
+                                    gisu=9  # 현재 기수 (9기=2026년)
+                                )
                 result["saved"] = save_result
             else:
                 result["message"] = "그리드 데이터를 변환할 수 없습니다."
@@ -754,9 +758,55 @@ def _click_search_button(page):
 
 def _extract_data(page) -> dict:
     """
-    그리드 데이터 추출 (OBTDataGrid → RealGrid 순서 시도).
+    그리드 데이터 추출 (window.Grids DataProvider → OBTDataGrid → RealGrid 순서 시도).
     예산 관련 컬럼이 있는 그리드만 선택 (팝업 그리드 제외).
     """
+    # 시도 0: window.Grids.getActiveGrid().getDataProvider() — RealGrid v1.0 직접 접근
+    # GW 예실대비현황(상세) 페이지에서 실제 동작이 확인된 방법
+    data0 = page.evaluate("""
+        (() => {
+            try {
+                const Grids = window.Grids;
+                if (!Grids || typeof Grids.getActiveGrid !== 'function') {
+                    return { error: 'Grids_not_found' };
+                }
+                const activeGrid = Grids.getActiveGrid();
+                if (!activeGrid) return { error: 'no_active_grid' };
+
+                const dp = activeGrid.getDataProvider ? activeGrid.getDataProvider() : null;
+                if (!dp) return { error: 'no_data_provider' };
+
+                const rowCount = dp.getRowCount ? dp.getRowCount() : 0;
+                if (rowCount === 0) return { error: 'empty_grid', rowCount: 0 };
+
+                const rows = [];
+                for (let i = 0; i < rowCount; i++) {
+                    const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                    if (row) rows.push(row);
+                }
+
+                // 컬럼 정보
+                const cols = rows.length > 0
+                    ? Object.keys(rows[0]).map(k => ({ name: k, header: k }))
+                    : [];
+
+                return {
+                    source: 'window.Grids.DataProvider',
+                    row_count: rows.length,
+                    columns: cols,
+                    rows: rows
+                };
+            } catch(e) {
+                return { error: 'exception: ' + e.message };
+            }
+        })()
+    """)
+    if data0 and not data0.get("error") and data0.get("rows"):
+        logger.info(f"시도 0 성공 (window.Grids DataProvider): rows={data0.get('row_count')}")
+        return data0
+    else:
+        logger.info(f"시도 0 실패: {data0.get('error') if data0 else 'null'}")
+
     # 예산 그리드 식별용 키워드
     budget_keywords = {"예산", "집행", "잔액", "대비", "과목", "budget", "actual"}
 
@@ -978,21 +1028,34 @@ def _transform_grid_data(data: dict, project_id: int, project_code: str) -> list
         diff = _parse_number(_get_mapped_value(row, col_map, "difference", 0))
         rate = _parse_float(_get_mapped_value(row, col_map, "execution_rate", 0))
 
-        # 빈 행 스킵
-        if not category and not sub_category and budget_amt == 0 and actual_amt == 0:
+        # GW RealGrid DataProvider 원본 필드 직접 접근
+        bgt_cd    = row.get("bgtCd", str(budget_code))
+        bgt_nm    = row.get("bgtNm", str(sub_category))
+        def_nm    = row.get("defNm", str(category))       # 장/관/항/목
+        div_fg    = int(row.get("divFg", 0) or 0)         # 구분 플래그
+        is_leaf   = 1 if (row.get("lastYn") == "Y") else 0
+        bottom_fg = int(row.get("bottomFg", 1) or 1)
+
+        # 빈 행 스킵 (상위 집계 행 포함, bottomFg=1이면 상위)
+        if not bgt_cd and budget_amt == 0 and actual_amt == 0:
             continue
 
         records.append({
             "project_id": project_id,
             "project_name": project_code,
             "year": current_year,
-            "budget_code": str(budget_code),
-            "budget_category": str(category),
-            "budget_sub_category": str(sub_category),
+            "budget_code": bgt_cd,
+            "budget_category": def_nm or str(category),
+            "budget_sub_category": bgt_nm or str(sub_category),
             "budget_amount": budget_amt,
             "actual_amount": actual_amt,
-            "difference": diff if diff else budget_amt - actual_amt,
+            "difference": diff if diff != 0 else budget_amt - actual_amt,
             "execution_rate": rate if rate else (actual_amt / budget_amt * 100 if budget_amt else 0),
+            # GW 전용 필드
+            "gw_project_code": project_code,
+            "def_nm": def_nm,
+            "div_fg": div_fg,
+            "is_leaf": is_leaf,
         })
 
     return records
@@ -1085,14 +1148,20 @@ def _parse_float(val) -> float:
     return 0.0
 
 
-def _clear_old_budget(project_id: int):
-    """기존 예실대비 데이터 삭제 (최신 데이터로 대체)"""
+def _clear_old_budget(project_id: int, gisu: int = None):
+    """기존 예실대비 데이터 삭제 (최신 데이터로 대체). gisu 지정 시 해당 기수만 삭제."""
     if not project_id:
         return
     from src.fund_table.db import get_db
     conn = get_db()
     try:
-        conn.execute("DELETE FROM budget_actual WHERE project_id = ?", (project_id,))
+        if gisu:
+            conn.execute(
+                "DELETE FROM budget_actual WHERE project_id = ? AND gisu = ?",
+                (project_id, gisu),
+            )
+        else:
+            conn.execute("DELETE FROM budget_actual WHERE project_id = ?", (project_id,))
         conn.commit()
     finally:
         conn.close()
@@ -1321,6 +1390,226 @@ def _save_budget_summary_to_db(project_id: int, summary: dict):
         logger.info(f"프로젝트 {project_id} 합계 저장: {summary}")
     finally:
         conn.close()
+
+
+# ──────────────────────────────────────────────────────────────────
+# 예산변경이력 크롤링
+# ──────────────────────────────────────────────────────────────────
+
+# TODO: GW DOM 탐색 후 확인 필요 — 예산변경이력 화면 URL
+# 힌트: 예산관리(BM) 모듈 → 예산전용/변경 내역 화면 (정확한 경로 미확인)
+#   예상: /#/BN/NCC0640/0BN00001 (예산과목원장) 또는 별도 변경이력 화면
+_GW_BUDGET_CHANGE_URL = (
+    GW_URL + "/#/BN/NCC0640/0BN00001"
+    "?specialLnb=Y&moduleCode=BM&menuCode=NCC0640&pageCode=NCC0640"
+)
+
+# TODO: GW DOM 탐색 후 확인 필요 — 예산변경이력 그리드 데이터 추출 JS
+_EXTRACT_BUDGET_CHANGE_JS = """
+(() => {
+    // 시도 0: window.Grids (RealGrid v1.0 DataProvider)
+    try {
+        const Grids = window.Grids;
+        if (Grids && typeof Grids.getActiveGrid === 'function') {
+            const grid = Grids.getActiveGrid();
+            const dp = grid && grid.getDataProvider ? grid.getDataProvider() : null;
+            if (dp) {
+                const rowCount = dp.getRowCount ? dp.getRowCount() : 0;
+                if (rowCount > 0) {
+                    const rows = [];
+                    for (let i = 0; i < rowCount; i++) {
+                        const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                        if (row) rows.push(row);
+                    }
+                    return { source: 'window.Grids.DataProvider', row_count: rows.length, rows: rows };
+                }
+            }
+        }
+    } catch (e) { /* RealGrid 없으면 무시 */ }
+
+    // 시도 1: OBTDataGrid (React fiber → depth 3)
+    const grids = document.querySelectorAll('[class*="OBTDataGrid"]');
+    if (!grids.length) return { error: 'grid_not_found' };
+
+    for (const el of grids) {
+        const fk = Object.keys(el).find(k =>
+            k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance')
+        );
+        if (!fk) continue;
+
+        let f = el[fk];
+        for (let i = 0; i < 3 && f; i++) f = f.return;
+        if (!f?.stateNode?.state?.interface) continue;
+
+        const iface = f.stateNode.state.interface;
+        try {
+            const rowCount = iface.getRowCount();
+            if (rowCount === 0) return { error: 'empty_grid' };
+
+            const cols = iface.getColumns().map(c => ({
+                name: c.name,
+                header: c.header ? (c.header.text || c.header) : c.name
+            }));
+            const rows = [];
+            for (let r = 0; r < rowCount; r++) {
+                const row = {};
+                cols.forEach(col => { row[col.name] = iface.getValue(r, col.name); });
+                rows.push(row);
+            }
+            return { source: 'OBTDataGrid', row_count: rowCount, columns: cols, rows: rows };
+        } catch (e) {
+            return { error: e.message };
+        }
+    }
+
+    return { error: 'no_supported_grid_found' };
+})()
+"""
+
+
+def _map_row_to_budget_change(raw: dict) -> dict:
+    """
+    GW 그리드 행 → 예산변경이력 표준 필드 매핑.
+    TODO: GW DOM 탐색 후 실제 컬럼명으로 교체 필요
+    """
+    return {
+        # TODO: GW DOM 탐색 후 확인 필요 — 실제 컬럼명 매핑
+        "change_date":     raw.get("chgDt")       or raw.get("changeDt")   or raw.get("변경일자") or "",
+        "budget_code":     raw.get("bgtCd")        or raw.get("budgetCd")   or raw.get("예산과목코드") or "",
+        "budget_name":     raw.get("bgtNm")        or raw.get("budgetNm")   or raw.get("예산과목명") or "",
+        "before_amount":   raw.get("befAm")        or raw.get("beforeAm")   or raw.get("변경전금액") or 0,
+        "after_amount":    raw.get("aftAm")        or raw.get("afterAm")    or raw.get("변경후금액") or 0,
+        "change_amount":   raw.get("chgAm")        or raw.get("changeAm")   or raw.get("변경금액") or 0,
+        "change_reason":   raw.get("chgRsn")       or raw.get("changeRsn")  or raw.get("변경사유") or "",
+        "change_type":     raw.get("chgTpNm")      or raw.get("changeTpNm") or raw.get("변경유형") or "",
+        "doc_no":          raw.get("docNo")        or raw.get("문서번호")   or "",
+        "requester":       raw.get("reqEmpNm")     or raw.get("신청자")     or "",
+        "approver":        raw.get("aprvEmpNm")    or raw.get("승인자")     or "",
+        "status":          raw.get("statusNm")     or raw.get("stCdNm")     or raw.get("처리상태") or "",
+    }
+
+
+def crawl_budget_changes(page, project_code: str) -> list[dict]:
+    """
+    GW 예산변경이력 화면에서 해당 프로젝트의 예산변경 내역을 추출한다.
+
+    이미 열려있는 Playwright page 객체를 받아 사용한다
+    (crawl_budget_actual 등과 동일한 세션에서 연속 호출 가능).
+
+    Args:
+        page:          Playwright Page 객체 (이미 로그인된 상태)
+        project_code:  GW 사업코드 (예: GS-25-0088)
+
+    Returns:
+        list[dict]: 예산변경이력 레코드 목록
+                    실패 시 빈 리스트 반환
+
+    TODO: GW DOM 탐색 후 아래 항목 확인 필요
+      1. 예산변경이력 정확한 메뉴 경로 (예산관리 → 예산변경 또는 전용현황 화면)
+      2. 프로젝트 코드 필터 입력 셀렉터
+      3. 조회 버튼 셀렉터
+      4. 그리드 로딩 완료 대기 조건
+    """
+    try:
+        # TODO: GW DOM 탐색 후 확인 필요 — 예산변경이력 페이지로 이동
+        logger.debug(f"[crawl_budget_changes] 페이지 이동: {_GW_BUDGET_CHANGE_URL}")
+        page.goto(_GW_BUDGET_CHANGE_URL)
+        page.wait_for_timeout(2000)
+
+        # TODO: GW DOM 탐색 후 확인 필요 — 프로젝트 코드 필터 입력
+        # 예시 패턴 (실제 셀렉터는 DOM 탐색 후 교체):
+        #   page.fill('input[placeholder*="사업코드"]', project_code)
+        #   page.press('input[placeholder*="사업코드"]', 'Enter')
+        #   page.wait_for_timeout(2000)
+
+        # TODO: GW DOM 탐색 후 확인 필요 — 조회 버튼 클릭
+        #   page.click('button:has-text("조회")')
+        #   page.wait_for_timeout(2000)
+
+        # 그리드 데이터 추출
+        result = page.evaluate(_EXTRACT_BUDGET_CHANGE_JS)
+
+        if result.get("error"):
+            logger.warning(f"[crawl_budget_changes] 그리드 추출 실패: {result['error']}")
+            return []
+
+        rows = result.get("rows", [])
+        logger.info(f"[crawl_budget_changes] {project_code}: {len(rows)}건 추출")
+
+        return [_map_row_to_budget_change(row) for row in rows]
+
+    except Exception as e:
+        logger.error(f"[crawl_budget_changes] 페이지 탐색 실패: {e}", exc_info=True)
+        return []
+
+
+def crawl_budget_changes_for_project(
+    gw_id: str,
+    project_id: int,
+    gw_project_code: str,
+) -> list[dict]:
+    """
+    단독 실행용 예산변경이력 크롤링 (별도 Playwright 세션).
+
+    crawl_budget_actual() 등과 별도로 호출할 때 사용.
+    배치 처리 시에는 세션을 1회 열고 crawl_budget_changes(page, code)를 직접 호출 권장.
+
+    Args:
+        gw_id:            GW 로그인 아이디
+        project_id:       fund_management.db 프로젝트 ID
+        gw_project_code:  GW 사업코드 (예: GS-25-0088)
+
+    Returns:
+        list[dict]: 수집된 예산변경이력 레코드 목록
+    """
+    from playwright.sync_api import sync_playwright
+    from src.auth.login import login_and_get_context, close_session
+    from src.auth.user_db import get_decrypted_password
+    from src.fund_table import db
+
+    logger.info(
+        f"[crawl_budget_changes_for_project] 시작: "
+        f"project_id={project_id}, code={gw_project_code}"
+    )
+
+    gw_pw = get_decrypted_password(gw_id)
+    if not gw_pw:
+        logger.error(f"비밀번호 복호화 실패: gw_id={gw_id}")
+        return []
+
+    pw = sync_playwright().start()
+    try:
+        browser, context, page = login_and_get_context(
+            playwright_instance=pw,
+            headless=True,
+            user_id=gw_id,
+            user_pw=gw_pw,
+        )
+
+        changes = crawl_budget_changes(page, gw_project_code)
+
+        if changes:
+            for change in changes:
+                change["project_id"] = project_id
+            save_result = db.save_budget_changes(
+                project_id, gw_project_code, changes
+            )
+            logger.info(f"[crawl_budget_changes_for_project] 저장: {save_result}")
+        else:
+            logger.warning(
+                f"[crawl_budget_changes_for_project] 수집 결과 없음: {gw_project_code}"
+            )
+
+        close_session(browser)
+        return changes
+
+    except Exception as e:
+        logger.error(
+            f"[crawl_budget_changes_for_project] 실패: {e}", exc_info=True
+        )
+        return []
+    finally:
+        pw.stop()
 
 
 def _save_screenshot(page, name: str):

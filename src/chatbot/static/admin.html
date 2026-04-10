@@ -117,6 +117,23 @@
     }
     .delete-btn:hover { background: rgba(255, 107, 107, 0.15); border-color: #ff6b6b; }
     .delete-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .role-btn {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(124, 106, 247, 0.4);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .role-btn:hover { background: rgba(124, 106, 247, 0.15); border-color: var(--accent); }
+    .role-btn.revoke {
+      border-color: rgba(255, 165, 0, 0.4);
+      color: #ffa500;
+    }
+    .role-btn.revoke:hover { background: rgba(255, 165, 0, 0.15); border-color: #ffa500; }
+    .role-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .edit-input {
       background: var(--bg-input);
       border: 1px solid var(--border);
@@ -168,66 +185,82 @@
     }
     .toast.error { border-color: rgba(255, 107, 107, 0.5); color: #ff6b6b; }
     .loading { text-align: center; padding: 40px; color: var(--text-muted); }
-    /* 트래픽 탭 */
-    .stat-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-      min-width: 160px;
-      flex: 1;
-    }
-    .stat-card .stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .stat-card .stat-value {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .stat-card .stat-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-    .tunnel-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px 18px;
-      flex: 1;
-    }
-    .tunnel-card .tunnel-url {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--accent);
-      word-break: break-all;
-      margin-bottom: 6px;
-    }
-    .tunnel-card .tunnel-meta {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .tunnel-online { color: #4caf50; font-weight: 600; }
-    .status-2xx { color: #4caf50; }
-    .status-3xx { color: #ffa500; }
-    .status-4xx { color: #ff6b6b; }
-    .status-5xx { color: #ff6b6b; font-weight: 700; }
-    .refresh-btn {
-      padding: 6px 14px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
+    /* GW 검증 배지 */
+    .badge-valid { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .badge-invalid { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .badge-error { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-skipped { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+    .validate-btn {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(34, 197, 94, 0.4);
       border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-size: 13px;
+      color: #22c55e;
+      font-size: 12px;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .refresh-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .validate-btn:hover { background: rgba(34, 197, 94, 0.15); border-color: #22c55e; }
+    .validate-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .validate-all-btn {
+      padding: 6px 14px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: var(--radius-sm);
+      color: #22c55e;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .validate-all-btn:hover { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; }
+    .validate-all-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .validate-progress {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .validate-progress.active { display: flex; }
+    .progress-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 120px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #22c55e;
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .spinner-sm {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(124, 106, 247, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .delete-invalid-btn {
+      padding: 6px 14px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: var(--radius-sm);
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+    .delete-invalid-btn:hover { background: rgba(239, 68, 68, 0.2); }
     @media (max-width: 768px) {
       .admin-container { padding: 20px 12px; }
       .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
@@ -245,31 +278,22 @@
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="users">사용자 관리</button>
       <button class="tab-btn" data-tab="unsupported">미지원 요청</button>
-      <button class="tab-btn" data-tab="traffic">외부 트래픽</button>
     </div>
 
     <!-- 탭1: 사용자 관리 -->
     <div class="tab-pane active" id="tab-users">
       <div class="meta-row">
         <span id="userCount"></span>
+        <button class="validate-all-btn" id="validateAllBtn">전체 GW 검증</button>
+        <button class="delete-invalid-btn" id="deleteInvalidBtn">무효 유저 삭제</button>
+        <div class="validate-progress" id="validateProgress">
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+          <span id="progressText">0/0</span>
+        </div>
       </div>
       <div id="usersContent">
         <div class="loading">불러오는 중...</div>
       </div>
-    </div>
-
-    <!-- 탭3: 외부 트래픽 -->
-    <div class="tab-pane" id="tab-traffic">
-      <div class="meta-row" id="trafficMeta"></div>
-
-      <!-- 터널 상태 카드 -->
-      <div id="tunnelCards" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
-
-      <!-- 요약 카드 -->
-      <div id="trafficSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
-
-      <!-- 요청 목록 -->
-      <div id="trafficContent"><div class="loading">불러오는 중...</div></div>
     </div>
 
     <!-- 탭2: 미지원 요청 -->
@@ -286,6 +310,22 @@
 
   <script>
     const BASE = '';
+    let currentAdminId = null;  // 현재 로그인한 관리자 ID
+
+    // CSRF 토큰 유틸리티
+    function getCsrfToken() {
+      const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    }
+    function safeFetch(url, options = {}) {
+      const method = (options.method || 'GET').toUpperCase();
+      if (method !== 'GET' && method !== 'HEAD') {
+        options.headers = options.headers || {};
+        options.headers['X-CSRF-Token'] = getCsrfToken();
+      }
+      options.credentials = 'same-origin';
+      return fetch(url, options);
+    }
 
     // HTML 특수문자 이스케이프 헬퍼 (XSS 방지)
     function esc(s) {
@@ -304,12 +344,19 @@
       btn.classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'unsupported') loadUnsupported();
-      if (tab === 'traffic') loadTraffic();
     });
 
     // ── 사용자 관리 ──
     async function loadUsers() {
       try {
+        // 현재 로그인 관리자 ID 가져오기
+        if (!currentAdminId) {
+          const meRes = await fetch(`${BASE}/auth/me`, { credentials: 'same-origin' });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            currentAdminId = meData.user.gw_id;
+          }
+        }
         const res = await fetch(`${BASE}/admin/users`, { credentials: 'same-origin' });
         if (res.status === 401) { location.href = '/'; return; }
         if (res.status === 403) {
@@ -318,12 +365,16 @@
           return;
         }
         const data = await res.json();
+        // 본인 여부 플래그 추가
+        data.users.forEach(u => { u.is_self = (u.gw_id === currentAdminId); });
         renderUsers(data.users);
       } catch (e) {
         document.getElementById('usersContent').innerHTML =
           '<div class="loading" style="color:#ff6b6b;">서버 연결 실패</div>';
       }
     }
+
+    let invalidUsers = [];  // 검증 실패 유저 목록
 
     function renderUsers(users) {
       document.getElementById('userCount').textContent = `총 ${users.length}명`;
@@ -337,6 +388,8 @@
               <th>empSeq</th>
               <th>deptSeq</th>
               <th>가입일</th>
+              <th>권한</th>
+              <th>GW 검증</th>
               <th>작업</th>
             </tr>
           </thead>
@@ -357,7 +410,21 @@
                 <td>${esc(u.dept_seq || '-')}</td>
                 <td>${esc(u.created_at ? u.created_at.split('T')[0] : '-')}</td>
                 <td>
+                  ${u.is_self
+                    ? '<span class="badge badge-admin">본인</span>'
+                    : u.is_admin
+                      ? `<button class="role-btn revoke" data-role-id="${esc(u.gw_id)}" data-role-name="${esc(u.name)}">권한 해제</button>`
+                      : `<button class="role-btn" data-role-id="${esc(u.gw_id)}" data-role-name="${esc(u.name)}">관리자 부여</button>`
+                  }
+                </td>
+                <td id="vstat-${esc(u.gw_id)}">
                   ${u.is_admin
+                    ? '<span class="badge badge-skipped">건너뜀</span>'
+                    : `<button class="validate-btn" data-validate-id="${esc(u.gw_id)}">검증</button>`
+                  }
+                </td>
+                <td>
+                  ${u.is_self
                     ? '<button class="delete-btn" disabled>삭제 불가</button>'
                     : `<button class="delete-btn" data-gw-id="${esc(u.gw_id)}" data-name="${esc(u.name)}">삭제</button>`
                   }
@@ -373,14 +440,31 @@
         const deleteBtn = e.target.closest('.delete-btn[data-gw-id]');
         if (deleteBtn) { deleteUser(deleteBtn.dataset.gwId, deleteBtn.dataset.name); return; }
         const saveBtn = e.target.closest('.save-btn[data-gw-id]');
-        if (saveBtn) saveProfile(saveBtn.dataset.gwId);
+        if (saveBtn) { saveProfile(saveBtn.dataset.gwId); return; }
+        const roleBtn = e.target.closest('.role-btn[data-role-id]');
+        if (roleBtn) { toggleRole(roleBtn.dataset.roleId, roleBtn.dataset.roleName, roleBtn.classList.contains('revoke')); return; }
+        const valBtn = e.target.closest('.validate-btn[data-validate-id]');
+        if (valBtn) validateUser(valBtn.dataset.validateId);
       });
+    }
+
+    async function toggleRole(gwId, name, isRevoke) {
+      const action = isRevoke ? '해제' : '부여';
+      if (!confirm(`"${name}" (${gwId}) 사용자의 관리자 권한을 ${action}하시겠습니까?`)) return;
+      try {
+        const res = await safeFetch(`${BASE}/admin/users/${gwId}/role`, {
+          method: 'PUT',
+        });
+        const data = await res.json();
+        if (res.ok) { showToast(data.message || `관리자 권한 ${action} 완료`); loadUsers(); }
+        else showToast(data.detail || `권한 ${action} 실패`, true);
+      } catch (e) { showToast('서버 오류', true); }
     }
 
     async function deleteUser(gwId, name) {
       if (!confirm(`"${name}" (${gwId}) 사용자를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) return;
       try {
-        const res = await fetch(`${BASE}/admin/users/${gwId}`, { method: 'DELETE', credentials: 'same-origin' });
+        const res = await safeFetch(`${BASE}/admin/users/${gwId}`, { method: 'DELETE' });
         const data = await res.json();
         if (res.ok) { showToast(data.message || '삭제 완료'); loadUsers(); }
         else showToast(data.detail || '삭제 실패', true);
@@ -390,11 +474,10 @@
     async function saveProfile(gwId) {
       const empSeq = document.getElementById(`emp-${gwId}`).value.trim();
       try {
-        const res = await fetch(`${BASE}/admin/users/${gwId}/profile`, {
+        const res = await safeFetch(`${BASE}/admin/users/${gwId}/profile`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ emp_seq: empSeq }),
-          credentials: 'same-origin',
         });
         const data = await res.json();
         if (res.ok) { showToast(`${gwId} empSeq 저장 완료`); loadUsers(); }
@@ -467,8 +550,8 @@
 
     async function deleteUnsupported(id) {
       try {
-        const res = await fetch(`${BASE}/admin/unsupported-requests/${id}`, {
-          method: 'DELETE', credentials: 'same-origin'
+        const res = await safeFetch(`${BASE}/admin/unsupported-requests/${id}`, {
+          method: 'DELETE',
         });
         const data = await res.json();
         if (res.ok) { showToast('삭제 완료'); loadUnsupported(); }
@@ -483,146 +566,12 @@
         const data = await res.json();
         const ids = (data.items || []).map(r => r.id);
         await Promise.all(ids.map(id =>
-          fetch(`${BASE}/admin/unsupported-requests/${id}`, { method: 'DELETE', credentials: 'same-origin' })
+          safeFetch(`${BASE}/admin/unsupported-requests/${id}`, { method: 'DELETE' })
         ));
         showToast(`${ids.length}건 삭제 완료`);
         loadUnsupported();
       } catch (e) { showToast('서버 오류', true); }
     });
-
-    // ── 트래픽 탭 ──
-    async function loadTraffic() {
-      document.getElementById('trafficContent').innerHTML = '<div class="loading">불러오는 중...</div>';
-      document.getElementById('tunnelCards').innerHTML = '';
-      document.getElementById('trafficSummary').innerHTML = '';
-      try {
-        const res = await fetch(`${BASE}/admin/ngrok-traffic`, { credentials: 'same-origin' });
-        if (!res.ok) throw new Error(res.status);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        renderTraffic(data);
-      } catch (e) {
-        document.getElementById('trafficContent').innerHTML =
-          `<div class="loading" style="color:#ff6b6b;">ngrok 연결 실패 — ngrok이 실행 중인지 확인하세요.<br><small>${esc(String(e))}</small></div>`;
-      }
-    }
-
-    function fmtBytes(b) {
-      if (b === 0) return '0 B';
-      if (b < 1024) return b + ' B';
-      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
-      return (b / (1024 * 1024)).toFixed(2) + ' MB';
-    }
-
-    function fmtTime(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      return d.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }) + ' ' +
-             d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }
-
-    function statusClass(s) {
-      if (s >= 500) return 'status-5xx';
-      if (s >= 400) return 'status-4xx';
-      if (s >= 300) return 'status-3xx';
-      if (s >= 200) return 'status-2xx';
-      return '';
-    }
-
-    function renderTraffic(data) {
-      // 메타 행
-      document.getElementById('trafficMeta').innerHTML = `
-        <span>최근 요청 <strong>${data.total_requests}</strong>건</span>
-        <button class="refresh-btn" id="trafficRefreshBtn">새로고침</button>
-      `;
-      document.getElementById('trafficRefreshBtn').addEventListener('click', loadTraffic);
-
-      // 터널 카드
-      const tunnelHtml = data.tunnels.length === 0
-        ? '<div class="tunnel-card"><div class="tunnel-meta">활성 터널 없음</div></div>'
-        : data.tunnels.map(t => `
-          <div class="tunnel-card">
-            <div class="tunnel-meta" style="margin-bottom:4px">
-              <span class="tunnel-online">● 온라인</span>
-            </div>
-            <div class="tunnel-url">${esc(t.public_url)}</div>
-            <div class="tunnel-meta">
-              ${esc(t.proto.toUpperCase())} → ${esc(t.addr)} &nbsp;|&nbsp;
-              총 연결 ${t.conn_count}회 &nbsp;|&nbsp; HTTP 요청 ${t.http_count}회
-            </div>
-          </div>
-        `).join('');
-      document.getElementById('tunnelCards').innerHTML = tunnelHtml;
-
-      // 요약 카드
-      const total = data.total_requests;
-      const ok = data.requests.filter(r => r.status >= 200 && r.status < 300).length;
-      const err = data.requests.filter(r => r.status >= 400).length;
-      const avgMs = total > 0
-        ? Math.round(data.requests.reduce((s, r) => s + r.duration_ms, 0) / total)
-        : 0;
-      document.getElementById('trafficSummary').innerHTML = `
-        <div class="stat-card">
-          <div class="stat-label">총 요청</div>
-          <div class="stat-value">${total}</div>
-          <div class="stat-sub">최근 기록 기준</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">성공 (2xx)</div>
-          <div class="stat-value" style="color:#4caf50">${ok}</div>
-          <div class="stat-sub">${total > 0 ? Math.round(ok/total*100) : 0}%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">에러 (4xx+5xx)</div>
-          <div class="stat-value" style="color:#ff6b6b">${err}</div>
-          <div class="stat-sub">${total > 0 ? Math.round(err/total*100) : 0}%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">평균 응답시간</div>
-          <div class="stat-value">${avgMs}</div>
-          <div class="stat-sub">ms</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">전송 데이터</div>
-          <div class="stat-value">${fmtBytes(data.total_bytes)}</div>
-          <div class="stat-sub">응답 기준</div>
-        </div>
-      `;
-
-      // 요청 목록
-      if (!data.requests.length) {
-        document.getElementById('trafficContent').innerHTML =
-          '<div class="loading">아직 외부 요청이 없습니다.</div>';
-        return;
-      }
-      const rows = data.requests.map(r => `
-        <tr>
-          <td style="white-space:nowrap;color:var(--text-muted)">${esc(fmtTime(r.start))}</td>
-          <td><strong>${esc(r.method)}</strong></td>
-          <td class="msg-cell" title="${esc(r.uri)}">${esc(r.uri)}</td>
-          <td class="${statusClass(r.status)}">${r.status || '-'}</td>
-          <td style="text-align:right">${r.duration_ms} ms</td>
-          <td style="text-align:right">${fmtBytes(r.bytes)}</td>
-          <td style="color:var(--text-muted);font-size:12px">${esc(r.remote_addr)}</td>
-        </tr>
-      `).join('');
-      document.getElementById('trafficContent').innerHTML = `
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>시간</th>
-              <th>메서드</th>
-              <th>경로</th>
-              <th>상태</th>
-              <th style="text-align:right">응답시간</th>
-              <th style="text-align:right">크기</th>
-              <th>IP</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
 
     // ── 공통 토스트 ──
     function showToast(msg, isError = false) {
@@ -634,6 +583,135 @@
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 3000);
     }
+
+    // ── GW 검증 ──
+    function setVstatBadge(gwId, status, error) {
+      const el = document.getElementById(`vstat-${gwId}`);
+      if (!el) return;
+      const labels = { valid: '✓ 유효', invalid: '✗ 무효', error: '⚠ 오류', skipped: '건너뜀', checking: '검증 중…' };
+      const cls = `badge badge-${status}`;
+      const title = error ? ` title="${esc(error)}"` : '';
+      if (status === 'checking') {
+        el.innerHTML = `<span class="spinner-sm"></span> <span style="font-size:12px;color:var(--text-muted)">검증 중…</span>`;
+      } else {
+        el.innerHTML = `<span class="${cls}"${title}>${labels[status] || status}</span>`;
+      }
+    }
+
+    async function validateUser(gwId) {
+      setVstatBadge(gwId, 'checking');
+      try {
+        const res = await safeFetch(`${BASE}/admin/users/${gwId}/validate`, { method: 'POST' });
+        const data = await res.json();
+        if (data.valid) {
+          setVstatBadge(gwId, 'valid');
+        } else {
+          setVstatBadge(gwId, 'invalid', data.error);
+        }
+      } catch (e) {
+        setVstatBadge(gwId, 'error', '서버 연결 실패');
+      }
+    }
+
+    document.getElementById('validateAllBtn').addEventListener('click', function() {
+      const btn = this;
+      if (btn.disabled) return;
+      if (!confirm('전체 유저의 GW 자격증명을 검증하시겠습니까?\n(관리자 계정은 자동 건너뜁니다)\n\n검증에 수 분이 소요될 수 있습니다.')) return;
+
+      btn.disabled = true;
+      btn.textContent = '검증 중…';
+      invalidUsers = [];
+      document.getElementById('deleteInvalidBtn').style.display = 'none';
+
+      const progress = document.getElementById('validateProgress');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+      progress.classList.add('active');
+
+      // 전체 유저 수 (관리자 제외) 사전 계산
+      const rows = document.querySelectorAll('[id^="vstat-"]');
+      const totalTargets = document.querySelectorAll('.validate-btn[data-validate-id]').length;
+      let processed = 0;
+
+      // SSE 연결
+      const csrfToken = getCsrfToken();
+      fetch(`${BASE}/admin/validate-all`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'X-CSRF-Token': csrfToken },
+      }).then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        function readStream() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              finishValidation();
+              return;
+            }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              try {
+                const evt = JSON.parse(line.slice(6));
+                if (evt.type === 'summary') {
+                  progressText.textContent = `완료 — 유효 ${evt.valid}, 무효 ${evt.invalid}, 오류 ${evt.error}, 건너뜀 ${evt.skipped}`;
+                  progressFill.style.width = '100%';
+                  showToast(`검증 완료: 유효 ${evt.valid}명, 무효 ${evt.invalid}명, 오류 ${evt.error}명`);
+                } else {
+                  setVstatBadge(evt.gw_id, evt.status, evt.error);
+                  if (evt.status !== 'skipped') {
+                    processed++;
+                    const pct = totalTargets > 0 ? Math.round(processed / totalTargets * 100) : 0;
+                    progressFill.style.width = pct + '%';
+                    progressText.textContent = `${processed}/${totalTargets}`;
+                  }
+                  if (evt.status === 'invalid') {
+                    invalidUsers.push(evt.gw_id);
+                  }
+                }
+              } catch (e) { /* 파싱 오류 무시 */ }
+            }
+            readStream();
+          }).catch(() => finishValidation());
+        }
+        readStream();
+      }).catch(() => {
+        showToast('검증 요청 실패', true);
+        finishValidation();
+      });
+
+      function finishValidation() {
+        btn.disabled = false;
+        btn.textContent = '전체 GW 검증';
+        if (invalidUsers.length > 0) {
+          const delBtn = document.getElementById('deleteInvalidBtn');
+          delBtn.style.display = 'inline-block';
+          delBtn.textContent = `무효 유저 삭제 (${invalidUsers.length}명)`;
+        }
+      }
+    });
+
+    document.getElementById('deleteInvalidBtn').addEventListener('click', async function() {
+      if (!invalidUsers.length) return;
+      if (!confirm(`무효 유저 ${invalidUsers.length}명을 삭제하시겠습니까?\n\n${invalidUsers.join(', ')}\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+
+      let deleted = 0;
+      for (const gwId of invalidUsers) {
+        try {
+          const res = await safeFetch(`${BASE}/admin/users/${gwId}`, { method: 'DELETE' });
+          if (res.ok) deleted++;
+        } catch (e) { /* 개별 실패 무시 */ }
+      }
+      showToast(`${deleted}명 삭제 완료`);
+      invalidUsers = [];
+      this.style.display = 'none';
+      loadUsers();
+    });
 
     loadUsers();
   </script>

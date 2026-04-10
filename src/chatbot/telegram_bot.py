@@ -77,6 +77,56 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text, parse_mode='Markdown')
 
 
+async def _register_with_gw_validation(update, context, gw_id, gw_pw, name, position=""):
+    """GW 검증 후 회원가입 처리 (레거시/2-step 공통 헬퍼)"""
+    import asyncio
+    from src.auth.login import validate_gw_credentials, gw_error_to_user_message
+    from src.auth.user_db import get_user
+
+    chat_id = update.effective_chat.id
+
+    # 중복 체크
+    if get_user(gw_id):
+        await context.bot.send_message(chat_id=chat_id, text="이미 등록된 아이디입니다.")
+        return
+
+    # GW 검증 안내 + typing indicator
+    await context.bot.send_chat_action(chat_id=chat_id, action='typing')
+    notice = await context.bot.send_message(
+        chat_id=chat_id,
+        text="GW 계정 확인 중... (10~15초 소요)",
+    )
+
+    async def _reply(text, **kwargs):
+        """notice 메시지 편집 시도, 실패 시 새 메시지 발송"""
+        try:
+            await context.bot.edit_message_text(
+                chat_id=chat_id, message_id=notice.message_id, text=text, **kwargs,
+            )
+        except Exception:
+            await context.bot.send_message(chat_id=chat_id, text=text, **kwargs)
+
+    try:
+        gw_result = await asyncio.wait_for(
+            asyncio.to_thread(validate_gw_credentials, gw_id, gw_pw),
+            timeout=90,
+        )
+    except asyncio.TimeoutError:
+        await _reply("GW 서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
+        return
+
+    if not gw_result.get("valid"):
+        await _reply(f"회원가입 실패: {gw_error_to_user_message(gw_result.get('error', ''))}")
+        return
+
+    # GW 검증 통과 → DB 저장
+    result = db_register(gw_id=gw_id, gw_pw=gw_pw, name=name, position=position)
+    if result["success"]:
+        await _reply(f"회원가입 성공!\n이제 `/login {gw_id}`를 입력해 로그인해 주세요.", parse_mode='Markdown')
+    else:
+        await _reply(f"회원가입 실패: {result['message']}")
+
+
 async def register_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     텔레그램에서 회원가입 처리 (2-step 보안 플로우)
@@ -108,18 +158,7 @@ async def register_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         except Exception as e:
             logger.warning(f"메시지 삭제 실패: {e}")
-        result = db_register(gw_id=gw_id, gw_pw=gw_pw, name=name, position=position)
-        if result["success"]:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f"회원가입 성공!\n이제 `/login {gw_id}`를 입력해 로그인해 주세요.",
-                parse_mode='Markdown',
-            )
-        else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f"회원가입 실패: {result['message']}",
-            )
+        await _register_with_gw_validation(update, context, gw_id, gw_pw, name, position)
         return
 
     # 2-step 방식: /register id name [position]
@@ -436,21 +475,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if pending["type"] == "login":
             await _do_login(update, context, pending["gw_id"], gw_pw)
         elif pending["type"] == "register":
-            result = db_register(
-                gw_id=pending["gw_id"], gw_pw=gw_pw,
-                name=pending["name"], position=pending.get("position", ""),
+            await _register_with_gw_validation(
+                update, context,
+                pending["gw_id"], gw_pw,
+                pending["name"], pending.get("position", ""),
             )
-            if result["success"]:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=f"회원가입 성공!\n이제 `/login {pending['gw_id']}`를 입력해 로그인해 주세요.",
-                    parse_mode='Markdown',
-                )
-            else:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=f"회원가입 실패: {result['message']}",
-                )
         return
 
     session = _check_login(tg_user_id)

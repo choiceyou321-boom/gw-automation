@@ -1,12 +1,13 @@
 """
 전자결재 자동화 -- 지출결의서 mixin
 """
+from __future__ import annotations
 
 import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeout
 from src.approval.base import (
     GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR,
-    _GET_GRID_IFACE_JS, _save_debug, _parse_project_text,
+    _GET_GRID_IFACE_JS, _save_debug, _parse_project_text, _js_str,
 )
 from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
 
@@ -23,7 +24,8 @@ class ExpenseReportMixin:
         GW에서 지출결의서는 인라인 폼으로만 열리며 (팝업 아님),
         인라인 폼에는 '보관' 버튼이 없고 '결재상신' 버튼만 존재합니다.
         이 메서드는 필드 채우기까지 수행하고, save_mode에 따라 동작합니다:
-        - save_mode="verify" (기본): 필드 작성 검증만 수행, 실제 저장/상신 안 함
+        - save_mode="draft" (기본): 임시보관 저장
+        - save_mode="verify": 필드 작성 검증만 수행, 실제 저장/상신 안 함
         - save_mode="submit": 결재상신 실행 (실제 결재 상신됨, 주의)
 
         Args:
@@ -175,7 +177,60 @@ class ExpenseReportMixin:
                 except Exception:
                     logger.info("검증결과 셀 미발견 (계속 진행)")
 
+                # 7-A. 보관 버튼 직접 클릭 시도 (팝업 없이 바로 임시저장 가능 시)
+                # 진단: 현재 페이지의 모든 버튼 텍스트 확인
+                try:
+                    _btn_scan = self.page.evaluate("""() => {
+                        const btns = [...document.querySelectorAll('button, [class*="topBtn"]')];
+                        return btns
+                            .filter(b => b.offsetParent !== null)
+                            .map(b => ({tag: b.tagName, text: b.textContent.trim().slice(0, 20), cls: b.className.slice(0, 40)}))
+                            .filter(b => b.text);
+                    }""")
+                    logger.info(f"7-A 진단 버튼 목록: {_btn_scan}")
+                except Exception:
+                    pass
+                _draft_btn = None
+                for _ds in ["div.topBtn:has-text('보관')", "button:has-text('보관')",
+                             "[class*='topBtn']:has-text('보관')", "text=보관"]:
+                    try:
+                        _dloc = self.page.locator(_ds).first
+                        if _dloc.is_visible(timeout=1500):
+                            _draft_btn = _dloc
+                            logger.info(f"보관 버튼 직접 발견 (팝업 불필요): {_ds}")
+                            break
+                    except Exception:
+                        continue
+                if _draft_btn:
+                    try:
+                        _draft_btn.scroll_into_view_if_needed()
+                        self.page.wait_for_timeout(200)
+                        _draft_btn.click()
+                        self.page.wait_for_timeout(2000)
+                        self._dismiss_obt_alert()
+                        logger.info("보관 직접 클릭 완료 (메인 폼)")
+                        return {"success": True, "message": "지출결의서가 임시보관함에 저장되었습니다."}
+                    except Exception as _de:
+                        logger.warning(f"보관 직접 클릭 실패: {_de} — 결재상신 경로로 폴백")
+
                 # 7. 결재상신 클릭 -> 팝업 대기
+                # 결재상신 전 남아있는 OBTAlert 및 모달 닫기 (최대 3회 반복)
+                for _cleanup_try in range(3):
+                    self._dismiss_obt_alert()
+                    self._close_open_modals()
+                    self.page.wait_for_timeout(300)
+                    # 아직 OBTAlert dimmed가 남아있으면 Escape로도 시도
+                    try:
+                        still_blocked = self.page.evaluate("""() => {
+                            return !!document.querySelector('[class*="OBTAlert"][class*="dimmed"]');
+                        }""")
+                        if not still_blocked:
+                            break
+                        logger.info(f"OBTAlert 잔존 (시도 {_cleanup_try+1}) → Escape 시도")
+                        self.page.keyboard.press("Escape")
+                        self.page.wait_for_timeout(500)
+                    except Exception:
+                        break
                 # dialog 핸들러: GW가 confirm/alert를 띄울 수 있음
                 dialog_messages = []
 
@@ -213,7 +268,12 @@ class ExpenseReportMixin:
                     with self.context.expect_page(timeout=15000) as new_page_info:
                         submit_btn.scroll_into_view_if_needed()
                         self.page.wait_for_timeout(300)
-                        submit_btn.click()
+                        # _dimClicker 차단 대비: 짧은 타임아웃으로 시도, 실패 시 JS click
+                        try:
+                            submit_btn.click(timeout=3000)
+                        except Exception as _ce:
+                            logger.warning(f"결재상신 click 차단됨({_ce.__class__.__name__}) → JS click 폴백")
+                            submit_btn.evaluate("btn => btn.click()")
                         logger.info("결재상신 클릭 -> 팝업 대기 (expect_page)")
                     popup_page = new_page_info.value
                     logger.info(f"결재상신 팝업 감지: {popup_page.url[:100]}")
@@ -223,9 +283,14 @@ class ExpenseReportMixin:
                 # expect_page 실패 시 폴링 폴백
                 if not popup_page:
                     pages_before = set(id(p) for p in self.context.pages)
-                    # 이미 클릭했으므로 다시 클릭 시도
+                    # 잔존 OBTDialog 다시 닫기 시도 후 재클릭
+                    self._close_open_modals()
+                    self.page.wait_for_timeout(300)
                     try:
-                        submit_btn.click()
+                        try:
+                            submit_btn.click(timeout=3000)
+                        except Exception:
+                            submit_btn.evaluate("btn => btn.click()")
                         logger.info("결재상신 재클릭 -> 폴링 대기")
                     except Exception:
                         pass
@@ -282,8 +347,13 @@ class ExpenseReportMixin:
                                 close_btn = self.page.locator("button:has-text('닫기')").first
                                 if close_btn.is_visible(timeout=1000):
                                     close_btn.click()
+                                    self.page.wait_for_timeout(800)
                             except Exception:
                                 pass
+                            # 검증 부적합 상태에서도 문서목록 이탈 후 보관 시도
+                            logger.info("검증 부적합 → 문서목록 이탈 후 보관 시도")
+                            if self._try_archive_via_navigate_away():
+                                return {"success": True, "message": "지출결의서가 임시보관함에 저장되었습니다."}
                             return {"success": False, "message": f"검증 부적합: {error_text[:300]}"}
                     except Exception:
                         pass
@@ -588,9 +658,69 @@ class ExpenseReportMixin:
         if _try_click_form("결재작성 경유"):
             return
 
+        # 3차: 직접 URL 네비게이션 (클릭 방식 실패 시 최후 수단)
+        logger.info("클릭 방식 실패 → 직접 URL 네비게이션 시도")
+        try:
+            base_url = page.url.split("/#/")[0] if "/#/" in page.url else page.url.rstrip("/")
+            direct_url = f"{base_url}/#/HP/APB1020/APB1020?formDTp=APB1020_00001&formId=255"
+            page.goto(direct_url, wait_until="domcontentloaded", timeout=15000)
+            page.wait_for_url("**/APB1020/**", timeout=10000)
+            logger.info(f"직접 URL 네비게이션 성공: {page.url[:100]}")
+            return
+        except Exception as e:
+            logger.warning(f"직접 URL 네비게이션 실패: {e}")
+
         _save_debug(page, "error_expense_form_not_found")
         raise Exception("지출결의서 양식을 찾을 수 없습니다.")
 
+
+    def _try_archive_via_navigate_away(self) -> bool:
+        """
+        검증 부적합 상황에서 문서목록 이탈 후 GW 보관 다이얼로그 처리.
+        GW는 작성 중 폼에서 이탈 시 OBTAlert로 '보관' 옵션을 제공함.
+
+        Returns:
+            True if 보관 성공, False otherwise
+        """
+        page = self.page
+        try:
+            # 문서목록 버튼 클릭 → 폼 이탈 트리거
+            doc_btn = page.locator("button:has-text('문서목록')").first
+            if not doc_btn.is_visible(timeout=2000):
+                logger.warning("_try_archive_via_navigate_away: 문서목록 버튼 미발견")
+                return False
+            doc_btn.click()
+            page.wait_for_timeout(2000)
+            _save_debug(page, "archive_via_navigate_01_after_doclist")
+
+            # OBTAlert 내 '보관' 버튼 탐색
+            # _dismiss_obt_alert()는 '취소'/'저장안함'을 우선하므로 사용 금지
+            for sel in [
+                "[class*='OBTAlert'] button:has-text('보관')",
+                "[class*='OBTAlert_container'] button:has-text('보관')",
+                "[class*='modal'] button:has-text('보관')",
+                "button:has-text('보관')",
+            ]:
+                try:
+                    btn = page.locator(sel).first
+                    if btn.is_visible(timeout=2500):
+                        btn.click()
+                        page.wait_for_timeout(2000)
+                        _save_debug(page, "archive_via_navigate_02_after_archive_btn")
+                        logger.info(f"navigate-away 보관 버튼 클릭 성공: {sel}")
+                        # 남은 OBTAlert 닫기
+                        self._dismiss_obt_alert()
+                        return True
+                except Exception:
+                    continue
+
+            # '보관' 버튼 없으면 현재 상태 디버그
+            _save_debug(page, "archive_via_navigate_03_no_archive_btn")
+            logger.warning("navigate-away: 보관 버튼 미발견 (GW 다이얼로그 미출현 또는 다른 UI)")
+            return False
+        except Exception as e:
+            logger.warning(f"_try_archive_via_navigate_away 예외: {e}")
+            return False
 
     def _fill_expense_fields(self, data: dict):
         """
@@ -619,6 +749,21 @@ class ExpenseReportMixin:
         title = data.get("title", "")
         items = data.get("items", [])
 
+        # 폼 진입 직후 GW OBTAlert(저장여부 등) 남아있을 수 있음 → 먼저 닫기
+        # OBTAlert는 form 로드 후 react-reveal 애니메이션으로 최대 3초 지연 등장
+        # → 나타날 때까지 대기한 뒤 처리 (없으면 최대 3초 후 그냥 진행)
+        try:
+            page.wait_for_selector(
+                '[class*="OBTAlert_dimmed"]',
+                state="attached",
+                timeout=3000,
+            )
+            logger.info("OBTAlert_dimmed 감지 — dismiss 시작")
+        except Exception:
+            logger.debug("OBTAlert_dimmed 미감지 (3초 내) — 그냥 진행")
+        self._dismiss_obt_alert()
+        page.wait_for_timeout(300)  # 닫힘 후 UI 안정화 대기
+
         # 1. 프로젝트 코드도움 입력 (상단, y≈292)
         project = data.get("project", "")
         if project:
@@ -633,7 +778,8 @@ class ExpenseReportMixin:
                 _save_debug(page, "03a_page_escaped")
                 # 결재 홈 -> 양식 재진입 복구
                 try:
-                    page.goto("https://gw.glowseoul.co.kr/#/app/approval")
+                    from src.approval.base import GW_URL
+                    page.goto(f"{GW_URL}/#/app/approval")
                     page.wait_for_load_state("networkidle", timeout=10000)
                     logger.info("결재 홈으로 복구 완료 -- 양식 재작성 필요")
                 except Exception as e:
@@ -665,6 +811,7 @@ class ExpenseReportMixin:
         #    세금계산서 선택 시 그리드가 자동으로 채워짐
         evidence_type = data.get("evidence_type", "")
         invoice_selected = False
+        _invoice_auto_budget_handled = False  # 인보이스 선택 직후 예산팝업 처리 여부
         if evidence_type:
             _is_invoice_type = evidence_type in ("세금계산서", "계산서", "계산서내역")
             if _is_invoice_type:
@@ -683,8 +830,12 @@ class ExpenseReportMixin:
                         except Exception:
                             pass
 
+                    # 열린 모달이 있으면 먼저 닫기 (dimClicker 차단 방지)
+                    self._close_open_modals()
+                    self.page.wait_for_timeout(500)
+
                     self._click_evidence_type_button(evidence_type)
-                    self.page.wait_for_timeout(1000)
+                    self.page.wait_for_timeout(2000)  # 모달 로딩 대기 늘림
                     _modal_invoice_selected = False
                     try:
                         _modal_invoice_selected = self._select_invoice_in_modal(
@@ -697,8 +848,13 @@ class ExpenseReportMixin:
                         logger.warning(f"세금계산서 모달 선택 실패: {e}")
 
                     if not _modal_invoice_selected:
-                        # 모달 선택 자체 실패 -- 재시도해도 의미 없음
+                        # 모달 선택 자체 실패 -- 열린 모달 닫고 재시도 중단
                         logger.warning("세금계산서 모달 선택 실패 -- 재시도 중단")
+                        self._close_open_modals()
+                        # 모달 취소 후 GW가 OBTAlert를 비동기로 표시할 수 있음 → 1.5초 대기 후 dismiss
+                        page.wait_for_timeout(1500)
+                        self._dismiss_obt_alert()
+                        page.wait_for_timeout(500)
                         break
 
                     # 인보이스 선택 후 그리드 렌더링 대기 (최대 5초)
@@ -727,6 +883,37 @@ class ExpenseReportMixin:
 
                 if invoice_selected:
                     _save_debug(page, "03c2_after_invoice_select")
+                    # GW는 인보이스 선택 직후 용도코드를 자동 설정하면서 예산잔액 조회 팝업을
+                    # 즉시 트리거할 수 있음. 이후 다른 단계들(receipt_date, project_bottom 등)을
+                    # 진행하기 전에 여기서 바로 감지/처리해야 함 (step 10-A는 너무 늦을 수 있음).
+                    _bkw_early = data.get("budget_keyword", "")
+                    _ukw_early = data.get("usage_code", "")
+                    if _bkw_early and _ukw_early:
+                        try:
+                            from src.approval.budget_helpers import handle_auto_triggered_popup
+                            _proj_kw_early = (
+                                project.split(". ", 1)[-1].split("]")[-1].strip()
+                                if project else ""
+                            )
+                            _early_result = handle_auto_triggered_popup(
+                                page=page,
+                                project_keyword=_proj_kw_early,
+                                budget_keyword=_bkw_early,
+                                timeout_ms=4000,  # 짧은 타임아웃 — 팝업이 이미 열렸거나 없으면 빠르게 skip
+                            )
+                            if _early_result["success"]:
+                                logger.info(
+                                    f"인보이스 선택 직후 예산팝업 처리 완료: "
+                                    f"{_early_result['budget_code']}. {_early_result['budget_name']}"
+                                )
+                                _invoice_auto_budget_handled = True
+                            else:
+                                logger.info(
+                                    f"인보이스 선택 직후 예산팝업 없음 — "
+                                    f"step 10-A에서 재처리: {_early_result['message']}"
+                                )
+                        except Exception as _e_early:
+                            logger.warning(f"인보이스 선택 직후 예산팝업 처리 예외: {_e_early}")
                 else:
                     if _invoice_row_count == 0 and _modal_invoice_selected:
                         logger.error("인보이스 선택 후 그리드 행 없음 (3회 재시도 모두 실패) -- 검증 부적합 발생 가능")
@@ -737,9 +924,18 @@ class ExpenseReportMixin:
                 _save_debug(page, "03c_after_evidence")
 
         # 5. 지출내역 그리드 수동 입력 (세금계산서 미선택 시만)
-        if items and not invoice_selected:
-            self._fill_grid_items(items)
-            _save_debug(page, "03b_after_grid")
+        if not invoice_selected:
+            if not items:
+                # 세금계산서 검색 실패 시 폴백: total_amount + description으로 수동 항목 생성
+                fallback_amount = data.get("total_amount") or data.get("amount", 0)
+                fallback_desc = data.get("description", "")
+                fallback_vendor = data.get("invoice_vendor", "")
+                if fallback_amount:
+                    items = [{"description": fallback_desc or "대금 지급", "amount": fallback_amount, "vendor": fallback_vendor}]
+                    logger.info(f"세금계산서 미선택 → 폴백 그리드 항목 생성: {items}")
+            if items:
+                self._fill_grid_items(items)
+                _save_debug(page, "03b_after_grid")
 
         # 6. 증빙일자 입력 (하단 테이블, y=857)
         receipt_date = data.get("receipt_date", "") or data.get("date", "")
@@ -749,7 +945,9 @@ class ExpenseReportMixin:
 
         # 7. 하단 테이블 프로젝트 코드도움 입력 (y≈857 근처, 테이블 7)
         if project:
-            self._fill_project_code_bottom(project)
+            result = self._fill_project_code_bottom(project)
+            if not result:
+                self._close_open_modals()
             _save_debug(page, "03d2_after_project_bottom")
 
         # 7-1. 참조문서 연결 (전자결재 폼 내 기존 문서 참조)
@@ -783,8 +981,13 @@ class ExpenseReportMixin:
         # 10. 용도코드 입력 -- OBTDataGrid React interface API 사용 (세션 XI 개선)
         #     기존: window.gridView (null) -> 좌표 클릭 폴백
         #     개선: React fiber -> OBTDataGrid interface -> setValue/getColumns
+        #     인보이스 선택 시 GW가 용도코드를 자동 설정하므로, 이미 설정된 경우 재입력 건너뜀
         usage_code = data.get("usage_code", "")
-        if usage_code:
+        if usage_code and _invoice_auto_budget_handled:
+            # 인보이스 선택 직후 예산팝업이 처리됨 = GW가 용도코드를 이미 올바르게 자동설정
+            # → 재입력 시도 없이 다음 단계로 (재입력이 오히려 GW 상태를 교란할 수 있음)
+            logger.info(f"용도코드 '{usage_code}' 재입력 건너뜀 — GW 자동설정 + 예산팝업 처리 완료")
+        elif usage_code:
             try:
                 # OBTDataGrid interface로 행 수 + 컬럼 정보 확인
                 grid_info = page.evaluate("""() => {
@@ -849,23 +1052,144 @@ class ExpenseReportMixin:
                         filled_count = 0
                         for row_idx in range(row_count):
                             try:
-                                # interface.setSelection으로 셀 포커스
+                                # interface.setSelection + focus으로 셀 포커스
+                                # focus()에 rowIndex/columnName 전달 → 실제 셀 에디터 오픈 (no-args는 그리드 컨테이너만 포커스)
                                 page.evaluate(f"""() => {{
                                     const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
                                     const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
                                     let f = el[fk];
                                     for (let i = 0; i < 3; i++) f = f.return;
                                     const iface = f.stateNode.state.interface;
-                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: '{usage_col["name"]}' }});
-                                    iface.focus();
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }});
+                                    // focus에 좌표 전달: 셀 에디터 활성화
+                                    if (typeof iface.focus === 'function') {{
+                                        try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }}); }} catch(e) {{
+                                            try {{ iface.focus(); }} catch(e2) {{}}
+                                        }}
+                                    }}
+                                }}""")
+                                self.page.wait_for_timeout(400)
+
+                                # 활성화된 input 확인 (OBTDataGrid 셀 에디터)
+                                _active_tag = page.evaluate("() => document.activeElement ? document.activeElement.tagName : 'none'")
+                                _active_class = page.evaluate("() => document.activeElement ? document.activeElement.className : 'none'")
+                                logger.info(f"용도 셀 포커스 후 activeElement: {_active_tag} class={_active_class[:60]}")
+
+                                # focus()가 CANVAS만 활성화된 경우 → canvas 클릭으로 셀 에디터 직접 트리거
+                                if _active_tag == "CANVAS":
+                                    try:
+                                        _cv_grid = page.locator(".OBTDataGrid_grid__22Vfl canvas").first
+                                        _cv_box = _cv_grid.bounding_box()
+                                        if _cv_box:
+                                            # 첫 번째 데이터 행: 헤더 ~24px + 행 높이 절반 ~12px = y≈36
+                                            # 용도 컬럼: 체크박스(약 32px) + 컬럼 너비 절반(약 40px)
+                                            _cv_grid.click(position={"x": 52, "y": 36})
+                                            self.page.wait_for_timeout(400)
+                                            _active_tag = page.evaluate("() => document.activeElement ? document.activeElement.tagName : 'none'")
+                                            logger.info(f"canvas 직접 클릭 후 activeElement: {_active_tag}")
+                                    except Exception as _ce:
+                                        logger.warning(f"canvas 직접 클릭 실패: {_ce}")
+
+                                # 셀 기존값 초기화 → change event 강제 발생 위해 빈 문자열로 커밋
+                                # setValue API로 즉각 클리어 (Escape는 원래 값으로 되돌리므로 부적합)
+
+                                # [진단] setValue 전 현재 셀 값 확인
+                                try:
+                                    _val_before_clear = page.evaluate(f"""() => {{
+                                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                        if (!el) return null;
+                                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                        if (!fk) return null;
+                                        let f = el[fk];
+                                        for (let i = 0; i < 3 && f; i++) f = f.return;
+                                        const iface = f?.stateNode?.state?.interface;
+                                        return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
+                                    }}""")
+                                    logger.info(f"[진단] 용도 셀 setValue 전 값: '{_val_before_clear}'")
+                                except Exception:
+                                    pass
+
+                                try:
+                                    page.evaluate(f"""() => {{
+                                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                        if (!el) return;
+                                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                        if (!fk) return;
+                                        let f = el[fk];
+                                        for (let i = 0; i < 3 && f; i++) f = f.return;
+                                        const iface = f?.stateNode?.state?.interface;
+                                        if (!iface) return;
+                                        if (typeof iface.setValue === 'function') {{
+                                            iface.setValue({row_idx}, {_js_str(usage_col["name"])}, '');
+                                        }}
+                                        if (typeof iface.commit === 'function') iface.commit();
+                                    }}""")
+                                    self.page.wait_for_timeout(200)
+                                    # [진단] setValue('') 후, retype 전 값 확인
+                                    try:
+                                        _val_after_clear = page.evaluate(f"""() => {{
+                                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                            if (!el) return null;
+                                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                            if (!fk) return null;
+                                            let f = el[fk];
+                                            for (let i = 0; i < 3 && f; i++) f = f.return;
+                                            const iface = f?.stateNode?.state?.interface;
+                                            return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
+                                        }}""")
+                                        logger.info(f"[진단] 용도 셀 setValue('') 후 값: '{_val_after_clear}'")
+                                        if _val_after_clear:
+                                            logger.warning(
+                                                f"[진단] setValue('') 후에도 값 잔존 ('{_val_after_clear}') "
+                                                "— OBT 코드도움 컬럼은 setValue로 클리어 안 될 수 있음"
+                                            )
+                                    except Exception:
+                                        pass
+                                except Exception:
+                                    # 폴백: Ctrl+A + Delete (Escape 제거 — Escape는 원래 값 복원)
+                                    page.keyboard.press("Control+A")
+                                    page.keyboard.press("Delete")
+                                    self.page.wait_for_timeout(200)
+                                    page.keyboard.press("Tab")  # 빈 값 커밋
+                                    self.page.wait_for_timeout(200)
+                                # 셀 재포커스 (클리어 후 포커스 재설정)
+                                page.evaluate(f"""() => {{
+                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                    if (!el) return;
+                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    if (!fk) return;
+                                    let f = el[fk];
+                                    for (let i = 0; i < 3; i++) f = f.return;
+                                    const iface = f?.stateNode?.state?.interface;
+                                    if (!iface) return;
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }});
+                                    if (typeof iface.focus === 'function') {{
+                                        try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }}); }} catch(e) {{}}
+                                    }}
                                 }}""")
                                 self.page.wait_for_timeout(300)
 
                                 # 편집 input에 용도코드 입력 (자동완성 트리거)
-                                page.keyboard.type(str(usage_code), delay=30)
-                                self.page.wait_for_timeout(300)
+                                page.keyboard.type(str(usage_code), delay=50)
+                                self.page.wait_for_timeout(800)  # 자동완성 드롭다운 대기
                                 page.keyboard.press("Enter")
-                                self.page.wait_for_timeout(500)  # 자동완성 반영 및 그리드 상태 업데이트 대기
+                                self.page.wait_for_timeout(500)  # 자동완성 선택 반영 대기
+
+                                # 입력된 값 확인 (진단용)
+                                try:
+                                    _cell_val = page.evaluate(f"""() => {{
+                                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                        let f = el[fk];
+                                        for (let i = 0; i < 3 && f; i++) f = f.return;
+                                        const iface = f?.stateNode?.state?.interface;
+                                        if (!iface) return null;
+                                        return iface.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
+                                    }}""")
+                                    logger.info(f"용도 셀 getValue 확인: '{_cell_val}'")
+                                except Exception:
+                                    pass
+
                                 filled_count += 1
                             except Exception:
                                 continue
@@ -883,29 +1207,32 @@ class ExpenseReportMixin:
                 logger.warning(f"용도코드 입력 실패: {e}")
 
         # 10-A. 용도코드 Enter 후 자동 트리거되는 '공통 예산잔액 조회' 팝업 즉시 처리
-        #        팝업이 자동으로 열리면 바로 처리, 미열리면 step 11 fallback에서 재시도
-        _budget_auto_handled = False
+        #        인보이스 선택 직후 이미 처리된 경우 건너뜀; 아닌 경우 여기서 재시도
+        _budget_auto_handled = _invoice_auto_budget_handled  # 인보이스 직후 처리 결과 반영
         _auto_budget_keyword = data.get("budget_keyword", "")
         if usage_code and _auto_budget_keyword:
-            try:
-                from src.approval.budget_helpers import handle_auto_triggered_popup
-                _auto_project_kw = project.split(". ", 1)[-1].split("]")[-1].strip() if project else ""
-                auto_result = handle_auto_triggered_popup(
-                    page=page,
-                    project_keyword=_auto_project_kw,
-                    budget_keyword=_auto_budget_keyword,
-                )
-                if auto_result["success"]:
-                    logger.info(
-                        f"예산과목 자동팝업 완료: "
-                        f"{auto_result['budget_code']}. {auto_result['budget_name']}"
+            if _invoice_auto_budget_handled:
+                logger.info("인보이스 선택 직후 예산팝업 이미 처리됨 — step 10-A 건너뜀")
+            else:
+                try:
+                    from src.approval.budget_helpers import handle_auto_triggered_popup
+                    _auto_project_kw = project.split(". ", 1)[-1].split("]")[-1].strip() if project else ""
+                    auto_result = handle_auto_triggered_popup(
+                        page=page,
+                        project_keyword=_auto_project_kw,
+                        budget_keyword=_auto_budget_keyword,
                     )
-                    _budget_auto_handled = True
-                else:
-                    logger.warning(f"예산과목 자동팝업 미처리 ({auto_result['message']}) — step 11 fallback 예정")
-                _save_debug(page, "10a_after_auto_budget_popup")
-            except Exception as e:
-                logger.error(f"예산과목 자동팝업 처리 예외: {e}")
+                    if auto_result["success"]:
+                        logger.info(
+                            f"예산과목 자동팝업 완료: "
+                            f"{auto_result['budget_code']}. {auto_result['budget_name']}"
+                        )
+                        _budget_auto_handled = True
+                    else:
+                        logger.warning(f"예산과목 자동팝업 미처리 ({auto_result['message']}) — step 11 fallback 예정")
+                    _save_debug(page, "10a_after_auto_budget_popup")
+                except Exception as e:
+                    logger.error(f"예산과목 자동팝업 처리 예외: {e}")
 
         # 10-1. 지급요청일도 그리드 행별 입력 (부적합 "N번 행의 지급요청일등(값)" 방지)
         #       OBTDataGrid interface로 셀 포커스 후 키보드 입력
@@ -949,12 +1276,17 @@ class ExpenseReportMixin:
                                     let f = el[fk];
                                     for (let i = 0; i < 3; i++) f = f.return;
                                     const iface = f.stateNode.state.interface;
-                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: '{pay_col["name"]}' }});
-                                    iface.focus();
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }});
+                                    // focus에 좌표 전달: 셀 에디터 활성화
+                                    if (typeof iface.focus === 'function') {{
+                                        try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }}); }} catch(e) {{
+                                            try {{ iface.focus(); }} catch(e2) {{}}
+                                        }}
+                                    }}
                                 }}""")
-                                self.page.wait_for_timeout(200)
+                                self.page.wait_for_timeout(300)
                                 page.keyboard.type(clean_date, delay=20)
-                                self.page.wait_for_timeout(200)
+                                self.page.wait_for_timeout(300)
                                 page.keyboard.press("Tab")
                                 self.page.wait_for_timeout(200)
                                 filled_count += 1
@@ -1212,40 +1544,452 @@ class ExpenseReportMixin:
                         continue
 
             if proj_input and proj_input.is_visible(timeout=3000):
-                proj_input.click()
-                self.page.wait_for_timeout(300)
-                proj_input.click(click_count=3)  # 전체 선택
-                self.page.wait_for_timeout(200)
-                page.keyboard.type(project, delay=80)
-                logger.info(f"프로젝트 검색어 입력: {project}")
+                # 클릭 직전 OBTAlert_dimmed 재확인 — 연속 2회 clean 확인으로 안정성 보장
+                # (용도코드 입력 후 GW 검증 알림 등 cascade alert 대응)
+                _consecutive_clean = 0
+                for _retry in range(10):  # 최대 5초
+                    try:
+                        has_obt = page.locator('[class*="OBTAlert_dimmed"]').count() > 0
+                        if has_obt:
+                            logger.info(f"프로젝트 클릭 전 OBTAlert_dimmed 감지 ({_retry+1}/10) — 재처리")
+                            self._dismiss_obt_alert()
+                            _consecutive_clean = 0
+                        else:
+                            _consecutive_clean += 1
+                            if _consecutive_clean >= 2:  # 1초(0.5s×2) 연속 안정
+                                break
+                        page.wait_for_timeout(500)
+                    except Exception:
+                        break
+
+                # invoice modal이 열려있으면 먼저 닫기 (project input 클릭 차단 방지)
+                # "매칭된(매입)계산서가 없습니다." OBTAlert 처리 후 modal 자체가 남아 있는 경우
+                try:
+                    invoice_modal_visible = page.locator(
+                        "text=매입(세금)계산서 내역"
+                    ).first.is_visible(timeout=500)
+                    if invoice_modal_visible:
+                        logger.warning("invoice modal 열려있음 — 닫기 후 project input 클릭")
+                        # 취소 버튼 우선 시도
+                        _closed_modal = False
+                        for _close_sel in ["button:has-text('취소')", "button:has-text('닫기')"]:
+                            try:
+                                _close_btn = page.locator(_close_sel).last
+                                if _close_btn.is_visible(timeout=300):
+                                    _close_btn.click(force=True)
+                                    page.wait_for_timeout(500)
+                                    _closed_modal = True
+                                    logger.info(f"invoice modal 닫기 버튼 클릭: '{_close_sel}'")
+                                    break
+                            except Exception:
+                                pass
+                        if not _closed_modal:
+                            page.keyboard.press("Escape")
+                            page.wait_for_timeout(500)
+                            logger.info("invoice modal Escape 닫기")
+                        # 닫힌 후 OBTAlert 추가 처리
+                        self._dismiss_obt_alert()
+                        page.wait_for_timeout(300)
+                except Exception:
+                    pass
+
+                # 기존값 초기화: input에 값이 있으면 GW picker 미열림
+                # fill() 후 포커스가 input에 남아있으면 재클릭 시 GW FOCUS 이벤트 미발생 →
+                # Tab으로 blur 한 뒤 클릭해야 fresh FOCUS 이벤트로 picker 트리거됨
+                try:
+                    current_val = proj_input.input_value()
+                    if current_val and current_val.strip():
+                        logger.info(f"프로젝트 input 기존값 초기화: '{current_val[:50]}'")
+                        proj_input.fill('')
+                        page.keyboard.press('Tab')  # blur: 포커스를 다음 요소로 이동
+                        page.wait_for_timeout(300)
+                except Exception:
+                    pass
+
+                # 클릭 (GW React onFocus → 프로젝트코드도움 모달 트리거)
+                # blur 상태에서 클릭해야 FOCUS 이벤트 발생 → picker 오픈
+                try:
+                    proj_input.click(timeout=5000)
+                    logger.info("프로젝트 input 클릭 성공")
+                except Exception as ce:
+                    logger.warning(f"프로젝트 input 클릭 실패({ce.__class__.__name__}: {str(ce)[:100]}) — dispatch_event fallback")
+                    self._dismiss_obt_alert()
+                    proj_input.dispatch_event("mousedown")
+                    proj_input.dispatch_event("mouseup")
+                    proj_input.dispatch_event("click")
+
+                self.page.wait_for_timeout(800)  # 모달 열림 대기
+                logger.info("프로젝트 input 클릭 완료 — 모달 대기")
         except Exception as e:
             logger.warning(f"프로젝트 input 클릭 실패: {e}")
+            # 열린 모달이 있으면 닫기
+            self._close_open_modals()
             return False
 
-        # 2. "프로젝트코드도움" 모달 대기
+        # 2. "프로젝트코드도움" 모달 대기 (타임아웃 증가: 3000 → 8000ms)
         self.page.wait_for_timeout(1000)
         modal_visible = False
         try:
             title_el = page.locator("text=프로젝트코드도움").first
-            if title_el.is_visible(timeout=3000):
+            if title_el.is_visible(timeout=8000):
                 modal_visible = True
                 logger.info("프로젝트코드도움 모달 열림")
         except Exception:
             pass
 
         if not modal_visible:
-            # 모달이 안 열린 경우 -- input에서 Enter 시도
+            # 모달이 안 열린 경우 -- 잠시 기다린 후 재확인 (페이지 이탈 방지 위해 Enter 금지)
+            self.page.wait_for_timeout(2000)
             try:
-                proj_input.press("Enter")
-                self.page.wait_for_timeout(1000)
                 title_el = page.locator("text=프로젝트코드도움").first
                 if title_el.is_visible(timeout=3000):
                     modal_visible = True
+                    logger.info("프로젝트코드도움 모달 열림 (지연 감지)")
             except Exception:
                 pass
 
         if not modal_visible:
             logger.warning("프로젝트코드도움 모달 미열림")
+            # ── 폴백: 프로젝트 코드 직접 입력 (GS-XX-XXXX 패턴 추출) ──
+            # 모달이 열리지 않을 경우 코드를 직접 타이핑하면 GW가 자동 조회함
+            import re as _re
+            _code_match = _re.search(r'GS-\d{2}-\d{4}', project)
+            _direct_code = _code_match.group() if _code_match else project.split()[0] if project.strip() else ""
+            logger.info(f"프로젝트 코드 직접 입력 폴백 시도: '{_direct_code}' (y_hint={y_hint})")
+            if _direct_code:
+                try:
+                    # JS로 모든 project code input 탐색 (placeholder 기반)
+                    _inp_info = page.evaluate("""() => {
+                        const inputs = Array.from(document.querySelectorAll("input[placeholder='프로젝트코드도움']"));
+                        return inputs.map((inp, i) => {
+                            const r = inp.getBoundingClientRect();
+                            return { i, x: r.x, y: r.y, w: r.width, h: r.height, visible: r.width > 0 && r.height > 0, val: inp.value };
+                        });
+                    }""")
+                    logger.info(f"프로젝트 코드 input 목록: {_inp_info}")
+
+                    # y_hint 기반으로 가장 가까운 input 인덱스 선택
+                    _best_idx = 0
+                    if y_hint is not None and _inp_info:
+                        _best_dist = float("inf")
+                        for _ii in _inp_info:
+                            if _ii.get("visible"):
+                                _d = abs(_ii["y"] - y_hint)
+                                if _d < _best_dist:
+                                    _best_dist = _d
+                                    _best_idx = _ii["i"]
+                    elif _inp_info:
+                        # visible한 첫 번째
+                        for _ii in _inp_info:
+                            if _ii.get("visible"):
+                                _best_idx = _ii["i"]
+                                break
+
+                    # JS로 직접 입력 (React onChange 트리거 포함)
+                    _typed = page.evaluate("""(args) => {
+                        const inputs = document.querySelectorAll("input[placeholder='프로젝트코드도움']");
+                        const inp = inputs[args.idx];
+                        if (!inp) return { ok: false, reason: 'input_not_found', count: inputs.length };
+                        inp.focus();
+                        // React synthetic input event
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                        nativeInputValueSetter.call(inp, args.code);
+                        inp.dispatchEvent(new Event('input', { bubbles: true }));
+                        inp.dispatchEvent(new Event('change', { bubbles: true }));
+                        inp.dispatchEvent(new Event('blur', { bubbles: true }));
+                        return { ok: true, idx: args.idx, code: args.code, val: inp.value };
+                    }""", {"idx": _best_idx, "code": _direct_code})
+                    logger.info(f"JS 직접 입력 결과: {_typed}")
+
+                    # Playwright type() 방식: keydown/keypress/keyup 이벤트로 GW OBTDialog2 피커 트리거
+                    # type() 입력 시 GW가 OBTDialog2 프로젝트 피커를 열면 검색/선택하여 React 상태 갱신
+                    try:
+                        _proj_loc = page.locator("input[placeholder='프로젝트코드도움']").nth(_best_idx)
+                        # 클릭 전 OBTAlert/overlay 해제 (invoice modal 닫기 후 GW cascade alert 가능)
+                        self._dismiss_obt_alert()
+                        page.wait_for_timeout(300)
+                        try:
+                            _proj_loc.click(click_count=3, timeout=8000)  # 전체 선택
+                        except Exception as _ce:
+                            logger.warning(f"프로젝트 input click 실패 ({_ce.__class__.__name__}) — force 클릭 시도")
+                            try:
+                                _proj_loc.click(click_count=3, force=True)
+                            except Exception:
+                                pass
+                        _proj_loc.type(_direct_code, delay=50)  # 한 글자씩 입력 (GW OBTDialog2 피커 트리거)
+                        page.wait_for_timeout(1000)   # OBTDialog2 피커 열림 대기
+
+                        _picker_sel = ".OBTDialog2_dialogRootOpen__3PExr"
+                        _picker_opened = page.locator(_picker_sel).count() > 0
+                        _ac_found = False
+
+                        if _picker_opened:
+                            # OBTDialog2 프로젝트 피커 열림 → 검색 후 첫 행 선택 → 확인
+                            # (단순 취소 대신 실제 선택하여 GW React 내부 프로젝트 상태 갱신)
+                            logger.info("프로젝트 type() → OBTDialog2 피커 열림 → 검색/선택 시도")
+                            _picker_selected = False
+                            try:
+                                # 피커 내 검색 버튼 클릭 (코드가 이미 검색 input에 입력된 상태)
+                                _search_btn_found = False
+                                for _sbsel in [
+                                    f"{_picker_sel} button[class*='searchButton']",
+                                    f"{_picker_sel} button:has(img[src*='search'])",
+                                ]:
+                                    try:
+                                        _sb = page.locator(_sbsel).first
+                                        if _sb.is_visible(timeout=500):
+                                            _sb.click()
+                                            _search_btn_found = True
+                                            logger.info(f"피커 검색 버튼 클릭: {_sbsel}")
+                                            break
+                                    except Exception:
+                                        continue
+                                if not _search_btn_found:
+                                    page.keyboard.press("Enter")
+                                    logger.info("피커 검색 Enter 폴백")
+
+                                # 피커 그리드 출현 폴링 (OBTDataGrid 또는 canvas, 최대 5초)
+                                _grid_cnt = 0
+                                _canvas_cnt = 0
+                                for _ri in range(10):
+                                    _grid_cnt = page.locator(f"{_picker_sel} .OBTDataGrid_grid__22Vfl").count()
+                                    _canvas_cnt = page.locator(f"{_picker_sel} canvas").count()
+                                    if _grid_cnt > 0 or _canvas_cnt > 0:
+                                        break
+                                    page.wait_for_timeout(500)
+                                logger.info(f"피커 그리드 감지: OBTDataGrid={_grid_cnt}, canvas={_canvas_cnt}")
+                                _save_debug(page, "picker_after_search")
+
+                                # 방법 A: React Fiber (invoice modal과 동일 패턴: __reactInternalInstance + .return×3)
+                                # OBTDataGrid_grid__22Vfl 엘리먼트에서 __reactFiber 또는 __reactInternalInstance 탐색
+                                _picker_react = None
+                                if _grid_cnt > 0:
+                                    _picker_react = page.evaluate("""(args) => {
+                                        const pickerSel = args.pickerSel;
+                                        const codeToFind = args.code;
+                                        const picker = document.querySelector(pickerSel);
+                                        if (!picker) return { success: false, reason: 'no_picker' };
+                                        const grid = picker.querySelector('.OBTDataGrid_grid__22Vfl');
+                                        if (!grid) return { success: false, reason: 'no_grid' };
+                                        // __reactFiber 또는 __reactInternalInstance 탐색
+                                        const fk = Object.keys(grid).find(k =>
+                                            k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance')
+                                        );
+                                        if (!fk) {
+                                            // Root 엘리먼트도 시도
+                                            const rootEl = picker.querySelector('[class*="OBTDataGrid_root"]');
+                                            if (!rootEl) return { success: false, reason: 'no_fiber', sampleKeys: Object.keys(grid).filter(k => k.startsWith('__')).slice(0, 5) };
+                                            const rootFk = Object.keys(rootEl).find(k =>
+                                                k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance')
+                                            );
+                                            if (!rootFk) return { success: false, reason: 'no_fiber_on_root', rootSampleKeys: Object.keys(rootEl).filter(k => k.startsWith('__')).slice(0, 5) };
+                                            let f2 = rootEl[rootFk];
+                                            for (let i = 0; i < 5 && f2; i++) f2 = f2.return;
+                                            const iface2 = f2 && f2.stateNode && f2.stateNode.state && f2.stateNode.state.interface;
+                                            if (!iface2 || typeof iface2.getRowCount !== 'function') return { success: false, reason: 'no_iface_from_root' };
+                                            const rowCount2 = iface2.getRowCount();
+                                            if (rowCount2 === 0) return { success: false, rowCount: 0 };
+                                            let targetRow2 = 0;
+                                            try {
+                                                const cols2 = iface2.getColumns ? iface2.getColumns() : [];
+                                                for (let r = 0; r < Math.min(rowCount2, 200); r++) {
+                                                    for (const c of cols2) {
+                                                        const cn = c.name || (c.columns && c.columns[0] && c.columns[0].name);
+                                                        if (!cn) continue;
+                                                        const v = String(iface2.getValue(r, cn) || '');
+                                                        if (v.includes(codeToFind)) { targetRow2 = r; break; }
+                                                    }
+                                                    if (targetRow2 !== 0) break;
+                                                }
+                                            } catch(e2) {}
+                                            iface2.setSelection({ rowIndex: targetRow2, columnIndex: 0 });
+                                            iface2.focus({ rowIndex: targetRow2, columnIndex: 0 });
+                                            if (typeof iface2.setCheckedRows === 'function') try { iface2.setCheckedRows([targetRow2]); } catch(e2c) {}
+                                            if (typeof iface2.checkRow === 'function') try { iface2.checkRow(targetRow2, true); } catch(e2c) {}
+                                            if (typeof iface2.commit === 'function') iface2.commit();
+                                            return { success: true, rowCount: rowCount2, selectedRow: targetRow2, via: 'root' };
+                                        }
+                                        // grid 엘리먼트에서 .return 3회 상향 (invoice modal 패턴 동일)
+                                        let f = grid[fk];
+                                        for (let i = 0; i < 3 && f; i++) f = f.return;
+                                        const iface = f && f.stateNode && f.stateNode.state && f.stateNode.state.interface;
+                                        if (!iface || typeof iface.getRowCount !== 'function') return { success: false, reason: 'no_iface' };
+                                        const rowCount = iface.getRowCount();
+                                        if (rowCount === 0) return { success: false, rowCount: 0 };
+                                        // 코드와 일치하는 행 찾기 (기본: 0번 행)
+                                        let targetRow = 0;
+                                        try {
+                                            const cols = iface.getColumns ? iface.getColumns() : [];
+                                            for (let r = 0; r < Math.min(rowCount, 200); r++) {
+                                                for (const c of cols) {
+                                                    const cn = c.name || (c.columns && c.columns[0] && c.columns[0].name);
+                                                    if (!cn) continue;
+                                                    const v = String(iface.getValue(r, cn) || '');
+                                                    if (v.includes(codeToFind)) { targetRow = r; break; }
+                                                }
+                                                if (targetRow !== 0) break;
+                                            }
+                                        } catch(e) {}
+                                        iface.setSelection({ rowIndex: targetRow, columnIndex: 0 });
+                                        iface.focus({ rowIndex: targetRow, columnIndex: 0 });
+                                        if (typeof iface.setCheckedRows === 'function') try { iface.setCheckedRows([targetRow]); } catch(ec) {}
+                                        if (typeof iface.checkRow === 'function') try { iface.checkRow(targetRow, true); } catch(ec) {}
+                                        if (typeof iface.commit === 'function') iface.commit();
+                                        return { success: true, rowCount: rowCount, selectedRow: targetRow, via: 'grid' };
+                                    }""", {"pickerSel": _picker_sel, "code": _direct_code})
+
+                                if _picker_react and _picker_react.get("success"):
+                                    logger.info(f"피커 방법A React Fiber 첫 행 선택 ({_picker_react.get('rowCount')}건)")
+                                    page.wait_for_timeout(400)
+                                    # 캔버스 클릭으로 GW 네이티브 행 선택 트리거 (setSelection 보완)
+                                    # React Fiber setSelection은 UI 하이라이트만 변경 → 네이티브 클릭이 GW onRowSelect 실행
+                                    try:
+                                        _cv_p = page.locator(f"{_picker_sel} canvas").first
+                                        _cv_pbox = _cv_p.bounding_box()
+                                        if _cv_pbox:
+                                            # 첫 번째 데이터 행: 헤더 약 24px + 행 높이 절반 12px = y≈36
+                                            _cv_p.click(position={"x": _cv_pbox["width"] / 2, "y": 36})
+                                            page.wait_for_timeout(400)
+                                            logger.info("피커 캔버스 클릭: 첫 번째 행 GW 네이티브 선택")
+                                    except Exception as _cpe:
+                                        logger.warning(f"피커 캔버스 클릭 실패: {_cpe}")
+                                    # 캔버스 클릭으로 피커가 자동 닫힌 경우 (dblclick 처럼 동작)
+                                    if page.locator(_picker_sel).count() == 0:
+                                        logger.info("피커 캔버스 클릭 후 자동 닫힘 → 선택 완료")
+                                        _picker_selected = True
+                                        _ac_found = True
+                                    else:
+                                        # 확인 버튼 클릭
+                                        for _confirmsel in [
+                                            f"{_picker_sel} button:has-text('확인')",
+                                            "button:has-text('확인')",
+                                        ]:
+                                            try:
+                                                _cbtn = page.locator(_confirmsel).last
+                                                if _cbtn.is_visible(timeout=500):
+                                                    _cbtn.click()
+                                                    page.wait_for_timeout(800)
+                                                    logger.info("피커 확인 버튼 클릭")
+                                                    _picker_selected = True
+                                                    _ac_found = True
+                                                    break
+                                            except Exception:
+                                                continue
+                                elif _picker_react and _picker_react.get("rowCount") == 0:
+                                    logger.warning("피커 방법A: 검색 결과 없음 (0건)")
+                                else:
+                                    # 방법 B: canvas dblclick (OBTGrid canvas 방식 — locator.dblclick() 사용)
+                                    _canvas_clicked = False
+                                    if _canvas_cnt > 0:
+                                        try:
+                                            _cv = page.locator(f"{_picker_sel} canvas").first
+                                            _cv_box = _cv.bounding_box()
+                                            if _cv_box:
+                                                # 코드 행 y 추정: 행 높이 약 22px, 첫 행=+11, 헤더 건너뜀
+                                                # 첫 번째 데이터 행: 헤더 24px + 행 높이 절반 12px = y≈36
+                                                _row_y = _cv_box["y"] + 36  # 첫 행
+                                                _row_x = _cv_box["x"] + _cv_box["width"] / 2
+                                                _cv.dblclick(position={"x": _cv_box["width"] / 2, "y": 36})
+                                                page.wait_for_timeout(600)
+                                                _canvas_clicked = True
+                                                logger.info(f"피커 방법B canvas dblclick: y={_row_y:.0f}")
+                                        except Exception as _cve:
+                                            logger.warning(f"피커 방법B canvas 클릭 실패: {_cve}")
+
+                                    # 방법 C: 키보드 ArrowDown + Enter (최후 수단)
+                                    if not _canvas_clicked:
+                                        logger.info("피커 방법C 키보드 ArrowDown+Enter 시도")
+                                        page.keyboard.press("ArrowDown")
+                                        page.wait_for_timeout(400)
+                                        page.keyboard.press("Enter")
+                                        page.wait_for_timeout(500)
+
+                                    # 피커 닫힘 여부로 성공 판단
+                                    if page.locator(_picker_sel).count() == 0:
+                                        logger.info("피커 방법B/C 선택 후 닫힘 확인 → 성공")
+                                        _picker_selected = True
+                                        _ac_found = True
+                                    else:
+                                        # 확인 버튼 직접 클릭
+                                        for _confirmsel in [
+                                            f"{_picker_sel} button:has-text('확인')",
+                                            "button:has-text('확인')",
+                                        ]:
+                                            try:
+                                                _cbtn = page.locator(_confirmsel).last
+                                                if _cbtn.is_visible(timeout=500):
+                                                    _cbtn.click()
+                                                    page.wait_for_timeout(800)
+                                                    logger.info(f"피커 방법B/C 확인 버튼 클릭: {_confirmsel}")
+                                                    _picker_selected = True
+                                                    _ac_found = True
+                                                    break
+                                            except Exception:
+                                                continue
+                                    if not _picker_selected:
+                                        logger.warning(f"피커 방법A/B/C 모두 실패: React={_picker_react}")
+                            except Exception as _pe:
+                                logger.warning(f"OBTDialog2 피커 선택 중 예외: {_pe}")
+
+                            # 피커가 아직 열려있으면 닫기
+                            if page.locator(_picker_sel).count() > 0:
+                                try:
+                                    _cancel = page.locator(f"{_picker_sel} button:has-text('취소')").last
+                                    if _cancel.is_visible(timeout=300):
+                                        _cancel.click()
+                                        page.wait_for_timeout(500)
+                                        logger.info("피커 미선택 → 취소로 닫기")
+                                except Exception:
+                                    pass
+
+                            if _picker_selected:
+                                logger.info(f"프로젝트 코드 OBTDialog2 피커 선택 완료: '{_direct_code}'")
+                                # 피커 확인 후 하단 프로젝트 input 현재값 로깅 (진단용)
+                                try:
+                                    _post_val = page.evaluate("""() => {
+                                        const inputs = [...document.querySelectorAll("input[placeholder='프로젝트코드도움']")]
+                                            .filter(inp => inp.getBoundingClientRect().y > 500);
+                                        return inputs.length > 0 ? inputs[inputs.length - 1].value : '(not found)';
+                                    }""")
+                                    logger.info(f"피커 확인 후 하단 project input 값: '{_post_val}'")
+                                except Exception:
+                                    pass
+                            else:
+                                logger.warning(f"프로젝트 코드 OBTDialog2 피커 선택 실패: '{_direct_code}'")
+                        else:
+                            # 피커 미열림 → 자동완성 드롭다운 확인
+                            for _asel in [
+                                "ul[class*='autocomplete'] li:first-child",
+                                "div[class*='OBTAutoComplete'] li:first-child",
+                                "li[class*='item']:first-child",
+                            ]:
+                                try:
+                                    _ac = page.locator(_asel).first
+                                    if _ac.is_visible(timeout=300):
+                                        _ac.click()
+                                        _ac_found = True
+                                        page.wait_for_timeout(400)
+                                        logger.info(f"프로젝트 자동완성 선택: {_asel}")
+                                        break
+                                except Exception:
+                                    continue
+                            if not _ac_found:
+                                page.keyboard.press("Enter")
+                                page.wait_for_timeout(400)
+
+                        logger.info(f"프로젝트 코드 type() 방식 완료: '{_direct_code}' (피커={_picker_opened}, 선택={_ac_found})")
+                    except Exception as _te:
+                        logger.warning(f"프로젝트 코드 type() 방식 실패: {_te}")
+
+                    # Tab으로 blur → GW 자동조회 최종 트리거
+                    page.keyboard.press("Tab")
+                    page.wait_for_timeout(800)
+
+                    if _typed and _typed.get("ok"):
+                        logger.info(f"프로젝트 코드 직접 입력 폴백 성공: '{_direct_code}'")
+                        return True
+                except Exception as _fe:
+                    logger.warning(f"프로젝트 코드 직접 입력 폴백 실패: {_fe}")
             return False
 
         # 3. 모달 내 검색어 확인 + 돋보기(조회) 버튼 클릭
@@ -1282,13 +2026,23 @@ class ExpenseReportMixin:
                 return -1;
             }""")
 
+            # 모달 검색 키워드: 전체 프로젝트 문자열 대신 짧은 이름/코드 사용
+            # 예: "GS-25-0088. [종로] 메디빌더" → "메디빌더" (GW 검색 정확도 향상)
+            _search_kw = project
+            if ". " in project:
+                _search_kw = project.split(". ", 1)[1]  # "[종로] 메디빌더"
+                if "]" in _search_kw:
+                    _search_kw = _search_kw.split("]", 1)[1].strip()  # "메디빌더"
+            if not _search_kw.strip():
+                _search_kw = project
+
             modal_search = None
             if modal_search_idx >= 0:
                 modal_search = page.locator("input").nth(modal_search_idx)
                 current_val = modal_search.input_value()
-                if project.lower() not in current_val.lower():
+                if _search_kw.lower() not in current_val.lower():
                     modal_search.click(force=True)
-                    modal_search.fill(project)
+                    modal_search.fill(_search_kw)
                 logger.info(f"모달 검색어: {modal_search.input_value()}")
             else:
                 logger.warning("모달 내 검색 input을 찾지 못함")
@@ -1641,7 +2395,7 @@ class ExpenseReportMixin:
         # 방법 3: JS 동적 탐색 — 지출내역 영역 근처에서 버튼 텍스트 매칭 + 직접 클릭
         try:
             js_result = page.evaluate(f"""() => {{
-                const target = '{btn_text}';
+                const target = {_js_str(btn_text)};
                 // 모든 클릭 가능 요소 중 텍스트 매칭
                 const candidates = Array.from(document.querySelectorAll(
                     'button, [role="tab"], [role="button"], li, span, a, div'
@@ -1711,7 +2465,1020 @@ class ExpenseReportMixin:
         date_to: str = "",
     ) -> bool:
         """
-        계산서내역 DOM 모달("매입(세금)계산서 내역")에서 세금계산서를 검색/선택.
+        매입(세금)계산서 내역 모달에서 세금계산서를 검색/선택.
+
+        실제 GW 조작 플로우 (2026-03-29 관찰):
+        1. 모달 열림 대기 ("매입(세금)계산서 내역" 제목)
+        2. 달력 팝업으로 시작일 변경 (기본 2일 → 넓은 범위)
+        3. ▼ 버튼 클릭 → 상세검색 영역 토글
+        4. 거래처/사업자번호 input에 vendor 타이핑
+        5. 🔍 조회 버튼 클릭
+        6. 결과 체크박스 선택
+        7. 확인 클릭 → 그리드 자동 반영
+        """
+        page = self.page
+        import datetime as _dt
+
+        # 기본 기간 계산 (±12개월)
+        today = _dt.date.today()
+        if not date_from:
+            start = (today.replace(day=1) - _dt.timedelta(days=365)).replace(day=1)
+            date_from = start.strftime("%Y-%m-%d")
+        if not date_to:
+            next_m = today.replace(day=28) + _dt.timedelta(days=4)
+            date_to = (next_m.replace(day=1) - _dt.timedelta(days=1)).strftime("%Y-%m-%d")
+
+        logger.info(f"계산서 모달 검색 -- vendor='{vendor}' amount={amount} 기간={date_from}~{date_to}")
+
+        # ── 1. 모달 표시 대기 ──
+        modal_visible = False
+        modal_selectors = ["text=매입(세금)계산서 내역", "text=/매입.*계산서.*내역/", "text=계산서 내역"]
+        for _ in range(40):
+            for sel in modal_selectors:
+                try:
+                    if page.locator(sel).first.is_visible(timeout=100):
+                        modal_visible = True
+                        break
+                except Exception:
+                    pass
+            if modal_visible:
+                break
+            self.page.wait_for_timeout(250)
+
+        if not modal_visible:
+            logger.warning("계산서 모달 미표시")
+            _save_debug(page, "invoice_modal_not_found")
+            return False
+
+        logger.info("계산서 모달 표시 확인")
+        self.page.wait_for_timeout(2000)  # 모달 내부 렌더링 대기
+
+        # ── 2. 시작일 날짜 변경 ──
+        # OBT DatePicker의 input.value가 evaluate에서 빈 문자열일 수 있음
+        # → "작성일자" 레이블 근처 + width 50~80px + y:240~280 기준으로 찾기
+        try:
+            # 먼저 모달 내 모든 input 덤프 (디버그)
+            all_inputs_debug = page.evaluate("""() => {
+                const inputs = document.querySelectorAll('input');
+                return Array.from(inputs).filter(inp => {
+                    const r = inp.getBoundingClientRect();
+                    return r.y > 200 && r.y < 350 && r.width > 30 && r.height > 0;
+                }).map(inp => {
+                    const r = inp.getBoundingClientRect();
+                    return {
+                        type: inp.type, value: (inp.value || '').substring(0, 30),
+                        placeholder: inp.placeholder || '',
+                        x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width)
+                    };
+                });
+            }""")
+            logger.info(f"모달 상단 input 덤프: {all_inputs_debug}")
+
+            date_coords = page.evaluate("""() => {
+                // "작성일자" 레이블 찾기 (모달 내)
+                let labelY = 260;
+                const allEls = document.querySelectorAll('th, td, label, span, div');
+                for (const el of allEls) {
+                    if (el.textContent.trim() === '작성일자' && el.getBoundingClientRect().height > 0) {
+                        const ey = el.getBoundingClientRect().y + el.getBoundingClientRect().height / 2;
+                        // 모달 영역 (y > 200)
+                        if (ey > 200) { labelY = ey; break; }
+                    }
+                }
+
+                // 날짜 input 찾기: width 55~70px + "작성일자" 레이블과 같은 y 라인
+                // value 조건 완화 (OBT DatePicker가 value를 지연 반영하므로)
+                const inputs = document.querySelectorAll('input');
+                const candidates = [];
+                for (const inp of inputs) {
+                    const r = inp.getBoundingClientRect();
+                    if (r.width < 50 || r.width > 85 || r.height === 0) continue;
+                    if (r.x < 500) continue;  // 좌측 사업장 제외
+                    // labelY와 y 차이 25px 이내
+                    const yCenter = r.y + r.height / 2;
+                    if (Math.abs(yCenter - labelY) > 25) continue;
+                    // value 확인 (있으면 날짜 패턴, 없어도 후보로 포함)
+                    const val = inp.value || '';
+                    candidates.push({
+                        x: r.x + r.width / 2,
+                        y: yCenter,
+                        w: Math.round(r.width),
+                        val: val
+                    });
+                }
+                candidates.sort((a, b) => a.x - b.x);
+                return { labelY: Math.round(labelY), dates: candidates };
+            }""")
+            logger.info(f"날짜 input 탐색: {date_coords}")
+
+            dates = date_coords.get("dates", []) if date_coords else []
+            if len(dates) >= 1:
+                # 시작일 변경: triple_click → type
+                coord = dates[0]
+                page.mouse.click(coord["x"], coord["y"], click_count=3)
+                self.page.wait_for_timeout(300)
+                # 기존 값 전체 선택 후 덮어쓰기
+                page.keyboard.press("Control+a")
+                self.page.wait_for_timeout(100)
+                page.keyboard.type(date_from, delay=30)
+                page.keyboard.press("Tab")
+                self.page.wait_for_timeout(500)
+                logger.info(f"시작일 변경: {coord.get('val','')} → {date_from} (w={coord['w']})")
+
+                # Tab 키 후 GW가 자동 조회 시작 → 로딩 완료 대기
+                # OBT 로딩 오버레이가 뜨고 사라질 때까지 대기 (최대 15초)
+                self.page.wait_for_timeout(2000)  # 로딩 시작 대기
+                for _wait in range(26):  # 최대 13초 추가
+                    try:
+                        # 로딩 인디케이터가 보이면 대기
+                        loading_visible = page.evaluate("""() => {
+                            const els = document.querySelectorAll('*');
+                            for (const el of els) {
+                                const text = el.textContent.trim();
+                                const r = el.getBoundingClientRect();
+                                if ((text.includes('조회하고 있습니다') || text.includes('잠시 기다려')) && r.height > 0 && r.width > 0) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }""")
+                        if loading_visible:
+                            self.page.wait_for_timeout(500)
+                            continue
+                        break
+                    except Exception:
+                        break
+                self.page.wait_for_timeout(1000)  # 렌더링 안정화
+                logger.info("날짜 변경 후 자동 조회 완료 대기 끝")
+
+                # 종료일은 변경하지 않음 — 시작일만 date_from으로 좁혀서 date_from~오늘 범위 조회
+                logger.info(f"종료일 유지: {dates[1].get('val','') if len(dates) >= 2 else '(불명)'}")
+            else:
+                logger.warning(f"날짜 input 미발견 (labelY={date_coords.get('labelY')}, candidates=0)")
+        except Exception as e:
+            logger.warning(f"날짜 변경 실패: {e}")
+
+        _save_debug(page, "invoice_modal_after_date_change")
+
+
+        # 날짜 변경 후 자동 조회로 전체 목록이 로드됨
+        # 상세검색/조회 버튼 불필요 — 전체 목록에서 vendor명으로 행 선택
+        self.page.wait_for_timeout(3000)  # 자동 조회 결과 렌더링 대기
+        _save_debug(page, "invoice_modal_search_result")
+
+
+        # 디버그: 모달 내 그리드 구조 + React fiber 탐색
+        try:
+            modal_html = page.evaluate("""() => {
+                const allEls = document.querySelectorAll('*');
+                let modal = null;
+                for (const el of allEls) {
+                    if (el.textContent.includes('계산서 내역') && el.children.length < 5) {
+                        modal = el.closest('[data-orbit-component], [class*="dialog"], [class*="Dialog"]');
+                        if (modal) break;
+                    }
+                }
+                if (!modal) return { error: 'no_modal' };
+
+                // grid/canvas 요소의 클래스명 수집
+                const gridEls = modal.querySelectorAll('[class*="grid"], [class*="Grid"], canvas');
+                const gridClasses = Array.from(gridEls).slice(0, 10).map(el => ({
+                    tag: el.tagName,
+                    cls: (el.className || '').substring(0, 80),
+                    w: Math.round(el.getBoundingClientRect().width),
+                    h: Math.round(el.getBoundingClientRect().height),
+                    hasFiber: !!Object.keys(el).find(k => k.startsWith('__reactFiber'))
+                }));
+
+                // React fiber로 OBTDataGrid interface 찾기
+                // fiber가 grid 자체가 아닌 부모에 있을 수 있음 → 부모 3단계까지 탐색
+                let gridAPI = null;
+                for (const el of gridEls) {
+                    let target = el;
+                    for (let parentDepth = 0; parentDepth < 4 && target; parentDepth++) {
+                        const fiberKey = Object.keys(target).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                        if (fiberKey) {
+                            let node = target[fiberKey];
+                            for (let d = 0; d < 20 && node; d++) {
+                                try {
+                                    const st = node?.stateNode?.state;
+                                    const iface = st?.interface;
+                                    if (iface && typeof iface.getRowCount === 'function') {
+                                        gridAPI = {
+                                            rowCount: iface.getRowCount(),
+                                            depth: d,
+                                            parentDepth: parentDepth,
+                                            tag: el.tagName,
+                                            cls: (el.className || '').substring(0, 40),
+                                            methods: Object.keys(iface).filter(k => typeof iface[k] === 'function').slice(0, 20)
+                                        };
+                                        break;
+                                    }
+                                } catch(e) {}
+                                node = node.return;
+                            }
+                            if (gridAPI) break;
+                        }
+                        target = target.parentElement;
+                    }
+                    if (gridAPI) break;
+                }
+
+                return {
+                    gridElCount: gridEls.length,
+                    gridClasses: gridClasses,
+                    gridAPI: gridAPI,
+                    trCount: modal.querySelectorAll('tr').length,
+                    checkboxCount: modal.querySelectorAll('input[type="checkbox"]').length,
+                    modalClass: modal.className?.substring(0, 60),
+                    sampleTrs: Array.from(modal.querySelectorAll('tr')).slice(0, 5).map(tr => ({
+                        tdCount: tr.querySelectorAll('td').length,
+                        text: tr.textContent.substring(0, 80)
+                    }))
+                };
+            }""")
+            logger.info(f"모달 HTML 구조: {modal_html}")
+        except Exception as e:
+            logger.warning(f"모달 HTML 덤프 실패: {e}")
+
+        # ── 6. 결과 행 선택 ──
+        # 우선순위: A) dataProvider API → B) 상세검색 거래처 필터 → C) 좌표 클릭 폴백
+        selected = False
+        _vendor_found_by_dp = False  # 6-A에서 dataProvider로 vendor 행 인덱스 확보 여부
+
+        # gridAPI에서 rowCount 가져오기 (디버그 덤프 결과 활용)
+        grid_row_count = 0
+        if isinstance(modal_html, dict) and modal_html.get("gridAPI"):
+            grid_row_count = modal_html["gridAPI"].get("rowCount", 0)
+            logger.info(f"모달 그리드 행 수: {grid_row_count}")
+
+        if grid_row_count == 0:
+            logger.warning("계산서 모달: 데이터가 존재하지 않습니다")
+            return False
+
+        # invoice modal 그리드 클릭 → window.Grids.getActiveGrid()가 invoice modal grid를 가리키도록
+        # (헤더 오른쪽 영역 클릭: 체크박스 열 및 정렬 트리거 방지)
+        try:
+            _mgb = page.evaluate("""() => {
+                const scope = document.querySelector('.obtdialog.open, [class*="OBTDialog"][class*="open"]') || document;
+                const grid = scope.querySelector('.OBTDataGrid_grid__22Vfl');
+                if (!grid) return null;
+                const r = grid.getBoundingClientRect();
+                return r.width > 0 ? { x: r.x, y: r.y, w: r.width, h: r.height } : null;
+            }""")
+            if _mgb and _mgb["w"] > 0:
+                # 그리드 데이터 영역 중앙(x) + 헤더 바로 아래 첫 행(y) 클릭
+                # x: 체크박스 열(x+15) 제외, 데이터 중앙(x + w//2)
+                # y: 헤더 하단(35px) + 첫 행 중앙(14px)
+                _fx = _mgb["x"] + _mgb["w"] // 2
+                _fy = _mgb["y"] + 49  # header 35 + first row center 14
+                page.mouse.click(_fx, _fy)
+                self.page.wait_for_timeout(400)
+                logger.info(f"invoice modal 그리드 포커스 클릭: ({_fx:.0f}, {_fy:.0f})")
+        except Exception:
+            pass
+
+        # ── 6-A. OBTDataGrid 내부 dataProvider 심층 탐색 + vendor 행 checkRow ──
+        # 전략: stateNode 내부 모든 객체를 재귀적으로 탐색해 getRowCount/getJsonRow가 있는 dataProvider 찾기
+        try:
+            # amount: 공급가액(supply amount) 또는 합계(total) 문자열로 인보이스 특정
+            _amount_kw = str(int(amount)) if amount else ""
+            # 날짜 키워드: date_from "2026-02-28" → "20260228" (GW issDt 형식)
+            _date_dt_kw = date_from.replace("-", "") if date_from else ""
+            select_result = page.evaluate(f"""() => {{
+                const vendorKw = {_js_str(vendor or "")};
+                const amountKw = {_js_str(_amount_kw)};
+                const dateDtKw = {_js_str(_date_dt_kw)};  // issDt 형식: "20260228"
+
+                // ── 방법 0: window.Grids.getActiveGrid() (클릭으로 invoice modal grid가 활성화) ──
+                try {{
+                    const ag = window.Grids ? window.Grids.getActiveGrid() : null;
+                    if (ag) {{
+                        const dp0 = ag.getDataProvider ? ag.getDataProvider() : null;
+                        if (dp0) {{
+                            const cnt0 = dp0.getRowCount ? dp0.getRowCount() : 0;
+                            if (cnt0 >= 5) {{  // expense form(1행) 제외
+                                const tr0 = findVendorRow(dp0, cnt0);
+                                if (tr0 >= 0) {{
+                                    const rd0 = dp0.getJsonRow ? dp0.getJsonRow(tr0) : null;
+                                    // 금액 불일치여도 거래처 매칭 우선 선택 (중도금/부분지급 시나리오)
+                                    if (typeof ag.checkRow === 'function') {{
+                                        ag.checkRow(tr0, true);
+                                        return {{ matched: true, targetRow: tr0, rowCount: cnt0, method: 'grid_native_checkRow', rowData: rd0 }};
+                                    }}
+                                    if (typeof ag.setTopItem === 'function') ag.setTopItem(tr0);
+                                    return {{ matched: false, targetRow: tr0, rowCount: cnt0, method: 'grid_setTopItem', rowData: rd0 }};
+                                }}
+                                // tr0 < 0: vendor 미발견 → React fiber 방법으로 폴백
+                            }}
+                        }}
+                    }}
+                }} catch(e) {{}}
+
+                // dataProvider 후보 객체에서 vendor 행 인덱스 찾기
+                // 전략 (순서대로):
+                //   1) vendor + amount 동시 매칭
+                //   2) vendor만 매칭 (GW 등록명이 다를 수 있음)
+                //   3) date + amount 매칭 (vendor명 불일치 시)
+                //   4) amount만 매칭 (최후 수단)
+                function findVendorRow(dp, rowCount) {{
+                    if (!vendorKw && !amountKw && !dateDtKw) return 0;
+                    const limit = Math.min(rowCount, 500);
+
+                    // 전략 1: vendor + amount 동시 매칭
+                    if (vendorKw && amountKw) {{
+                        for (let i = 0; i < limit; i++) {{
+                            try {{
+                                const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                                if (!row) continue;
+                                const s = JSON.stringify(row);
+                                if (s.includes(vendorKw) && s.includes(amountKw)) return i;
+                            }} catch(e) {{}}
+                        }}
+                    }}
+
+                    // 전략 2: vendor만 매칭 (GW 등록 상호명이 다를 수 있음)
+                    if (vendorKw) {{
+                        for (let i = 0; i < limit; i++) {{
+                            try {{
+                                const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                                if (row && JSON.stringify(row).includes(vendorKw)) return i;
+                            }} catch(e) {{}}
+                        }}
+                    }}
+
+                    // 전략 3: date (issDt) + amount 매칭
+                    if (dateDtKw && amountKw) {{
+                        for (let i = 0; i < limit; i++) {{
+                            try {{
+                                const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                                if (!row) continue;
+                                const s = JSON.stringify(row);
+                                if (s.includes(dateDtKw) && s.includes(amountKw)) return i;
+                            }} catch(e) {{}}
+                        }}
+                    }}
+
+                    // 전략 4: amount만 매칭 (최후 수단)
+                    if (amountKw) {{
+                        for (let i = 0; i < limit; i++) {{
+                            try {{
+                                const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+                                if (row && JSON.stringify(row).includes(amountKw)) return i;
+                            }} catch(e) {{}}
+                        }}
+                    }}
+
+                    return -1;
+                }}
+
+                // 객체를 재귀 탐색해 dataProvider 찾기
+                function findDP(obj, depth) {{
+                    if (!obj || depth > 5 || typeof obj !== 'object') return null;
+                    try {{
+                        if (typeof obj.getRowCount === 'function' && typeof obj.getJsonRow === 'function') {{
+                            return obj;
+                        }}
+                        const keys = Object.getOwnPropertyNames(obj);
+                        for (const k of keys) {{
+                            try {{
+                                const val = obj[k];
+                                if (val && typeof val === 'object' && val !== obj) {{
+                                    const found = findDP(val, depth + 1);
+                                    if (found) return found;
+                                }}
+                            }} catch(e) {{}}
+                        }}
+                    }} catch(e) {{}}
+                    return null;
+                }}
+
+                // 모달 컨테이너 먼저 찾기 (expense form 그리드와 구별)
+                // invoice modal은 OBTDialog 계열 컨테이너 안에 있음
+                let modalContainer = null;
+                for (const el of document.querySelectorAll('[class*="OBTDialog"], [class*="obtdialog"], [class*="OBTPortal"]')) {{
+                    const r = el.getBoundingClientRect();
+                    if (r.width > 0 && el.textContent.includes('계산서')) {{
+                        modalContainer = el;
+                        break;
+                    }}
+                }}
+                const gridScope = modalContainer || document;
+
+                // grid 요소에서 fiber 탐색 (모달 내부 우선)
+                const gridEls = gridScope.querySelectorAll('.OBTDataGrid_grid__22Vfl, .OBTDataGrid_root__mruAZ');
+                for (const gridEl of gridEls) {{
+                    let target = gridEl;
+                    for (let p = 0; p < 6; p++) {{
+                        if (!target) break;
+                        const fiberKey = Object.keys(target).find(k =>
+                            k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                        if (fiberKey) {{
+                            let node = target[fiberKey];
+                            for (let d = 0; d < 30 && node; d++) {{
+                                try {{
+                                    const st = node?.stateNode;
+                                    if (st && typeof st === 'object') {{
+                                        // 방법 1: stateNode 직접 탐색 → dataProvider
+                                        const dp = findDP(st, 0);
+                                        if (dp) {{
+                                            const rowCount = dp.getRowCount();
+                                            // rowCount < 5 이면 expense form 그리드 (행 1개) → 스킵하고 계속 탐색
+                                            if (rowCount >= 5) {{
+                                                const targetRow = findVendorRow(dp, rowCount);
+                                                const firstRowData = dp.getJsonRow ? dp.getJsonRow(targetRow) : null;
+
+                                                // gridView 찾기 (체크박스 API 시도)
+                                                const gv = st?._gridView || st?.gridView ||
+                                                           st?.gridRef?.current || st?.state?._gridView;
+                                                if (gv && typeof gv.checkRow === 'function') {{
+                                                    gv.checkRow(targetRow, true);
+                                                    return {{ matched: true, targetRow, rowCount, method: 'dp_checkRow', rowData: firstRowData }};
+                                                }}
+                                                if (gv && typeof gv.setCheck === 'function') {{
+                                                    gv.setCheck(targetRow, true);
+                                                    return {{ matched: true, targetRow, rowCount, method: 'dp_setCheck', rowData: firstRowData }};
+                                                }}
+                                                // gv 미발견 → iface.checkRow 직접 시도 (off-screen 행도 선택 가능)
+                                                const iface2 = st?.state?.interface;
+                                                if (iface2) {{
+                                                    if (typeof iface2.checkRow === 'function') {{
+                                                        iface2.checkRow(targetRow, true);
+                                                        return {{ matched: true, targetRow, rowCount, method: 'dp_iface_checkRow', rowData: firstRowData }};
+                                                    }}
+                                                    if (typeof iface2.setSelection === 'function') {{
+                                                        iface2.setSelection({{ startRow: targetRow, endRow: targetRow }});
+                                                        return {{ matched: true, targetRow, rowCount, method: 'dp_iface_setSelection', rowData: firstRowData }};
+                                                    }}
+                                                }}
+                                                // iface도 없음 → 행 인덱스만 반환 (좌표 계산용)
+                                                return {{ matched: false, targetRow, rowCount, method: 'dp_found_no_gv', rowData: firstRowData }};
+                                            }}
+                                            // rowCount < 5: expense form 그리드 → 방법 2로 진행
+                                        }}
+
+                                        // 방법 2: state.interface 직접 사용 (invoice modal 전용)
+                                        const iface = st?.state?.interface;
+                                        if (iface && typeof iface.getRowCount === 'function') {{
+                                            const rowCount = iface.getRowCount();
+                                            if (rowCount >= 5) {{  // expense form(1행) 제외
+                                                // vendor 행 인덱스 찾기: getValue + getDataSource 시도
+                                                let targetRow = 0;
+                                                if (vendorKw) {{
+                                                    outer2: for (let i = 0; i < Math.min(rowCount, 300); i++) {{
+                                                        for (const fn of ['trNm', 'vendorNm', 'cdDc', 'trCd', 'issNm', 'buyNm']) {{
+                                                            try {{
+                                                                const v = typeof iface.getValue === 'function'
+                                                                    ? iface.getValue(i, fn) : null;
+                                                                if (v && String(v).includes(vendorKw)) {{ targetRow = i; break outer2; }}
+                                                            }} catch(e) {{}}
+                                                        }}
+                                                        try {{
+                                                            const ds = typeof iface.getDataSource === 'function'
+                                                                ? iface.getDataSource() : null;
+                                                            if (ds && typeof ds.getJsonRow === 'function') {{
+                                                                const row = ds.getJsonRow(i);
+                                                                if (row && JSON.stringify(row).includes(vendorKw)) {{ targetRow = i; break; }}
+                                                            }}
+                                                        }} catch(e) {{}}
+                                                    }}
+                                                }}
+                                                // checkRow 직접 시도
+                                                if (typeof iface.checkRow === 'function') {{
+                                                    iface.checkRow(targetRow, true);
+                                                    return {{ matched: true, targetRow, rowCount, method: 'iface_direct_checkRow' }};
+                                                }}
+                                                // setSelection으로 대체 (행 선택)
+                                                if (typeof iface.setSelection === 'function') {{
+                                                    iface.setSelection({{ startRow: targetRow, endRow: targetRow }});
+                                                    return {{ matched: true, targetRow, rowCount, method: 'iface_setSelection' }};
+                                                }}
+                                                // API 없음 → targetRow를 좌표 계산에 활용
+                                                return {{ matched: false, targetRow, rowCount, method: 'iface_no_api', depth: d }};
+                                            }}
+                                        }}
+                                    }}
+                                }} catch(e) {{}}
+                                node = node.return;
+                            }}
+                        }}
+                        target = target.parentElement;
+                    }}
+                }}
+                return {{ error: 'no_dp_found' }};
+            }}""")
+            logger.info(f"그리드 dataProvider 탐색 결과: {select_result}")
+
+            if select_result and select_result.get("matched"):
+                selected = True
+                logger.info(
+                    f"세금계산서 선택 성공 (dataProvider API): "
+                    f"row={select_result.get('targetRow')}, method={select_result.get('method')}"
+                )
+            elif select_result and select_result.get("method") in ("dp_found_no_gv", "iface_no_api"):
+                # dataProvider/iface는 찾았지만 checkRow 불가 → vendor 행 인덱스를 좌표 계산에 활용
+                _dp_row_count = select_result.get("rowCount", 0)
+                _vendor_row_idx = select_result.get("targetRow", 0)
+                # rowCount가 5 미만이면 expense form 그리드를 잘못 읽은 것 → 6-B 스킵하지 않음
+                if _dp_row_count >= 5:
+                    _vendor_found_by_dp = True  # 6-B 거래처 필터 스킵 (사업장코드도움 팝업 방지)
+                    logger.info(
+                        f"invoice 행 인덱스 확보 ({select_result.get('method')}) → vendor 행={_vendor_row_idx} 좌표 클릭 예정 (6-B 스킵, rowCount={_dp_row_count})"
+                    )
+                else:
+                    logger.warning(
+                        f"rowCount={_dp_row_count} — expense form 그리드로 의심, 6-B 거래처 필터 진행"
+                    )
+            elif select_result and select_result.get("method") == "amount_mismatch_skip":
+                # 거래처는 찾았지만 금액 불일치 → 잘못된 인보이스 선택 방지, 6-B/6-C 스킵
+                _vendor_row_idx = -1  # sentinel: 6-C 좌표 클릭도 스킵
+                logger.warning(
+                    f"인보이스 금액 불일치 → 선택 건너뜀 (row={select_result.get('targetRow')}, "
+                    f"기대금액={invoice_amount}, 행데이터={str(select_result.get('rowData', {}))[:100]})"
+                )
+            elif select_result and select_result.get("method") == "vendor_not_found_in_grid":
+                # 거래처 키워드가 그리드에 없음 → 세금계산서 미선택, 6-B/6-C 스킵
+                _vendor_row_idx = -1  # sentinel: 6-C 좌표 클릭도 스킵
+                logger.warning(
+                    f"거래처 '{vendor}' 미발견 (rowCount={select_result.get('rowCount', 0)}) → 세금계산서 미선택, 취소 예정"
+                )
+            elif select_result and select_result.get("method") in ("wrapper_only",):
+                # iface wrapper만 찾음 (행 API 없음) → 6-B 거래처 필터로 진행
+                _dp_row_count = select_result.get("rowCount", 0)
+                logger.warning(
+                    f"wrapper_only (rowCount={_dp_row_count}) → 6-B 거래처 필터 진행"
+                )
+                _vendor_row_idx = 0
+            else:
+                _vendor_row_idx = 0
+
+        except Exception as e:
+            logger.warning(f"그리드 dataProvider 탐색 실패: {e}")
+            _vendor_row_idx = 0
+
+        # ── 6-B. 상세검색 거래처 필터 (vendor 지정 시) ──
+        # vendor 키워드가 있고 아직 선택 안 된 경우, 모달 내 거래처 input을 JS로 직접 조작
+        # 단, 6-A에서 이미 dataProvider로 vendor 행 인덱스를 확보한 경우 스킵
+        # (거래처 input이 사업장코드도움 팝업을 열어 혼란을 일으키는 것을 방지)
+        if not selected and vendor and not _vendor_found_by_dp:
+            # 상세검색 영역이 닫혀있으면 토글 → 거래처 input이 hidden(height=0)인 경우 열기
+            try:
+                toggle_result = page.evaluate("""() => {
+                    const modal = document.querySelector('.obtdialog.open, [class*="OBTDialog"][class*="open"]');
+                    const scope = modal || document;
+                    const gridEl = scope.querySelector('.OBTDataGrid_grid__22Vfl');
+                    const gridY = gridEl ? gridEl.getBoundingClientRect().y : 9999;
+                    const modalBox = modal ? modal.getBoundingClientRect() : null;
+                    const modalRight = modalBox ? modalBox.x + modalBox.width : 99999;
+
+                    // 거래처 input이 이미 visible한지 확인
+                    // 사업장코드도움 input(placeholder='사업장코드도움')은 제외 (항상 visible)
+                    const allInputs = scope.querySelectorAll('input[type="text"], input:not([type])');
+                    for (const inp of allInputs) {
+                        const ir = inp.getBoundingClientRect();
+                        const ph = (inp.placeholder || '').toLowerCase();
+                        if (ir.height > 0 && ir.y > 200 && ir.y < gridY) {
+                            // 사업장/날짜 input 제외
+                            if (ph.includes('사업장') || ph.includes('date') || ir.width <= 100) continue;
+                            return { already_visible: true };
+                        }
+                    }
+
+                    // 상세검색 토글 버튼 찾기: "▼", "상세검색" 텍스트 포함 + 모달 오른쪽 20% 제외
+                    const allEls = scope.querySelectorAll('*');
+                    for (const el of allEls) {
+                        const text = el.textContent.trim();
+                        const r = el.getBoundingClientRect();
+                        if (r.height === 0 || r.y < 200 || r.y > gridY) continue;
+                        const isToggle = (text === '▼' || text === '▲' || text.includes('상세검색'));
+                        // 모달 오른쪽 20% 안에 있는 요소는 프로젝트코드도움 ▼ 가능성 높으므로 제외
+                        if (isToggle && r.x < modalRight * 0.82) {
+                            return { found: true, x: Math.round(r.x + r.width/2), y: Math.round(r.y + r.height/2), text };
+                        }
+                    }
+                    return { found: false };
+                }""")
+
+                if toggle_result and toggle_result.get("found"):
+                    page.mouse.click(toggle_result["x"], toggle_result["y"])
+                    self.page.wait_for_timeout(800)
+                    logger.info(
+                        f"상세검색 토글 클릭: ({toggle_result['x']}, {toggle_result['y']}) "
+                        f"text='{toggle_result.get('text')}'"
+                    )
+                elif toggle_result and toggle_result.get("already_visible"):
+                    logger.info("상세검색 이미 열려있음 (거래처 input visible)")
+                else:
+                    logger.info("상세검색 토글 버튼 미발견 → 직접 거래처 input 탐색")
+            except Exception as et:
+                logger.warning(f"상세검색 토글 실패: {et}")
+
+            try:
+                # 모달 내 거래처 input 찾기 (placeholder 또는 근처 레이블로 식별)
+                vendor_input_result = page.evaluate(f"""() => {{
+                    const vendorKw = {_js_str(vendor)};
+
+                    // 모달 컨테이너 찾기
+                    const modal = document.querySelector('.obtdialog.open, [class*="OBTDialog"][class*="open"]');
+                    const searchScope = modal || document;
+
+                    // 거래처 레이블 근처 input 찾기
+                    const allEls = searchScope.querySelectorAll('th, td, label, span, div');
+                    let vendorInputEl = null;
+
+                    for (const el of allEls) {{
+                        const text = el.textContent.trim();
+                        if (text === '거래처' || text === '공급자' || text === '거래처명') {{
+                            const r = el.getBoundingClientRect();
+                            if (r.height === 0 || r.y < 200) continue;
+                            // 같은 행(y좌표 유사)에 있는 input 찾기
+                            const allInputs = searchScope.querySelectorAll('input[type="text"], input:not([type])');
+                            for (const inp of allInputs) {{
+                                const ir = inp.getBoundingClientRect();
+                                if (Math.abs(ir.y - r.y) < 20 && ir.x > r.x) {{
+                                    vendorInputEl = inp;
+                                    break;
+                                }}
+                            }}
+                            if (vendorInputEl) break;
+                        }}
+                    }}
+
+                    if (!vendorInputEl) {{
+                        // 폴백: 모달 내에서 상세검색 영역에 있는 input (그리드 위)
+                        // 사업장코드도움 input은 제외 (항상 visible, 거래처 input이 아님)
+                        const gridEl = searchScope.querySelector('.OBTDataGrid_grid__22Vfl');
+                        if (gridEl) {{
+                            const gridY = gridEl.getBoundingClientRect().y;
+                            const allInputs = searchScope.querySelectorAll('input[type="text"], input:not([type])');
+                            for (const inp of allInputs) {{
+                                const ir = inp.getBoundingClientRect();
+                                const ph = (inp.placeholder || '').toLowerCase();
+                                // 사업장/날짜 input 제외
+                                if (ph.includes('사업장') || ir.width <= 85) continue;
+                                if (ir.y > 200 && ir.y < gridY && ir.height > 0) {{
+                                    vendorInputEl = inp;
+                                    break;
+                                }}
+                            }}
+                        }}
+                    }}
+
+                    if (!vendorInputEl) return {{ error: 'no_vendor_input' }};
+
+                    const ir = vendorInputEl.getBoundingClientRect();
+                    return {{
+                        found: true,
+                        x: Math.round(ir.x + ir.width / 2),
+                        y: Math.round(ir.y + ir.height / 2),
+                        w: Math.round(ir.width),
+                        currentValue: vendorInputEl.value || ''
+                    }};
+                }}""")
+                logger.info(f"거래처 input 탐색: {vendor_input_result}")
+
+                if vendor_input_result and vendor_input_result.get("found"):
+                    # 거래처 input 클릭 → 기존값 삭제 → vendor 타이핑
+                    vi_x = vendor_input_result["x"]
+                    vi_y = vendor_input_result["y"]
+                    page.mouse.click(vi_x, vi_y, click_count=3)
+                    self.page.wait_for_timeout(200)
+                    page.keyboard.press("Control+a")
+                    self.page.wait_for_timeout(100)
+                    page.keyboard.type(vendor, delay=50)
+                    self.page.wait_for_timeout(300)
+                    logger.info(f"거래처 input에 '{vendor}' 입력 완료 (x={vi_x}, y={vi_y})")
+
+                    # 조회 버튼 클릭 (모달 내 "조회" 버튼 또는 Enter)
+                    searched = False
+                    try:
+                        # 모달 내에서 조회 버튼 찾기
+                        search_btn_result = page.evaluate("""() => {
+                            const modal = document.querySelector('.obtdialog.open, [class*="OBTDialog"][class*="open"]');
+                            const scope = modal || document;
+                            // "조회" 텍스트가 있는 버튼
+                            const btns = scope.querySelectorAll('button, [class*="btn"], [class*="Btn"]');
+                            for (const btn of btns) {
+                                const t = btn.textContent.trim();
+                                if (t === '조회' || t.includes('조회')) {
+                                    const r = btn.getBoundingClientRect();
+                                    if (r.height > 0 && r.y > 200) {
+                                        return { found: true, x: Math.round(r.x + r.width/2), y: Math.round(r.y + r.height/2) };
+                                    }
+                                }
+                            }
+                            return { found: false };
+                        }""")
+                        if search_btn_result and search_btn_result.get("found"):
+                            page.mouse.click(search_btn_result["x"], search_btn_result["y"])
+                            self.page.wait_for_timeout(500)
+                            logger.info(f"조회 버튼 클릭: ({search_btn_result['x']}, {search_btn_result['y']})")
+                            searched = True
+                    except Exception as eb:
+                        logger.warning(f"조회 버튼 클릭 실패: {eb}")
+
+                    if not searched:
+                        # 조회 버튼 미발견 → Enter 키로 조회
+                        page.keyboard.press("Enter")
+                        self.page.wait_for_timeout(500)
+                        logger.info("조회 Enter 키 전송")
+
+                    # 조회 후 로딩 대기 (최대 10초)
+                    self.page.wait_for_timeout(2000)
+                    for _w in range(16):
+                        try:
+                            loading = page.evaluate("""() => {
+                                const els = document.querySelectorAll('*');
+                                for (const el of els) {
+                                    const t = el.textContent.trim();
+                                    const r = el.getBoundingClientRect();
+                                    if ((t.includes('조회하고 있습니다') || t.includes('잠시 기다려')) && r.height > 0) return true;
+                                }
+                                return false;
+                            }""")
+                            if loading:
+                                self.page.wait_for_timeout(500)
+                                continue
+                            break
+                        except Exception:
+                            break
+                    self.page.wait_for_timeout(1000)
+                    # 조회 결과 없음 알림("세금계산서가 없습니다.") 처리
+                    self._dismiss_obt_alert()
+                    _save_debug(page, "invoice_modal_after_vendor_search")
+                    logger.info("거래처 필터 조회 완료")
+
+                    # 조회 후 그리드 행 수 재확인
+                    try:
+                        new_row_count_result = page.evaluate("""() => {
+                            const gridEls = document.querySelectorAll('.OBTDataGrid_grid__22Vfl, .OBTDataGrid_root__mruAZ');
+                            for (const gridEl of gridEls) {
+                                let target = gridEl;
+                                for (let p = 0; p < 6; p++) {
+                                    if (!target) break;
+                                    const fk = Object.keys(target).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    if (fk) {
+                                        let node = target[fk];
+                                        for (let d = 0; d < 20 && node; d++) {
+                                            try {
+                                                const iface = node?.stateNode?.state?.interface;
+                                                if (iface && typeof iface.getRowCount === 'function') {
+                                                    return { rowCount: iface.getRowCount() };
+                                                }
+                                            } catch(e) {}
+                                            node = node.return;
+                                        }
+                                    }
+                                    target = target.parentElement;
+                                }
+                            }
+                            return { rowCount: 0 };
+                        }""")
+                        new_row_count = new_row_count_result.get("rowCount", 0) if new_row_count_result else 0
+                        logger.info(f"거래처 필터 후 그리드 행 수: {new_row_count}")
+                        if new_row_count == 0:
+                            logger.warning(f"거래처 '{vendor}' 필터 결과 없음 → 전체 목록 재조회 필요")
+                    except Exception as erc:
+                        logger.warning(f"필터 후 행 수 확인 실패: {erc}")
+                        new_row_count = 1  # 실패 시 클릭 시도
+
+                    # 거래처 필터된 첫 번째 행 체크 (결과가 vendor만 남아있으므로 첫 행 = 정확한 행)
+                    if new_row_count > 0 or new_row_count_result is None:
+                        _vendor_row_idx = 0  # 필터 후 첫 행이 목표 행
+                        # 체크박스 좌표 클릭 (필터 후) — 모달 내 그리드 우선
+                        grid_box_filtered = page.evaluate("""() => {
+                            let modal = null;
+                            for (const el of document.querySelectorAll('[class*="OBTDialog"], [class*="obtdialog"], [class*="OBTPortal"]')) {
+                                const r = el.getBoundingClientRect();
+                                if (r.width > 0 && el.textContent.includes('계산서')) { modal = el; break; }
+                            }
+                            const scope = modal || document;
+                            const grid = scope.querySelector('.OBTDataGrid_grid__22Vfl');
+                            if (!grid) return null;
+                            const r = grid.getBoundingClientRect();
+                            return r.width > 0 ? { x: r.x, y: r.y, w: r.width, h: r.height } : null;
+                        }""")
+                        if grid_box_filtered and grid_box_filtered["w"] > 0:
+                            cb_x = grid_box_filtered["x"] + 15
+                            cb_y = grid_box_filtered["y"] + 35 + 14
+                            page.mouse.click(cb_x, cb_y)
+                            self.page.wait_for_timeout(500)
+                            logger.info(
+                                f"거래처 필터 후 체크박스 클릭: ({cb_x:.0f}, {cb_y:.0f}) "
+                                f"→ vendor='{vendor}' 첫 행 선택"
+                            )
+                            selected = True
+                            _save_debug(page, "invoice_modal_after_vendor_filter_click")
+                else:
+                    logger.info(f"거래처 input 미발견 → 좌표 클릭 폴백으로 진행")
+
+            except Exception as e_vendor:
+                logger.warning(f"상세검색 거래처 필터 실패: {e_vendor}")
+
+        # ── 6-C. 좌표 클릭 폴백: vendor 행 인덱스 기반 y좌표 계산 후 클릭 ──
+        # dataProvider가 vendor 행 인덱스를 반환한 경우 해당 y좌표로 이동, 아니면 첫 행 클릭
+        # _vendor_row_idx == -1 인 경우: 거래처 미발견 → 6-C 스킵 (모달 취소로 이어짐)
+        if not selected and _vendor_row_idx != -1:
+            try:
+                # OBTDataGrid_grid 영역의 좌표 기준으로 체크박스 클릭
+                # 헤더 높이 ~35px, 행 높이 ~28px, 체크박스 x ~왼쪽 15px
+                row_height = 28  # OBTDataGrid 기본 행 높이 (픽셀)
+                header_height = 35  # 헤더 높이 (픽셀)
+                target_row = getattr(locals().get('_vendor_row_idx', None), '__index__', None)
+                # locals()는 closure에서 접근 불가 → 직접 변수 참조
+                try:
+                    target_row = _vendor_row_idx
+                except NameError:
+                    target_row = 0
+
+                grid_box = page.evaluate("""() => {
+                    // 모달 내 그리드 우선 (expense form 그리드와 구별)
+                    let modal = null;
+                    for (const el of document.querySelectorAll('[class*="OBTDialog"], [class*="obtdialog"], [class*="OBTPortal"]')) {
+                        const r = el.getBoundingClientRect();
+                        if (r.width > 0 && el.textContent.includes('계산서')) { modal = el; break; }
+                    }
+                    const scope = modal || document;
+                    const grid = scope.querySelector('.OBTDataGrid_grid__22Vfl');
+                    if (!grid) return null;
+                    const r = grid.getBoundingClientRect();
+                    if (r.width === 0) return null;
+                    return { x: r.x, y: r.y, w: r.width, h: r.height };
+                }""")
+
+                if grid_box and grid_box["w"] > 0:
+                    cb_x = grid_box["x"] + 15
+                    # vendor 행 인덱스를 y좌표로 변환: header + 행인덱스 * 행높이 + 행높이/2
+                    cb_y = grid_box["y"] + header_height + target_row * row_height + row_height // 2
+
+                    # 화면 내 유효한 y좌표 범위 확인 (그리드 영역 내)
+                    grid_bottom = grid_box["y"] + grid_box["h"]
+                    if cb_y > grid_bottom - 5:
+                        # 그리드 화면 밖 → JS로 그리드 스크롤 시도 후 재계산
+                        try:
+                            page.evaluate(f"""() => {{
+                                const selectors = ['.OBTDataGrid_grid__22Vfl', '.OBTDataGrid_root__mruAZ'];
+                                for (const sel of selectors) {{
+                                    const el = document.querySelector(sel);
+                                    if (el) {{
+                                        // canvas 그리드 스크롤: 부모 컨테이너 시도
+                                        const parent = el.parentElement;
+                                        if (parent) parent.scrollTop = {target_row} * {row_height};
+                                        el.scrollTop = {target_row} * {row_height};
+                                        break;
+                                    }}
+                                }}
+                            }}""")
+                            self.page.wait_for_timeout(500)
+                        except Exception:
+                            pass
+                        # 스크롤 후에도 화면 밖이면 첫 행으로 폴백
+                        cb_y = grid_box["y"] + header_height + target_row * row_height + row_height // 2
+                        if cb_y > grid_bottom - 5:
+                            cb_y = grid_box["y"] + header_height + row_height // 2
+                            logger.info(
+                                f"vendor 행(idx={target_row})이 화면 밖 (스크롤 시도 후 폴백) → 첫 번째 보이는 행"
+                            )
+                        else:
+                            logger.info(f"그리드 스크롤 후 vendor 행 y={cb_y:.0f}")
+                    else:
+                        logger.info(
+                            f"vendor 행 인덱스 기반 좌표 클릭: row={target_row} → y={cb_y:.0f}"
+                        )
+
+                    page.mouse.click(cb_x, cb_y)
+                    self.page.wait_for_timeout(500)
+                    logger.info(f"체크박스 좌표 클릭: ({cb_x:.0f}, {cb_y:.0f})")
+                    selected = True
+                    _save_debug(page, "invoice_modal_after_checkbox_click")
+                else:
+                    logger.warning("그리드 영역을 찾지 못함")
+            except Exception as e:
+                logger.warning(f"체크박스 좌표 클릭 실패: {e}")
+
+        if not selected:
+            logger.warning("계산서 선택 실패 → 인보이스 모달 취소 버튼으로 닫기")
+            # Escape 대신 모달 내 취소 버튼 직접 클릭:
+            # Escape는 GW 확인 다이얼로그("취소하시겠습니까?")를 트리거하고,
+            # 후속 코드가 그 다이얼로그의 "취소" 버튼을 클릭하여 모달이 닫히지 않는 버그 방지
+            self._dismiss_obt_alert()
+            try:
+                # 인보이스 모달 스코프 내 취소 버튼 클릭 (모달 외 취소 버튼 오클릭 방지)
+                _modal_sel = '.obtdialog.open, [class*="OBTDialog_dialogRoot"][class*="open"]'
+                _modal_el = page.locator(_modal_sel)
+                _modal_closed = False
+                if _modal_el.count() > 0:
+                    for _csel in ["button:has-text('취소')", "button:has-text('닫기')"]:
+                        try:
+                            _cbtn = _modal_el.locator(_csel).last
+                            if _cbtn.is_visible(timeout=500):
+                                _cbtn.click(force=True)
+                                self.page.wait_for_timeout(800)
+                                logger.info(f"인보이스 모달 취소 클릭: {_csel}")
+                                _modal_closed = True
+                                break
+                        except Exception:
+                            continue
+                if not _modal_closed:
+                    # 모달 내 취소 버튼 없음 → Escape 폴백 (확인 다이얼로그에서 "확인" 클릭)
+                    page.keyboard.press("Escape")
+                    self.page.wait_for_timeout(500)
+                    # Escape 후 GW 확인 다이얼로그 → "확인"/"저장안함" 클릭 (취소 아님)
+                    page.evaluate("""() => {
+                        const portals = document.querySelectorAll('[class*="OBTPortal"]');
+                        for (const portal of portals) {
+                            const dimmed = portal.querySelector('[class*="OBTAlert_dimmed"]');
+                            if (!dimmed) continue;
+                            const btns = portal.querySelectorAll('button');
+                            for (const t of ['저장안함', '확인', 'OK', '닫기']) {
+                                for (const btn of btns) {
+                                    if (btn.textContent.trim() === t) { btn.click(); return t; }
+                                }
+                            }
+                        }
+                        return null;
+                    }""")
+                    self.page.wait_for_timeout(500)
+                # 모달 닫힘 확인 (최대 5초)
+                for _ in range(10):
+                    try:
+                        if not page.locator("text=매입(세금)계산서 내역").first.is_visible(timeout=200):
+                            logger.info("인보이스 모달 닫힘 확인")
+                            break
+                    except Exception:
+                        break
+                    self.page.wait_for_timeout(500)
+                else:
+                    logger.warning("인보이스 모달이 아직 열려있음 (닫기 실패)")
+            except Exception as _me:
+                logger.warning(f"인보이스 모달 닫기 오류: {_me}")
+            return False
+
+        self.page.wait_for_timeout(500)
+
+        # ── 7. 확인 버튼 클릭 ──
+        try:
+            confirm_btn = page.locator("button:has-text('확인')").all()
+            for btn in confirm_btn:
+                try:
+                    box = btn.bounding_box()
+                    if box and box["y"] > 550:  # 모달 하단 확인 버튼
+                        btn.click()
+                        logger.info("계산서 모달 확인 클릭")
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        # 확인 클릭 후 OBTAlert 처리 (매칭된 없음 등)
+        self.page.wait_for_timeout(1000)
+        try:
+            if page.locator('[class*="OBTAlert_dimmed"]').count() > 0:
+                logger.info("확인 클릭 후 OBTAlert 감지 — dismiss")
+                self._dismiss_obt_alert()
+                self.page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+        # 모달이 아직 열려있는지 확인 → 열려있으면 취소 버튼으로 닫기
+        try:
+            still_open = page.locator("text=매입(세금)계산서 내역").first.is_visible(timeout=800)
+            if still_open:
+                logger.warning("확인 클릭 후에도 invoice modal 열려있음 — 취소로 닫기")
+                for _close_sel in ["button:has-text('취소')", "button:has-text('닫기')"]:
+                    try:
+                        _b = page.locator(_close_sel).last
+                        if _b.is_visible(timeout=300):
+                            _b.click(force=True)
+                            self.page.wait_for_timeout(500)
+                            break
+                    except Exception:
+                        pass
+                else:
+                    page.keyboard.press("Escape")
+                    self.page.wait_for_timeout(500)
+                # modal 닫힘 후 OBTAlert 처리
+                self._dismiss_obt_alert()
+                self.page.wait_for_timeout(300)
+        except Exception:
+            pass
+
+        # 그리드 반영 대기
+        self.page.wait_for_timeout(2000)
+        _save_debug(page, "03c3_after_invoice_applied")
+        logger.info("계산서 모달 -> 그리드 반영 완료")
+        return selected
+
+    def _select_invoice_in_modal_legacy(
+        self,
+        vendor: str = "",
+        amount: float = None,
+        date_from: str = "",
+        date_to: str = "",
+    ) -> bool:
+        """
+        [레거시] 계산서내역 DOM 모달 — 이전 버전 (참고용, 사용하지 않음).
 
         계산서내역 버튼 클릭 후 같은 페이지에 오버레이 모달이 열림 (window.open 아님).
         모달 구조:
@@ -1733,10 +3500,10 @@ class ExpenseReportMixin:
                 return f"{d[:4]}-{d[4:6]}-{d[6:8]}"
             return d
 
-        # 기본 기간: ±6개월 (3개월에서 확장 -- 분기 지연 발행 계산서 대응)
+        # 기본 기간: ±12개월 (지연 발행 계산서 대응)
         today = _dt.date.today()
         if not date_from:
-            start = (today.replace(day=1) - _dt.timedelta(days=180)).replace(day=1)
+            start = (today.replace(day=1) - _dt.timedelta(days=365)).replace(day=1)
             date_from = start.strftime("%Y-%m-%d")
         else:
             date_from = _norm(date_from, "%Y-%m-%d")
@@ -1751,14 +3518,23 @@ class ExpenseReportMixin:
         # ── 모달 표시 대기 ──
         # "매입(세금)계산서 내역" 제목이 보일 때까지 대기
         modal_visible = False
-        for _ in range(20):  # 최대 5초
-            try:
-                title_el = page.locator("text=매입(세금)계산서 내역").first
-                if title_el.is_visible(timeout=250):
-                    modal_visible = True
-                    break
-            except Exception:
-                pass
+        # 모달 제목: "매입(세금)계산서 내역" — 괄호 호환 위해 복수 셀렉터 시도
+        modal_selectors = [
+            "text=매입(세금)계산서 내역",
+            "text=/매입.*계산서.*내역/",
+            "text=계산서 내역",
+        ]
+        for _ in range(40):  # 최대 10초
+            for sel in modal_selectors:
+                try:
+                    title_el = page.locator(sel).first
+                    if title_el.is_visible(timeout=100):
+                        modal_visible = True
+                        break
+                except Exception:
+                    pass
+            if modal_visible:
+                break
             self.page.wait_for_timeout(250)
 
         if not modal_visible:
@@ -1768,62 +3544,197 @@ class ExpenseReportMixin:
 
         logger.info("계산서 모달 표시 확인")
 
-        # ── 모달 내 날짜 설정 ──
-        # 모달의 "작성일자" 날짜 필드: "매입(세금)계산서 내역" 제목 아래 영역
-        # JavaScript로 모달 내 date input을 직접 찾아서 설정
+        # 모달 내부 렌더링 대기 (input 필드가 로드될 때까지)
+        self.page.wait_for_timeout(3000)
+
+        # 디버그: 모달 내 모든 input 필드 덤프 (여러 셀렉터 시도)
         try:
-            date_set = page.evaluate(f"""() => {{
-                // 모달 내 date input 찾기 (maxlength 8 또는 10, 모달 영역 내)
-                const allInputs = document.querySelectorAll('input[type="text"]');
-                const dateInputs = [];
-                for (const inp of allInputs) {{
-                    const rect = inp.getBoundingClientRect();
-                    // 모달 영역 (화면 중앙, y 100~250 근처)
-                    if (rect.y > 100 && rect.y < 300 && rect.x > 300 && rect.x < 900) {{
-                        const ml = inp.maxLength;
-                        const val = inp.value || '';
-                        // 날짜 형식 (YYYY-MM-DD 또는 YYYYMMDD)
-                        if ((ml == 8 || ml == 10 || ml == -1) && /\\d/.test(val)) {{
-                            dateInputs.push(inp);
-                        }}
+            modal_inputs = page.evaluate("""() => {
+                // 여러 셀렉터로 모달 찾기
+                const selectors = [
+                    '.OBTDialog2_dialogRootOpen__3PExr',
+                    '[data-orbit-component="OBTDialog"].open',
+                    '.obtdialog.open',
+                    '.OBTDialog2_dialogRoot__3rMeW',
+                ];
+                let modal = null;
+                let usedSel = '';
+                for (const sel of selectors) {
+                    const els = document.querySelectorAll(sel);
+                    for (const el of els) {
+                        if (el.offsetParent !== null && el.getBoundingClientRect().height > 100) {
+                            modal = el;
+                            usedSel = sel;
+                            break;
+                        }
+                    }
+                    if (modal) break;
+                }
+                if (!modal) {
+                    // 제목 텍스트 기준으로 찾기
+                    const titles = document.querySelectorAll('*');
+                    for (const t of titles) {
+                        if (t.textContent.includes('계산서 내역') && t.getBoundingClientRect().height > 0) {
+                            modal = t.closest('[data-orbit-component], .obtdialog, [class*="dialog"], [class*="Dialog"]');
+                            if (modal) { usedSel = 'title-ancestor'; break; }
+                        }
+                    }
+                }
+                if (!modal) return { error: 'no_modal_found', selectors_tried: selectors.length };
+                const inputs = modal.querySelectorAll('input');
+                return {
+                    selector: usedSel,
+                    modalClass: modal.className?.substring(0, 80),
+                    inputs: Array.from(inputs).map((inp, i) => ({
+                        idx: i, type: inp.type, value: (inp.value || '').substring(0, 40),
+                        placeholder: inp.placeholder || '', name: inp.name || '',
+                        x: Math.round(inp.getBoundingClientRect().x),
+                        y: Math.round(inp.getBoundingClientRect().y),
+                        w: Math.round(inp.getBoundingClientRect().width),
+                    }))
+                };
+            }""")
+            logger.info(f"모달 input 덤프: {modal_inputs}")
+        except Exception as e:
+            logger.warning(f"모달 input 덤프 실패: {e}")
+
+        # 참고: 상세검색 CSS 펼침은 날짜 변경 이후에 실행 (step 3)
+        # (사전 펼침 시 DOM 재렌더링으로 날짜 input이 사라지는 문제 방지)
+
+        # ── 모달 내 날짜 설정 ──
+        try:
+            date_result = page.evaluate(f"""() => {{
+                // 모달 컨테이너 찾기
+                let modal = null;
+                const allEls = document.querySelectorAll('*');
+                for (const el of allEls) {{
+                    if (el.textContent.includes('계산서 내역') && el.children.length < 5) {{
+                        modal = el.closest('[class*="dialog"], [class*="Dialog"], [data-orbit-component]');
+                        if (modal) break;
                     }}
                 }}
-                return dateInputs.length;
+                if (!modal) modal = document;
+
+                const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                const inputs = modal.querySelectorAll('input[type="text"]');
+                const dateInputs = [];
+                for (const inp of inputs) {{
+                    const val = inp.value || '';
+                    // 날짜 형식: YYYY-MM-DD (10자, - 포함)
+                    if (/^\\d{{4}}-\\d{{2}}-\\d{{2}}$/.test(val)) {{
+                        dateInputs.push(inp);
+                    }}
+                }}
+                if (dateInputs.length >= 2) {{
+                    // 시작일
+                    nativeSetter.call(dateInputs[0], '{date_from}');
+                    dateInputs[0].dispatchEvent(new Event('input', {{bubbles: true}}));
+                    dateInputs[0].dispatchEvent(new Event('change', {{bubbles: true}}));
+                    // 종료일
+                    nativeSetter.call(dateInputs[1], '{date_to}');
+                    dateInputs[1].dispatchEvent(new Event('input', {{bubbles: true}}));
+                    dateInputs[1].dispatchEvent(new Event('change', {{bubbles: true}}));
+                    return {{ set: true, count: dateInputs.length, from: '{date_from}', to: '{date_to}' }};
+                }}
+                return {{ set: false, count: dateInputs.length }};
             }}""")
-            logger.info(f"모달 내 날짜 input 수: {date_set}")
-        except Exception:
-            pass
-
-        # 날짜 입력: 모달 내 "작성일자" 레이블 옆 input들
-        try:
-            # "작성일자" 텍스트 근처의 날짜 input 찾기
-            date_label = page.locator("text=작성일자").first
-            if date_label.is_visible(timeout=2000):
-                # 작성일자 옆의 날짜 range -- 부모 컨테이너 내 input 찾기
-                parent = date_label.locator("xpath=ancestor::div[1]")
-                date_inputs = parent.locator("input").all()
-                if not date_inputs or len(date_inputs) < 2:
-                    # 더 넓은 범위: 같은 행/div 내 input
-                    parent = date_label.locator("xpath=ancestor::div[2]")
-                    date_inputs = parent.locator("input").all()
-
-                if len(date_inputs) >= 2:
-                    # 시작일
-                    date_inputs[0].triple_click()
-                    date_inputs[0].fill(date_from)
-                    date_inputs[0].press("Tab")
-                    self.page.wait_for_timeout(300)
-                    # 종료일
-                    date_inputs[1].triple_click()
-                    date_inputs[1].fill(date_to)
-                    date_inputs[1].press("Tab")
-                    logger.info(f"모달 기간 설정: {date_from}~{date_to}")
-                else:
-                    logger.warning(f"모달 날짜 input 부족: {len(date_inputs)}개")
-            else:
-                logger.warning("'작성일자' 레이블 미발견")
+            logger.info(f"모달 날짜 설정: {date_result}")
         except Exception as e:
             logger.warning(f"모달 날짜 설정 실패: {e}")
+
+        # ── 상세검색 영역 강제 펼치기 (CSS overflow/height 제거) ──
+        try:
+            expanded = page.evaluate("""() => {
+                // 방법 1: "상세검색열기" 또는 "상세검색닫기" 텍스트 클릭
+                const els = document.querySelectorAll('span, a, button, div');
+                for (const el of els) {
+                    const text = el.textContent.trim();
+                    if (text === '상세검색열기' || text === '상세검색 열기') {
+                        el.click();
+                        return 'clicked_open';
+                    }
+                }
+                // 방법 2: 숨겨진 상세검색 영역을 CSS로 강제 표시
+                // y좌표가 음수인 input의 부모 컨테이너들의 height/overflow를 변경
+                const allInputs = document.querySelectorAll('input[type="text"]');
+                let fixed = 0;
+                for (const inp of allInputs) {
+                    const r = inp.getBoundingClientRect();
+                    if (r.y < 0 && r.width > 50) {
+                        let parent = inp.parentElement;
+                        for (let i = 0; i < 10 && parent; i++) {
+                            const style = window.getComputedStyle(parent);
+                            if (style.overflow === 'hidden' || style.maxHeight === '0px' || style.height === '0px') {
+                                parent.style.overflow = 'visible';
+                                parent.style.maxHeight = 'none';
+                                parent.style.height = 'auto';
+                                fixed++;
+                            }
+                            parent = parent.parentElement;
+                        }
+                    }
+                }
+                return fixed > 0 ? 'css_fixed_' + fixed : 'no_hidden_found';
+            }""")
+            logger.info(f"계산서 모달 상세검색 펼침: {expanded}")
+            self.page.wait_for_timeout(1000)
+        except Exception as e:
+            logger.warning(f"상세검색 펼침 실패: {e}")
+
+        # ── 거래처명 입력 (페이지 전체 input 스캔 + keyboard.type) ──
+        if vendor:
+            try:
+                vendor_filled = False
+                # 모달 타이틀 기준으로 모달 컨테이너를 찾고, 그 안에서 거래처 input 탐색
+                focus_result = page.evaluate("""() => {
+                    // 모달 컨테이너 찾기 (타이틀 텍스트 기준)
+                    let modal = null;
+                    const allEls = document.querySelectorAll('*');
+                    for (const el of allEls) {
+                        if (el.textContent.includes('계산서 내역') && el.children.length < 5) {
+                            modal = el.closest('[class*="dialog"], [class*="Dialog"], [data-orbit-component]');
+                            if (modal) break;
+                        }
+                    }
+                    if (!modal) modal = document;
+
+                    const inputs = modal.querySelectorAll('input[type="text"]');
+                    // 거래처 input 찾기: placeholder='사업장코드도움'이 아닌, 날짜가 아닌, 빈 input
+                    for (const inp of inputs) {
+                        const val = inp.value || '';
+                        const ph = inp.placeholder || '';
+                        // 제외: 사업장, 날짜, 암호화 토큰, 숨겨진(width 0)
+                        if (ph.includes('사업장')) continue;
+                        if (val.includes('-') && val.length >= 8) continue;
+                        if (val.includes('글로우') || val.includes('1000')) continue;
+                        if (val.length > 20) continue;  // 토큰 제외
+                        const r = inp.getBoundingClientRect();
+                        if (r.width < 50) continue;
+                        // 빈 input이면 거래처 후보
+                        if (val === '' || val.length < 3) {
+                            // 스크롤하여 visible 만들기
+                            inp.scrollIntoView({ behavior: 'instant', block: 'center' });
+                            const r2 = inp.getBoundingClientRect();
+                            inp.focus();
+                            inp.click();
+                            return { x: r2.x + r2.width / 2, y: r2.y + r2.height / 2, found: true };
+                        }
+                    }
+                    return null;
+                }""")
+                if focus_result:
+                    # focus()가 이미 됐으므로 마우스 클릭 없이 keyboard.type으로 직접 입력
+                    self.page.wait_for_timeout(300)
+                    page.keyboard.type(vendor, delay=50)
+                    page.keyboard.press("Tab")
+                    self.page.wait_for_timeout(500)
+                    logger.info(f"모달 거래처명 입력 (keyboard.type after focus): '{vendor}'")
+                    vendor_filled = True
+                    _save_debug(page, "invoice_modal_after_vendor_input")
+                else:
+                    logger.warning("거래처 input을 찾지 못함 — 전체 검색 실패")
+            except Exception as e:
+                logger.warning(f"모달 거래처명 입력 실패: {e}")
 
         # ── 조회 버튼 클릭 ──
         # 모달 내 "조회" 버튼 또는 돋보기 아이콘 버튼 클릭
@@ -2189,9 +4100,13 @@ class ExpenseReportMixin:
 
         if not selected:
             logger.warning("계산서 모달에서 선택할 행이 없습니다")
+            # OBTAlert("세금계산서가 없습니다.") 먼저 닫기
+            self._dismiss_obt_alert()
             # 모달 취소 (선택 없이 닫기)
             try:
-                page.locator("button:has-text('취소')").last.click(force=True)
+                cancel_loc = page.locator("button:has-text('취소')")
+                if cancel_loc.count() > 0:
+                    cancel_loc.last.dispatch_event("click")
                 self.page.wait_for_timeout(500)
             except Exception:
                 pass

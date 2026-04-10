@@ -79,6 +79,16 @@ _EXTRACT_PROJECT_INFO_JS = """
         if (label.includes('기간')) result.duration = inp.value;
         if (label.includes('담당') || label.includes('책임')) result.manager = inp.value;
         if (label.includes('발주처') || label.includes('고객')) result.client = inp.value;
+        // 확장 필드
+        if (label.includes('PM') || label.includes('프로젝트매니저') || label.includes('책임PM')) result.pm_name = inp.value;
+        if (label.includes('현장소장') || label.includes('소장')) result.site_manager = inp.value;
+        if (label.includes('설계팀장') || label.includes('팀장')) result.design_manager = inp.value;
+        if (label.includes('부서') || label.includes('팀')) result.department = inp.value;
+        if (label.includes('사업유형') || label.includes('업무유형')) result.project_type = inp.value;
+        if (label.includes('진행상태') || label.includes('사업상태')) result.status = inp.value;
+        if (label.includes('계약금액') || label.includes('도급금액')) result.contract_amount = inp.value;
+        if (label.includes('발주처담당') || label.includes('발주처연락')) result.client_contact = inp.value;
+        if (label.includes('연락처') || label.includes('전화')) result.client_phone = inp.value;
     });
 
     // 3. React fiber에서 form state 직접 추출 (가장 신뢰할 수 있음)
@@ -118,6 +128,17 @@ _EXTRACT_PROJECT_INFO_JS = """
                 if (h.pjtStCd) result.status_code = h.pjtStCd;
                 if (h.pjtStNm) result.status = h.pjtStNm;
                 if (h.remark || h.rmk) result.remark = h.remark || h.rmk;
+                // 확장 필드 — 더존 GW 필드명 패턴
+                if (h.pmEmpNm || h.pmNm) result.pm_name = h.pmEmpNm || h.pmNm;
+                if (h.siteEmpNm || h.smgrNm) result.site_manager = h.siteEmpNm || h.smgrNm;
+                if (h.desgEmpNm || h.dsgnMgrNm) result.design_manager = h.desgEmpNm || h.dsgnMgrNm;
+                if (h.deptNm || h.orgNm) result.department = h.deptNm || h.orgNm;
+                if (h.pjtTpNm || h.bztpNm) result.project_type = h.pjtTpNm || h.bztpNm;
+                if (h.ctrtAm || h.ordAm) result.contract_amount = h.ctrtAm || h.ordAm;
+                if (h.clntNm || h.clientNm) result.client = result.client || h.clntNm || h.clientNm;
+                if (h.clntMgrNm) result.client_contact = h.clntMgrNm;
+                if (h.clntTelNo || h.clntPhone) result.client_phone = h.clntTelNo || h.clntPhone;
+                if (h.prgsRt || h.progressRate) result.progress_rate = h.prgsRt || h.progressRate;
                 break;
             }
 
@@ -361,6 +382,7 @@ def _try_full_data_view(page) -> list:
     프로젝트등록 페이지 우측 상단에 있는 버튼.
     """
     try:
+        logger.info("[Step1] '전체데이터보기' 버튼 탐색 시작")
         # "전체데이터보기" 버튼 클릭
         clicked = page.evaluate("""
             () => {
@@ -376,7 +398,7 @@ def _try_full_data_view(page) -> list:
             }
         """)
         if not clicked:
-            logger.info("'전체데이터보기' 버튼 미발견")
+            logger.warning("[Step1] '전체데이터보기' 버튼 미발견 — 페이지 DOM에 해당 버튼 없음")
             return []
 
         page.wait_for_timeout(5000)
@@ -463,7 +485,13 @@ def _try_full_data_view(page) -> list:
                             let nameCol = findCol(['프로젝트명', '사업명', '프로젝트 명']);
                             let statusCol = findCol(['프로젝트구분', '상태', '구분']);
                             let abbrCol = findCol(['프로젝트약칭', '약칭']);
-                            let startCol = findCol(['프로젝트기간일', '시작일', '기간일']);
+                            let startCol = findCol(['프로젝트기간시작일', '프로젝트기간일', '시작일', '기간일']);
+                            // 확장 필드 컬럼 탐색
+                            let endCol = findCol(['프로젝트기간종료일', '종료일']);
+                            let managerCol = findCol(['담당자명', '담당자', 'PM']);
+                            let clientCol = findCol(['원청회사명', '원청회사', '발주처', '클라이언트']);
+                            let deptCol = findCol(['주관부서명', '주관부서', '부서명', '부서']);
+                            let contractAmtCol = findCol(['프로젝트금액', '계약금액', '금액']);
 
                             // nameCol이 없으면 값으로 추정 (한글이 많은 컬럼)
                             if (!nameCol) {
@@ -522,6 +550,12 @@ def _try_full_data_view(page) -> list:
                                 if (statusCol) try { row.status = iface.getValue(r, statusCol) || ''; } catch(e) {}
                                 if (abbrCol) try { row.abbr = iface.getValue(r, abbrCol) || ''; } catch(e) {}
                                 if (startCol) try { row.start_date = iface.getValue(r, startCol) || ''; } catch(e) {}
+                                // 확장 필드 수집
+                                if (endCol) try { row.end_date = iface.getValue(r, endCol) || ''; } catch(e) {}
+                                if (managerCol) try { row.manager = iface.getValue(r, managerCol) || ''; } catch(e) {}
+                                if (clientCol) try { row.client = iface.getValue(r, clientCol) || ''; } catch(e) {}
+                                if (deptCol) try { row.department = iface.getValue(r, deptCol) || ''; } catch(e) {}
+                                if (contractAmtCol) try { row.contract_amount = iface.getValue(r, contractAmtCol) || 0; } catch(e) {}
                                 rows.push(row);
                             }
                             return {
@@ -539,12 +573,12 @@ def _try_full_data_view(page) -> list:
         """)
 
         if not isinstance(grid_result, dict):
-            logger.warning(f"전체데이터보기 그리드 evaluate 결과가 dict가 아님: {type(grid_result)}")
+            logger.warning(f"[Step1] 그리드 JS evaluate 결과가 dict가 아님: {type(grid_result)}")
             _close_full_data_popup(page)
             return []
 
         if grid_result.get("error"):
-            logger.info(f"전체데이터보기 그리드 추출 실패: {grid_result['error']}")
+            logger.warning(f"[Step1] 그리드 추출 실패: {grid_result['error']}")
             if grid_result.get("columns"):
                 logger.info(f"컬럼 목록: {grid_result['columns']}")
             if grid_result.get("sample"):
@@ -555,7 +589,7 @@ def _try_full_data_view(page) -> list:
             _close_full_data_popup(page)
             return []
 
-        logger.info(f"전체데이터보기 성공: {grid_result.get('rowCount')}행, "
+        logger.info(f"[Step1] 전체데이터보기 성공: {grid_result.get('rowCount')}행, "
                      f"매핑: {grid_result.get('mapping')}, "
                      f"컬럼: {grid_result.get('colHeaders', [])}")
         # 첫 3행 샘플 로깅
@@ -575,9 +609,16 @@ def _try_full_data_view(page) -> list:
                     entry["abbr"] = str(row["abbr"]).strip()
                 if row.get("start_date"):
                     entry["start_date"] = str(row["start_date"]).strip()
+                # save_gw_projects_cache_v2 확장 필드 (있으면 전달)
+                for key in ("manager", "client", "department", "project_type", "contract_amount", "progress_rate"):
+                    if row.get(key) is not None:
+                        entry[key] = row[key]
                 projects.append(entry)
 
-        logger.info(f"전체데이터보기 추출: {len(projects)}개 프로젝트")
+        if not projects:
+            logger.warning("[Step1] 전체데이터보기 그리드에서 유효한 프로젝트를 추출하지 못함")
+        else:
+            logger.info(f"[Step1] 전체데이터보기 추출 완료: {len(projects)}개 프로젝트")
 
         # 팝업 닫기
         _close_full_data_popup(page)
@@ -585,25 +626,68 @@ def _try_full_data_view(page) -> list:
         return projects
 
     except Exception as e:
-        logger.error(f"전체데이터보기 오류: {e}")
+        logger.error(f"[Step1] 전체데이터보기 오류: {e}", exc_info=True)
+        # 팝업이 열려 있을 수 있으므로 닫기 시도
+        try:
+            _close_full_data_popup(page)
+        except Exception:
+            pass
         return []
 
 
 def _parse_project_list(raw_projects: list) -> list:
-    """React/기타 소스에서 추출된 raw 프로젝트 데이터를 정리"""
+    """
+    React/기타 소스에서 추출된 raw 프로젝트 데이터를 정리.
+    - 빈 입력 방어
+    - 필수 필드(code, name) 둘 다 없으면 스킵 + 경고
+    - 확장 필드 누락 시 기본값
+    - save_gw_projects_cache_v2 기대 필드 보장
+    """
+    if not raw_projects:
+        logger.warning("[파싱] raw_projects가 비어 있음 — 빈 리스트 반환")
+        return []
+
     projects = []
-    for p in raw_projects:
-        code = str(p.get("code", "")).strip()
-        name = str(p.get("name", "")).strip()
-        if code or name:
-            entry = {"code": code, "name": name}
-            if p.get("start_date"):
-                entry["start_date"] = str(p["start_date"]).strip()
-            if p.get("end_date"):
-                entry["end_date"] = str(p["end_date"]).strip()
-            if p.get("status"):
-                entry["status"] = str(p["status"]).strip()
-            projects.append(entry)
+    skipped = 0
+    for idx, p in enumerate(raw_projects):
+        if not isinstance(p, dict):
+            logger.warning(f"[파싱] row[{idx}] dict가 아님 ({type(p)}) — 스킵")
+            skipped += 1
+            continue
+        code = str(p.get("code", "") or "").strip()
+        name = str(p.get("name", "") or "").strip()
+        if not code and not name:
+            skipped += 1
+            continue
+        if not code:
+            logger.debug(f"[파싱] row[{idx}] code 누락 (name={name})")
+        if not name:
+            logger.debug(f"[파싱] row[{idx}] name 누락 (code={code})")
+
+        entry = {"code": code, "name": name}
+        # 기본 필드
+        entry["start_date"] = str(p.get("start_date", "") or "").strip()
+        entry["end_date"] = str(p.get("end_date", "") or "").strip()
+        entry["status"] = str(p.get("status", "") or "").strip()
+        # save_gw_projects_cache_v2 확장 필드 — 누락 시 기본값 보장
+        entry["manager"] = str(p.get("manager", "") or "").strip()
+        entry["client"] = str(p.get("client", "") or "").strip()
+        entry["department"] = str(p.get("department", "") or "").strip()
+        entry["project_type"] = str(p.get("project_type", "") or "").strip()
+        # 숫자 필드: 안전 변환
+        try:
+            entry["contract_amount"] = int(p.get("contract_amount", 0) or 0)
+        except (ValueError, TypeError):
+            entry["contract_amount"] = 0
+        try:
+            entry["progress_rate"] = float(p.get("progress_rate", 0) or 0)
+        except (ValueError, TypeError):
+            entry["progress_rate"] = 0
+        projects.append(entry)
+
+    if skipped > 0:
+        logger.warning(f"[파싱] {skipped}개 행 스킵 (code+name 모두 빈값 또는 비정상)")
+    logger.info(f"[파싱] 완료 — 입력 {len(raw_projects)}개 → 유효 {len(projects)}개")
     return projects
 
 
@@ -615,9 +699,14 @@ def _progressive_scroll_collect(page, max_scrolls=30) -> list:
     all_projects = {}  # code → project dict (중복 제거용)
 
     try:
+        logger.info("[Step3] 프로그레시브 스크롤 수집 시작")
         for scroll_idx in range(max_scrolls):
             # 현재 화면에 보이는 카드 수집
-            visible = page.evaluate(_EXTRACT_VISIBLE_CARDS_JS)
+            try:
+                visible = page.evaluate(_EXTRACT_VISIBLE_CARDS_JS)
+            except Exception as e:
+                logger.warning(f"[Step3] 카드 수집 JS 실패 (scroll {scroll_idx}): {e}")
+                break
             for p in (visible or []):
                 code = p.get("code", "")
                 if code and code not in all_projects:
@@ -674,10 +763,10 @@ def _progressive_scroll_collect(page, max_scrolls=30) -> list:
 
             page.wait_for_timeout(300)  # 렌더링 대기
 
-        logger.info(f"프로그레시브 스크롤 수집: {len(all_projects)}개")
+        logger.info(f"[Step3] 프로그레시브 스크롤 수집 완료: {len(all_projects)}개")
 
     except Exception as e:
-        logger.error(f"프로그레시브 스크롤 오류: {e}")
+        logger.error(f"[Step3] 프로그레시브 스크롤 오류: {e}", exc_info=True)
 
     return list(all_projects.values())
 
@@ -876,24 +965,57 @@ def search_gw_projects(gw_id: str, search_name: str = "") -> dict:
         page.wait_for_timeout(3000)
 
         projects = []
+        step1_ok = False
+        step2_ok = False
+        step3_ok = False
 
         # === 1단계: "전체데이터보기" 버튼 → OBTDataGrid 추출 ===
-        projects = _try_full_data_view(page)
+        try:
+            logger.info("[GW크롤링] Step 1 시작 — 전체데이터보기")
+            step1_result = _try_full_data_view(page)
+            if step1_result and len(step1_result) >= 20:
+                projects = step1_result
+                step1_ok = True
+                logger.info(f"[GW크롤링] Step 1 성공 — {len(projects)}개 추출")
+            else:
+                logger.warning(f"[GW크롤링] Step 1 불충분 — {len(step1_result)}개 (최소 20개 필요)")
+        except Exception as e:
+            logger.error(f"[GW크롤링] Step 1 예외: {e}", exc_info=True)
 
         # === 2단계: React fiber에서 프로젝트 배열 추출 ===
-        if len(projects) < 20:
-            react_data = page.evaluate(_EXTRACT_REACT_PROJECT_DATA_JS)
-            logger.info(f"React 추출: {react_data.get('method', react_data.get('error'))}, "
-                         f"total={react_data.get('total', 0)}")
-            if react_data.get("projects"):
-                projects = _parse_project_list(react_data["projects"])
+        if not step1_ok:
+            try:
+                logger.info("[GW크롤링] Step 2 시작 — React fiber 추출")
+                react_data = page.evaluate(_EXTRACT_REACT_PROJECT_DATA_JS)
+                method = react_data.get('method', react_data.get('error', 'unknown'))
+                total = react_data.get('total', 0)
+                logger.info(f"[GW크롤링] Step 2 React evaluate 결과: method={method}, total={total}")
+                if react_data.get("projects"):
+                    parsed = _parse_project_list(react_data["projects"])
+                    if len(parsed) >= 20:
+                        projects = parsed
+                        step2_ok = True
+                        logger.info(f"[GW크롤링] Step 2 성공 — {len(projects)}개 추출")
+                    else:
+                        logger.warning(f"[GW크롤링] Step 2 불충분 — {len(parsed)}개 (최소 20개 필요)")
+                else:
+                    logger.warning("[GW크롤링] Step 2 — React에서 projects 배열 미발견")
+            except Exception as e:
+                logger.error(f"[GW크롤링] Step 2 예외: {e}", exc_info=True)
 
         # === 3단계: DOM 텍스트 파싱 + 프로그레시브 스크롤 ===
-        if len(projects) < 20:
-            logger.info("React 추출 부족, 프로그레시브 스크롤 수집 시작")
-            scroll_projects = _progressive_scroll_collect(page)
-            if len(scroll_projects) > len(projects):
-                projects = scroll_projects
+        if not step1_ok and not step2_ok:
+            try:
+                logger.info("[GW크롤링] Step 3 시작 — 프로그레시브 스크롤 수집")
+                scroll_projects = _progressive_scroll_collect(page)
+                if scroll_projects and len(scroll_projects) > len(projects):
+                    projects = scroll_projects
+                    step3_ok = True
+                    logger.info(f"[GW크롤링] Step 3 성공 — {len(projects)}개 추출")
+                else:
+                    logger.warning(f"[GW크롤링] Step 3 불충분 — {len(scroll_projects)}개")
+            except Exception as e:
+                logger.error(f"[GW크롤링] Step 3 예외: {e}", exc_info=True)
 
         # === 지출결의서/상신 문서 필터링 ===
         before = len(projects)
@@ -901,7 +1023,29 @@ def search_gw_projects(gw_id: str, search_name: str = "") -> dict:
                     if not any(kw in p.get("name", "")
                                for kw in ["결의서", "상신의 건", "지급의 건", "요청의 건"])]
         if len(projects) < before:
-            logger.info(f"문서 항목 {before - len(projects)}개 필터링 → {len(projects)}개")
+            logger.info(f"[GW크롤링] 문서 항목 {before - len(projects)}개 필터링 → {len(projects)}개")
+
+        # === v2 캐시 필드 매핑 검증 ===
+        v2_fields = ("code", "name", "start_date", "end_date", "manager", "client",
+                     "department", "project_type", "status", "contract_amount", "progress_rate")
+        for p in projects:
+            for field in v2_fields:
+                if field not in p:
+                    if field in ("contract_amount",):
+                        p[field] = 0
+                    elif field in ("progress_rate",):
+                        p[field] = 0.0
+                    else:
+                        p[field] = ""
+
+        # === 결과 요약 로깅 ===
+        logger.info(
+            f"[GW크롤링] 완료 — 총 {len(projects)}개, "
+            f"Step1: {'성공' if step1_ok else '실패'}, "
+            f"Step2: {'성공' if step2_ok else '실패'}, "
+            f"Step3: {'성공' if step3_ok else '실패'}, "
+            f"확장필드: {sum(1 for p in projects if p.get('manager'))}/{len(projects)}"
+        )
 
         _save_screenshot(page, "gw_project_search")
         close_session(browser)
@@ -1396,11 +1540,14 @@ def _save_to_db(project_id: int, data: dict):
     """크롤링 데이터를 fund_management DB 개요에 저장"""
     from src.fund_table import db
 
+    # ── 프로젝트 코드 업데이트 (projects 테이블) ──────────────────────────
+    if data.get("project_code"):
+        db.update_project(project_id, project_code=data["project_code"])
+
+    # ── overview 필드: 날짜 + 발주처 (기존 사용자 입력과 병합) ──────────────
     overview_updates = {}
 
-    # 날짜 필드 매핑
     if data.get("start_date"):
-        # 형식 통일: YYYY-MM-DD
         date_str = _normalize_date(data["start_date"])
         if date_str:
             overview_updates["construction_start"] = date_str
@@ -1409,25 +1556,45 @@ def _save_to_db(project_id: int, data: dict):
         if date_str:
             overview_updates["construction_end"] = date_str
 
-    # 발주처/고객사
+    # 발주처/고객사 — GW 전용 컬럼에도 저장하므로 여기서는 overview에만
     if data.get("client"):
         overview_updates["client"] = data["client"]
 
-    # 담당자
-    if data.get("manager"):
-        overview_updates["manager"] = data["manager"]
-
-    # 프로젝트 코드 업데이트
-    if data.get("project_code"):
-        db.update_project(project_id, project_code=data["project_code"])
-
-    # 개요 저장
     if overview_updates:
-        # 기존 개요 가져와서 병합
+        # 기존 개요 가져와서 병합 (사용자 입력 덮어쓰기 방지: 빈 값이면 GW 값 사용)
         existing = db.get_project_overview(project_id) or {}
-        existing.update(overview_updates)
+        for k, v in overview_updates.items():
+            if not existing.get(k):  # 기존 값이 없을 때만 덮어씀
+                existing[k] = v
         db.save_project_overview(project_id, existing)
         logger.info(f"프로젝트 {project_id} 개요 업데이트: {list(overview_updates.keys())}")
+
+    # ── GW 전용 필드: project_overview GW 컬럼에 직접 upsert ─────────────
+    gw_fields = {}
+    # PM / 현장소장 / 설계팀장
+    if data.get("pm_name"):
+        gw_fields["pm_name"] = data["pm_name"]
+    if data.get("site_manager"):
+        gw_fields["site_manager"] = data["site_manager"]
+    if data.get("design_manager"):
+        gw_fields["design_manager"] = data["design_manager"]
+    # 발주처 연락처
+    if data.get("client"):
+        gw_fields["client"] = data["client"]
+    if data.get("client_contact"):
+        gw_fields["client_contact"] = data["client_contact"]
+    if data.get("client_phone"):
+        gw_fields["client_phone"] = data["client_phone"]
+    # 프로젝트 상태 / 유형
+    if data.get("status"):
+        gw_fields["gw_status"] = data["status"]
+    if data.get("project_type"):
+        gw_fields["gw_project_type"] = data["project_type"]
+    # 동기화 시각
+    gw_fields["gw_last_synced"] = datetime.now().isoformat(timespec="seconds")
+
+    result = db.upsert_project_overview_gw_fields(project_id, gw_fields)
+    logger.info(f"프로젝트 {project_id} GW 필드 저장: {result['message']}")
 
 
 def _normalize_date(date_str: str) -> str | None:

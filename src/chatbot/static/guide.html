@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사용방법 - GW 자동화</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --bg-card-alt: #16162a;
+      --border: #2a2a4a;
+      --accent: #7c5cfc;
+      --accent-light: #a78bfa;
+      --text: #e8e8f0;
+      --text-muted: #8888aa;
+      --text-heading: #ffffff;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    /* 상단 내비 */
+    .guide-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,15,26,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .guide-nav a { color: var(--accent-light); text-decoration: none; font-size: 14px; font-weight: 600; }
+    .guide-nav a:hover { color: #fff; }
+    .guide-nav .nav-title { color: var(--text-heading); font-size: 16px; font-weight: 700; }
+    .guide-nav .nav-sep { color: var(--text-muted); }
+
+    /* 레이아웃 */
+    .guide-layout { display: flex; max-width: 1280px; margin: 0 auto; gap: 0; }
+
+    /* 사이드 TOC */
+    .guide-toc {
+      width: 240px; flex-shrink: 0;
+      position: sticky; top: 52px; height: calc(100vh - 52px);
+      overflow-y: auto; padding: 24px 16px;
+      border-right: 1px solid var(--border);
+    }
+    .guide-toc::-webkit-scrollbar { width: 4px; }
+    .guide-toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .toc-section { margin-bottom: 16px; }
+    .toc-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+    .toc-link { display: block; padding: 5px 10px; font-size: 13px; color: var(--text-muted); text-decoration: none; border-radius: 6px; transition: all 0.15s; }
+    .toc-link:hover { color: var(--text); background: var(--bg-card); }
+    .toc-link.active { color: var(--accent-light); background: rgba(124,92,252,0.1); }
+
+    /* 콘텐츠 */
+    .guide-content { flex: 1; padding: 32px 48px 80px; max-width: 960px; }
+    .guide-content h1 { font-size: 28px; color: var(--text-heading); margin-bottom: 8px; }
+    .guide-content .subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 40px; }
+    .guide-content h2 {
+      font-size: 20px; color: var(--text-heading); margin: 48px 0 16px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+      scroll-margin-top: 64px;
+    }
+    .guide-content h3 {
+      font-size: 16px; color: var(--accent-light); margin: 28px 0 12px;
+      scroll-margin-top: 64px;
+    }
+    .guide-content p { margin-bottom: 12px; }
+
+    /* 기능 카드 */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-card-icon { font-size: 28px; margin-bottom: 8px; }
+    .feature-card-title { font-size: 15px; font-weight: 700; color: var(--text-heading); margin-bottom: 6px; }
+    .feature-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* 스텝 가이드 */
+    .steps { margin: 16px 0; counter-reset: step; }
+    .step {
+      position: relative; padding: 16px 16px 16px 56px; margin-bottom: 12px;
+      background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border);
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute; left: 16px; top: 16px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-title { font-weight: 700; color: var(--text-heading); margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: var(--text-muted); }
+
+    /* 예시 박스 */
+    .example-box {
+      background: var(--bg-card-alt); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px; margin: 12px 0;
+    }
+    .example-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+    .example-box ul { list-style: none; padding: 0; }
+    .example-box li { padding: 4px 0; font-size: 13px; color: var(--text); }
+    .example-box li::before { content: '"'; color: var(--accent-light); }
+    .example-box li::after { content: '"'; color: var(--accent-light); }
+
+    /* 표 */
+    .guide-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .guide-table th { background: var(--bg-card); color: var(--accent-light); font-weight: 700; text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+    .guide-table td { padding: 10px 14px; border: 1px solid var(--border); color: var(--text); }
+    .guide-table tr:hover td { background: rgba(124,92,252,0.04); }
+
+    /* 배지 */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
+    .badge-yellow { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-gray { background: rgba(107,114,128,0.15); color: #9ca3af; }
+    .badge-green { background: rgba(16,185,129,0.15); color: #34d399; }
+
+    /* 팁 박스 */
+    .tip-box {
+      display: flex; gap: 12px; padding: 14px 16px; border-radius: 8px; margin: 16px 0;
+      font-size: 13px;
+    }
+    .tip-box.info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); }
+    .tip-box.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+    .tip-box.success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); }
+    .tip-icon { font-size: 18px; flex-shrink: 0; }
+
+    /* 키보드 */
+    kbd { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; font-family: monospace; color: var(--accent-light); }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .guide-toc { display: none; }
+      .guide-content { padding: 24px 20px 60px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .guide-nav { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 상단 내비게이션 -->
+<nav class="guide-nav">
+  <a href="/fund">← 프로젝트 관리</a>
+  <span class="nav-sep">|</span>
+  <span class="nav-title">📖 사용방법 가이드</span>
+</nav>
+
+<div class="guide-layout">
+  <!-- 좌측 목차 -->
+  <aside class="guide-toc">
+    <div class="toc-section">
+      <div class="toc-section-title">시작하기</div>
+      <a class="toc-link" href="#overview">전체 개요</a>
+      <a class="toc-link" href="#login">로그인/회원가입</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">챗봇 기능</div>
+      <a class="toc-link" href="#chatbot">웹 챗봇</a>
+      <a class="toc-link" href="#meeting">회의실 예약</a>
+      <a class="toc-link" href="#approval">전자결재</a>
+      <a class="toc-link" href="#contract">계약서 생성</a>
+      <a class="toc-link" href="#mail">메일 요약</a>
+      <a class="toc-link" href="#voice">음성 인식</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">프로젝트 관리</div>
+      <a class="toc-link" href="#fund-overview">프로젝트 관리 개요</a>
+      <a class="toc-link" href="#portfolio">포트폴리오</a>
+      <a class="toc-link" href="#dashboard">대시보드</a>
+      <a class="toc-link" href="#project-overview">개요 탭</a>
+      <a class="toc-link" href="#collection">수금현황</a>
+      <a class="toc-link" href="#subcontract">하도급/예산</a>
+      <a class="toc-link" href="#gw-sync">GW 동기화</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">AI &amp; 기타</div>
+      <a class="toc-link" href="#ai-insights">AI 인사이트</a>
+      <a class="toc-link" href="#telegram">텔레그램 봇</a>
+      <a class="toc-link" href="#faq">자주 묻는 질문</a>
+    </div>
+  </aside>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="guide-content">
+    <h1>GW 자동화 비서 사용 가이드</h1>
+    <p class="subtitle">글로우서울 그룹웨어 업무를 자연어 AI로 자동화합니다. 회의실 예약부터 전자결재, 프로젝트 관리까지.</p>
+
+    <!-- 전체 개요 -->
+    <h2 id="overview">📋 전체 기능 개요</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-card-icon">🏢</div>
+        <div class="feature-card-title">회의실 예약</div>
+        <div class="feature-card-desc">예약 · 취소 · 조회 · 빈 시간 검색. 자연어로 "내일 3시 2번 회의실 예약해줘"</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">📝</div>
+        <div class="feature-card-title">전자결재 자동화</div>
+        <div class="feature-card-desc">지출결의서, 거래처등록 등 5종. AI가 양식을 자동 작성하고 임시보관합니다.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">📄</div>
+        <div class="feature-card-title">계약서 생성</div>
+        <div class="feature-card-desc">자재납품 · 공사 계약서 자동 생성. 엑셀 첨부로 일괄 생성도 가능.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">💰</div>
+        <div class="feature-card-title">프로젝트 관리</div>
+        <div class="feature-card-desc">수금 · 하도급 · 예산 · 이체내역을 한눈에. GW 데이터 자동 동기화.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">🤖</div>
+        <div class="feature-card-title">AI 인사이트</div>
+        <div class="feature-card-desc">Gemini AI가 프로젝트별 리스크 · 자금흐름 · 실행 권고를 분석합니다.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">🎤</div>
+        <div class="feature-card-title">음성 인식</div>
+        <div class="feature-card-desc">음성 파일 첨부 시 자동으로 텍스트 변환 후 명령 실행.</div>
+      </div>
+    </div>
+
+    <!-- 로그인 -->
+    <h2 id="login">🔑 로그인 / 회원가입</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-title">웹 브라우저로 접속</div>
+        <div class="step-desc"><kbd>https://unchidingly-hybridizable-maranda.ngrok-free.dev</kbd> 에 접속합니다.</div>
+      </div>
+      <div class="step">
+        <div class="step-title">회원가입 (최초 1회)</div>
+        <div class="step-desc"><strong>[회원가입]</strong> 탭에서 이름, 직급, 그룹웨어 아이디/비밀번호를 입력합니다. 비밀번호는 암호화 저장됩니다.</div>
+      </div>
+      <div class="step">
+        <div class="step-title">로그인</div>
+        <div class="step-desc"><strong>[로그인]</strong> 탭에서 그룹웨어 아이디와 비밀번호로 접속합니다. 24시간 동안 로그인이 유지됩니다.</div>
+      </div>
+    </div>
+
+    <!-- 챗봇 -->
+    <h2 id="chatbot">💬 웹 챗봇</h2>
+    <p>채팅창에 <strong>자연스러운 대화</strong>를 입력하면 AI가 알아서 처리합니다. 명령어 규칙 없이 편하게 말하세요.</p>
+
+    <h3>화면 구성</h3>
+    <table class="guide-table">
+      <tr><th>영역</th><th>기능</th></tr>
+      <tr><td>왼쪽 사이드바</td><td><strong>[+ 새 대화]</strong> 새 주제 시작 / 빠른 실행 버튼 (회의실, 지출결의서 등) / 이전 대화 목록</td></tr>
+      <tr><td>오른쪽 상단</td><td>🗑️ 대화 초기화 / <strong>[로그아웃]</strong></td></tr>
+      <tr><td>채팅 입력창</td><td>텍스트 입력 또는 파일 첨부 (드래그앤드롭 지원)</td></tr>
+    </table>
+
+    <h3>파일 첨부</h3>
+    <p>영수증, 사업자등록증, 세금계산서 등을 <strong>드래그앤드롭</strong>으로 첨부하면 AI가 자동 인식합니다.</p>
+    <div class="tip-box info">
+      <span class="tip-icon">💡</span>
+      <div>지원 형식: JPG, PNG, PDF (파일당 최대 10MB). 사업자등록증 첨부 시 상호·대표자·사업자번호 자동 추출.</div>
+    </div>
+
+    <!-- 회의실 -->
+    <h2 id="meeting">🏢 회의실 예약</h2>
+    <p>1~5번 회의실을 자연어로 예약 · 취소 · 조회할 수 있습니다.</p>
+    <div class="example-box">
+      <div class="label">예시 문장</div>
+      <ul>
+        <li>내일 오후 3시에 2번 회의실 예약해줘. 참석자는 홍길동, 김철수야.</li>
+        <li>오늘 1시부터 2시간 동안 쓸 수 있는 빈 회의실 찾아줘.</li>
+        <li>내일 잡아둔 내 회의실 예약 취소할래.</li>
+        <li>내 예약 목록 보여줘.</li>
+      </ul>
+    </div>
+
+    <!-- 전자결재 -->
+    <h2 id="approval">📝 전자결재 자동 작성</h2>
+    <p>AI가 양식을 자동으로 채워서 <strong>임시보관문서</strong> 폴더에 저장합니다. 확인 후 GW에서 직접 <strong>[상신]</strong> 버튼을 눌러야 결재가 진행됩니다.</p>
+
+    <h3>지원 양식</h3>
+    <table class="guide-table">
+      <tr><th>양식</th><th>상태</th><th>설명</th></tr>
+      <tr><td>지출결의서</td><td><span class="badge badge-green">사용 가능</span></td><td>22단계 자동화. 세금계산서 첨부 시 자동 인식.</td></tr>
+      <tr><td>거래처등록</td><td><span class="badge badge-green">사용 가능</span></td><td>사업자등록증 + 통장사본 첨부 후 요청.</td></tr>
+      <tr><td>선급금요청</td><td><span class="badge badge-yellow">준비 중</span></td><td>코드 완성, GW 검증 필요.</td></tr>
+      <tr><td>연장근무</td><td><span class="badge badge-gray">예정</span></td><td>근태관리 모듈 연동 예정.</td></tr>
+      <tr><td>외근신청</td><td><span class="badge badge-gray">예정</span></td><td>근태관리 모듈 연동 예정.</td></tr>
+    </table>
+
+    <div class="example-box">
+      <div class="label">예시 문장</div>
+      <ul>
+        <li>이번 달 야근 식대 2만원 지출결의서 올려줘.</li>
+        <li>사업자등록증이랑 통장사본 첨부했어. 거래처등록 해줘.</li>
+      </ul>
+    </div>
+
+    <h3>결재선 설정</h3>
+    <p>챗봇이나 텔레그램에서 결재선을 커스텀할 수 있습니다.</p>
+    <div class="example-box">
+      <div class="label">결재선 설정 예시</div>
+      <ul>
+        <li>내 결재선을 검토:신동관, 승인:최기영으로 설정해줘</li>
+      </ul>
+    </div>
+    <div class="tip-box warning">
+      <span class="tip-icon">⚠️</span>
+      <div><strong>보관 모드</strong>: AI는 서류를 임시보관만 합니다. 내용 확인 후 GW에서 직접 [상신]을 눌러야 결재가 진행됩니다.</div>
+    </div>
+
+    <!-- 계약서 -->
+    <h2 id="contract">📄 계약서 자동 생성</h2>
+    <p>자재납품 · 공사 계약서를 대화형으로 생성합니다. 엑셀 파일 첨부 시 다건 일괄 생성도 가능합니다.</p>
+    <div class="example-box">
+      <div class="label">예시 문장</div>
+      <ul>
+        <li>자재납품 계약서 만들어줘</li>
+        <li>공사 계약서 작성해줘</li>
+      </ul>
+    </div>
+
+    <!-- 메일 -->
+    <h2 id="mail">📧 메일 요약</h2>
+    <p>GW 메일함의 새 메일을 확인하고 요약합니다.</p>
+    <div class="example-box">
+      <div class="label">예시 문장</div>
+      <ul>
+        <li>새 메일 확인해줘</li>
+        <li>메일 요약해줘</li>
+      </ul>
+    </div>
+
+    <!-- 음성 -->
+    <h2 id="voice">🎤 음성 인식 (STT)</h2>
+    <p>음성 파일(.ogg, .mp3, .wav, .m4a, .flac)을 첨부하면 자동으로 텍스트로 변환 후 처리합니다.</p>
+    <div class="tip-box info">
+      <span class="tip-icon">💡</span>
+      <div>텔레그램에서는 음성 메시지를 녹음해서 보내면 자동 인식됩니다.</div>
+    </div>
+
+    <!-- 프로젝트 관리 -->
+    <h2 id="fund-overview">💰 프로젝트 관리 (<code>/fund</code>)</h2>
+    <p>프로젝트별 자금 흐름을 한눈에 파악하고 관리하는 전용 페이지입니다. 사이드바의 <strong>[프로젝트 관리]</strong> 또는 주소창에 <kbd>/fund</kbd>를 입력하세요.</p>
+
+    <h3>프로젝트 등급</h3>
+    <table class="guide-table">
+      <tr><th>등급</th><th>색상</th><th>설명</th></tr>
+      <tr><td>1등급</td><td><span class="badge badge-red">빨강</span></td><td>당사 직영(ETF), 확장 가능성</td></tr>
+      <tr><td>2등급</td><td><span class="badge badge-yellow">노랑</span></td><td>KOM, 2~3차 보고, 결과 보고</td></tr>
+      <tr><td>3등급</td><td><span class="badge badge-blue">파랑</span></td><td>KOM, 2차 보고, 결과 보고</td></tr>
+      <tr><td>4등급</td><td><span class="badge badge-gray">회색</span></td><td>기타</td></tr>
+    </table>
+
+    <h3>프로젝트 카테고리</h3>
+    <p><span class="badge badge-blue">설계</span> <span class="badge badge-green">시공</span> <span class="badge badge-yellow">설계&시공</span> <span class="badge badge-red">브랜드</span> <span class="badge badge-gray">운영</span> <span class="badge badge-green">직영</span> <span class="badge badge-blue">기획</span></p>
+
+    <!-- 포트폴리오 -->
+    <h2 id="portfolio">📊 포트폴리오 (전체 프로젝트 비교)</h2>
+    <p>프로젝트를 선택하지 않은 상태에서 전체 비교 테이블이 표시됩니다.</p>
+    <table class="guide-table">
+      <tr><th>기능</th><th>설명</th></tr>
+      <tr><td>요약 카드</td><td>전체 프로젝트 수, 총 수주액, 총 수금액, 총 미수금</td></tr>
+      <tr><td>비교 테이블</td><td>프로젝트별 수주액 · 실행예산 · 수금률 · 지급률 · 이익률 한눈에 비교</td></tr>
+      <tr><td>드래그 정렬</td><td>프로젝트 순서를 드래그로 변경 (자동 저장)</td></tr>
+      <tr><td>PM 시트 가져오기</td><td>Google Sheets(PM팀 Official)에서 하도급 · 연락처 · 이체내역 · 수금 데이터 일괄 임포트</td></tr>
+      <tr><td>전체 GW 동기화</td><td>모든 프로젝트의 GW 데이터 일괄 업데이트 (3단계 크롤링)</td></tr>
+      <tr><td>AI 분석</td><td>프로젝트별 리스크 · 자금흐름 · 실행 권고 AI 분석</td></tr>
+    </table>
+
+    <!-- 대시보드 -->
+    <h2 id="dashboard">📈 대시보드 탭</h2>
+    <p>프로젝트를 선택하면 가장 먼저 보이는 화면입니다.</p>
+    <table class="guide-table">
+      <tr><th>요소</th><th>설명</th></tr>
+      <tr><td>요약 카드 6개</td><td>수주액 / 실행예산 / 수익금(이익률) / 수금액(수금률) / 하도급 업체 수 / 미지급 잔액</td></tr>
+      <tr><td>공종별 지급현황</td><td>공종명, 업체, 계약금액, 기지급액, 잔액 테이블</td></tr>
+      <tr><td>TODO 리스트</td><td>프로젝트별 할 일 관리. AI가 자동 생성한 [AI 권고] 항목도 표시.</td></tr>
+      <tr><td>AI 인사이트</td><td>현황 점검, 리스크, 자금 흐름, 실행 권고 카드</td></tr>
+    </table>
+
+    <!-- 개요 -->
+    <h2 id="project-overview">📋 개요 탭</h2>
+    <table class="guide-table">
+      <tr><th>항목</th><th>설명</th></tr>
+      <tr><td>기본정보</td><td>카테고리, 위치, 용도, 면적, 설계·시공 기간, 계약현황</td></tr>
+      <tr><td>진행상황 체크리스트</td><td>마일스톤별 완료 체크</td></tr>
+      <tr><td>배정인원</td><td>역할별 담당자 목록</td></tr>
+      <tr><td>이슈사항</td><td>현재 진행 중인 이슈 기록</td></tr>
+      <tr><td>🌐 GW에서 가져오기</td><td>사업코드 연결 → GW 프로젝트 정보 + 예실대비 자동 크롤링</td></tr>
+    </table>
+
+    <div class="tip-box info">
+      <span class="tip-icon">💡</span>
+      <div>🌐 버튼을 눌러 GW 프로젝트를 검색하고 사업코드를 연결하면, 프로젝트 등록정보와 예산 데이터가 자동으로 가져와집니다. 최초 1회 <strong>[GW에서 프로젝트 목록 가져오기]</strong>를 실행해야 합니다.</div>
+    </div>
+
+    <!-- 수금 -->
+    <h2 id="collection">💵 수금현황 탭</h2>
+    <p>설계 · 시공 단계별 수금을 체크박스로 관리합니다.</p>
+    <table class="guide-table">
+      <tr><th>기능</th><th>설명</th></tr>
+      <tr><td>수금 체크박스</td><td>체크하면 즉시 저장. 수금 완료 표시.</td></tr>
+      <tr><td>실시간 합계</td><td>총 수금액 / 미수금액 / 수금률 자동 계산</td></tr>
+      <tr><td>미수금 배너</td><td>미수금 > 0일 때 상단 배너 표시</td></tr>
+    </table>
+
+    <!-- 하도급/예산 -->
+    <h2 id="subcontract">🔧 하도급 & 예산 탭</h2>
+
+    <h3>하도급 상세</h3>
+    <table class="guide-table">
+      <tr><th>기능</th><th>설명</th></tr>
+      <tr><td>업체별 관리</td><td>계약금액, 1~4차 지급액 입력</td></tr>
+      <tr><td>지급확인 체크</td><td>체크하면 연파랑색 표시</td></tr>
+      <tr><td>자동 계산</td><td>기지급액(1~4차 합계), 잔여금액(계약-기지급) 자동</td></tr>
+      <tr><td>합계 카드</td><td>계약 총액 / 기지급 총액 / 잔액 총액 상단 표시</td></tr>
+    </table>
+    <div class="tip-box warning">
+      <span class="tip-icon">⚠️</span>
+      <div>미저장 변경사항이 있을 때 탭을 이동하면 경고가 표시됩니다. 저장 후 이동하세요.</div>
+    </div>
+
+    <h3>예실대비</h3>
+    <p>GW에서 크롤링한 예산 vs 실적 데이터입니다 (읽기 전용).</p>
+    <table class="guide-table">
+      <tr><th>표시</th><th>설명</th></tr>
+      <tr><td><span class="badge badge-red">장</span> <span class="badge badge-blue">관</span> <span class="badge badge-green">항</span> <span class="badge badge-yellow">목</span></td><td>예산과목 계층 구조 (들여쓰기 표시)</td></tr>
+      <tr><td>집행률 바</td><td>95% 이상 빨강(위험), 80% 이상 주황(경고)</td></tr>
+      <tr><td>Top5 차트</td><td>집행액 상위 5개 항목 미니차트</td></tr>
+    </table>
+
+    <!-- GW 동기화 -->
+    <h2 id="gw-sync">🔄 GW 데이터 동기화</h2>
+    <h3>자동 동기화</h3>
+    <p>매일 아침 <strong>08:00</strong>에 서버가 자동으로 전체 프로젝트 GW 데이터를 동기화합니다. 출근 시 최신 데이터가 반영되어 있습니다.</p>
+
+    <h3>수동 동기화</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-title">포트폴리오에서 [전체 GW 동기화] 클릭</div>
+        <div class="step-desc">모든 프로젝트를 일괄 동기화합니다. 소요시간: 5~15분.</div>
+      </div>
+      <div class="step">
+        <div class="step-title">3단계 진행</div>
+        <div class="step-desc">① 프로젝트 등록정보 → ② 예실대비현황(사업별) → ③ 예산 합계(상세)</div>
+      </div>
+      <div class="step">
+        <div class="step-title">결과 확인</div>
+        <div class="step-desc">각 단계의 성공/실패 결과가 토스트로 표시됩니다.</div>
+      </div>
+    </div>
+
+    <!-- AI 인사이트 -->
+    <h2 id="ai-insights">🤖 AI 인사이트</h2>
+    <p>Gemini AI가 프로젝트 데이터를 분석하여 4가지 관점에서 인사이트를 제공합니다.</p>
+    <table class="guide-table">
+      <tr><th>분석 항목</th><th>내용</th></tr>
+      <tr><td>📊 현황 점검</td><td>수금/지급 진행률, 데이터 누락 확인, 전반적 상태</td></tr>
+      <tr><td>⚠️ 리스크</td><td>미확인 지급건, 수금 지연, 자금 병목 시점 경고</td></tr>
+      <tr><td>💰 자금 흐름</td><td>수금 vs 지급 타이밍 불일치, 현금 흐름 분석</td></tr>
+      <tr><td>🎯 실행 권고</td><td>금액 · 대상 · 행동을 명시한 구체적 액션 아이템</td></tr>
+    </table>
+
+    <h3>사용 방법</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-title">포트폴리오 화면에서 [새로 분석하기] 클릭</div>
+        <div class="step-desc">AI가 전체 프로젝트를 분석합니다. 약 30초~1분 소요.</div>
+      </div>
+      <div class="step">
+        <div class="step-title">프로젝트별 분석 카드 확인</div>
+        <div class="step-desc">현황/리스크/자금/권고 4가지 관점의 카드가 표시됩니다.</div>
+      </div>
+      <div class="step">
+        <div class="step-title">TODO 자동 생성</div>
+        <div class="step-desc">누락 데이터 발견 시 [AI 권고] 태그가 붙은 TODO가 자동 생성됩니다.</div>
+      </div>
+    </div>
+
+    <!-- 텔레그램 -->
+    <h2 id="telegram">📱 텔레그램 봇</h2>
+    <p>스마트폰으로 언제 어디서나 같은 기능을 사용할 수 있습니다.</p>
+    <table class="guide-table">
+      <tr><th>명령어</th><th>기능</th></tr>
+      <tr><td><kbd>/start</kbd></td><td>봇 시작 및 기본 안내</td></tr>
+      <tr><td><kbd>/register</kbd></td><td>신규 회원가입 (2단계: 아이디 → 비밀번호)</td></tr>
+      <tr><td><kbd>/login</kbd></td><td>로그인 (2단계: 아이디 → 비밀번호, 비밀번호 자동 삭제)</td></tr>
+      <tr><td><kbd>/clear</kbd></td><td>대화 내용 초기화</td></tr>
+      <tr><td><kbd>/setline</kbd></td><td>결재선 설정</td></tr>
+      <tr><td><kbd>/myline</kbd></td><td>현재 결재선 확인</td></tr>
+    </table>
+
+    <!-- FAQ -->
+    <h2 id="faq">❓ 자주 묻는 질문</h2>
+
+    <h3>AI가 결재를 바로 올려버리나요?</h3>
+    <p><strong>아닙니다.</strong> AI는 <strong>임시보관</strong>까지만 수행합니다. 사용자가 GW에서 직접 확인 후 [상신]을 눌러야 합니다.</p>
+
+    <h3>비밀번호가 유출되지 않나요?</h3>
+    <p>비밀번호는 <strong>Fernet 암호화</strong>되어 로컬 서버에 저장됩니다. AI 엔진으로는 전송되지 않습니다. 텔레그램에서는 비밀번호 메시지가 자동 삭제됩니다.</p>
+
+    <h3>AI가 말을 잘 못 알아듣는 것 같아요</h3>
+    <p>대화가 길어지면 문맥 혼동이 생길 수 있습니다. <strong>[+ 새 대화]</strong> 또는 텔레그램 <kbd>/clear</kbd>로 초기화하세요.</p>
+
+    <h3>프로젝트 관리 페이지에서 데이터가 안 보여요</h3>
+    <p>좌측 사이드바에서 <strong>프로젝트를 선택</strong>해야 탭 내용이 표시됩니다.</p>
+
+    <h3>GW 동기화가 실패했어요</h3>
+    <p>GW 세션이 만료되었을 수 있습니다. 챗봇에서 다시 로그인 후 동기화를 재시도하세요. 3단계 중 일부가 실패해도 나머지는 진행됩니다.</p>
+
+    <h3>예실대비 데이터에 전기 내용이 안 보여요</h3>
+    <p>사업코드가 올바르게 입력되어 있는지 확인하세요. 사업별 크롤러가 시작 연도부터 현재까지 자동 조회합니다.</p>
+
+    <h3>GW 데이터가 자동 업데이트되나요?</h3>
+    <p><strong>네.</strong> 매일 아침 8시에 자동 동기화됩니다. 급할 때는 <strong>[전체 GW 동기화]</strong>로 수동 실행도 가능합니다.</p>
+
+    <div style="height: 40px;"></div>
+  </main>
+</div>
+
+<script>
+// 현재 위치 하이라이트
+const tocLinks = document.querySelectorAll('.toc-link');
+const sections = [];
+tocLinks.forEach(l => {
+  const id = l.getAttribute('href').slice(1);
+  const el = document.getElementById(id);
+  if (el) sections.push({ el, link: l });
+});
+function updateToc() {
+  let current = sections[0];
+  for (const s of sections) {
+    if (s.el.getBoundingClientRect().top <= 80) current = s;
+  }
+  tocLinks.forEach(l => l.classList.remove('active'));
+  if (current) current.link.classList.add('active');
+}
+window.addEventListener('scroll', updateToc, { passive: true });
+updateToc();
+</script>
+</body>
+</html>

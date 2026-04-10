@@ -10,7 +10,6 @@
   - 예산과목 입력: input[placeholder='예산과목코드도움'] (pos ~869,404, disabled until project selected)
   - 확인/취소 버튼: 모달 하단
 """
-import time
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -44,14 +43,66 @@ def select_budget_code(page: Page, project_keyword: str, budget_keyword: str) ->
     result = {"success": False, "budget_code": "", "budget_name": "", "message": ""}
 
     try:
-        # ── 단계 12: 예산과목 필드 클릭 → 모달 오픈 ──
+        # ── 사전 처리: 용도코드 입력 후 자동 열린 "예입/지출 예산시내역" 모달 닫기 ──
+        # 이 모달이 열려 있으면 예산과목 필드 클릭이 방해받아 올바른 모달이 안 열림
+        try:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(500)
+            logger.info("Escape 전송 — 열린 모달 닫기 시도")
+        except Exception:
+            pass
+
+        # ── 단계 12: 예산과목 필드 클릭 → "공통 예산잔액 조회" 모달 오픈 ──
         budget_input = _click_budget_field(page)
         if not budget_input:
             result["message"] = "예산과목 필드를 찾을 수 없음"
             return result
 
+        # 클릭 직후 2초 대기 후 DOM 상태 진단 (어떤 팝업이 열렸는지 확인)
+        page.wait_for_timeout(2000)
+        _save_debug_screenshot(page, "budget_12_after_click")
+        try:
+            _dom_diag = page.evaluate("""() => {
+                const allInputs = [...document.querySelectorAll('input[placeholder]')].map(i => ({
+                    ph: i.placeholder, y: Math.round(i.getBoundingClientRect().y), vis: i.offsetParent !== null
+                })).filter(i => i.vis);
+                const allH1 = [...document.querySelectorAll('h1')].map(h => ({
+                    txt: h.textContent.trim().slice(0, 40), y: Math.round(h.getBoundingClientRect().y), vis: h.offsetParent !== null
+                })).filter(h => h.vis);
+                return { inputs: allInputs, h1s: allH1 };
+            }""")
+            logger.info(f"예산과목 클릭 후 DOM — inputs: {_dom_diag.get('inputs', [])}")
+            logger.info(f"예산과목 클릭 후 DOM — h1s: {_dom_diag.get('h1s', [])}")
+        except Exception as _de:
+            logger.warning(f"DOM 진단 실패: {_de}")
+
         # ── 단계 13: "공통 예산잔액 조회" 모달 대기 ──
         if not _wait_for_budget_modal(page):
+            # 모달이 안 열린 경우 → 예산과목 직접 입력 폴백
+            # 예산과목코드를 직접 typing하면 GW가 자동 조회할 수 있음
+            if budget_keyword:
+                logger.info(f"예산과목 모달 미열림 → 직접 입력 폴백 시도: '{budget_keyword}'")
+                try:
+                    # 예산과목 필드에 코드 직접 typing
+                    from playwright.sync_api import Page as _Page
+                    import re as _re
+                    # budget_keyword에서 숫자코드 추출 시도 (예: "2200300" 또는 "전기" → 코드 아님)
+                    _budget_code = _re.search(r'\d{5,}', budget_keyword)
+                    if _budget_code:
+                        _code_str = _budget_code.group()
+                        if budget_input:
+                            budget_input.triple_click()
+                            page.wait_for_timeout(100)
+                            budget_input.fill(_code_str)
+                            page.wait_for_timeout(200)
+                            page.keyboard.press("Tab")
+                            page.wait_for_timeout(500)
+                            logger.info(f"예산과목 직접 입력 폴백: '{_code_str}'")
+                            result["code"] = _code_str
+                            result["success"] = True
+                            return result
+                except Exception as _fe:
+                    logger.debug(f"예산과목 직접 입력 폴백 실패: {_fe}")
             result["message"] = "공통 예산잔액 조회 모달이 열리지 않음"
             return result
         logger.info("공통 예산잔액 조회 모달 열림")
@@ -83,7 +134,7 @@ def select_budget_code(page: Page, project_keyword: str, budget_keyword: str) ->
             result["message"] = "모달 확인 버튼 클릭 실패"
             return result
 
-        time.sleep(0.5)  # 모달 닫힘 대기
+        page.wait_for_timeout(500)  # 모달 닫힘 대기
         _save_debug_screenshot(page, "budget_17b_after_main_confirm")
 
         # 메인 모달이 여전히 열려있으면 Escape로 강제 닫기
@@ -91,7 +142,7 @@ def select_budget_code(page: Page, project_keyword: str, budget_keyword: str) ->
             if page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=500):
                 logger.warning("메인 모달이 여전히 열려있음 — Escape로 강제 닫기")
                 page.keyboard.press("Escape")
-                time.sleep(0.5)
+                page.wait_for_timeout(500)
         except Exception:
             pass
 
@@ -157,8 +208,25 @@ def _click_budget_field(page: Page):
                     continue
                 box = inp.bounding_box()
                 if box and box["y"] > y_threshold:
-                    inp.click(force=True)
-                    logger.info(f"예산과목 필드 클릭: {sel} (y={box['y']:.0f}, threshold={y_threshold:.0f})")
+                    _disabled = inp.is_disabled()
+                    _editable = inp.is_editable()
+                    logger.info(f"예산과목 필드 클릭: {sel} (y={box['y']:.0f}, threshold={y_threshold:.0f}, disabled={_disabled}, editable={_editable})")
+                    # 1차 시도: 더블클릭 (GW 코드도움 필드는 더블클릭으로 피커 오픈)
+                    try:
+                        inp.scroll_into_view_if_needed()  # y=988 등 뷰포트 밖 요소 스크롤
+                        page.wait_for_timeout(200)
+                        inp.dblclick(force=True)
+                        page.wait_for_timeout(500)
+                        logger.info("예산과목 더블클릭 시도")
+                    except Exception:
+                        inp.click(force=True)
+                        page.wait_for_timeout(300)
+                    # 2차 시도: F4 단축키
+                    try:
+                        page.keyboard.press("F4")
+                        logger.info("예산과목 F4 트리거 시도")
+                    except Exception:
+                        pass
                     return inp
         except Exception:
             continue
@@ -176,6 +244,8 @@ def _click_budget_field(page: Page):
                     continue
                 box = inp.bounding_box()
                 if box and box["y"] > y_min:
+                    inp.scroll_into_view_if_needed()
+                    page.wait_for_timeout(200)
                     inp.click(force=True)
                     logger.info(f"예산과목 필드 클릭 (완화 임계값): {sel} (y={box['y']:.0f})")
                     return inp
@@ -193,6 +263,16 @@ def _click_budget_field(page: Page):
         except Exception:
             continue
 
+    # [진단] 찾지 못했을 때 현재 화면의 모든 visible input placeholder 출력
+    try:
+        _visible_inputs = page.evaluate("""() => {
+            return [...document.querySelectorAll('input[placeholder]')]
+                .filter(i => i.offsetParent !== null)
+                .map(i => ({ph: i.placeholder, y: Math.round(i.getBoundingClientRect().y), x: Math.round(i.getBoundingClientRect().x)}));
+        }""")
+        logger.warning(f"[진단] 현재 visible inputs: {_visible_inputs[:20]}")
+    except Exception:
+        pass
     logger.warning(f"예산과목 필드를 찾을 수 없음 (y_threshold={y_threshold:.0f}, viewport_height={viewport_height})")
     return None
 
@@ -201,23 +281,49 @@ def _wait_for_budget_modal(page: Page, timeout_ms: int = 10000) -> bool:
     """단계 13: '공통 예산잔액 조회' 모달 대기.
 
     모달은 H1 태그로 제목 표시, CSS modal/popup class 없음.
-    text= 셀렉터가 가장 안정적.
-    """
-    # 가장 정확한 셀렉터 우선
-    try:
-        page.locator("text=공통 예산잔액 조회").first.wait_for(state="visible", timeout=timeout_ms)
-        logger.info("공통 예산잔액 조회 텍스트 감지")
-        return True
-    except Exception:
-        pass
 
-    # H1 태그 기반 폴백
-    try:
-        page.locator("h1:has-text('공통 예산잔액 조회')").first.wait_for(state="visible", timeout=5000)
-        logger.info("H1 공통 예산잔액 조회 감지")
-        return True
-    except Exception:
-        pass
+    GW 버전에 따라 모달 제목이 다를 수 있음:
+      - "공통 예산잔액 조회"
+      - "예입/지출 예산시내역"
+
+    감지 전략: input[placeholder*='예산과목코드도움'] 출현 확인
+      - 이 input은 예산과목 모달에만 존재 (메인 폼에는 없음)
+      - 반면 input[placeholder='사업코드도움']는 메인 폼 상단 프로젝트 입력란과 겹쳐 false positive 발생
+    """
+    # 1차: 예산과목코드도움 input — 모달 고유 (메인 폼에 없음)
+    _budget_code_sel = "input[placeholder*='예산과목코드도움']"
+    # 2차: 사업코드도움 input이 x > 700 위치에 있으면 모달 내 입력란으로 판단
+    #      (메인 폼 프로젝트 입력란은 왼쪽 영역에 위치)
+    _proj_code_sel = "input[placeholder='사업코드도움'], input[placeholder*='사업코드']"
+
+    deadline = timeout_ms
+    poll_interval = 300
+    elapsed = 0
+    while elapsed < deadline:
+        try:
+            # 1차 확인: 예산과목코드도움 input (모달 고유)
+            for inp in page.locator(_budget_code_sel).all():
+                try:
+                    if inp.is_visible(timeout=300):
+                        logger.info("예산과목 모달 감지 (예산과목코드도움 input)")
+                        return True
+                except Exception:
+                    continue
+            # 2차 확인: 사업코드도움 input이 x > 700에 있으면 모달 내부로 판단
+            for inp in page.locator(_proj_code_sel).all():
+                try:
+                    if not inp.is_visible(timeout=300):
+                        continue
+                    box = inp.bounding_box()
+                    if box and box["x"] > 700:
+                        logger.info(f"예산과목 모달 감지 (사업코드도움 x={box['x']:.0f})")
+                        return True
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        page.wait_for_timeout(poll_interval)
+        elapsed += poll_interval
 
     logger.warning("공통 예산잔액 조회 모달 감지 실패")
     _save_debug_screenshot(page, "budget_modal_not_found")
@@ -254,6 +360,18 @@ def _fill_modal_project(page: Page, project_keyword: str) -> bool:
         logger.warning("모달 내 사업코드도움 입력란을 찾을 수 없음")
         return False
 
+    # 기존 값 확인 → 이미 프로젝트가 입력되어 있으면 재입력 생략 (GW 자동완성 상태 유지)
+    existing_val = ""
+    try:
+        existing_val = proj_input.input_value() or ""
+    except Exception:
+        pass
+    if existing_val and len(existing_val) >= 3:
+        logger.info(f"모달 프로젝트 기존값 감지: '{existing_val[:30]}' → 재입력 생략, Enter 확정")
+        proj_input.press("Enter")
+        page.wait_for_timeout(500)
+        return True
+
     # 클릭 → 기존 값 지우기 → 타이핑 (자동완성 트리거용 delay)
     proj_input.click(force=True)
     proj_input.fill("")
@@ -261,7 +379,7 @@ def _fill_modal_project(page: Page, project_keyword: str) -> bool:
     logger.info(f"모달 프로젝트 검색어 입력: '{project_keyword}'")
 
     # 자동완성 드롭다운 대기 (OBT 자동완성 컴포넌트)
-    time.sleep(1.0)
+    page.wait_for_timeout(3000)
 
     dropdown_selectors = [
         "ul[class*='autocomplete'] li",
@@ -279,17 +397,17 @@ def _fill_modal_project(page: Page, project_keyword: str) -> bool:
                     item_text = (item.text_content(timeout=1000) or "").strip()
                     item.click()
                     logger.info(f"모달 프로젝트 자동완성 선택: '{item_text[:40]}' ({sel})")
-                    time.sleep(0.5)
+                    page.wait_for_timeout(500)
                     return True
         except Exception:
             continue
 
     # 폴백: Enter/Tab으로 현재 값 확정
     proj_input.press("Enter")
-    time.sleep(0.3)
+    page.wait_for_timeout(300)
     proj_input.press("Tab")
     logger.info("모달 프로젝트 — 드롭다운 미발견, Enter+Tab으로 확정")
-    time.sleep(0.5)
+    page.wait_for_timeout(500)
     return True
 
 
@@ -313,11 +431,11 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
                     break
                 else:
                     logger.debug(f"예산과목코드도움 아직 disabled (시도 {attempt+1}/10)")
-                    time.sleep(0.5)
+                    page.wait_for_timeout(500)
             else:
-                time.sleep(0.5)
+                page.wait_for_timeout(500)
         except Exception:
-            time.sleep(0.5)
+            page.wait_for_timeout(500)
 
     if not budget_input:
         logger.warning("예산과목코드도움 입력란 활성화 실패 (5초 대기)")
@@ -329,12 +447,12 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
     budget_input.fill("")
     budget_input.type(budget_keyword, delay=80)
     logger.info(f"예산과목 검색어 입력: '{budget_keyword}'")
-    time.sleep(0.3)
+    page.wait_for_timeout(300)
 
     # 코드도움 트리거: Enter 키 (가장 안정적)
     budget_input.press("Enter")
     logger.info("예산과목 코드도움 트리거 (Enter)")
-    time.sleep(1.5)
+    page.wait_for_timeout(1500)
 
     # Enter로 서브 팝업이 안 열리면 코드도움 아이콘 클릭 시도
     sub_popup_visible = False
@@ -349,7 +467,7 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
         try:
             budget_input.press("Enter")
             logger.info("예산과목 코드도움 트리거 재시도 (Enter)")
-            time.sleep(1.5)
+            page.wait_for_timeout(1500)
             try:
                 if page.locator("text=예산과목코드도움").first.is_visible(timeout=2000):
                     icon_clicked = True
@@ -376,7 +494,7 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
                         icon.click(force=True)
                         logger.info(f"예산과목 코드도움 아이콘 CSS 클릭: '{sel}'")
                         icon_clicked = True
-                        time.sleep(1.0)
+                        page.wait_for_timeout(1000)
                         break
                 except Exception:
                     continue
@@ -392,7 +510,7 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
                     logger.warning(f"예산과목 코드도움 아이콘 CSS 실패, 상대좌표 폴백: ({icon_x:.0f}, {icon_y:.0f})")
                     page.mouse.click(icon_x, icon_y)
                     logger.info(f"예산과목 코드도움 아이콘 상대좌표 클릭: ({icon_x:.0f}, {icon_y:.0f})")
-                    time.sleep(1.0)
+                    page.wait_for_timeout(1000)
             except Exception as e:
                 logger.debug(f"코드도움 아이콘 클릭 실패: {e}")
 
@@ -422,7 +540,7 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
         _save_debug_screenshot(page, "budget_sub_popup_not_found")
         return ("", "")
 
-    time.sleep(1.0)  # 테이블 렌더링 대기
+    page.wait_for_timeout(1000)  # 테이블 렌더링 대기
     _save_debug_screenshot(page, "budget_16b_sub_popup")
 
     selected_code = ""
@@ -518,7 +636,7 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
         _save_debug_screenshot(page, "budget_code_not_found")
         return ("", "")
 
-    time.sleep(0.3)
+    page.wait_for_timeout(300)
     _save_debug_screenshot(page, "budget_16c_row_selected")
 
     # 서브 팝업 확인 버튼 클릭 — 서브 팝업 내부 버튼을 우선 타겟팅
@@ -530,11 +648,11 @@ def _select_budget_from_sub_popup(page: Page) -> tuple:
             try:
                 selected_row.dblclick()
                 logger.info("서브 팝업 행 더블클릭으로 선택 확정")
-                time.sleep(0.5)
+                page.wait_for_timeout(500)
             except Exception as e:
                 logger.debug(f"더블클릭 실패: {e}")
 
-    time.sleep(0.8)  # 서브 팝업 닫힘 + 메인 모달 업데이트 대기
+    page.wait_for_timeout(800)  # 서브 팝업 닫힘 + 메인 모달 업데이트 대기
     _save_debug_screenshot(page, "budget_16d_after_sub_confirm")
     return (selected_code, selected_name)
 
@@ -611,27 +729,40 @@ def _confirm_budget_modal(page: Page) -> bool:
     except Exception:
         logger.debug("서브 팝업 닫힘 확인 타임아웃 (이미 닫혔을 수 있음)")
 
-    # 2. 메인 모달이 아직 열려있는지 확인
+    # 2. 메인 모달이 아직 열려있는지 확인 (GW 버전별 제목 대응, "/" 파서 이슈 회피)
+    _modal_sels = [
+        "text=공통 예산잔액 조회",
+        "text=예산시내역",   # "예입/지출 예산시내역" 부분 매칭
+        "text=예산잔액 조회",
+    ]
     main_modal_visible = False
-    try:
-        main_modal_visible = page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=1000)
-    except Exception:
-        pass
+    detected_sel = None
+    for _s in _modal_sels:
+        try:
+            if page.locator(_s).first.is_visible(timeout=1000):
+                main_modal_visible = True
+                detected_sel = _s
+                break
+        except Exception:
+            continue
 
     if not main_modal_visible:
-        logger.info("공통 예산잔액 조회 모달 이미 닫힘 (서브 팝업 확인으로 같이 닫혔을 가능성)")
+        logger.info("예산과목 모달 이미 닫힘 (서브 팝업 확인으로 같이 닫혔을 가능성)")
         return True
 
+    logger.info(f"예산과목 모달 확인 버튼 클릭 ({detected_sel})")
     # 3. 메인 모달 확인 버튼 클릭
     result = _click_confirm_button(page, "예산 모달")
 
     # 4. 모달 닫힘 대기
     if result:
-        try:
-            page.locator("text=공통 예산잔액 조회").first.wait_for(state="hidden", timeout=5000)
-            logger.info("공통 예산잔액 조회 모달 닫힘 확인")
-        except Exception:
-            logger.warning("공통 예산잔액 조회 모달 닫힘 확인 실패 — 계속 진행")
+        for _s in _modal_sels:
+            try:
+                page.locator(_s).first.wait_for(state="hidden", timeout=5000)
+                logger.info(f"예산과목 모달 닫힘 확인: {_s}")
+                break
+            except Exception:
+                continue
 
     return result
 
@@ -652,7 +783,7 @@ def _click_confirm_button(page: Page, context_name: str) -> bool:
                 if btn.is_visible(timeout=2000):
                     btn.click()
                     logger.info(f"{context_name} 확인 버튼 클릭: {sel}")
-                    time.sleep(0.5)
+                    page.wait_for_timeout(500)
                     return True
         except Exception:
             continue
@@ -661,7 +792,7 @@ def _click_confirm_button(page: Page, context_name: str) -> bool:
     return False
 
 
-def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword: str) -> dict:
+def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword: str, timeout_ms: int = 8000) -> dict:
     """
     용도코드(usage_code) 입력+Enter 후 자동 트리거된 '공통 예산잔액 조회' 팝업 처리.
 
@@ -685,8 +816,8 @@ def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword
     """
     result = {"success": False, "budget_code": "", "budget_name": "", "message": ""}
     try:
-        # ── 팝업 자동 트리거 확인 (timeout 3초: 자동 트리거는 즉시 열림) ──
-        if not _wait_for_budget_modal(page, timeout_ms=3000):
+        # ── 팝업 자동 트리거 확인 (timeout_ms: 기본 8초, 인보이스 직후 즉시 체크 시 4초) ──
+        if not _wait_for_budget_modal(page, timeout_ms=timeout_ms):
             result["message"] = "팝업 미감지 — 자동 트리거 없음, select_budget_code() 폴백 필요"
             return result
 
@@ -719,7 +850,7 @@ def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword
             result["message"] = "모달 확인 버튼 클릭 실패"
             return result
 
-        time.sleep(0.5)
+        page.wait_for_timeout(500)
         _save_debug_screenshot(page, "auto_popup_17b_after_confirm")
 
         # 모달이 여전히 열려있으면 Escape로 강제 닫기
@@ -727,7 +858,7 @@ def handle_auto_triggered_popup(page: Page, project_keyword: str, budget_keyword
             if page.locator("text=공통 예산잔액 조회").first.is_visible(timeout=500):
                 logger.warning("자동팝업: 확인 후에도 모달 잔존 — Escape로 강제 닫기")
                 page.keyboard.press("Escape")
-                time.sleep(0.5)
+                page.wait_for_timeout(500)
         except Exception:
             pass
 

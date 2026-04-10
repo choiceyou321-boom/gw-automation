@@ -4,12 +4,10 @@
 - 결재 HOME 추천양식 기준 (2026-03-02)
 
 양식 사용 현황 (총 66건):
-  1. [프로젝트]지출결의서      30건  ← Phase 0 완료
+  1. [프로젝트]지출결의서    30건  ← Phase 0 완료
   2. [회계팀] 국내 거래처등록  26건  ← DOM 탐색 필요
-  3. 연장근무신청서             3건  ← formDTp/module 확인 완료
-  4. 외근신청서(당일)               ← formDTp/module 확인 완료
-  5. 연차휴가신청서                 ← formDTp/module 확인 완료
-  6. 기타                      7건
+  3. 연장근무신청서           3건
+  4. 기타                    7건
 
 네비게이션 공통:
   - 결재 HOME → 추천양식에서 양식명 클릭
@@ -21,6 +19,7 @@
   - 상신/보관함 > 임시보관문서에 보관됨
   - 일부 양식에서 "보관" 버튼 존재 (양식별 상이)
 """
+from __future__ import annotations
 
 from src.auth.user_db import get_approval_config  # 결재선 DB 조회 (핫패스 동적 import 방지)
 
@@ -205,8 +204,6 @@ FORM_TEMPLATES = {
         "search_keyword": "거래처등록",
         "display_name": "[회계팀] 국내 거래처등록 신청서",
         "form_id": "196",
-        "open_mode": "popup",   # 팝업 창 방식 (전자결재 UB 모듈)
-        "submit_mode": "보관",  # 보관(임시저장) → 검토 후 수동 상신
         "aliases": [
             "국내 거래처등록", "거래처 등록", "거래처 신규", "거래처등록 신청",
             "신규 거래처", "업체 등록", "협력사 등록", "거래처 추가",
@@ -592,11 +589,7 @@ FORM_TEMPLATES = {
     "연장근무": {
         "search_keyword": "연장근무신청서",
         "display_name": "연장근무신청서",
-        "form_id": "43",           # Phase 0 탐색 확인 (2026-03-02)
-        "formDTp": "HP_HPD0110_00051",
-        "module": "HP",            # 임직원업무관리 > 근태관리
-        "open_mode": "inline",     # 팝업 아님, 인라인 로드
-        "submit_mode": "신청완료", # 보관→상신 아닌 즉시 상신
+        "form_id": "43",  # Phase 0 탐색 확인 (2026-03-02)
         "aliases": [
             "연장근무", "야근 신청", "초과근무", "연장근무 신청",
             "야근", "잔업", "OT 신청", "시간외 근무",
@@ -609,7 +602,8 @@ FORM_TEMPLATES = {
         # - 신청정보 필드: 근무구분(조기근무/연장근무/휴일근무), 작성기준, 연장근무시작일, 시작/종료시간, 비고
         # - 버튼: 연장근무, 야간근무, 법정근무, 추가신청, 신청완료
         # - inputs=14개 (visible)
-        "status": "template_only",
+        # code_ready (2026-04-02): create_overtime_request + _save_overtime_draft 구현, GW DOM 검증 필요
+        "status": "code_ready",
 
         "fields": {
             "title": {
@@ -618,20 +612,19 @@ FORM_TEMPLATES = {
                 "required": True,
                 "example": "연장근무신청서 - 전태규 (2026-03-02)",
             },
-            "work_type": {
-                "label": "근무구분",
-                "type": "select",
+            "date": {
+                "label": "연장근무일",
+                "type": "date",
                 "required": True,
-                "options": ["조기근무", "연장근무", "휴일근무"],
-                "default": "연장근무",
             },
             "work_date": {
                 "label": "근무일",
                 "type": "date",
-                "required": True,
+                "required": False,
+                "note": "date 키와 동의어 (내부 호환용)",
             },
             "start_time": {
-                "label": "시작시간",
+                "label": "시작시각",
                 "type": "time",
                 "required": True,
                 "format": "HH:MM",
@@ -639,17 +632,30 @@ FORM_TEMPLATES = {
                 "note": "정규 퇴근시간 이후",
             },
             "end_time": {
-                "label": "종료시간",
+                "label": "종료시각",
                 "type": "time",
                 "required": True,
                 "format": "HH:MM",
                 "example": "21:00",
             },
             "reason": {
-                "label": "비고/사유",
+                "label": "연장근무 사유",
                 "type": "text",
                 "required": True,
                 "example": "프로젝트 납기 대응",
+            },
+            "project": {
+                "label": "프로젝트명",
+                "type": "text",
+                "required": False,
+                "example": "GS-25-0088. [종로] 메디빌더",
+            },
+            "work_type": {
+                "label": "근무구분",
+                "type": "select",
+                "required": False,
+                "options": ["조기근무", "연장근무", "휴일근무"],
+                "default": "연장근무",
             },
         },
 
@@ -662,11 +668,7 @@ FORM_TEMPLATES = {
     "외근신청": {
         "search_keyword": "외근신청서",
         "display_name": "외근신청서(당일)",
-        "form_id": "41",           # Phase 0 탐색 확인 (2026-03-02)
-        "formDTp": "HP_HPD0110_00031",
-        "module": "HP",            # 임직원업무관리 > 근태관리
-        "open_mode": "inline",     # 팝업 아님, 인라인 로드
-        "submit_mode": "신청완료", # 보관→상신 아닌 즉시 상신
+        "form_id": "41",  # Phase 0 탐색 확인 (2026-03-02)
         "aliases": [
             "외근", "외근 신청", "외출", "외근신청서",
             "현장 방문", "외부 미팅", "출장", "외근신청",
@@ -679,7 +681,8 @@ FORM_TEMPLATES = {
         # - 신청정보 필드: 외근구분(종일외근/외근후출근/출근후외근), 외근기간, 시작/종료시간, 교통수단, 방문처, 대상자, 업무내용
         # - 버튼: 일정등록, 삭제
         # - inputs=13개 (visible)
-        "status": "template_only",
+        # code_ready (2026-04-02): create_outside_work_request + _save_outside_work_draft 구현, GW DOM 검증 필요
+        "status": "code_ready",
 
         "fields": {
             "title": {
@@ -688,120 +691,67 @@ FORM_TEMPLATES = {
                 "required": True,
                 "example": "외근신청서 - 전태규 (종로 메디빌더 현장)",
             },
-            "work_type": {
-                "label": "외근구분",
-                "type": "select",
-                "required": True,
-                "options": ["종일외근", "외근후출근", "출근후외근"],
-                "default": "종일외근",
-            },
-            "work_date": {
+            "date": {
                 "label": "외근일",
                 "type": "date",
                 "required": True,
             },
-            "transportation": {
-                "label": "교통수단",
-                "type": "text",
+            "work_date": {
+                "label": "외근일",
+                "type": "date",
                 "required": False,
-                "example": "자가용",
-            },
-            "destination": {
-                "label": "방문처",
-                "type": "text",
-                "required": True,
-                "example": "종로 메디빌더 현장",
-            },
-            "purpose": {
-                "label": "업무내용",
-                "type": "text",
-                "required": True,
-                "example": "현장 시공 관리 및 업체 미팅",
+                "note": "date 키와 동의어 (내부 호환용)",
             },
             "start_time": {
-                "label": "출발시간",
+                "label": "외출시각",
                 "type": "time",
-                "required": False,
+                "required": True,
                 "format": "HH:MM",
                 "example": "09:00",
             },
             "end_time": {
-                "label": "복귀시간",
+                "label": "복귀시각",
                 "type": "time",
-                "required": False,
+                "required": True,
                 "format": "HH:MM",
                 "example": "18:00",
             },
-        },
-
-        "approval_line": SIMPLE_APPROVAL_LINE,
-    },
-
-    # ═══════════════════════════════════════
-    # 8. 연차휴가신청서
-    # ═══════════════════════════════════════
-    "연차휴가": {
-        "search_keyword": "연차휴가신청서",
-        "display_name": "연차휴가신청서",
-        "form_id": "36",           # HP 모듈 확인 (2026-03-25)
-        "formDTp": "HP_HPD0110_00011",
-        "module": "HP",            # 임직원업무관리 > 근태관리
-        "open_mode": "inline",     # 팝업 아님, 인라인 로드
-        "submit_mode": "신청완료", # 즉시 상신
-        "aliases": [
-            "연차", "연차신청", "연차휴가", "휴가신청", "반차", "반차신청", "연차 신청",
-        ],
-        "status": "template_only",
-
-        "fields": {
-            "title": {
-                "label": "제목",
+            "destination": {
+                "label": "외근지",
                 "type": "text",
                 "required": True,
-                "example": "연차휴가신청서 - 전태규 (2026-03-25)",
+                "example": "종로 메디빌더 현장",
             },
-            "leave_type": {
-                "label": "휴가구분",
+            "reason": {
+                "label": "외근 사유",
+                "type": "text",
+                "required": True,
+                "example": "현장 시공 관리 및 업체 미팅",
+            },
+            "project": {
+                "label": "프로젝트명",
+                "type": "text",
+                "required": False,
+                "example": "GS-25-0088. [종로] 메디빌더",
+            },
+            "purpose": {
+                "label": "외근사유",
+                "type": "text",
+                "required": False,
+                "note": "reason 키와 동의어 (내부 호환용)",
+            },
+            "work_type": {
+                "label": "외근구분",
                 "type": "select",
-                "required": True,
-                "options": [
-                    "연차",
-                    "반차(오전)",
-                    "반차(오후)",
-                    "대체휴가",
-                    "대휴반차(오전)",
-                    "대휴반차(오후)",
-                    "공가(예비군/민방위)",
-                    "반반차",
-                    "대휴반반차",
-                    "건강검진(반차)",
-                ],
-                "default": "연차",
-            },
-            "leave_start": {
-                "label": "시작일",
-                "type": "date",
-                "required": True,
-                "example": "2026-03-25",
-            },
-            "leave_end": {
-                "label": "종료일",
-                "type": "date",
-                "required": True,
-                "example": "2026-03-25",
-            },
-            "start_time": {
-                "label": "시작시간",
-                "type": "time",
                 "required": False,
-                "format": "HH:MM",
-                "note": "반차/반반차 등 시간 지정이 필요한 경우",
+                "options": ["종일외근", "외근후출근", "출근후외근"],
+                "default": "종일외근",
             },
-            "end_time": {
-                "label": "종료시간",
-                "type": "time",
+            "transport": {
+                "label": "교통수단",
+                "type": "text",
                 "required": False,
-                "format": "HH:MM",
+                "example": "대중교통",
             },
         },
 
@@ -809,7 +759,7 @@ FORM_TEMPLATES = {
     },
 
     # ═══════════════════════════════════════
-    # 9. 사내추천비 자금 요청서
+    # 8. 사내추천비 자금 요청서
     # ═══════════════════════════════════════
     "사내추천비": {
         "search_keyword": "사내추천비",

@@ -3,8 +3,10 @@ Google Gemini 연동 + 의도 분석 에이전트
 - 사용자 메시지와 첨부파일을 분석해 자동화 작업 라우팅
 - Function calling 패턴으로 자동화 함수 호출
 """
+from __future__ import annotations
 
 import os
+import asyncio
 import base64
 import logging
 from google import genai
@@ -107,8 +109,7 @@ async def analyze_and_route(
     if user_context and user_context.get("contract_wizard"):
         wizard = user_context["contract_wizard"]
         try:
-            import asyncio
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             response_msg, done = await loop.run_in_executor(None, wizard.process, user_message)
         except Exception as e:
             logger.error(f"contract_wizard 처리 오류: {e}")
@@ -122,10 +123,9 @@ async def analyze_and_route(
     if user_context and user_context.get("approval_wizard"):
         wizard = user_context["approval_wizard"]
         try:
-            import asyncio
             # wizard.process()는 동기 함수지만 실행 단계(_execute)에서 Playwright 블로킹 발생 가능
             # → run_in_executor로 이벤트 루프 블로킹 방지
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             response_msg, done = await loop.run_in_executor(None, wizard.process, user_message)
         except Exception as e:
             logger.error(f"approval_wizard 처리 오류: {e}")
@@ -147,18 +147,46 @@ async def analyze_and_route(
     today = datetime.now().strftime("%Y-%m-%d (%A)")
     system_with_date = SYSTEM_PROMPT.replace("{today}", today)
 
-    # Gemini API 호출 (function calling) — 동기 SDK를 이벤트 루프 밖에서 실행
-    import asyncio
-    response = await asyncio.to_thread(
-        _get_client().models.generate_content,
-        model=MODEL_ID,
-        contents=contents,
-        config=types.GenerateContentConfig(
+    # LLM API 호출 (Ollama 우선, 실패 시 Gemini 파비오버)
+    def _call_llm(contents_arg, thinking_budget=None):
+        ollama_url = os.environ.get("OLLAMA_BASE_URL")
+        ollama_model = os.environ.get("OLLAMA_MODEL")
+        
+        if ollama_url and ollama_model:
+            try:
+                from src.chatbot.ollama_adapter import call_ollama
+                return call_ollama(ollama_url, ollama_model, contents_arg, system_with_date, AUTOMATION_TOOLS)
+            except Exception as e:
+                logger.warning("Ollama 호출 실패 (%s), Gemini로 Failover합니다.", e)
+        
+        cfg_kwargs = dict(
             system_instruction=system_with_date,
             tools=AUTOMATION_TOOLS,
             temperature=0.7,
-        ),
-    )
+        )
+        if thinking_budget is not None:
+            cfg_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
+        return _get_client().models.generate_content(
+            model=MODEL_ID,
+            contents=contents_arg,
+            config=types.GenerateContentConfig(**cfg_kwargs),
+        )
+
+    try:
+        response = await asyncio.to_thread(_call_llm, contents)
+    except Exception as e:
+        logger.error("LLM API 호출 실패: %s", e, exc_info=True)
+        return {"response": "AI 서비스 연결에 실패했습니다. 잠시 후 다시 시도해주세요.", "action": None, "action_result": None}
+
+    # parts=None 재시도 (Gemini flash 등에서 가끔 발생)
+    if (response.candidates and response.candidates[0].content
+            and getattr(response.candidates[0].content, "parts", None) is None):
+        logger.warning("parts=None 감지 → thinking_budget=0으로 재시도")
+        try:
+            response = await asyncio.to_thread(_call_llm, contents, 0)
+        except Exception as e:
+            logger.error("LLM API 재시도 실패: %s", e, exc_info=True)
+            return {"response": "AI 서비스 연결에 실패했습니다. 잠시 후 다시 시도해주세요.", "action": None, "action_result": None}
 
     # 응답 처리
     result = {
@@ -172,8 +200,9 @@ async def analyze_and_route(
     text_parts = []
 
     if response.candidates and response.candidates[0].content:
-        for part in (response.candidates[0].content.parts or []):
-            if part.function_call:
+        parts = response.candidates[0].content.parts or []
+        for part in parts:
+            if part.function_call is not None:
                 function_call = part.function_call
             elif part.text:
                 text_parts.append(part.text)
@@ -226,23 +255,17 @@ async def analyze_and_route(
             )],
         ))
 
-        final_response = await asyncio.to_thread(
-            _get_client().models.generate_content,
-            model=MODEL_ID,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_with_date,
-                tools=AUTOMATION_TOOLS,
-                temperature=0.7,
-            ),
-        )
-
-        if final_response.candidates and final_response.candidates[0].content:
-            final_texts = [
-                p.text for p in (final_response.candidates[0].content.parts or []) if p.text
-            ]
-            result["response"] = "\n".join(final_texts)
-        else:
+        try:
+            final_response = await asyncio.to_thread(_call_llm, contents)
+            if final_response.candidates and final_response.candidates[0].content:
+                final_texts = [
+                    p.text for p in (final_response.candidates[0].content.parts or []) if p.text
+                ]
+                result["response"] = "\n".join(final_texts)
+            else:
+                result["response"] = action_result
+        except Exception as e:
+            logger.error("Gemini 최종 응답 생성 실패: %s", e)
             result["response"] = action_result
     else:
         # 일반 텍스트 응답

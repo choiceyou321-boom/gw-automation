@@ -1,3 +1,4 @@
+from __future__ import annotations
 #!/usr/bin/env python3
 """
 Google Sheets → SQLite 일회성 임포트 스크립트
@@ -112,7 +113,7 @@ def _import_dashboard(ws, project_id: int) -> dict:
     행 1~10에 설계/시공 수주액, 실행예산, 수익금 등이 있음
     """
     rows = ws.get_all_values()
-    print(f"  [대시보드] {len(rows)}행 읽기 완료")
+    logger.info(f"  [대시보드] {len(rows)}행 읽기 완료")
 
     # 대시보드에서 주요 금액 추출
     # 행 구조가 스프레드시트마다 다를 수 있으므로, 라벨을 기준으로 탐색
@@ -155,7 +156,7 @@ def _import_dashboard(ws, project_id: int) -> dict:
     result = update_project(project_id, **info)
 
     found = sum(1 for v in info.values() if v != 0 and v != 0.0)
-    print(f"  [대시보드] 프로젝트 정보 {found}개 항목 업데이트")
+    logger.info(f"  [대시보드] 프로젝트 정보 {found}개 항목 업데이트")
     return info
 
 
@@ -166,11 +167,21 @@ def _import_subcontracts(ws, project_id: int) -> int:
            견적금액, 계약금액, 1~4차지급, 잔여대금, 지급율, 1~4차지급확인
     """
     rows = ws.get_all_values()
-    print(f"  [하도급상세] {len(rows)}행 읽기 완료")
+    logger.info(f"  [하도급상세] {len(rows)}행 읽기 완료")
 
     if len(rows) < 2:
-        print("  [하도급상세] 데이터 행이 없습니다")
+        logger.info("  [하도급상세] 데이터 행이 없습니다")
         return 0
+
+    # 기존 하도급 데이터 삭제 후 재임포트 (중복 방지)
+    from src.fund_table.db import get_db
+    _conn = get_db()
+    try:
+        _conn.execute("DELETE FROM subcontracts WHERE project_id = ?", (project_id,))
+        _conn.execute("DELETE FROM trades WHERE project_id = ?", (project_id,))
+        _conn.commit()
+    finally:
+        _conn.close()
 
     # 헤더 행 찾기 (NUM 또는 번호가 포함된 행)
     header_idx = 0
@@ -199,7 +210,9 @@ def _import_subcontracts(ws, project_id: int) -> int:
             col_map["has_vendor"] = idx
         elif "견적" in hl and "금액" in hl:
             col_map["estimate_amount"] = idx
-        elif "계약" in hl and "금액" in hl:
+        elif "변경계약" in hl and "금액" in hl:
+            col_map["changed_contract_amount"] = idx
+        elif "계약" in hl and "금액" in hl and "변경" not in hl:
             col_map["contract_amount"] = idx
         elif "1차" in hl and "지급" in hl and "확인" not in hl:
             col_map["payment_1"] = idx
@@ -222,7 +235,7 @@ def _import_subcontracts(ws, project_id: int) -> int:
         elif "4차" in hl and "확인" in hl:
             col_map["confirmed_4"] = idx
 
-    print(f"  [하도급상세] 컬럼 매핑: {list(col_map.keys())}")
+    logger.debug(f"[하도급상세] 컬럼 매핑: {list(col_map.keys())}")
 
     # 공종 → trade_id 캐시
     trade_cache = {}
@@ -279,6 +292,8 @@ def _import_subcontracts(ws, project_id: int) -> int:
             kwargs["estimate_amount"] = _parse_int(row[col_map["estimate_amount"]])
         if "contract_amount" in col_map:
             kwargs["contract_amount"] = _parse_int(row[col_map["contract_amount"]])
+        if "changed_contract_amount" in col_map:
+            kwargs["changed_contract_amount"] = _parse_int(row[col_map["changed_contract_amount"]])
         if "payment_1" in col_map:
             kwargs["payment_1"] = _parse_int(row[col_map["payment_1"]])
         if "payment_2" in col_map:
@@ -306,7 +321,7 @@ def _import_subcontracts(ws, project_id: int) -> int:
         if result.get("success"):
             count += 1
 
-    print(f"  [하도급상세] {count}건 임포트, 공종 {len(trade_cache)}개 생성")
+    logger.info(f"  [하도급상세] {count}건 임포트, 공종 {len(trade_cache)}개 생성")
     return count
 
 
@@ -316,10 +331,10 @@ def _import_contacts(ws, project_id: int) -> int:
     컬럼: 공종, 업체명, 담당자, 연락처, 이메일
     """
     rows = ws.get_all_values()
-    print(f"  [연락처] {len(rows)}행 읽기 완료")
+    logger.info(f"  [연락처] {len(rows)}행 읽기 완료")
 
     if len(rows) < 2:
-        print("  [연락처] 데이터 행이 없습니다")
+        logger.info("  [연락처] 데이터 행이 없습니다")
         return 0
 
     # 헤더 행 찾기 — "업체명"이 셀 단위로 존재하는 행
@@ -348,7 +363,7 @@ def _import_contacts(ws, project_id: int) -> int:
         elif "이메일" in hl or "메일" in hl or "email" in hl.lower():
             col_map["email"] = idx
 
-    print(f"  [연락처] 컬럼 매핑: {list(col_map.keys())}")
+    logger.debug(f"[연락처] 컬럼 매핑: {list(col_map.keys())}")
 
     count = 0
     for row_idx in range(header_idx + 1, len(rows)):
@@ -374,7 +389,7 @@ def _import_contacts(ws, project_id: int) -> int:
         if result.get("success"):
             count += 1
 
-    print(f"  [연락처] {count}건 임포트")
+    logger.info(f"  [연락처] {count}건 임포트")
     return count
 
 
@@ -385,10 +400,10 @@ def _import_payment_history(ws, project_id: int) -> int:
            사업자번호, 은행, 계좌번호, 예금주, 적요, 금액, 사용부서, 사원명, 프로젝트
     """
     rows = ws.get_all_values()
-    print(f"  [지급내역] {len(rows)}행 읽기 완료")
+    logger.info(f"  [지급내역] {len(rows)}행 읽기 완료")
 
     if len(rows) < 2:
-        print("  [지급내역] 데이터 행이 없습니다")
+        logger.info("  [지급내역] 데이터 행이 없습니다")
         return 0
 
     # 헤더 행 찾기
@@ -442,7 +457,7 @@ def _import_payment_history(ws, project_id: int) -> int:
                 col_map["vendor_name"] = idx
                 break
 
-    print(f"  [지급내역] 컬럼 매핑: {list(col_map.keys())}")
+    logger.debug(f"[지급내역] 컬럼 매핑: {list(col_map.keys())}")
 
     # 레코드 수집
     records = []
@@ -477,14 +492,22 @@ def _import_payment_history(ws, project_id: int) -> int:
 
         records.append(record)
 
-    # DB 일괄 저장
+    # DB 일괄 저장 (기존 데이터 삭제 후 재임포트 — 중복 방지)
     if records:
+        from src.fund_table.db import get_db
+        _conn = get_db()
+        try:
+            _conn.execute("DELETE FROM payment_history WHERE project_id = ?", (project_id,))
+            _conn.commit()
+        finally:
+            _conn.close()
+
         result = save_payment_history(records, project_id)
         count = len(records)
-        print(f"  [지급내역] {count}건 임포트")
+        logger.info(f"  [지급내역] {count}건 임포트")
         return count
     else:
-        print("  [지급내역] 임포트할 데이터가 없습니다")
+        logger.info("  [지급내역] 임포트할 데이터가 없습니다")
         return 0
 
 
@@ -505,11 +528,20 @@ def _import_collections(ws, project_id: int) -> int:
         데이터 행: 설계, 계약금, 100000000, TRUE
     """
     rows = ws.get_all_values()
-    print(f"  [수금현황] {len(rows)}행 읽기 완료")
+    logger.info(f"  [수금현황] {len(rows)}행 읽기 완료")
 
     if len(rows) < 2:
-        print("  [수금현황] 데이터 행이 없습니다")
+        logger.info("  [수금현황] 데이터 행이 없습니다")
         return 0
+
+    # 기존 수금현황 삭제 후 재임포트 (중복 방지)
+    from src.fund_table.db import get_db
+    _conn = get_db()
+    try:
+        _conn.execute("DELETE FROM collections WHERE project_id = ?", (project_id,))
+        _conn.commit()
+    finally:
+        _conn.close()
 
     # --- 레이아웃 감지 ---
     # (B) 독립 시트형: 헤더에 "카테고리"/"구분" + "단계" + "금액" 키워드가 있는 행 찾기
@@ -552,10 +584,10 @@ def _import_collections_table(rows: list, header_idx: int, project_id: int) -> i
 
     if "category" not in col_map or "stage" not in col_map:
         logger.warning("수금현황 테이블형: 카테고리/단계 컬럼을 찾을 수 없습니다")
-        print("  [수금현황] 카테고리/단계 컬럼을 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [수금현황] 카테고리/단계 컬럼을 찾을 수 없습니다 — 건너뜀")
         return 0
 
-    print(f"  [수금현황] 테이블형 컬럼 매핑: {list(col_map.keys())}")
+    logger.debug(f"[수금현황] 테이블형 컬럼 매핑: {list(col_map.keys())}")
 
     items = []
     for row_idx in range(header_idx + 1, len(rows)):
@@ -580,10 +612,10 @@ def _import_collections_table(rows: list, header_idx: int, project_id: int) -> i
 
     if items:
         save_collections_bulk(project_id, items)
-        print(f"  [수금현황] {len(items)}건 임포트 (테이블형)")
+        logger.info(f"  [수금현황] {len(items)}건 임포트 (테이블형)")
         return len(items)
     else:
-        print("  [수금현황] 임포트할 데이터가 없습니다")
+        logger.info("  [수금현황] 임포트할 데이터가 없습니다")
         return 0
 
 
@@ -615,7 +647,7 @@ def _import_collections_matrix(rows: list, project_id: int) -> int:
 
     if section_start is None:
         logger.warning("수금현황 매트릭스형: 수금현황 섹션을 찾을 수 없습니다")
-        print("  [수금현황] 수금현황 섹션을 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [수금현황] 수금현황 섹션을 찾을 수 없습니다 — 건너뜀")
         return 0
 
     # 2) 섹션 내에서 대분류, 소분류, 금액, 수금완료 행 탐색
@@ -655,7 +687,7 @@ def _import_collections_matrix(rows: list, project_id: int) -> int:
     # 최소한 소분류 + 금액 OR 수금완료가 있어야 파싱 가능
     if sub_header_row_idx is None:
         logger.warning("수금현황 매트릭스형: 소분류 헤더(계약금 등)를 찾을 수 없습니다")
-        print("  [수금현황] 소분류 헤더를 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [수금현황] 소분류 헤더를 찾을 수 없습니다 — 건너뜀")
         return 0
 
     # 3) 대분류(설계/시공) 영역 매핑 — 카테고리별 열 범위 결정
@@ -684,7 +716,7 @@ def _import_collections_matrix(rows: list, project_id: int) -> int:
             stage_columns.append((col_idx, stage_name))
 
     if not stage_columns:
-        print("  [수금현황] 단계명을 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [수금현황] 단계명을 찾을 수 없습니다 — 건너뜀")
         return 0
 
     # 5) 각 단계에 카테고리 매핑
@@ -732,10 +764,10 @@ def _import_collections_matrix(rows: list, project_id: int) -> int:
 
     if items:
         save_collections_bulk(project_id, items)
-        print(f"  [수금현황] {len(items)}건 임포트 (매트릭스형)")
+        logger.info(f"  [수금현황] {len(items)}건 임포트 (매트릭스형)")
         return len(items)
     else:
-        print("  [수금현황] 임포트할 데이터가 없습니다")
+        logger.info("  [수금현황] 임포트할 데이터가 없습니다")
         return 0
 
 
@@ -753,15 +785,14 @@ def import_from_sheets(spreadsheet_id: str = None):
     sid = spreadsheet_id or DEFAULT_SPREADSHEET_ID
 
     # Google Sheets 연결
-    print("Google Sheets 연결 중...")
+    logger.info("Google Sheets 연결 중...")
     client = connect()
-    print("연결 성공!")
+    logger.info("연결 성공!")
 
     # 스프레드시트 열기
     spreadsheet = client.open_by_key(sid)
-    print(f"스프레드시트: {spreadsheet.title}")
-    print(f"시트 목록: {[ws.title for ws in spreadsheet.worksheets()]}")
-    print()
+    logger.info(f"스프레드시트: {spreadsheet.title}")
+    logger.info(f"시트 목록: {[ws.title for ws in spreadsheet.worksheets()]}")
 
     # 프로젝트 생성 (스프레드시트 제목에서 프로젝트명 추출)
     project_name = spreadsheet.title.split("_")[0].strip()
@@ -771,7 +802,7 @@ def import_from_sheets(spreadsheet_id: str = None):
     result = create_project(project_name)
     if result.get("success"):
         project_id = result["id"]
-        print(f"프로젝트 생성: '{project_name}' (ID: {project_id})")
+        logger.info(f"프로젝트 생성: '{project_name}' (ID: {project_id})")
     else:
         # 이미 존재하면 기존 프로젝트 ID 조회
         from src.fund_table.db import list_projects
@@ -782,11 +813,10 @@ def import_from_sheets(spreadsheet_id: str = None):
                 project_id = p["id"]
                 break
         if not project_id:
-            print(f"오류: 프로젝트 생성 실패 — {result.get('message')}")
+            logger.info(f"오류: 프로젝트 생성 실패 — {result.get('message')}")
             return
-        print(f"기존 프로젝트 사용: '{project_name}' (ID: {project_id})")
+        logger.info(f"기존 프로젝트 사용: '{project_name}' (ID: {project_id})")
 
-    print()
 
     # 시트별 임포트
     worksheets = {ws.title: ws for ws in spreadsheet.worksheets()}
@@ -800,31 +830,25 @@ def import_from_sheets(spreadsheet_id: str = None):
         if name in worksheets:
             _import_dashboard(worksheets[name], project_id)
             stats["dashboard"] = 1
-            print()
             break
     else:
-        print("  [대시보드] 시트를 찾을 수 없습니다 — 건너뜀")
-        print()
+        logger.info("  [대시보드] 시트를 찾을 수 없습니다 — 건너뜀")
 
     # 2) 하도급상세
     for name in ["하도급상세", "하도급 상세", "Subcontracts"]:
         if name in worksheets:
             stats["subcontracts"] = _import_subcontracts(worksheets[name], project_id)
-            print()
             break
     else:
-        print("  [하도급상세] 시트를 찾을 수 없습니다 — 건너뜀")
-        print()
+        logger.info("  [하도급상세] 시트를 찾을 수 없습니다 — 건너뜀")
 
     # 3) 연락처
     for name in ["연락처", "Contacts", "거래처연락처"]:
         if name in worksheets:
             stats["contacts"] = _import_contacts(worksheets[name], project_id)
-            print()
             break
     else:
-        print("  [연락처] 시트를 찾을 수 없습니다 — 건너뜀")
-        print()
+        logger.info("  [연락처] 시트를 찾을 수 없습니다 — 건너뜀")
 
     # 4) 지급내역 (시트명에 "지급내역"이 포함된 것을 찾음)
     payment_ws = None
@@ -835,9 +859,8 @@ def import_from_sheets(spreadsheet_id: str = None):
     if payment_ws:
         stats["payments"] = _import_payment_history(payment_ws, project_id)
     else:
-        print("  [지급내역] 시트를 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [지급내역] 시트를 찾을 수 없습니다 — 건너뜀")
 
-    print()
 
     # 5) 수금현황
     collection_ws = None
@@ -856,19 +879,18 @@ def import_from_sheets(spreadsheet_id: str = None):
     if collection_ws:
         stats["collections"] = _import_collections(collection_ws, project_id)
     else:
-        print("  [수금현황] 시트를 찾을 수 없습니다 — 건너뜀")
+        logger.info("  [수금현황] 시트를 찾을 수 없습니다 — 건너뜀")
 
     # 결과 요약
-    print()
-    print("=" * 50)
-    print("임포트 완료!")
-    print(f"  프로젝트: {project_name} (ID: {project_id})")
-    print(f"  대시보드: {'업데이트됨' if stats['dashboard'] else '건너뜀'}")
-    print(f"  하도급상세: {stats['subcontracts']}건")
-    print(f"  연락처: {stats['contacts']}건")
-    print(f"  지급내역: {stats['payments']}건")
-    print(f"  수금현황: {stats['collections']}건")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("임포트 완료!")
+    logger.info(f"  프로젝트: {project_name} (ID: {project_id})")
+    logger.info(f"  대시보드: {'업데이트됨' if stats['dashboard'] else '건너뜀'}")
+    logger.info(f"  하도급상세: {stats['subcontracts']}건")
+    logger.info(f"  연락처: {stats['contacts']}건")
+    logger.info(f"  지급내역: {stats['payments']}건")
+    logger.info(f"  수금현황: {stats['collections']}건")
+    logger.info("=" * 50)
 
     return {
         "project_id": project_id,
@@ -975,6 +997,17 @@ def _parse_pm_project(rows: list, start: int, end: int, name: str) -> dict:
                 pass
         elif "카테고리" in col_d and col_e:
             proj["overview"]["project_category"] = col_e
+        # 일정 날짜 파싱
+        elif col_d in ("착공일", "착공예정일", "착공 예정", "착공예정", "공사착수", "공사 착수") and col_e:
+            proj["overview"]["construction_start"] = col_e
+        elif col_d in ("준공일", "준공예정일", "준공 예정", "준공예정", "완공일", "공사완료") and col_e:
+            proj["overview"]["construction_end"] = col_e
+        elif col_d in ("설계착수", "설계 착수", "설계시작", "설계 시작") and col_e:
+            proj["overview"]["design_start"] = col_e
+        elif col_d in ("설계완료", "설계 완료", "설계납품", "설계 납품") and col_e:
+            proj["overview"]["design_end"] = col_e
+        elif col_d in ("오픈일", "오픈", "개장일", "개장") and col_e:
+            proj["overview"]["open_date"] = col_e
 
         # 마일스톤 (col H=이름, col J=체크, col K=날짜)
         if len(row) > 9:
@@ -1088,8 +1121,14 @@ def import_from_pm_sheet(
 
     logger.info("프로젝트 %d개 발견", len(proj_starts))
 
-    # 기존 프로젝트 목록 (이름 → ID 매핑)
-    existing_projects = {p["name"]: p for p in list_projects()}
+    # 기존 프로젝트 목록 (정규화된 이름 → 프로젝트 매핑)
+    # 구글시트 셀은 줄바꿈(\n) 포함 가능 → 정규화 키로 비교
+    def _normalize_project_name(name: str) -> str:
+        """프로젝트명 정규화: 개행·탭·중복공백 제거"""
+        import re as _re
+        return _re.sub(r"\s+", " ", name.replace("\r", "").replace("\n", " ")).strip()
+
+    existing_projects = {_normalize_project_name(p["name"]): p for p in list_projects()}
 
     # 각 프로젝트 파싱 및 DB 저장
     created = 0
@@ -1101,10 +1140,10 @@ def import_from_pm_sheet(
 
     for idx, start in enumerate(proj_starts):
         end = proj_starts[idx + 1] if idx + 1 < len(proj_starts) else len(rows)
-        raw_name = _safe_str(rows[start][2]).strip()
+        raw_name = _normalize_project_name(_safe_str(rows[start][2]))
 
-        # 중복 제거
-        dedup_key = raw_name.replace(" ", "")
+        # 중복 제거 (공백·대소문자 무시)
+        dedup_key = raw_name.replace(" ", "").lower()
         if dedup_key in seen_names:
             continue
         seen_names.add(dedup_key)
@@ -1119,7 +1158,7 @@ def import_from_pm_sheet(
 
         # DB 저장
         try:
-            existing = existing_projects.get(raw_name)
+            existing = existing_projects.get(_normalize_project_name(raw_name))
 
             if existing and mode == "insert_only":
                 skipped += 1
@@ -1219,6 +1258,334 @@ def import_from_pm_sheet(
     }
 
 
+def _infer_schedule_status(start_date: str, end_date: str) -> str:
+    """날짜 범위로 진행 상태 추론"""
+    from datetime import datetime
+    today = datetime.now().strftime("%Y-%m-%d")
+    end = end_date or start_date
+    start = start_date or end_date
+    if not start:
+        return "planned"
+    if end and end < today:
+        return "done"
+    if start <= today:
+        return "ongoing"
+    return "planned"
+
+
+def _normalize_date(raw: str) -> str:
+    """날짜 문자열을 YYYY-MM-DD로 정규화 (가능한 경우)"""
+    import re
+    if not raw:
+        return ""
+    # 이미 YYYY-MM-DD 형식
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+        return raw
+    # YYYY.MM.DD 또는 YYYY/MM/DD
+    m = re.match(r"^(\d{4})[./](\d{1,2})[./](\d{1,2})", raw.strip())
+    if m:
+        return f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+    # YY.MM.DD (2자리 연도)
+    m = re.match(r"^(\d{2})[./](\d{1,2})[./](\d{1,2})", raw.strip())
+    if m:
+        year = int(m.group(1))
+        year = 2000 + year if year < 50 else 1900 + year
+        return f"{year}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+    return raw
+
+
+def import_schedule_from_pm_sheet(
+    spreadsheet_id: str = None,
+    overwrite: bool = False,
+) -> dict:
+    """
+    PM Official 시트에서 일정 데이터를 읽어 project_schedule_items에 저장.
+
+    - 마일스톤(일정 체크리스트)의 날짜 항목 → 일정표 항목
+    - 프로젝트 날짜(착공일, 준공일 등) → 일정표 항목
+    - 이미 일정표가 있는 프로젝트는 overwrite=True일 때만 덮어씀
+
+    Returns:
+        { success, updated_projects, skipped, errors }
+    """
+    from src.fund_table.db import list_projects, list_schedule_items, save_schedule_items
+
+    sid = spreadsheet_id or PM_OFFICIAL_SHEET_ID
+    logger.info("PM 시트 일정 임포트 시작: %s", sid)
+
+    client = connect()
+    spreadsheet = client.open_by_key(sid)
+
+    # 가장 최신 날짜 시트 선택
+    import re
+    worksheets = spreadsheet.worksheets()
+    date_sheets = []
+    for ws in worksheets:
+        m = re.search(r"(\d{6})", ws.title)
+        if m:
+            date_sheets.append((int(m.group(1)), ws))
+
+    if date_sheets:
+        date_sheets.sort(key=lambda x: x[0], reverse=True)
+        target_ws = date_sheets[0][1]
+    else:
+        target_ws = worksheets[0]
+
+    logger.info("시트 선택: %s", target_ws.title)
+    rows = target_ws.get_all_values()
+    logger.info("전체 %d행 읽기 완료", len(rows))
+
+    proj_starts = _find_project_starts(rows)
+    if not proj_starts:
+        return {"success": False, "error": "프로젝트를 찾을 수 없습니다.", "updated_projects": 0, "skipped": 0, "errors": []}
+
+    # 기존 프로젝트 목록 (정규화 이름 → DB 프로젝트)
+    def _norm(name: str) -> str:
+        import re as _re
+        return _re.sub(r"\s+", " ", name.replace("\r", "").replace("\n", " ")).strip().lower()
+
+    db_projects = {_norm(p["name"]): p for p in list_projects()}
+
+    updated = 0
+    skipped = 0
+    errors = []
+
+    for idx, start in enumerate(proj_starts):
+        end = proj_starts[idx + 1] if idx + 1 < len(proj_starts) else len(rows)
+        raw_name = _safe_str(rows[start][2]).strip().replace("\n", " ").strip()
+        norm_name = _norm(raw_name)
+
+        proj_db = db_projects.get(norm_name)
+        if not proj_db:
+            logger.debug("DB에 없는 프로젝트 스킵: %s", raw_name)
+            skipped += 1
+            continue
+
+        project_id = proj_db["id"]
+
+        # 이미 일정표 있으면 overwrite=False 시 스킵
+        if not overwrite:
+            existing = list_schedule_items(project_id)
+            if existing:
+                logger.debug("일정표 기존 데이터 있음, 스킵: %s", raw_name)
+                skipped += 1
+                continue
+
+        try:
+            proj = _parse_pm_project(rows, start, end, raw_name)
+        except Exception as e:
+            errors.append(f"{raw_name}: 파싱 실패 — {e}")
+            continue
+
+        ov = proj.get("overview", {})
+        milestones = proj.get("milestones", [])
+
+        schedule_items = []
+
+        # 1. 프로젝트 기간 항목 (overview 날짜)
+        d_start = _normalize_date(ov.get("design_start", ""))
+        d_end   = _normalize_date(ov.get("design_end",   ""))
+        c_start = _normalize_date(ov.get("construction_start", ""))
+        c_end   = _normalize_date(ov.get("construction_end",   ""))
+        open_dt = _normalize_date(ov.get("open_date", ""))
+
+        if d_start or d_end:
+            schedule_items.append({
+                "item_name": "설계",
+                "start_date": d_start,
+                "end_date":   d_end,
+                "status":     _infer_schedule_status(d_start, d_end),
+                "color":      "#8b5cf6",
+                "notes":      "",
+            })
+        if c_start or c_end:
+            schedule_items.append({
+                "item_name": "시공",
+                "start_date": c_start,
+                "end_date":   c_end,
+                "status":     _infer_schedule_status(c_start, c_end),
+                "color":      "#f97316",
+                "notes":      "",
+            })
+        if open_dt:
+            schedule_items.append({
+                "item_name": "오픈",
+                "start_date": open_dt,
+                "end_date":   open_dt,
+                "status":     _infer_schedule_status(open_dt, open_dt),
+                "color":      "#22c55e",
+                "notes":      "",
+            })
+
+        # 2. 마일스톤 날짜 항목 (날짜 있는 것만)
+        for ms in milestones:
+            ms_date = _normalize_date(ms.get("date", ""))
+            if not ms_date:
+                continue
+            status = "done" if ms.get("completed") else _infer_schedule_status(ms_date, ms_date)
+            schedule_items.append({
+                "item_name": ms["name"],
+                "start_date": ms_date,
+                "end_date":   ms_date,
+                "status":     status,
+                "color":      "#3b82f6",
+                "notes":      "",
+            })
+
+        if not schedule_items:
+            logger.debug("일정 항목 없음: %s", raw_name)
+            skipped += 1
+            continue
+
+        try:
+            result = save_schedule_items(project_id, schedule_items)
+            if result["success"]:
+                logger.info("일정 저장: %s — %d개 항목", raw_name, result["count"])
+                updated += 1
+            else:
+                errors.append(f"{raw_name}: 저장 실패 — {result.get('message')}")
+        except Exception as e:
+            errors.append(f"{raw_name}: DB 오류 — {e}")
+            logger.error("일정 DB 저장 실패: %s — %s", raw_name, e, exc_info=True)
+
+    logger.info("일정 임포트 완료: 업데이트 %d, 스킵 %d, 오류 %d", updated, skipped, len(errors))
+    return {
+        "success": True,
+        "sheet_title": target_ws.title,
+        "updated_projects": updated,
+        "skipped": skipped,
+        "errors": errors,
+    }
+
+
+def import_collections_from_pm_sheet(
+    spreadsheet_id: str = None,
+    overwrite: bool = True,
+) -> dict:
+    """
+    PM Official 시트에서 모든 프로젝트의 수금일정(수금현황)을 읽어 DB에 반영.
+
+    - 가장 최신 날짜 시트(예: "260316_지급내역")를 자동 선택
+    - 시트 내 모든 프로젝트 블록을 순회하며 각 프로젝트의 수금현황 임포트
+    - overwrite=True(기본): 기존 수금현황도 덮어씀
+    - overwrite=False: 수금현황이 이미 있는 프로젝트는 스킵
+
+    Returns:
+        { success, sheet_title, imported_count, skipped, errors, results: [...] }
+    """
+    from src.fund_table.db import list_projects, list_collections, save_collections_bulk
+
+    sid = spreadsheet_id or PM_OFFICIAL_SHEET_ID
+    logger.info("PM 시트 수금일정 임포트 시작: %s", sid)
+
+    client = connect()
+    spreadsheet = client.open_by_key(sid)
+
+    # 가장 최신 날짜 시트 선택 (import_from_pm_sheet과 동일 패턴)
+    import re
+    worksheets = spreadsheet.worksheets()
+    date_sheets = []
+    for ws in worksheets:
+        m = re.search(r"(\d{6})", ws.title)
+        if m:
+            date_sheets.append((int(m.group(1)), ws))
+
+    if date_sheets:
+        date_sheets.sort(key=lambda x: x[0], reverse=True)
+        target_ws = date_sheets[0][1]
+    else:
+        target_ws = worksheets[0]
+
+    logger.info("시트 선택: %s", target_ws.title)
+    rows = target_ws.get_all_values()
+    logger.info("전체 %d행 읽기 완료", len(rows))
+
+    proj_starts = _find_project_starts(rows)
+    if not proj_starts:
+        return {
+            "success": False,
+            "error": "프로젝트를 찾을 수 없습니다.",
+            "imported_count": 0,
+            "skipped": 0,
+            "errors": [],
+            "results": [],
+        }
+
+    # 기존 DB 프로젝트 목록 (정규화 이름 → 프로젝트)
+    def _norm(name: str) -> str:
+        import re as _re
+        return _re.sub(r"\s+", " ", name.replace("\r", "").replace("\n", " ")).strip().lower()
+
+    db_projects = {_norm(p["name"]): p for p in list_projects()}
+
+    imported_count = 0
+    skipped = 0
+    errors = []
+    results = []
+
+    for idx, start in enumerate(proj_starts):
+        end = proj_starts[idx + 1] if idx + 1 < len(proj_starts) else len(rows)
+        raw_name = _safe_str(rows[start][2]).strip().replace("\n", " ").strip()
+        norm_name = _norm(raw_name)
+
+        proj_db = db_projects.get(norm_name)
+        if not proj_db:
+            logger.debug("DB에 없는 프로젝트 스킵: %s", raw_name)
+            skipped += 1
+            results.append({"project": raw_name, "status": "not_found"})
+            continue
+
+        project_id = proj_db["id"]
+
+        # overwrite=False 이면 이미 수금현황이 있는 프로젝트는 스킵
+        if not overwrite:
+            existing = list_collections(project_id)
+            if existing:
+                logger.debug("수금현황 기존 데이터 있음, 스킵: %s", raw_name)
+                skipped += 1
+                results.append({"project": raw_name, "status": "skipped", "reason": "existing_data"})
+                continue
+
+        # 해당 프로젝트 블록의 행을 수금현황 임포트 함수에 전달
+        # _import_collections는 ws 객체를 받으므로 rows 슬라이스로 래핑
+        block_rows = rows[start:end]
+
+        try:
+            # _find_table_header로 독립 시트형 vs 매트릭스형 판별 후 임포트
+            table_header_idx = _find_table_header(block_rows)
+            if table_header_idx is not None:
+                count = _import_collections_table(block_rows, table_header_idx, project_id)
+            else:
+                count = _import_collections_matrix(block_rows, project_id)
+
+            if count > 0:
+                imported_count += 1
+                results.append({"project": raw_name, "status": "imported", "count": count})
+                logger.info("수금현황 임포트: %s — %d건", raw_name, count)
+            else:
+                skipped += 1
+                results.append({"project": raw_name, "status": "no_data"})
+                logger.debug("수금현황 없음: %s", raw_name)
+
+        except Exception as e:
+            errors.append(f"{raw_name}: 임포트 실패 — {e}")
+            logger.error("수금현황 임포트 실패: %s — %s", raw_name, e, exc_info=True)
+            results.append({"project": raw_name, "status": "error", "error": str(e)})
+
+    logger.info(
+        "수금일정 임포트 완료: 반영 %d, 스킵 %d, 오류 %d",
+        imported_count, skipped, len(errors),
+    )
+    return {
+        "success": True,
+        "sheet_title": target_ws.title,
+        "imported_count": imported_count,
+        "skipped": skipped,
+        "errors": errors,
+        "results": results,
+    }
+
+
 # ─── 실행 ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -1228,16 +1595,17 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--pm":
         # PM Official 시트 임포트
         sid = sys.argv[2] if len(sys.argv) > 2 else PM_OFFICIAL_SHEET_ID
-        print(f"PM Official 시트 임포트: {sid}")
+        logger.info(f"PM Official 시트 임포트: {sid}")
         result = import_from_pm_sheet(sid)
-        print(f"\n결과: 생성 {result['created']}, 업데이트 {result['updated']}, "
-              f"스킵 {result['skipped']}, 오류 {len(result['errors'])}")
+        logger.info(
+            "결과: 생성 %d, 업데이트 %d, 스킵 %d, 오류 %d",
+            result['created'], result['updated'], result['skipped'], len(result['errors'])
+        )
         if result["errors"]:
             for e in result["errors"]:
-                print(f"  오류: {e}")
+                logger.warning("오류: %s", e)
     else:
         # 기존 프로젝트 관리표 시트 임포트
         sid = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_SPREADSHEET_ID
-        print(f"스프레드시트 ID: {sid}")
-        print()
+        logger.info(f"스프레드시트 ID: {sid}")
         import_from_sheets(sid)

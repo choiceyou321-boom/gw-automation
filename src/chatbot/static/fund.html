@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" />
   <title>프로젝트 관리 - GW 자동화</title>
-  <link rel="stylesheet" href="/static/fund.css?v=20260319r9" />
+  <link rel="stylesheet" href="/static/fund.css?v=20260404" />
 </head>
 <body>
   <!-- 전체 레이아웃 -->
@@ -56,6 +56,20 @@
         </p>
       </div>
 
+      <!-- 이전 프로젝트 폴더 -->
+      <div class="archived-folder" id="archivedFolder" style="display:none;">
+        <div class="archived-folder-header" id="archivedFolderHeader">
+          <svg class="archived-folder-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2L19 8"/></svg>
+          <span class="archived-folder-label">이전 프로젝트</span>
+          <span class="archived-folder-count" id="archivedFolderCount">0</span>
+          <svg class="archived-chevron" id="archivedChevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="archived-drop-zone" id="archivedDropZone">
+          <span class="archived-drop-hint">여기에 프로젝트를 드래그하세요</span>
+        </div>
+        <ul class="archived-project-list" id="archivedProjectList" style="display:none;"></ul>
+      </div>
+
       <div class="sidebar-footer">
         <div class="user-info" id="sidebarUser">
           <span class="user-badge" id="userBadge">--</span>
@@ -74,6 +88,7 @@
           </svg>
         </button>
         <h1 class="page-title" id="pageTitle">프로젝트를 선택하세요</h1>
+        <span id="gwSyncBadge" class="gw-sync-badge" style="display:none;"></span>
         <div class="header-right">
           <button class="header-btn portfolio-btn" id="portfolioBtn" title="포트폴리오 현황" style="display:none;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -86,6 +101,10 @@
             </button>
           </span>
           <span class="header-user-name" id="headerUserName"></span>
+          <a href="/guide" class="header-btn guide-btn" title="사용방법">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            사용방법
+          </a>
           <button class="header-btn logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
         </div>
       </header>
@@ -100,6 +119,10 @@
           <button class="tab-item" data-tab="overview">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             개요
+          </button>
+          <button class="tab-item" data-tab="schedule">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            일정표
           </button>
           <button class="tab-item" data-tab="collections">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
@@ -117,8 +140,26 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             이체내역
           </button>
+          <button class="tab-item" data-tab="contracts">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            계약
+          </button>
+          <button class="tab-item" data-tab="risks">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            리스크
+          </button>
+          <button class="tab-item" id="printDashboardBtn" title="대시보드 인쇄">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            인쇄
+          </button>
         </div>
       </nav>
+
+      <!-- 인쇄 전용 헤더 (화면에서는 숨김) -->
+      <div class="print-header" id="printHeader">
+        <h1 class="print-title" id="printProjectName"></h1>
+        <p class="print-date" id="printDate"></p>
+      </div>
 
       <!-- 탭 콘텐츠 -->
       <div class="tab-content" id="tabContent">
@@ -141,6 +182,22 @@
             <button class="btn btn-sm btn-outlined" id="pfImportPmBtn" title="PM팀 Official 시트에서 프로젝트 기본정보를 가져옵니다">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
               PM 시트 가져오기
+            </button>
+            <button class="btn btn-outlined btn-sm" id="btnImportSchedulePm" title="PM팀 Official 시트에서 프로젝트 일정 데이터를 가져옵니다" onclick="importScheduleFromPm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              일정 가져오기
+            </button>
+            <button class="btn btn-outlined btn-sm" id="btnImportCollectionsPm" title="PM팀 Official 시트에서 모든 프로젝트 수금일정을 가져옵니다" onclick="importCollectionsFromPm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              수금일정 가져오기
+            </button>
+            <button class="btn btn-sm btn-outlined" id="crawlAllExtendedBtn" title="기본 GW 동기화(예실대비/프로젝트정보) + 확장 크롤러를 일괄 실행합니다">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              확장 크롤링
+            </button>
+            <button class="btn btn-sm btn-outlined" id="pfSyncNewDataBtn" title="선택한 프로젝트의 세금계산서 등 신규 데이터를 GW에서 동기화합니다. 프로젝트를 먼저 선택하세요.">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              신규 데이터 동기화
             </button>
           </div>
           <!-- 포트폴리오 요약 카드 -->
@@ -171,9 +228,9 @@
                   <th>등급</th>
                   <th class="num">수주액</th>
                   <th class="num">실행예산</th>
-                  <th class="num">수금율</th>
-                  <th class="num">지급율</th>
-                  <th class="num">이익율</th>
+                  <th class="num">수금률</th>
+                  <th class="num">지급률</th>
+                  <th class="num">이익률</th>
                   <th>수금 진행</th>
                 </tr>
               </thead>
@@ -182,6 +239,14 @@
               </tbody>
             </table>
           </div>
+          <!-- 수익성 분석 그래프 -->
+          <div class="pf-profit-chart-section" id="pfProfitChartSection" style="display:none; margin-top:16px;">
+            <div class="pf-profit-chart-header">
+              <span class="pf-profit-chart-title">프로젝트별 이익률 비교</span>
+            </div>
+            <div class="pf-profit-chart-body" id="pfProfitChartBody"></div>
+          </div>
+
           <!-- AI 포트폴리오 분석 -->
           <div class="pf-analysis-section" id="pfAnalysisSection">
             <div class="pf-analysis-header">
@@ -205,7 +270,55 @@
 
         <!-- 대시보드 탭 -->
         <div class="tab-panel" id="panel-dashboard" style="display:none;">
-          <!-- 금액 요약 카드 (1행: 수주~수금율~이익율) -->
+          <!-- [개선] 대시보드 상단 요약 카드 4개 (총수금/미수금/예산사용률/TODO미완료) -->
+          <div class="dash-top-summary" id="dashTopSummary">
+            <div class="dash-top-card dtc-blue">
+              <div class="dash-top-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </div>
+              <div class="dash-top-card-body">
+                <div class="dash-top-card-label">총 수금액</div>
+                <div class="dash-top-card-value" id="dtcCollected">-</div>
+              </div>
+            </div>
+            <div class="dash-top-card dtc-danger">
+              <div class="dash-top-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="dash-top-card-body">
+                <div class="dash-top-card-label">미수금액</div>
+                <div class="dash-top-card-value" id="dtcUncollected">-</div>
+              </div>
+            </div>
+            <div class="dash-top-card dtc-accent">
+              <div class="dash-top-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="dash-top-card-body">
+                <div class="dash-top-card-label">예산 사용률</div>
+                <div class="dash-top-card-value" id="dtcBudgetRate">-</div>
+              </div>
+            </div>
+            <div class="dash-top-card dtc-warn">
+              <div class="dash-top-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div class="dash-top-card-body">
+                <div class="dash-top-card-label">TODO 미완료</div>
+                <div class="dash-top-card-value" id="dtcTodoPending">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- [경고] 대시보드 경고 카드 존 (미수금 D-Day + 예산 초과) -->
+          <div class="dash-alert-zone" id="dashAlertZone">
+            <!-- 미수금 D-7 이내 경고 카드 -->
+            <div class="dash-alert-card dash-alert-warning" id="dashCollectionAlert" style="display:none;"></div>
+            <!-- 예산 집행률 95% 초과 경보 카드 -->
+            <div class="dash-alert-card dash-alert-warning" id="dashBudgetAlert" style="display:none;"></div>
+          </div>
+
+          <!-- 금액 요약 카드 (1행: 수주~수금률~이익률) -->
           <div class="summary-cards summary-cards-top" id="summaryCards">
             <div class="summary-card card-blue">
               <div class="card-icon-wrap">
@@ -245,7 +358,7 @@
             </div>
             <div class="summary-card card-accent">
               <div class="card-body">
-                <p class="card-label">수금율</p>
+                <p class="card-label">수금률</p>
                 <p class="card-value accent" id="valDashCollectionRate">0%</p>
               </div>
             </div>
@@ -254,7 +367,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/><path d="M12 6v6l4 2"/></svg>
               </div>
               <div class="card-body">
-                <p class="card-label">이익율</p>
+                <p class="card-label">이익률</p>
                 <p class="card-value accent" id="valMargin">0%</p>
               </div>
             </div>
@@ -399,6 +512,17 @@
             </div>
           </div>
 
+          <!-- 공정 일정 미니 타임라인 -->
+          <div class="panel-section dash-card-bordered">
+            <h3 class="section-title clickable-title" data-switch-tab="schedule">
+              공정 일정
+              <span class="section-link">상세 →</span>
+            </h3>
+            <div id="dashTimelineContainer" class="dash-mini-tl">
+              <p class="no-data-text">일정 없음</p>
+            </div>
+          </div>
+
           <!-- 수금현황 요약 -->
           <div class="panel-section dash-card-bordered">
             <h3 class="section-title clickable-title" data-switch-tab="collections">
@@ -467,6 +591,7 @@
                 </h4>
                 <div class="todo-controls">
                   <select class="todo-filter-select" id="todoFilter">
+                    <option value="current">이 프로젝트</option>
                     <option value="all">전체</option>
                     <option value="pending">미완료</option>
                     <option value="completed">완료</option>
@@ -599,7 +724,7 @@
                 </div>
                 <div class="info-row">
                   <span class="info-label">설계 계약금액</span>
-                  <input type="number" class="info-value ov-field" data-field="design_contract_amount" placeholder="0" />
+                  <input type="text" class="info-value ov-field num-input" data-field="design_contract_amount" placeholder="0" />
                 </div>
                 <div class="info-row">
                   <span class="info-label">시공 계약일자</span>
@@ -607,7 +732,7 @@
                 </div>
                 <div class="info-row">
                   <span class="info-label">시공 계약금액</span>
-                  <input type="number" class="info-value ov-field" data-field="construction_contract_amount" placeholder="0" />
+                  <input type="text" class="info-value ov-field num-input" data-field="construction_contract_amount" placeholder="0" />
                 </div>
               </div>
             </div>
@@ -622,34 +747,13 @@
             </div>
           </div>
 
-          <!-- 진행상황 체크리스트 -->
-          <div class="panel-section">
-            <h4 class="subsection-title">진행상황
-              <span class="ms-progress-badge" id="msProgressBadge"></span>
-            </h4>
-            <div class="ms-progress-bar-wrapper">
-              <div class="ms-progress-bar" id="msProgressBar">
-                <div class="ms-progress-fill" id="msProgressFill"></div>
-              </div>
-              <span class="ms-progress-text" id="msProgressText"></span>
+          <!-- 마일스톤 요약 (일정표 탭에서 관리) -->
+          <div class="panel-section ov-ms-summary-section">
+            <h4 class="subsection-title">마일스톤 진행상황</h4>
+            <div class="ov-ms-summary-row">
+              <span class="ov-ms-text" id="ovMilestoneText">진행 단계 없음</span>
+              <button class="btn btn-outlined btn-xs" onclick="switchTab('schedule')">일정표에서 관리 →</button>
             </div>
-            <div class="table-wrapper">
-              <table class="data-table" id="milestoneTable">
-                <thead>
-                  <tr>
-                    <th style="width:40px;">#</th>
-                    <th>단계</th>
-                    <th class="chk" style="width:60px;">완료</th>
-                    <th style="width:110px;">날짜</th>
-                    <th style="width:40px;"></th>
-                  </tr>
-                </thead>
-                <tbody id="milestoneBody">
-                  <tr><td colspan="5" class="no-data">진행 단계 없음</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <button class="btn btn-sm" id="btnAddMilestone" style="margin-top:6px;">+ 단계 추가</button>
           </div>
 
           <!-- 배정인원 -->
@@ -704,11 +808,147 @@
           </div>
         </div>
 
+        <!-- 일정표 탭 -->
+        <div class="tab-panel" id="panel-schedule" style="display:none;">
+
+          <!-- 공정 일정 (간트 / 목록) -->
+          <div class="panel-section">
+            <div class="schedule-section-header">
+              <div>
+                <h3 class="section-title" style="margin-bottom:2px;">공정 일정</h3>
+                <p class="section-hint" style="margin:0;">공정별 시작·종료 일자와 진행 상태를 자유롭게 기입하세요.</p>
+              </div>
+              <!-- 뷰 전환 버튼 -->
+              <div class="schedule-view-toggle">
+                <button class="view-btn" id="btnListView">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                  목록
+                </button>
+                <button class="view-btn active" id="btnTimelineView">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="4" height="4" rx="1"/><rect x="9" y="4" width="8" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="6" height="4" rx="1"/></svg>
+                  타임라인
+                </button>
+              </div>
+            </div>
+
+            <!-- 타임라인 뷰 -->
+            <div id="scheduleTimeline" class="schedule-timeline">
+              <div class="timeline-toolbar">
+                <button class="btn btn-outlined btn-sm" id="btnAddScheduleTimeline">+ 항목 추가</button>
+                <button class="btn btn-primary btn-sm" id="btnGenerateSchedule">공정표 자동생성</button>
+                <div class="schedule-export-wrap" style="position:relative;display:inline-block;">
+                  <button class="btn btn-outlined btn-sm" id="btnExportSchedule">내보내기</button>
+                  <div class="export-dropdown" id="exportDropdown" style="display:none;">
+                    <button data-export-fmt="xlsx">엑셀 (.xlsx)</button>
+                    <button data-export-fmt="pdf">PDF</button>
+                    <button data-export-fmt="both">엑셀 + PDF</button>
+                  </div>
+                </div>
+                <div class="tl-range-picker">
+                  <input type="month" id="tlRangeStart" class="tl-month-input" title="시작월">
+                  <span style="color:#6b7280;font-size:12px;">~</span>
+                  <input type="month" id="tlRangeEnd" class="tl-month-input" title="종료월">
+                  <button class="btn btn-sm" id="btnTlRangeReset" title="범위 초기화" style="padding:2px 8px;font-size:11px;">↺</button>
+                </div>
+                <span class="timeline-hint">바를 클릭하면 수정, 좌우 끝을 드래그하면 날짜 조정</span>
+              </div>
+              <div class="timeline-container" id="timelineContainer">
+                <div class="tl-empty">일정 항목이 없습니다. [+ 항목 추가] 버튼으로 추가하세요.</div>
+              </div>
+            </div>
+
+            <!-- 목록 뷰 -->
+            <div id="scheduleListView" style="display:none;">
+              <div class="table-wrapper">
+                <table class="data-table" id="scheduleTable">
+                  <thead>
+                    <tr>
+                      <th style="width:28px;">#</th>
+                      <th>항목명</th>
+                      <th style="width:100px;">그룹명</th>
+                      <th style="width:80px;">유형</th>
+                      <th style="width:110px;">시작일</th>
+                      <th style="width:110px;">종료일</th>
+                      <th style="width:80px;">상태</th>
+                      <th style="width:28px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="scheduleBody">
+                    <tr><td colspan="8" class="no-data">항목 없음 — 아래 버튼으로 추가하세요</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="schedule-actions">
+                <button class="btn btn-outlined btn-sm" id="btnAddScheduleItem">+ 항목 추가</button>
+                <button class="btn btn-sm" id="btnSaveSchedule">저장</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 마일스톤 체크리스트 -->
+          <div class="panel-section">
+            <h3 class="section-title">마일스톤 체크리스트
+              <span class="ms-progress-badge" id="msProgressBadge"></span>
+            </h3>
+            <div class="ms-progress-bar-wrapper">
+              <div class="ms-progress-bar" id="msProgressBar">
+                <div class="ms-progress-fill" id="msProgressFill"></div>
+              </div>
+              <span class="ms-progress-text" id="msProgressText"></span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" id="milestoneTable">
+                <thead>
+                  <tr>
+                    <th style="width:36px;">#</th>
+                    <th>단계</th>
+                    <th class="chk" style="width:56px;">완료</th>
+                    <th style="width:120px;">날짜</th>
+                    <th style="width:80px;">D-Day</th>
+                    <th style="width:36px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="milestoneBody">
+                  <tr><td colspan="6" class="no-data">진행 단계 없음</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="schedule-actions">
+              <button class="btn btn-outlined btn-sm" id="btnAddMilestone">+ 단계 추가</button>
+              <button class="btn btn-sm" id="btnSaveMilestones">저장</button>
+            </div>
+          </div>
+
+        </div><!-- /panel-schedule -->
+
         <!-- 수금현황 탭 -->
         <div class="tab-panel" id="panel-collections" style="display:none;">
           <div class="panel-toolbar">
             <h3 class="section-title">수금현황</h3>
             <button class="btn btn-primary btn-sm" id="saveCollectionsBtn">저장</button>
+          </div>
+
+          <!-- [3] 수금률 진행바 -->
+          <div id="collectionProgressWrap"></div>
+
+          <!-- [개선] 미수금 합계 배너 (수금 탭 상단 고정) -->
+          <div class="uncollected-banner" id="uncollectedBanner" style="display:none;">
+            <div class="uncollected-banner-left">
+              <svg class="uncollected-banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div>
+                <div class="uncollected-banner-label">미수금 총액</div>
+                <div class="uncollected-banner-amount" id="bannerUncollected">-</div>
+                <div class="uncollected-banner-rate" id="bannerCollectionRate">수금률 -</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- [개선] 빈 상태 처리 — 수금 데이터가 없을 때 안내 -->
+          <div class="collections-empty-state" id="collectionsEmptyState" style="display:none;">
+            <div class="empty-icon">💳</div>
+            <div class="empty-title">수금 내역이 없습니다</div>
+            <div class="empty-desc">아래 설계 / 시공 테이블에 금액을 입력하고 저장하면 수금현황이 등록됩니다.</div>
+            <button class="btn btn-primary btn-sm" id="collAddDefaultBtn" style="margin-top:12px;">기본 단계 추가</button>
           </div>
 
           <!-- 설계 수금 -->
@@ -720,11 +960,12 @@
                   <tr>
                     <th>단계</th>
                     <th class="num">금액(원)</th>
+                    <th>수금 예정일</th>
                     <th class="chk">수금완료</th>
                   </tr>
                 </thead>
                 <tbody id="collectionDesignBody">
-                  <tr><td colspan="3" class="no-data">데이터 없음</td></tr>
+                  <tr><td colspan="4" class="no-data">데이터 없음</td></tr>
                 </tbody>
               </table>
             </div>
@@ -739,11 +980,12 @@
                   <tr>
                     <th>단계</th>
                     <th class="num">금액(원)</th>
+                    <th>수금 예정일</th>
                     <th class="chk">수금완료</th>
                   </tr>
                 </thead>
                 <tbody id="collectionConstructionBody">
-                  <tr><td colspan="3" class="no-data">데이터 없음</td></tr>
+                  <tr><td colspan="4" class="no-data">데이터 없음</td></tr>
                 </tbody>
               </table>
             </div>
@@ -760,7 +1002,7 @@
               <p class="card-value" id="valTotalUncollected">0</p>
             </div>
             <div class="summary-card">
-              <p class="card-label">수금율</p>
+              <p class="card-label">수금률</p>
               <p class="card-value accent" id="valCollectionRate">0%</p>
             </div>
           </div>
@@ -782,6 +1024,23 @@
                 <button class="btn btn-outlined btn-sm" id="saveSubcontractsBtn">저장</button>
               </div>
             </div>
+
+            <!-- [개선] 하도급 손익 요약 카드 3개 -->
+            <div class="sc-summary-cards" id="scSummaryCards">
+              <div class="sc-summary-card sc-card-blue">
+                <div class="sc-card-label">계약금액 합계</div>
+                <div class="sc-card-value" id="scTotalContract">-</div>
+              </div>
+              <div class="sc-summary-card sc-card-orange">
+                <div class="sc-card-label">기지급액 합계</div>
+                <div class="sc-card-value" id="scTotalPaid">-</div>
+              </div>
+              <div class="sc-summary-card sc-card-green">
+                <div class="sc-card-label">잔액 합계</div>
+                <div class="sc-card-value" id="scTotalRemain">-</div>
+              </div>
+            </div>
+
             <div class="table-wrapper">
               <table class="data-table editable" id="subcontractTable">
                 <thead>
@@ -790,12 +1049,13 @@
                     <th>공종</th>
                     <th>업체명</th>
                     <th class="num">계약금액(원)</th>
+                    <th class="num">변경계약금액(원)</th>
                     <th class="num">1차지급(원)</th>
                     <th class="num">2차지급(원)</th>
                     <th class="num">3차지급(원)</th>
                     <th class="num">4차지급(원)</th>
                     <th class="num">잔여금액(원)</th>
-                    <th class="num">지급율</th>
+                    <th class="num">지급률</th>
                     <th class="chk">1차확인</th>
                     <th class="chk">2차확인</th>
                     <th class="chk">3차확인</th>
@@ -804,7 +1064,7 @@
                   </tr>
                 </thead>
                 <tbody id="subcontractBody">
-                  <tr><td colspan="15" class="no-data">데이터 없음</td></tr>
+                  <tr><td colspan="16" class="no-data">데이터 없음</td></tr>
                 </tbody>
               </table>
             </div>
@@ -825,15 +1085,15 @@
             <!-- 요약 카드 -->
             <div class="budget-summary-cards" id="budgetSummaryCards" style="display:none;">
               <div class="budget-card">
-                <div class="budget-card-label">총 예산액</div>
+                <div class="budget-card-label">지출 예산액</div>
                 <div class="budget-card-value" id="budgetTotalAmount">-</div>
               </div>
               <div class="budget-card">
-                <div class="budget-card-label">총 집행액</div>
+                <div class="budget-card-label">지출 집행액</div>
                 <div class="budget-card-value" id="budgetTotalActual">-</div>
               </div>
               <div class="budget-card">
-                <div class="budget-card-label">총 잔액</div>
+                <div class="budget-card-label">지출 잔액</div>
                 <div class="budget-card-value" id="budgetTotalRemain">-</div>
               </div>
               <div class="budget-card">
@@ -850,6 +1110,12 @@
               <span class="budget-meta-text">마지막 GW 동기화: <span id="budgetLastSync">-</span></span>
               <span id="budgetYearInfo" class="budget-year-info" style="display:none;margin-left:12px;"></span>
             </div>
+
+            <!-- 연도별 탭 (복수 연도 데이터가 있을 때 동적 생성) -->
+            <div id="budgetYearTabs" style="display:none; margin:10px 0;"></div>
+
+            <!-- 집행액 상위 과목 미니차트 -->
+            <div id="budgetTopChart" style="display:none;margin-bottom:12px;"></div>
 
             <div class="table-wrapper">
               <table class="data-table" id="budgetTable">
@@ -870,6 +1136,12 @@
               </table>
             </div>
           </div>
+
+          <!-- 예산 변경 이력 (아코디언) -->
+          <details id="budgetChangesSection" class="budget-changes-details" style="display:none;">
+            <summary class="budget-changes-summary">예산 변경 이력 (<span id="budgetChangesCount">0</span>건)</summary>
+            <div id="budgetChangesList" class="budget-changes-list"></div>
+          </details>
         </div>
 
         <!-- 하도급 업체 관리 탭 (통합 단일 테이블) -->
@@ -903,8 +1175,25 @@
         <!-- 이체내역 탭 -->
         <div class="tab-panel" id="panel-payments" style="display:none;">
           <div class="panel-toolbar">
-            <h3 class="section-title">이체내역 (GW 연동)</h3>
-            <button class="btn btn-outlined btn-sm" id="refreshPaymentsBtn">새로고침</button>
+            <h3 class="section-title">이체내역</h3>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" id="uploadPaymentsBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                엑셀 업로드
+              </button>
+              <input type="file" id="paymentFileInput" accept=".xlsx,.xls" style="display:none" />
+              <button class="btn btn-outlined btn-sm" id="refreshPaymentsBtn">새로고침</button>
+            </div>
+          </div>
+          <div class="summary-cards" style="grid-template-columns: repeat(2, auto); justify-content: start; margin-bottom: 16px;">
+            <div class="summary-card">
+              <div class="summary-label">지급 총액</div>
+              <div class="summary-value" id="paymentTotalAmount">0</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">건수</div>
+              <div class="summary-value" id="paymentTotalCount">0건</div>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table" id="paymentTable">
@@ -914,15 +1203,45 @@
                   <th>이체일</th>
                   <th>거래처</th>
                   <th class="num">이체금액(원)</th>
+                  <th class="num">공급가액(원)</th>
+                  <th class="num">세액(원)</th>
                   <th>적요</th>
                   <th>계좌정보</th>
                   <th>자금과목</th>
                 </tr>
               </thead>
               <tbody id="paymentBody">
-                <tr><td colspan="7" class="no-data">GW에서 데이터를 불러오는 중...</td></tr>
+                <tr><td colspan="9" class="no-data">GW에서 데이터를 불러오는 중...</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- 계약 탭 -->
+        <div class="tab-panel" id="panel-contracts" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">GW 계약 내역</h3>
+            <span class="gw-data-hint">GW 동기화 후 표시됩니다</span>
+          </div>
+          <div id="contractsTableWrap">
+            <div class="gw-empty-hint">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--content-text-muted)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p>계약 데이터가 없습니다.<br>GW 동기화 후 표시됩니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 리스크 탭 -->
+        <div class="tab-panel" id="panel-risks" style="display:none;">
+          <div class="panel-toolbar">
+            <h3 class="section-title">리스크 관리</h3>
+            <button class="btn btn-primary btn-sm" id="addRiskBtn">+ 리스크 추가</button>
+          </div>
+          <div id="risksListWrap">
+            <div class="gw-empty-hint">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--content-text-muted)"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <p>리스크 항목이 없습니다.<br>"리스크 추가" 버튼으로 추가하세요.</p>
+            </div>
           </div>
         </div>
 
@@ -1019,6 +1338,108 @@
     </div>
   </div>
 
-  <script src="/static/fund.js?v=20260319r11"></script>
+  <!-- 일정표 항목 편집 팝오버 -->
+  <div id="scheduleItemPopover" class="sch-popover" style="display:none;">
+    <div class="sch-popover-header">
+      <span>항목 수정</span>
+      <button class="sch-popover-close" id="btnPopoverClose">✕</button>
+    </div>
+    <div class="sch-popover-body">
+      <input type="text" id="popItemName" placeholder="항목명" class="sch-pop-input" />
+      <input type="text" id="popGroupName" placeholder="그룹/팀명 (예: 공간팀)" class="sch-pop-input" />
+      <select id="popItemType" class="sch-pop-select">
+        <option value="bar">바 (일정)</option>
+        <option value="milestone">마일스톤 (수직선)</option>
+      </select>
+      <div class="sch-pop-row">
+        <input type="date" id="popStartDate" class="sch-pop-input" />
+        <span>~</span>
+        <input type="date" id="popEndDate" class="sch-pop-input" />
+      </div>
+      <select id="popStatus" class="sch-pop-select">
+        <option value="planned">준비중</option>
+        <option value="ongoing">진행중</option>
+        <option value="done">완료</option>
+        <option value="hold">보류</option>
+      </select>
+      <textarea id="popNotes" class="sch-pop-textarea" placeholder="메모" rows="2"></textarea>
+      <div class="sch-pop-actions">
+        <button class="btn btn-danger btn-sm" id="btnPopoverDelete">삭제</button>
+        <button class="btn btn-primary btn-sm" id="btnPopoverSave">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공정표 자동생성 모달 -->
+  <div class="modal-overlay" id="genScheduleModal" style="display:none;">
+    <div class="modal-card" style="max-width:680px;max-height:85vh;overflow-y:auto;">
+      <div class="modal-header">
+        <h3>시공 공정표 자동 생성</h3>
+        <button class="modal-close" id="genScheduleClose">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <!-- 기본 정보 -->
+        <div class="gen-form-row">
+          <label>공사 유형</label>
+          <select id="genProjectType" class="gen-input">
+            <option value="오피스">오피스</option>
+            <option value="상업시설">상업시설</option>
+            <option value="병원">병원</option>
+            <option value="식음">식음</option>
+            <option value="주거">주거</option>
+          </select>
+        </div>
+        <div class="gen-form-row" style="display:flex;gap:12px;">
+          <div style="flex:1;"><label>착공일</label><input type="date" id="genStartDate" class="gen-input"></div>
+          <div style="flex:1;"><label>준공일</label><input type="date" id="genEndDate" class="gen-input"></div>
+        </div>
+        <div class="gen-form-row" style="display:flex;gap:12px;">
+          <div style="flex:1;"><label>시공면적 (평)</label><input type="number" id="genArea" class="gen-input" value="100" min="1"></div>
+          <div style="flex:1;display:flex;align-items:flex-end;"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="genImportMat"> 수입자재 포함</label></div>
+        </div>
+
+        <!-- 내역서 업로드 -->
+        <div class="gen-section-divider">내역서 업로드 (선택)</div>
+        <div class="gen-form-row">
+          <input type="file" id="genEstimateFile" accept=".xlsx,.xls" class="gen-input" style="padding:6px;">
+          <button class="btn btn-outlined btn-sm" id="btnParseEstimate" style="margin-top:4px;">��종 자동 추출</button>
+          <div id="genEstimateResult" style="font-size:11px;color:#9ca3af;margin-top:4px;"></div>
+        </div>
+
+        <!-- 공종 체크리스트 -->
+        <div class="gen-section-divider" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>공종 선택</span>
+          <button class="btn btn-outlined btn-xs" id="btnToggleTradeEdit" title="공종 편집">편집</button>
+        </div>
+        <div id="genTradeChecklist" class="gen-trade-checklist">
+          <div style="color:#6b7280;font-size:12px;padding:8px;">공사 유형을 선택하면 자동으로 체크됩니다.</div>
+        </div>
+
+        <!-- 공종 편집 패널 (토글) -->
+        <div id="tradeEditPanel" style="display:none;margin-top:8px;border:1px solid #374151;border-radius:6px;padding:10px;">
+          <div style="font-size:12px;font-weight:600;color:#d1d5db;margin-bottom:8px;">커스텀 공종 추가</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <select id="newTradeGroup" class="gen-input" style="flex:0 0 130px;font-size:11px;">
+              <option value="">그룹 선택</option>
+            </select>
+            <input type="text" id="newTradeName" class="gen-input" placeholder="공종명" style="flex:1;font-size:11px;">
+            <input type="number" id="newTradeDays" class="gen-input" placeholder="일수" style="flex:0 0 60px;font-size:11px;" min="0" value="3">
+            <button class="btn btn-primary btn-xs" id="btnAddCustomTrade">추가</button>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:#d1d5db;margin-bottom:6px;margin-top:10px;">프리셋 관리</div>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="newPresetName" class="gen-input" placeholder="프리셋명" style="flex:1;font-size:11px;">
+            <button class="btn btn-outlined btn-xs" id="btnSavePreset">현재 선택 저장</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outlined btn-sm" id="genScheduleCancel">취소</button>
+        <button class="btn btn-primary btn-sm" id="genScheduleSubmit">생성 + DB 반영 + 다운로드</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/fund.js?v=20260408"></script>
 </body>
 </html>

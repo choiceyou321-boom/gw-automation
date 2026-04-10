@@ -3,8 +3,10 @@
 """
 
 import os
+import json
 import logging
 from pathlib import Path
+from typing import Optional
 from playwright.sync_api import Page, BrowserContext, TimeoutError as PlaywrightTimeout
 
 logger = logging.getLogger("approval_automation")
@@ -18,6 +20,14 @@ SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 # 재시도 설정
 MAX_RETRIES = 3
 RETRY_DELAY = 3  # 초
+
+
+def _js_str(s) -> str:
+    """Python 문자열을 JS 문자열 리터럴로 안전하게 변환 (인젝션 방지).
+    json.dumps()로 따옴표/백슬래시/특수문자를 올바르게 이스케이프.
+    반환값: "escaped_string" (큰따옴표 포함)
+    """
+    return json.dumps(str(s))
 
 # OBTDataGrid React fiber 접근 JS 헬퍼
 _GET_GRID_IFACE_JS = """
@@ -91,11 +101,107 @@ class ApprovalBaseMixin:
                 logger.error("세션 만료: 로그인 페이지로 리다이렉트됨")
                 return False
             return True
-        except Exception:
+        except Exception as e:
+            logger.debug("세션 유효성 확인 실패: %s", e)
             return False
 
+    def _dismiss_obt_alert(self):
+        """
+        OBTAlert 다이얼로그 닫기.
+        OBTAlert_dimmed 오버레이가 열려 있으면 모든 클릭을 차단하므로
+        자동화 시작 전에 반드시 처리해야 한다.
+
+        GW는 모듈을 iframe 안에서 렌더링하므로, page.frames를 순회하여
+        각 frame에서 frame.locator().click()으로 클릭한다.
+
+        [중요] frame.locator().click() → Playwright이 프레임↔메인페이지 좌표 변환 자동 처리
+               isTrusted=true 실제 브라우저 이벤트 → GW React 정상 처리
+               JS getBoundingClientRect() 좌표 + page.mouse.click() → 프레임 로컬 좌표로 인한 오클릭
+        """
+        page = self.page
+        # 방법 1: JS로 OBTPortal 내 버튼 직접 클릭 (overlay hit-test 우회)
+        # OBTAlert_dimmed 자체가 클릭을 차단하므로 Playwright click 대신 JS 사용
+        try:
+            result = page.evaluate("""() => {
+                const portals = document.querySelectorAll('[class*="OBTPortal"]');
+                for (const portal of portals) {
+                    const dimmed = portal.querySelector('[class*="OBTAlert_dimmed"], [class*="OBTAlert"][class*="dimmed"]');
+                    if (!dimmed) continue;
+                    // '취소'를 '확인'보다 먼저 시도: "이전 작성 중인 결의서" 알림에서
+                    // "확인"(=이전 문서 불러오기) 대신 "취소"(=새 폼 시작)를 선택해야
+                    // GW가 이전 임시저장 문서를 로딩하지 않고 overlay를 즉시 제거함
+                    const targetTexts = ['저장안함', '취소', '닫기', 'OK', '확인'];
+                    const btns = portal.querySelectorAll('button');
+                    for (const t of targetTexts) {
+                        for (const btn of btns) {
+                            if (btn.textContent.trim() === t) {
+                                btn.click();
+                                return '클릭: ' + t;
+                            }
+                        }
+                    }
+                    // 폴백: 마지막 버튼
+                    if (btns.length > 0) {
+                        btns[btns.length - 1].click();
+                        return '폴백클릭: ' + btns[btns.length - 1].textContent.trim();
+                    }
+                }
+                return null;
+            }""")
+            if result:
+                logger.info(f"OBTAlert JS 클릭 완료: {result}")
+                # overlay가 실제로 DOM에서 제거될 때까지 대기 (최대 5초)
+                try:
+                    page.wait_for_selector(
+                        '[class*="OBTAlert_dimmed"]',
+                        state="detached",
+                        timeout=5000,
+                    )
+                    logger.info("OBTAlert_dimmed 오버레이 제거 확인")
+                except Exception:
+                    # 이미 없거나 타임아웃 → 700ms 고정 대기 후 계속
+                    page.wait_for_timeout(700)
+                return
+        except Exception as e:
+            logger.debug(f"OBTAlert JS 처리 실패: {e}")
+
+        # 방법 2: frame 순회 + Playwright click (force=True)
+        try:
+            for frame in page.frames:
+                try:
+                    alert_loc = frame.locator('[class*="OBTAlert"][class*="dimmed"]')
+                    if alert_loc.count() == 0:
+                        continue
+                    logger.info(f"OBTAlert 감지(frame): url={frame.url[:80]}")
+                    portal = frame.locator('[class*="OBTPortal"]')
+                    for btn_text in ['저장안함', '확인', 'OK', '닫기']:
+                        try:
+                            btn = portal.locator(f'button:has-text("{btn_text}")').last
+                            if btn.count() > 0 and btn.is_visible(timeout=500):
+                                btn.click(timeout=2000, force=True)
+                                page.wait_for_timeout(700)
+                                logger.info(f"OBTAlert 버튼 클릭 완료: '{btn_text}'")
+                                return
+                        except Exception:
+                            continue
+                    try:
+                        all_btns = portal.locator('button').all()
+                        if all_btns:
+                            all_btns[-1].click(timeout=2000, force=True)
+                            page.wait_for_timeout(700)
+                            logger.info("OBTAlert 폴백 버튼 클릭 완료")
+                            return
+                    except Exception:
+                        pass
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.debug(f"OBTAlert 처리 실패: {e}")
+
     def _close_popups(self):
-        """열린 팝업 페이지 자동 닫기"""
+        """열린 팝업 페이지 자동 닫기 + OBTAlert 오버레이 처리"""
+        # OBTAlert dimmed 오버레이 먼저 처리 (모든 클릭을 차단하므로 최우선)
+        self._dismiss_obt_alert()
         if not self.context:
             return
         try:
@@ -112,7 +218,52 @@ class ApprovalBaseMixin:
         except Exception:
             pass
 
-    def _validate_required_fields(self, data: dict, required_keys: list[str], form_name: str) -> dict | None:
+    def _close_open_modals(self):
+        """열린 OBTDialog/OBTDialog2 모달을 모두 닫기 (취소/닫기 버튼 또는 Escape 반복)
+        - OBTDialog2_dialogRootOpen: 기존 모달
+        - OBTDialog_dialogRoot open: invoice modal 등 OBTDialog 계열
+        """
+        page = self.page
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            try:
+                # OBTDialog2 + OBTDialog(invoice modal) 모두 감지
+                open_count = (
+                    page.locator(".OBTDialog2_dialogRootOpen__3PExr").count()
+                    + page.locator(".obtdialog.open").count()
+                )
+                if open_count == 0:
+                    break
+                logger.info(f"열린 모달 {open_count}개 감지 (시도 {attempt+1})")
+                # 취소/닫기 버튼 찾기 (OBTDialog2 → OBTDialog 순)
+                closed = False
+                for sel in [
+                    ".OBTDialog2_dialogRootOpen__3PExr button:has-text('취소')",
+                    ".OBTDialog2_dialogRootOpen__3PExr button:has-text('닫기')",
+                    ".OBTDialog2_dialogRootOpen__3PExr [class*='closeBtn']",
+                    ".obtdialog.open button:has-text('취소')",
+                    ".obtdialog.open button:has-text('닫기')",
+                    ".obtdialog.open [class*='closeBtn']",
+                ]:
+                    try:
+                        btn = page.locator(sel).first
+                        if btn.is_visible(timeout=500):
+                            btn.click(force=True)
+                            page.wait_for_timeout(500)
+                            logger.info(f"모달 닫기: {sel}")
+                            closed = True
+                            break
+                    except Exception:
+                        continue
+                if not closed:
+                    page.keyboard.press("Escape")
+                    page.wait_for_timeout(500)
+                    logger.info("모달 Escape 키로 닫기")
+            except Exception as e:
+                logger.debug(f"모달 닫기 시도 {attempt+1} 실패: {e}")
+                break
+
+    def _validate_required_fields(self, data: dict, required_keys: list[str], form_name: str) -> Optional[dict]:
         """
         필수 필드 검증. 누락 시 에러 dict 반환, 통과 시 None.
         """
@@ -156,6 +307,8 @@ class ApprovalBaseMixin:
                 ea_link.click(force=True)
                 logger.info("전자결재 모듈 클릭")
                 page.wait_for_timeout(2000)
+                # 네비게이션 직후 GW가 "작성 중인 문서 저장 여부" OBTAlert를 띄울 수 있음
+                self._dismiss_obt_alert()
             else:
                 raise PlaywrightTimeout("전자결재 모듈 링크 미발견")
         except Exception:
@@ -163,6 +316,7 @@ class ApprovalBaseMixin:
             try:
                 page.locator("text=전자결재").first.click(force=True)
                 page.wait_for_timeout(2000)
+                self._dismiss_obt_alert()
             except Exception:
                 pass
 
@@ -189,12 +343,13 @@ class ApprovalBaseMixin:
             except Exception:
                 return False
 
+        _save_debug(page, "00_after_ea_click")  # 디버그: EA 클릭 직후 스크린샷
         if _check_approval_home_loaded(30000):
             navigated = True
         else:
             if not self._check_session_valid():
                 raise RuntimeError("세션이 만료되었습니다.")
-            logger.warning("결재 HOME 텍스트 미발견 (방법 1)")
+            logger.warning(f"결재 HOME 텍스트 미발견 (방법 1) — 현재 URL: {page.url[:80]}")
 
         # 방법 2: GW 내부 탭 "전자결재" 클릭 (로그인 직후 HR 페이지에 있는 경우)
         if not navigated:
@@ -223,10 +378,10 @@ class ApprovalBaseMixin:
             except Exception:
                 logger.warning("내부 탭 클릭 실패")
 
-        # 방법 3: URL 직접 네비게이션 (HPM0110 = 전자결재 홈, 확인된 URL)
+        # 방법 3: URL 직접 네비게이션 (확인된 전자결재 HOME URL: /#/EA/)
         if not navigated:
             try:
-                approval_home_url = f"{GW_URL}/#/HP/HPM0110/HPM0110"
+                approval_home_url = f"{GW_URL}/#/EA/"
                 page.goto(approval_home_url, wait_until="domcontentloaded", timeout=15000)
                 page.wait_for_timeout(3000)
                 logger.info("전자결재 URL 직접 이동 (HPM0110)")
@@ -327,7 +482,7 @@ class ApprovalBaseMixin:
         page = self.page
         try:
             # th에서 라벨 텍스트 찾기
-            th_el = page.locator(f"th:has-text('{label}')").first
+            th_el = page.locator("th").filter(has_text=label).first
             if not th_el.is_visible(timeout=2000):
                 return False
 
@@ -419,14 +574,29 @@ class ApprovalBaseMixin:
             _save_debug(page, "error_no_save_btn")
             return {"success": False, "message": "보관/결재상신 버튼을 찾을 수 없습니다."}
 
+        # 열린 모달 모두 닫기 (dimClicker 차단 방지)
+        self._close_open_modals()
+        page.wait_for_timeout(500)
         _save_debug(page, "04_before_submit_popup")
 
-        # 결재상신 클릭 -> 팝업 대기
+        # 결재상신 클릭 -> 팝업 대기 (JS 직접 클릭으로 dimClicker 우회)
         context = page.context
         popup_page = None
         try:
-            with context.expect_page(timeout=10000) as popup_info:
-                submit_btn.click(force=True)
+            logger.info("결재상신 클릭 -> 팝업 대기 (expect_page)")
+            with context.expect_page(timeout=15000) as popup_info:
+                # dimClicker 우회: DOM에서 직접 결재상신 버튼 찾아 클릭
+                page.evaluate("""() => {
+                    const btns = document.querySelectorAll('button');
+                    for (const btn of btns) {
+                        if (btn.textContent.trim().includes('결재상신') && btn.offsetParent !== null) {
+                            btn.click();
+                            return true;
+                        }
+                    }
+                    return false;
+                }""")
+                page.wait_for_timeout(500)
             popup_page = popup_info.value
             popup_page.wait_for_load_state("domcontentloaded", timeout=10000)
             logger.info(f"결재상신 팝업 열림: {popup_page.url[:80]}")
@@ -440,7 +610,26 @@ class ApprovalBaseMixin:
                     break
 
         if not popup_page:
-            _save_debug(page, "error_no_popup")
+            # 검증 오류 다이얼로그 또는 도움 모달 확인
+            try:
+                # 1. "검증결과가 부적합" 텍스트
+                validation_msg = page.locator("text=검증결과가 부적합").first
+                if validation_msg.is_visible(timeout=1000):
+                    self._close_open_modals()
+                    _save_debug(page, "error_validation_failed")
+                    return {"success": False, "message": "검증 부적합: 예산/프로젝트 미입력 항목이 있습니다."}
+            except Exception:
+                pass
+            try:
+                # 2. 프로젝트코드도움/거래처코드도움 모달 (검증 실패로 자동 열림)
+                help_modal = page.locator("text=프로젝트코드도움, text=거래처코드도움").first
+                if help_modal.is_visible(timeout=1000):
+                    self._close_open_modals()
+                    _save_debug(page, "error_validation_help_modal")
+                    return {"success": False, "message": "검증 부적합: 그리드 필수 항목(프로젝트/거래처)이 미입력 상태입니다. 세금계산서 연동이 필요할 수 있습니다."}
+            except Exception:
+                pass
+            _save_debug(page, "error_expense_no_popup_after_submit")
             return {"success": False, "message": "결재상신 팝업이 열리지 않았습니다."}
 
         _save_debug(popup_page, "04b_popup_opened")

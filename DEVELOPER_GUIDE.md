@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-04-10 (세션 XLIV — 공정표 Full CPM 고도화 + 선급금 bank picker 구현 + 코드 리뷰)
+> 마지막 업데이트: 2026-04-10 (세션 XLV — 공종 마스터 DB화 + 선급금/근태 E2E 검증 + merge conflict 해결)
 > 새 세션 시작 시 이 문서와 `MEMORY.md`(auto-memory)를 함께 참고.
 
 ---
@@ -419,6 +419,8 @@ page.wait_for_selector('[class*="OBTAlert_dimmed"]', state="detached", timeout=5
 | `gw_projects_cache` | GW 전체 프로젝트 목록 캐시 (code UNIQUE, name, start_date, end_date, cached_at) |
 | `project_aliases` | 프로젝트 별칭 (다양한 이름으로 같은 프로젝트를 찾기 위한 메타데이터) |
 | `project_schedule_items` | 공정 일정 항목 (item_name, start_date, end_date, status, color, notes, group_name, subtitle, item_type, bar_color, sort_order) |
+| `construction_trades` | 공종 마스터 (공정표용, name UNIQUE, group_name, group_color, item_type, default_days, predecessors JSON, steps JSON, sort_order, is_custom) |
+| `construction_presets` | 공사 유형별 프리셋 (preset_name UNIQUE, trade_names JSON, is_custom) |
 
 ### `projects` 테이블 추가 컬럼
 - `is_archived INTEGER DEFAULT 0` — 이전 프로젝트 보관 여부 (1=보관, 0=활성)
@@ -469,9 +471,16 @@ page.wait_for_selector('[class*="OBTAlert_dimmed"]', state="detached", timeout=5
 | GET | `/fund` | 프로젝트 관리 웹 페이지 서빙 |
 | GET | `/insights` | AI 인사이트 페이지 서빙 |
 
-### 공정표 자동 생성 시스템 (세션 XLI, XLIV 고도화)
+### 공정표 자동 생성 시스템 (세션 XLI, XLIV~XLV 고도화)
 
-인테리어 시공 공정표를 자동 생성하는 모듈. Process_Map.xlsx 교육자료 기반 9개 그룹·45개 공종 마스터 데이터를 사용한다.
+인테리어 시공 공정표를 자동 생성하는 모듈. Process_Map.xlsx 교육자료 기반 9개 그룹·55개 공종 마스터 데이터를 사용한다.
+
+**세션 XLV Phase B — 공종 마스터 DB화**:
+- `construction_trades` 테이블: 55공종 (name UNIQUE, group_name, predecessors/steps JSON, sort_order, is_custom)
+- `construction_presets` 테이블: 5개 기본 프리셋 (오피스/상업시설/병원/식음/주거) + 커스텀 프리셋
+- `seed_construction_trades_from_master()`: 하드코딩 → DB 초기 시드 (멱등)
+- `schedule_generator.py`: `_get_process_groups()` / `_get_preset_trades()` — DB 우선, 하드코딩 폴백
+- CRUD API 6개 + 공종 편집 UI (추가/삭제/프리셋 저장)
 
 **세션 XLIV Phase A 고도화**:
 - **A-1**: 면적 보정 로그 연속 함수 (기존 5단계 계단 → `math.log2` 기반 연속 곡선, 0.5~2.0 범위)
@@ -504,13 +513,18 @@ scale_factor: float        # 비례 스케일 계수
 | `src/fund_table/schedule_export.py` | 엑셀 2시트(간트차트+리스트) + PDF(LibreOffice) 출력, CP 빨간 표시 |
 | `src/fund_table/estimate_parser.py` | 내역서 자동 파싱 (별칭 매칭 + 유사도 매칭으로 공종 자동 추출) |
 
-**API 4개** (`routes.py`):
+**API 10개** (`routes.py`):
 
 | Method | 경로 | 기능 |
 |--------|------|------|
-| GET | `/api/fund/process-map/trades` | 공종 마스터 목록 조회 |
+| GET | `/api/fund/process-map/trades` | 공종 마스터 목록 조회 (DB 우선, 폴백: 하드코딩) |
+| POST | `/api/fund/process-map/trades` | 공종 추가 (커스텀) |
+| PUT | `/api/fund/process-map/trades/{id}` | 공종 수정 |
+| DELETE | `/api/fund/process-map/trades/{id}` | 공종 삭제 |
+| GET | `/api/fund/process-map/presets` | 프리셋 목록 조회 |
+| POST | `/api/fund/process-map/presets` | 프리셋 저장 (upsert) |
 | POST | `/api/fund/process-map/parse-estimate` | 내역서 파싱 (공종 자동 추출) |
-| POST | `/api/fund/process-map/generate` | 공정표 생성 (CPM 엔진) |
+| POST | `/api/fund/projects/{id}/generate-schedule` | 공정표 생성 (CPM 엔진) |
 | POST | `/api/fund/process-map/export` | 엑셀/PDF 내보내기 |
 
 **UI**: `/fund` 일정표 탭에 "공정표 자동생성" 버튼 → 모달 → 내보내기 드롭다운
@@ -739,6 +753,12 @@ function ddayHtml(dateStr, completed) {
 
 **결론**: 근태관리 권한이 없는 계정으로는 어떤 UFA URL도 동작하지 않음.
 실제 시간외근무 신청 권한이 있는 일반 직원 계정으로 DOM 검증이 필요.
+
+**세션 XLV 추가 검증 (2026-04-10)**:
+- shyang(양승호 과장) 계정도 UFA1010/UFA1020/UFA1030 모두 "권한 없는 메뉴" 팝업 발생
+- 글로우서울 GW에서는 과장 직급도 근태관리 모듈 권한이 별도 부여되지 않은 상태
+- 권한 보유 계정 확보 필요 (HR 부서 계정 또는 별도 권한 신청)
+- 검증 스크립트: `scripts/test_overtime_e2e.py`
 
 **`_navigate_to_hr_attendance()` 현재 전략** (`src/approval/other_forms.py` line 1471):
 1. HR LNB `근태관리` 펼치기 → "근태신청" / "시간외근무" JS force 클릭

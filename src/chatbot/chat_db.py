@@ -6,6 +6,7 @@
 
 import sqlite3
 import logging
+import threading
 from pathlib import Path
 from datetime import datetime
 
@@ -19,10 +20,11 @@ DB_PATH = DATA_DIR / "chat_history.db"
 
 
 _db_initialized = False
+_db_init_lock = threading.Lock()
 
 
 def _get_db() -> sqlite3.Connection:
-    """SQLite 연결 반환 + 테이블 자동 생성 (최초 1회)"""
+    """SQLite 연결 반환 + 테이블 자동 생성 (최초 1회, thread-safe)"""
     global _db_initialized
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
@@ -30,40 +32,42 @@ def _get_db() -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL")
 
     if not _db_initialized:
-        # 세션 테이블
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS sessions (
-                session_id TEXT,
-                gw_id TEXT,
-                title TEXT DEFAULT '',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (gw_id, session_id)
-            )
-        """)
+        with _db_init_lock:
+            if not _db_initialized:
+                # 세션 테이블
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS sessions (
+                        session_id TEXT,
+                        gw_id TEXT,
+                        title TEXT DEFAULT '',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY (gw_id, session_id)
+                    )
+                """)
 
-        # 메시지 테이블
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT NOT NULL,
-                gw_id TEXT NOT NULL,
-                role TEXT NOT NULL,
-                content TEXT NOT NULL,
-                action TEXT,
-                action_result TEXT,
-                file_count INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+                # 메시지 테이블
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        session_id TEXT NOT NULL,
+                        gw_id TEXT NOT NULL,
+                        role TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        action TEXT,
+                        action_result TEXT,
+                        file_count INTEGER DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
 
-        # messages 조회 성능을 위한 인덱스
-        conn.execute("""
-            CREATE INDEX IF NOT EXISTS idx_messages_session
-            ON messages (gw_id, session_id, id)
-        """)
-        conn.commit()
-        _db_initialized = True
+                # messages 조회 성능을 위한 인덱스
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_session
+                    ON messages (gw_id, session_id, id)
+                """)
+                conn.commit()
+                _db_initialized = True
 
     return conn
 

@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" />
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" />
   <title>GW 자동화 챗봇</title>
-  <link rel="stylesheet" href="/static/style.css?v=20260319" />
+  <link rel="stylesheet" href="/static/style.css?v=20260327" />
 </head>
 <body>
   <!-- 로그인/회원가입 화면 -->
@@ -115,6 +116,7 @@
         <div class="header-user" id="headerUser">
           <span class="user-name" id="userName"></span>
           <a href="/admin" class="admin-link" id="adminLink" style="display:none;" title="사용자 관리">관리</a>
+          <a href="/guide" class="guide-link" title="사용방법">사용방법</a>
           <button class="logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
         </div>
         <button class="clear-btn" id="clearBtn" title="대화 초기화">&#128465;</button>

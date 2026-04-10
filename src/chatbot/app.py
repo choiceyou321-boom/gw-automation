@@ -162,14 +162,10 @@ class ChatResponse(BaseModel):
 # ─────────────────────────────────────────
 from src.auth.middleware import get_current_user, require_auth
 
-# 관리자 GW ID (환경변수 필수, 미설정 시 관리자 기능 비활성화)
-ADMIN_GW_ID = os.environ.get("ADMIN_GW_ID", "")
-
-
 def require_admin(request: Request) -> dict:
-    """관리자 인증 필수."""
+    """관리자 인증 필수 (DB is_admin 필드 기준)."""
     user = require_auth(request)
-    if user["gw_id"] != ADMIN_GW_ID:
+    if not user.get("is_admin"):
         raise HTTPException(status_code=403, detail="관리자 권한이 필요합니다.")
     return user
 
@@ -180,12 +176,37 @@ def require_admin(request: Request) -> dict:
 
 @app.post("/auth/register")
 async def register(req: RegisterRequest):
-    """회원가입"""
-    from src.auth.user_db import register as db_register
+    """회원가입 — GW 로그인 검증 후 등록"""
+    import asyncio
+    from src.auth.user_db import register as db_register, get_user
+    from src.auth.login import validate_gw_credentials, gw_error_to_user_message
 
     if not req.gw_id or not req.gw_pw or not req.name:
         raise HTTPException(status_code=400, detail="아이디, 비밀번호, 이름은 필수입니다.")
 
+    # 중복 체크 (비싼 GW 검증 전에 먼저 확인)
+    if get_user(req.gw_id):
+        raise HTTPException(status_code=409, detail="이미 등록된 아이디입니다.")
+
+    # GW 로그인 검증 (Playwright, ~10-15초)
+    try:
+        gw_result = await asyncio.wait_for(
+            asyncio.to_thread(validate_gw_credentials, req.gw_id, req.gw_pw),
+            timeout=90,
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="GW 서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
+    except Exception as e:
+        logger.error(f"GW 자격증명 검증 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=502, detail="GW 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.")
+
+    if not gw_result.get("valid"):
+        raise HTTPException(
+            status_code=400,
+            detail=gw_error_to_user_message(gw_result.get("error", "")),
+        )
+
+    # GW 검증 통과 → DB 저장
     result = db_register(
         gw_id=req.gw_id,
         gw_pw=req.gw_pw,
@@ -266,7 +287,7 @@ async def get_me(request: Request):
         "position": user.get("position"),
         "emp_seq": user.get("emp_seq"),
         "dept_seq": user.get("dept_seq"),
-        "is_admin": bool(ADMIN_GW_ID and user["gw_id"] == ADMIN_GW_ID),
+        "is_admin": bool(user.get("is_admin")),
     }
     resp = JSONResponse({"user": safe_user})
     # CSRF 쿠키가 없으면 재설정 (이전 세션에서 로그인한 경우 대비)
@@ -313,8 +334,6 @@ async def admin_list_users(request: Request):
     require_admin(request)
     from src.auth.user_db import list_users
     users = list_users()
-    for u in users:
-        u["is_admin"] = bool(ADMIN_GW_ID and u.get("gw_id") == ADMIN_GW_ID)
     return JSONResponse({"users": users})
 
 
@@ -354,6 +373,26 @@ async def admin_update_user_profile(gw_id: str, req: ProfileUpdateRequest, reque
     return JSONResponse({"message": result["message"]})
 
 
+@app.put("/admin/users/{gw_id}/role")
+async def admin_toggle_role(gw_id: str, request: Request):
+    """관리자 권한 부여/해제 (관리자 전용). 본인 권한 해제 불가."""
+    admin = require_admin(request)
+    if gw_id == admin["gw_id"]:
+        raise HTTPException(status_code=400, detail="본인의 관리자 권한은 변경할 수 없습니다.")
+
+    from src.auth.user_db import get_user, set_admin
+    target = get_user(gw_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
+
+    new_admin_status = not bool(target.get("is_admin"))
+    result = set_admin(gw_id, new_admin_status)
+    if not result["success"]:
+        raise HTTPException(status_code=500, detail=result["message"])
+
+    return JSONResponse({"message": result["message"], "is_admin": new_admin_status})
+
+
 @app.get("/admin/unsupported-requests")
 async def admin_list_unsupported(request: Request):
     """미지원 요청 목록 (관리자 전용)"""
@@ -374,67 +413,97 @@ async def admin_delete_unsupported(request_id: int, request: Request):
     return JSONResponse({"message": "삭제 완료"})
 
 
-@app.get("/admin/ngrok-traffic")
-async def admin_ngrok_traffic(request: Request):
-    """ngrok 트래픽 현황 조회 (관리자 전용)"""
+@app.post("/admin/users/{gw_id}/validate")
+async def admin_validate_user(gw_id: str, request: Request):
+    """개별 유저 GW 자격증명 검증 (관리자 전용)"""
+    import asyncio
     require_admin(request)
-    import httpx as _httpx
-    ngrok_base = "http://localhost:4040"
+
+    from src.auth.user_db import get_user, get_decrypted_password
+    from src.auth.login import validate_gw_credentials
+
+    user = get_user(gw_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
+
+    password = get_decrypted_password(gw_id)
+    if not password:
+        return JSONResponse({"gw_id": gw_id, "valid": False, "error": "비밀번호 복호화 실패"})
+
     try:
-        async with _httpx.AsyncClient(timeout=3.0) as client:
-            tunnels_res = await client.get(f"{ngrok_base}/api/tunnels")
-            requests_res = await client.get(f"{ngrok_base}/api/requests/http?limit=100")
-        tunnels = tunnels_res.json().get("tunnels", [])
-        reqs = requests_res.json().get("requests", [])
-
-        # 요청 목록 정리
-        req_list = []
-        total_bytes = 0
-        for r in reqs:
-            resp = r.get("response", {})
-            req_obj = r.get("request", {})
-            status = resp.get("status_code", 0)
-            resp_headers = resp.get("headers", {})
-            content_len = 0
-            for k, v in resp_headers.items():
-                if k.lower() == "content-length":
-                    try:
-                        content_len = int(v[0]) if isinstance(v, list) else int(v)
-                    except Exception:
-                        pass
-            total_bytes += content_len
-            req_list.append({
-                "id": r.get("id"),
-                "start": r.get("start"),
-                "method": req_obj.get("method", "-"),
-                "uri": req_obj.get("uri", "-"),
-                "status": status,
-                "duration_ms": round(r.get("duration", 0) / 1_000_000, 1),
-                "remote_addr": r.get("remote_addr", "-"),
-                "bytes": content_len,
-            })
-
-        # 터널 요약
-        tunnel_info = []
-        for t in tunnels:
-            m = t.get("metrics", {})
-            tunnel_info.append({
-                "name": t.get("name"),
-                "public_url": t.get("public_url"),
-                "proto": t.get("proto"),
-                "addr": t.get("config", {}).get("addr"),
-                "conn_count": m.get("conns", {}).get("count", 0),
-                "http_count": m.get("http", {}).get("count", 0),
-            })
-
-        return JSONResponse({
-            "tunnels": tunnel_info,
-            "requests": req_list,
-            "total_requests": len(req_list),
-            "total_bytes": total_bytes,
-        })
+        result = await asyncio.wait_for(
+            asyncio.to_thread(validate_gw_credentials, gw_id, password),
+            timeout=90,
+        )
+    except asyncio.TimeoutError:
+        return JSONResponse({"gw_id": gw_id, "valid": False, "error": "GW 응답 시간 초과 (90초)"})
     except Exception as e:
-        return JSONResponse({"error": str(e), "tunnels": [], "requests": [], "total_requests": 0, "total_bytes": 0})
+        logger.error("GW 검증 오류 (%s): %s", gw_id, e, exc_info=True)
+        return JSONResponse({"gw_id": gw_id, "valid": False, "error": f"검증 오류: {e}"})
+
+    return JSONResponse({"gw_id": gw_id, "valid": result.get("valid", False), "error": result.get("error")})
+
+
+@app.post("/admin/validate-all")
+async def admin_validate_all_users(request: Request):
+    """전체 유저 GW 자격증명 일괄 검증 — SSE 스트리밍 (관리자 전용)"""
+    import asyncio
+    require_admin(request)
+
+    from starlette.responses import StreamingResponse
+
+    async def _stream():
+        from src.auth.user_db import list_users, get_decrypted_password
+        from src.auth.login import validate_gw_credentials
+
+        users = list_users()
+        counts = {"total": len(users), "valid": 0, "invalid": 0, "error": 0, "skipped": 0}
+
+        for u in users:
+            gw_id = u["gw_id"]
+            name = u.get("name", "")
+
+            # 관리자 건너뛰기
+            if u.get("is_admin"):
+                counts["skipped"] += 1
+                yield f"data: {json.dumps({'gw_id': gw_id, 'name': name, 'status': 'skipped', 'error': None}, ensure_ascii=False)}\n\n"
+                continue
+
+            # 비밀번호 복호화
+            password = get_decrypted_password(gw_id)
+            if not password:
+                counts["error"] += 1
+                yield f"data: {json.dumps({'gw_id': gw_id, 'name': name, 'status': 'error', 'error': '비밀번호 복호화 실패'}, ensure_ascii=False)}\n\n"
+                continue
+
+            # GW 검증
+            try:
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(validate_gw_credentials, gw_id, password),
+                    timeout=90,
+                )
+                if result.get("valid"):
+                    counts["valid"] += 1
+                    status = "valid"
+                else:
+                    counts["invalid"] += 1
+                    status = "invalid"
+                yield f"data: {json.dumps({'gw_id': gw_id, 'name': name, 'status': status, 'error': result.get('error')}, ensure_ascii=False)}\n\n"
+            except asyncio.TimeoutError:
+                counts["error"] += 1
+                yield f"data: {json.dumps({'gw_id': gw_id, 'name': name, 'status': 'error', 'error': 'GW 응답 시간 초과'}, ensure_ascii=False)}\n\n"
+            except Exception as e:
+                counts["error"] += 1
+                logger.error("GW 일괄검증 오류 (%s): %s", gw_id, e)
+                yield f"data: {json.dumps({'gw_id': gw_id, 'name': name, 'status': 'error', 'error': str(e)}, ensure_ascii=False)}\n\n"
+
+            # 다음 검증까지 3초 대기 (GW 서버 부하 방지)
+            await asyncio.sleep(3)
+
+        # 요약 이벤트
+        yield f"data: {json.dumps({'type': 'summary', **counts}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(_stream(), media_type="text/event-stream")
 
 
 @app.get("/admin")

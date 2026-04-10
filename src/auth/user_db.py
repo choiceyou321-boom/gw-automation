@@ -4,11 +4,13 @@
 - GW 비밀번호는 Fernet 대칭 암호화 (Playwright 로그인에 복호화 필요)
 - approval_config: 사용자별 결재선 설정 (JSON)
 """
+from __future__ import annotations
 
 import os
 import json
 import sqlite3
 import logging
+import threading
 from pathlib import Path
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
@@ -38,6 +40,7 @@ def _get_fernet() -> Fernet:
 
 
 _db_initialized = False
+_db_init_lock = threading.Lock()
 
 
 def _get_db() -> sqlite3.Connection:
@@ -49,26 +52,39 @@ def _get_db() -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL")
 
     if not _db_initialized:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                gw_id TEXT PRIMARY KEY,
-                gw_pw_encrypted TEXT NOT NULL,
-                name TEXT NOT NULL,
-                position TEXT DEFAULT '',
-                emp_seq TEXT DEFAULT '',
-                dept_seq TEXT DEFAULT '',
-                email_addr TEXT DEFAULT '',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        # 기존 테이블에 approval_config 컬럼 추가 (없으면 추가, 있으면 무시)
-        try:
-            conn.execute("ALTER TABLE users ADD COLUMN approval_config TEXT DEFAULT ''")
-        except sqlite3.OperationalError as e:
-            if "duplicate column" not in str(e):
-                raise
-        conn.commit()
-        _db_initialized = True
+        with _db_init_lock:
+            if not _db_initialized:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        gw_id TEXT PRIMARY KEY,
+                        gw_pw_encrypted TEXT NOT NULL,
+                        name TEXT NOT NULL,
+                        position TEXT DEFAULT '',
+                        emp_seq TEXT DEFAULT '',
+                        dept_seq TEXT DEFAULT '',
+                        email_addr TEXT DEFAULT '',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+                # 기존 테이블에 컬럼 추가 (없으면 추가, 있으면 무시)
+                for col_sql in [
+                    "ALTER TABLE users ADD COLUMN approval_config TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0",
+                ]:
+                    try:
+                        conn.execute(col_sql)
+                    except sqlite3.OperationalError as e:
+                        if "duplicate column" not in str(e):
+                            raise
+                # ADMIN_GW_ID 환경변수 → 최초 관리자 자동 설정
+                admin_gw_id = os.getenv("ADMIN_GW_ID", "")
+                if admin_gw_id:
+                    conn.execute(
+                        "UPDATE users SET is_admin = 1 WHERE gw_id = ? AND is_admin = 0",
+                        (admin_gw_id,),
+                    )
+                conn.commit()
+                _db_initialized = True
 
     return conn
 
@@ -143,7 +159,7 @@ def get_user(gw_id: str) -> dict | None:
     conn = _get_db()
     try:
         row = conn.execute(
-            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr, approval_config FROM users WHERE gw_id = ?",
+            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr, approval_config, is_admin FROM users WHERE gw_id = ?",
             (gw_id,),
         ).fetchone()
         if not row:
@@ -198,7 +214,7 @@ def list_users() -> list[dict]:
     conn = _get_db()
     try:
         rows = conn.execute(
-            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr, created_at FROM users ORDER BY created_at"
+            "SELECT gw_id, name, position, emp_seq, dept_seq, email_addr, is_admin, created_at FROM users ORDER BY created_at"
         ).fetchall()
         return [dict(row) for row in rows]
     finally:
@@ -264,6 +280,31 @@ def set_approval_config(gw_id: str, config: dict) -> dict:
         conn.commit()
         logger.info(f"결재선 설정 저장: {gw_id} → {config}")
         return {"success": True, "message": "결재선 설정이 저장되었습니다."}
+    finally:
+        conn.close()
+
+
+def set_admin(gw_id: str, is_admin: bool) -> dict:
+    """
+    관리자 권한 부여/해제.
+    반환: {"success": bool, "message": str}
+    """
+    conn = _get_db()
+    try:
+        existing = conn.execute(
+            "SELECT gw_id FROM users WHERE gw_id = ?", (gw_id,)
+        ).fetchone()
+        if not existing:
+            return {"success": False, "message": "존재하지 않는 사용자입니다."}
+
+        conn.execute(
+            "UPDATE users SET is_admin = ? WHERE gw_id = ?",
+            (1 if is_admin else 0, gw_id),
+        )
+        conn.commit()
+        action = "부여" if is_admin else "해제"
+        logger.info(f"관리자 권한 {action}: {gw_id}")
+        return {"success": True, "message": f"'{gw_id}' 관리자 권한이 {action}되었습니다."}
     finally:
         conn.close()
 

@@ -1,6 +1,6 @@
 # GW 자동화 프로젝트 — 작업 목록
 
-> 마지막 업데이트: 2026-04-04 (세션 XL 텔레그램 봇 통합 + YouTube Gemini 분석 + 프로젝트 일정표 + 노션 GS 업무 관리 페이지)
+> 마지막 업데이트: 2026-04-10 (세션 XLV 공종 마스터 DB화 + 선급금 E2E verify PASS + bank picker GW 검증 완료)
 > 프로젝트: 글로우서울 그룹웨어(더존 Amaranth10/WEHAGO) 업무 자동화
 
 ---
@@ -45,7 +45,7 @@
 | 13 | **용도코드 자동팝업 처리 순서 수정** | :white_check_mark: | 03-25 | step 10-A 신규: Enter 후 즉시 팝업 처리 → step 10-1(지급요청일) 순서 확립 |
 | 14 | **기결재 문서 수신참조 추가 자동화** | :white_check_mark: | 03-26 | `cc_manager.py` 신규: `add_cc_to_document()` / `batch_add_cc()` / `add_cc_by_title()` — docID 또는 제목 키워드 검색 양방향 지원 · RealGrid canvas checkRow + React fiber onClick 패턴 확립 |
 | 8 | 전자결재 위저드 (챗봇 단계별 질문) | :white_check_mark: | 03-09 | approval_wizard.py |
-| 9 | 선급금요청 양식 (code_ready) | :construction: | — | formId 181, 코드 작성 완료 → GW DOM 검증 필요 |
+| 9 | 선급금요청 양식 (code_ready) | :construction: | — | formId 181, 코드 작성 완료. 세션 XLV: tgjeon 계정 verify PASS (결재작성 경로, bank picker 동작 확인). draft는 OBTAlert 오버레이 차단 → dismiss+force click 추가 |
 | 10 | 연장근무 양식 (code_ready) | :construction: | — | formId 43, `_save_overtime_draft()` 구현 완료 → GW DOM 검증 필요 |
 | 11 | 외근신청 양식 (code_ready) | :construction: | — | formId 41, `_save_outside_work_draft()` 구현 완료 → GW DOM 검증 필요 |
 | 12 | **좌표 의존 코드 제거 (13건→폴백 유지)** | :white_check_mark: | 03-22 | JS click/OBTDataGrid API 우선 → 좌표 폴백 유지 (expense 7건, grid 5건, budget 1건) |
@@ -82,7 +82,41 @@
 | 10 | **DB 스키마 확장 (세션 XXVIII)** | :white_check_mark: | 03-27 | gw_projects_cache +7컬럼, project_overview +9컬럼, payment_history +4컬럼, 신규 테이블 6개 (gw_tax_invoices, gw_budget_changes, gw_collection_schedule, gw_payment_approvals, project_risk_log, gw_contracts) |
 | 11 | **project_crawler.py 확장 필드 수집** | :white_check_mark: | 03-27 | PM/소장/팀장/부서/계약금액/발주처연락처/진행률 — JS 추출 + React fiber 매핑 확장 |
 
-### 1-6. STT 음성 인식 :white_check_mark:
+### 1-6. 인테리어 시공 공정표 자동 생성 :white_check_mark:
+
+| # | 작업 | 상태 | 완료일 | 비고 |
+|---|------|------|--------|------|
+| 1 | 공종 마스터 데이터 구축 (9그룹·45공종) | :white_check_mark: | 04-08 | `process_map_master.py` — Process_Map.xlsx 교육자료 기반 |
+| 2 | CPM Forward Pass 역산 엔진 | :white_check_mark: | 04-08 | `schedule_generator.py` — 면적 보정, 선행공종 기반 자동 배치, 비례 스케일링 |
+| 3 | 엑셀/PDF 출력 (2시트 간트차트+리스트) | :white_check_mark: | 04-08 | `schedule_export.py` — LibreOffice PDF 변환 |
+| 4 | 내역서 자동 파싱 (별칭+유사도 매칭) | :white_check_mark: | 04-08 | `estimate_parser.py` — 공종 자동 추출 |
+| 5 | API 4개 (공종 조회/내역서 파싱/공정표 생성/내보내기) | :white_check_mark: | 04-08 | `routes.py`에 추가 |
+| 6 | /fund 일정표 탭 "공정표 자동생성" 버튼 + 모달 + 내보내기 드롭다운 | :white_check_mark: | 04-08 | fund.js/fund.html 통합 |
+
+### 1-7-a. 회원가입 GW 로그인 유효성 검사 :white_check_mark:
+
+| # | 작업 | 상태 | 완료일 | 비고 |
+|---|------|------|--------|------|
+| 1 | GW 자격 증명 검증 함수 (Playwright) | :white_check_mark: | 04-08 | `login.py` — `validate_gw_credentials()`, 90초 타임아웃 |
+| 2 | 웹 회원가입 GW 검증 적용 | :white_check_mark: | 04-08 | `app.py` — 실제 GW 로그인 시도 → 실패 시 가입 거부 |
+| 3 | 텔레그램 회원가입 GW 검증 적용 | :white_check_mark: | 04-08 | `telegram_bot.py` — `_register_with_gw_validation()` |
+| 4 | 동시 검증 제한 (세마포어 1개) | :white_check_mark: | 04-08 | 동시 Playwright 충돌 방지 |
+| 5 | 기존 유저 일괄 검증 CLI 스크립트 | :white_check_mark: | 04-08 | `scripts/validate_existing_users.py` |
+| 6 | 관리자 계정 보호 (삭제 방지) | :white_check_mark: | 04-08 | 관리자 계정은 검증 실패해도 삭제 불가 |
+| 7 | 신규 단위 테스트 11개 | :white_check_mark: | 04-08 | `tests/unit/test_gw_validation.py` |
+
+### 1-7-b. 관리자 페이지 GW 자격증명 검증 UI :white_check_mark:
+
+| # | 작업 | 상태 | 완료일 | 비고 |
+|---|------|------|--------|------|
+| 1 | 개별 유저 GW 검증 API | :white_check_mark: | 04-08 | `POST /admin/users/{gw_id}/validate` — 90초 타임아웃 |
+| 2 | 전체 유저 일괄 검증 SSE API | :white_check_mark: | 04-08 | `POST /admin/validate-all` — 관리자 스킵, 3초 간격 |
+| 3 | admin.html GW 검증 컬럼 + 버튼 | :white_check_mark: | 04-08 | 개별 검증 버튼, 결과 배지(✓/✗), 스피너 |
+| 4 | 전체 GW 검증 버튼 + 프로그레스 바 | :white_check_mark: | 04-08 | SSE 실시간 업데이트, 요약 토스트 |
+| 5 | 무효 유저 일괄 삭제 버튼 | :white_check_mark: | 04-08 | 검증 완료 후 무효 유저 있을 때만 표시 |
+| 6 | 기존 유저 GW 검증 실행 | :white_check_mark: | 04-08 | 유효 6명, 무효 1명(test 삭제), 건너뜀 2명 |
+
+### 1-8. STT 음성 인식 :white_check_mark:
 
 | # | 작업 | 상태 | 완료일 | 비고 |
 |---|------|------|--------|------|
@@ -91,7 +125,7 @@
 | 3 | 텔레그램 음성 메시지 자동 인식 | :white_check_mark: | 03-16 | voice/audio 핸들러 |
 | 4 | 시스템 프롬프트에 STT 안내 추가 | :white_check_mark: | 03-22 | prompts.py에 능동적 안내 규칙 3줄 추가 |
 
-### 1-7. 예실대비 (GW 예산관리) 분석 :construction:
+### 1-9. 예실대비 (GW 예산관리) 분석 :construction:
 
 | # | 작업 | 상태 | 완료일 | 비고 |
 |---|------|------|--------|------|
@@ -187,7 +221,7 @@
 | # | 작업 | 상태 | 선행 작업 | 설명 |
 |---|------|------|-----------|------|
 | 3 | 선급금요청 양식 자동화 | :construction: | — | formId 181. 코드 작성 완료, GW DOM 검증 필요 |
-| 4 | 연장근무 양식 자동화 | :clipboard: | — | formId 43. 근태관리 모듈, Phase 0 DOM 탐색 필수 |
+| 4 | 연장근무 양식 자동화 | :construction: | — | formId 43. _navigate_to_hr_attendance 3단계 폴백 전략 코드 완료. 세션 XLV: shyang(과장)도 UFA1010~1030 모두 "권한 없는 메뉴" 확인 → HR 권한 보유 계정 필요. |
 | 5 | 외근신청 양식 자동화 | :clipboard: | 연장근무 | formId 41. 연장근무 패턴 재사용 가능 |
 
 ### 낮은 우선순위 / 개선사항
@@ -237,6 +271,11 @@
 | XXXVIII | 04-02 | 타임라인 월 저장(DB+JS) + 이전 프로젝트 폴더 CSP 수정 + 대시보드 경고 카드 2종 + 수금률 진행바 + 연장근무/외근신청 양식 (code_ready) + 포트폴리오 수익성 그래프 + 계약/리스크 탭 신규 + 크롤링 버튼 + GW 신선도 배지 + 예산 변경이력 + 이체내역 공급가/세액 컬럼 + gw_projects_cache v2 연동. pytest 133/133 |
 | XL | 04-04 | Telegram 봇+챗봇 서버 통합(lifespan) + 프로젝트 공정 일정표 조회 + GW 개인일정 조회 + YouTube Gemini 분석(yt-dlp+Gemini) + CLAUDE.md 최신화 + 노션 GS 업무 관리 페이지 신규 + 일과나 2 활용가이드/루틴 추가 |
 | XXXVI | 03-30 | 지출결의서 OBTAlert 디버깅: JS dismiss 작동 확인, 버튼 우선순위 취소>확인 변경, project input fill+Tab blur 구현, cascade OBTAlert loop 10회. 발견: invoice modal 내 "매칭된 없음" OBTAlert가 project input 차단, dataProvider가 invoice modal grid 대신 expense form grid 읽음. base.py: wait_for_selector(detached) 추가, 버튼 우선순위 변경. expense.py: OBTAlert 대기 최대 3초, cascade loop 10회, fill+Tab blur. |
+| XLI | 04-08 | 인테리어 시공 공정표 자동생성 (9그룹·45공종 마스터+CPM 역산+엑셀/PDF 출력+내역서 파싱+API 4개+/fund 모달) + 회원가입 GW 로그인 유효성 검사 (Playwright 실시도+세마포어+일괄검증 CLI+11 테스트) + 코드 리뷰 2회 (CRITICAL 3+BUG 6+MEDIUM 8 수정). pytest 145/145 |
+| XLII | 04-08 | 관리자 페이지 GW 자격증명 검증 UI (개별/전체 SSE API + 검증 버튼/배지/프로그레스/무효유저 삭제) + 기존 유저 GW 검증 실행 (유효6/무효1 삭제/건너뜀2) + 공정표 실제 테스트 (API 4개 호출, Excel 2시트 정상) + 근태관리 모듈 DOM 분석 (specialLnb 비표준 렌더링 발견). pytest 163/163 |
+| XLIII | 04-08 | 근태관리 UFA URL 권한 없음 최종 확인 (UFA1010~UFA1060 전부 권한 없음, tgjeon 계정 기준) + _navigate_to_hr_attendance 3단계 폴백 전략 재작성 (LNB force click → EA 결재작성 검색 → HP URL 직접) + unused parameter 수정 (_target_page_code) + DEVELOPER_GUIDE 업데이트. pytest 163/163 |
+| XLIV | 04-10 | **공정표 Full CPM 고도화** (Phase A 완료): ① 면적 보정 로그 연속 함수 (5단계 계단→math.log2, 경계 불연속 해소) ② Full CPM Forward+Backward Pass + Float + 임계경로(CP) 판별 ③ 가중 스케일링 (CP 공종 보호 1.05x, 비CP 축소 0.95x) ④ DAG 순환 검증 (Kahn's algorithm) ⑤ 간트차트/리스트 CP 빨간 표시 (★마커+테두리+CP/Float 컬럼) ⑥ 타임라인 뷰 CP 시각화 (빨간 테두리+shadow) + **선급금요청 bank picker 구현** (`_handle_bank_picker()` 신규, 금융기관코드도움 OBTDialog2 피커 처리, 예외 시 Escape 정리) + 코드 리뷰 (CRITICAL 1건 수정: picker 예외 후 세션 정리). pytest 180/180 |
+| XLV | 04-10 | **공정표 Phase B 공종 마스터 DB화**: `construction_trades`/`construction_presets` 테이블 + CRUD 6함수 + `seed_construction_trades_from_master()` 마이그레이션 (55공종+5프리셋) + routes.py API 6개 + schedule_generator.py DB 우선 조회 + fund.js/html/css 공종 편집 UI (커스텀 추가/삭제/프리셋 저장) + 13 unit test. **선급금 E2E (tgjeon)**: verify ✅ PASS (결재작성 경로, bank picker 동작 확인 52건), draft ❌ (결재상신 OBTAlert 차단 → dismiss + force click 코드 추가). **근태관리 E2E (shyang)**: 권한/DOM 검증 스크립트 작성. **merge conflict 해결**: tools_schema.py + app.py. pytest 193/193 PASS (신규 13개) |
 
 ---
 
@@ -364,16 +403,17 @@
 
 | 항목 | 수치 |
 |------|------|
-| 총 완료 작업 | **95개** (+21 세션 XXXVIII) |
-| 진행 중 | **3개** (GW 프로젝트 목록 크롤링, 선급금요청 DOM 검증, 연장근무/외근신청 DOM 검증) |
+| 총 완료 작업 | **116개** (+2 세션 XLIV: 공정표 Phase A + bank picker) |
+| 진행 중 | **3개** (GW 프로젝트 목록 크롤링, 선급금요청 E2E 검증, 연장근무/외근신청 DOM 검증) |
 | 미착수 | **3개** (수금예정일 배지, 세금계산서 연결, 자금집행 승인 현황 — GW 크롤러 검증 후) |
-| 세션 수 | **34회** (03-01 ~ 04-02) |
-| 테스트 | **133개** (전체 PASS) |
+| 세션 수 | **37회** (03-01 ~ 04-10) |
+| 테스트 | **180개** (전체 PASS) |
 | 챗봇 도구 | **22개** |
 | 전자결재 양식 | verified 2개 / code_ready 3개 |
-| 코드 리뷰 수정 | **26건** (보안 19 + 품질 7) |
+| 코드 리뷰 수정 | **44건** (기존 43 + 세션 XLIV 1: picker 예외 세션 정리) |
 | 크롤러 | **8종** (기존 3 + 세션 XXXV 5 신규) |
 | /fund 탭 | **9개** (대시보드/개요/수금/하도급/예산&지급/이체내역/일정표/계약/리스크) |
+| 공정표 모듈 | **Phase A 완료** (마스터 45공종 + Full CPM + Float/CP + DAG 검증 + 엑셀/PDF + 내역서 파서 + API 4개) |
 
 ---
 

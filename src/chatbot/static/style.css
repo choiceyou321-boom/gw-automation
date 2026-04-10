@@ -855,6 +855,26 @@ body {
   color: white;
 }
 
+.guide-link {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  line-height: 1.5;
+}
+.guide-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(124, 92, 252, 0.1);
+}
+
 .logout-btn {
   padding: 5px 12px;
   background: transparent;
@@ -886,73 +906,6 @@ body {
 .chat-history::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 2px;
-}
-
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.history-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-  gap: 8px;
-  border: 1px solid transparent;
-}
-
-.history-item:hover {
-  background: var(--bg-hover);
-}
-
-.history-item.active {
-  background: var(--accent-light);
-  border-color: rgba(124, 106, 247, 0.3);
-}
-
-.history-title {
-  flex: 1;
-  font-size: 13px;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.history-item.active .history-title {
-  color: var(--text-primary);
-}
-
-.history-time {
-  font-size: 11px;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.history-delete {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  opacity: 0;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.history-item:hover .history-delete {
-  opacity: 1;
-}
-
-.history-delete:hover {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.15);
 }
 
 /* 모바일 인증 */

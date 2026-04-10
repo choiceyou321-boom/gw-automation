@@ -418,10 +418,19 @@ class ContractWizard:
                 out_path = str(pathlib.Path(OUTPUT_DIR) / fname)
                 generate_construction_contract(d, out_path)
 
+            # 다운로드 토큰 발급 (소유권 추적)
+            try:
+                from src.chatbot._download_registry import register as register_download
+                gw_id = self.user_context.get("gw_id", "")
+                token = register_download(out_path, gw_id)
+                download_url = f"/download/{token}"
+            except Exception:
+                download_url = f"/download/{fname}"
+
             return (
                 f"✅ 계약서가 생성되었습니다!\n\n"
                 f"📥 아래 링크를 클릭해서 다운로드하세요:\n\n"
-                f"[📄 {fname}](/download/{fname})\n\n"
+                f"[📄 {fname}]({download_url})\n\n"
                 f"파일을 열어 내용을 확인하고, 날인 후 보관해주세요.",
                 True,
             )

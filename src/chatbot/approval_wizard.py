@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import re
 import logging
-import concurrent.futures
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +125,6 @@ class ApprovalWizard:
         self._form_key: str = ""                   # "expense" | "vendor"
         self._step: str = "form_select"            # 현재 단계
         self._search_results: list = []            # 임시 프로젝트 검색 결과
-        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
     # ── 공개 메서드 ──────────────────────────────────────────────────────────
 

@@ -3,6 +3,7 @@
 - 프로젝트별 관리표, 하도급상세, 연락처, 공종 관리
 - GW 스크래핑 데이터 저장 (이체완료 내역, 예실대비현황)
 """
+from __future__ import annotations
 
 import json
 import sqlite3
@@ -310,6 +311,26 @@ def _create_tables(conn: sqlite3.Connection):
     except sqlite3.OperationalError:
         conn.execute("ALTER TABLE projects ADD COLUMN project_code TEXT DEFAULT ''")
         conn.commit()
+    # is_archived: 이전 프로젝트 보관 여부
+    try:
+        conn.execute("SELECT is_archived FROM projects LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("ALTER TABLE projects ADD COLUMN is_archived INTEGER DEFAULT 0")
+        conn.commit()
+    # timeline_start_month / timeline_end_month: 타임라인 표시 범위 (YYYY-MM)
+    for col in ("timeline_start_month", "timeline_end_month"):
+        try:
+            conn.execute(f"SELECT {col} FROM projects LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE projects ADD COLUMN {col} TEXT DEFAULT ''")
+            conn.commit()
+
+    # subcontracts 테이블에 changed_contract_amount 컬럼 추가 (변경계약금액)
+    try:
+        conn.execute("SELECT changed_contract_amount FROM subcontracts LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("ALTER TABLE subcontracts ADD COLUMN changed_contract_amount INTEGER DEFAULT 0")
+        conn.commit()
 
     # contacts 테이블에 note, trade_id 컬럼 추가
     try:
@@ -322,6 +343,264 @@ def _create_tables(conn: sqlite3.Connection):
     except sqlite3.OperationalError:
         conn.execute("ALTER TABLE contacts ADD COLUMN trade_id INTEGER")
         conn.commit()
+
+    # ── 2026-03-27 마이그레이션: gw_projects_cache 확장 ──────────────────
+    for col_def in [
+        ("manager",        "TEXT DEFAULT ''"),
+        ("client",         "TEXT DEFAULT ''"),
+        ("department",     "TEXT DEFAULT ''"),
+        ("project_type",   "TEXT DEFAULT ''"),
+        ("status",         "TEXT DEFAULT ''"),
+        ("contract_amount","INTEGER DEFAULT 0"),
+        ("progress_rate",  "REAL DEFAULT 0"),
+    ]:
+        try:
+            conn.execute(f"SELECT {col_def[0]} FROM gw_projects_cache LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE gw_projects_cache ADD COLUMN {col_def[0]} {col_def[1]}")
+            conn.commit()
+
+    # ── 2026-03-27 마이그레이션: project_overview 확장 ──────────────────
+    for col_def in [
+        ("client",              "TEXT DEFAULT ''"),
+        ("client_contact",      "TEXT DEFAULT ''"),
+        ("client_phone",        "TEXT DEFAULT ''"),
+        ("pm_name",             "TEXT DEFAULT ''"),
+        ("site_manager",        "TEXT DEFAULT ''"),
+        ("design_manager",      "TEXT DEFAULT ''"),
+        ("gw_status",           "TEXT DEFAULT ''"),
+        ("gw_project_type",     "TEXT DEFAULT ''"),
+        ("gw_last_synced",      "TEXT DEFAULT ''"),
+    ]:
+        try:
+            conn.execute(f"SELECT {col_def[0]} FROM project_overview LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE project_overview ADD COLUMN {col_def[0]} {col_def[1]}")
+            conn.commit()
+
+    # ── 2026-03-27 마이그레이션: payment_history 확장 ──────────────────
+    for col_def in [
+        ("supply_amount",    "INTEGER DEFAULT 0"),
+        ("tax_amount",       "INTEGER DEFAULT 0"),
+        ("payment_type",     "TEXT DEFAULT ''"),
+        ("trade_id",         "INTEGER"),
+        ("gw_project_code",  "TEXT DEFAULT ''"),  # GW 사업코드 기반 매칭용 (2026-03-30)
+    ]:
+        try:
+            conn.execute(f"SELECT {col_def[0]} FROM payment_history LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE payment_history ADD COLUMN {col_def[0]} {col_def[1]}")
+            conn.commit()
+
+    # ── 2026-03-27 신규 테이블: 세금계산서, 예산변경이력, 수금예정, 리스크 ──
+    conn.executescript("""
+        -- 세금계산서 발행 내역 (GW 수금 모듈)
+        CREATE TABLE IF NOT EXISTS gw_tax_invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            issue_date TEXT DEFAULT '',
+            invoice_number TEXT DEFAULT '',
+            vendor_name TEXT DEFAULT '',
+            vendor_biz_number TEXT DEFAULT '',
+            supply_amount INTEGER DEFAULT 0,
+            tax_amount INTEGER DEFAULT 0,
+            total_amount INTEGER DEFAULT 0,
+            invoice_type TEXT DEFAULT '',
+            status TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            project_name TEXT DEFAULT '',
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        );
+
+        -- 예산 변경 이력 (BM 모듈 → 예산변경/전용 내역)
+        CREATE TABLE IF NOT EXISTS gw_budget_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            change_date TEXT DEFAULT '',
+            budget_code TEXT DEFAULT '',
+            budget_name TEXT DEFAULT '',
+            before_amount INTEGER DEFAULT 0,
+            change_amount INTEGER DEFAULT 0,
+            after_amount INTEGER DEFAULT 0,
+            change_type TEXT DEFAULT '',
+            reason TEXT DEFAULT '',
+            approver TEXT DEFAULT '',
+            approval_date TEXT DEFAULT '',
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        );
+
+        -- 수금 예정 내역 (GW 수금 모듈 → 수금예정 목록)
+        CREATE TABLE IF NOT EXISTS gw_collection_schedule (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            scheduled_date TEXT DEFAULT '',
+            category TEXT DEFAULT '',
+            stage TEXT DEFAULT '',
+            expected_amount INTEGER DEFAULT 0,
+            collected_amount INTEGER DEFAULT 0,
+            status TEXT DEFAULT '',
+            invoice_number TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        );
+
+        -- 자금집행 승인 현황 (GW 자금 모듈 → 집행승인 대기/완료)
+        CREATE TABLE IF NOT EXISTS gw_payment_approvals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            request_date TEXT DEFAULT '',
+            approval_date TEXT DEFAULT '',
+            vendor_name TEXT DEFAULT '',
+            amount INTEGER DEFAULT 0,
+            supply_amount INTEGER DEFAULT 0,
+            tax_amount INTEGER DEFAULT 0,
+            fund_category TEXT DEFAULT '',
+            budget_code TEXT DEFAULT '',
+            status TEXT DEFAULT '',
+            requester TEXT DEFAULT '',
+            approver TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        );
+
+        -- 프로젝트 리스크 이력 (수동 입력 + AI 감지)
+        CREATE TABLE IF NOT EXISTS project_risk_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER NOT NULL,
+            risk_date TEXT DEFAULT '',
+            risk_type TEXT DEFAULT '',
+            severity TEXT DEFAULT 'medium',
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            impact TEXT DEFAULT '',
+            mitigation TEXT DEFAULT '',
+            resolved_date TEXT DEFAULT '',
+            status TEXT DEFAULT 'open',
+            created_by TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        );
+
+        -- 프로젝트 공정 일정 항목 (간트 차트용 자유형식)
+        CREATE TABLE IF NOT EXISTS project_schedule_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER NOT NULL,
+            item_name TEXT NOT NULL DEFAULT '',
+            start_date TEXT DEFAULT '',
+            end_date TEXT DEFAULT '',
+            status TEXT DEFAULT 'planned',
+            color TEXT DEFAULT '#3b82f6',
+            notes TEXT DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        );
+
+        -- 공종 마스터 (공정표 자동생성용, 전체 공사 유형 공유)
+        CREATE TABLE IF NOT EXISTS construction_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            group_name TEXT NOT NULL,
+            group_color TEXT DEFAULT '#6b7280',
+            name TEXT NOT NULL UNIQUE,
+            item_type TEXT DEFAULT 'bar',
+            default_days INTEGER DEFAULT 0,
+            predecessors TEXT DEFAULT '[]',
+            steps TEXT DEFAULT '[]',
+            sort_order INTEGER DEFAULT 0,
+            is_custom INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- 공사 유형별 프리셋 (오피스, 상업시설, 병원, 식음, 주거 등)
+        CREATE TABLE IF NOT EXISTS construction_presets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            preset_name TEXT NOT NULL UNIQUE,
+            trade_names TEXT DEFAULT '[]',
+            is_custom INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- GW 계약 현황 (계약 등록 모듈)
+        CREATE TABLE IF NOT EXISTS gw_contracts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            contract_number TEXT DEFAULT '',
+            contract_date TEXT DEFAULT '',
+            contract_type TEXT DEFAULT '',
+            vendor_name TEXT DEFAULT '',
+            vendor_biz_number TEXT DEFAULT '',
+            contract_amount INTEGER DEFAULT 0,
+            supply_amount INTEGER DEFAULT 0,
+            tax_amount INTEGER DEFAULT 0,
+            start_date TEXT DEFAULT '',
+            end_date TEXT DEFAULT '',
+            status TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        );
+    """)
+
+    # ── 2026-03-27 마이그레이션: budget_actual 확장 (GW 예실데이터 전용 필드) ──
+    for col_def in [
+        ("gw_project_code", "TEXT DEFAULT ''"),   # GW 프로젝트 코드 (GS-25-0088)
+        ("gisu",            "INTEGER DEFAULT 0"),  # 기수 (회계연도)
+        ("def_nm",          "TEXT DEFAULT ''"),    # 구분명 (장/관/항/목)
+        ("div_fg",          "INTEGER DEFAULT 0"),  # 구분 플래그 (1:장 2:관 3:항 4:목)
+        ("is_leaf",         "INTEGER DEFAULT 0"),  # 말단 항목 여부
+    ]:
+        try:
+            conn.execute(f"SELECT {col_def[0]} FROM budget_actual LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE budget_actual ADD COLUMN {col_def[0]} {col_def[1]}")
+            conn.commit()
+
+    conn.commit()
+
+    # ── project_schedule_items 신규 컬럼 마이그레이션 ─────────────────────
+    for col, typedef in [
+        ("group_name", "TEXT DEFAULT ''"),
+        ("subtitle",   "TEXT DEFAULT ''"),
+        ("item_type",  "TEXT DEFAULT 'bar'"),
+        ("bar_color",  "TEXT DEFAULT ''"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE project_schedule_items ADD COLUMN {col} {typedef}")
+            conn.commit()
+        except Exception:
+            pass  # 이미 존재
+
+    # ── 성능 인덱스 (없으면 생성) ──────────────────────────────────────────
+    conn.executescript("""
+        CREATE INDEX IF NOT EXISTS idx_budget_actual_project
+            ON budget_actual(project_id, gisu);
+        CREATE INDEX IF NOT EXISTS idx_budget_actual_gw_code
+            ON budget_actual(gw_project_code, gisu);
+        CREATE INDEX IF NOT EXISTS idx_payment_history_project
+            ON payment_history(project_id, confirmed_date);
+        CREATE INDEX IF NOT EXISTS idx_payment_history_gw_code
+            ON payment_history(gw_project_code);
+        CREATE INDEX IF NOT EXISTS idx_todos_project
+            ON project_todos(project_id, completed);
+        CREATE INDEX IF NOT EXISTS idx_subcontracts_project
+            ON subcontracts(project_id);
+        CREATE INDEX IF NOT EXISTS idx_collections_project
+            ON collections(project_id);
+        CREATE INDEX IF NOT EXISTS idx_gcs_project
+            ON gw_collection_schedule(project_id, scheduled_date);
+        CREATE INDEX IF NOT EXISTS idx_gw_tax_invoices_project
+            ON gw_tax_invoices(project_id);
+        CREATE INDEX IF NOT EXISTS idx_gw_contracts_project
+            ON gw_contracts(project_id);
+        CREATE INDEX IF NOT EXISTS idx_notifications_project
+            ON project_notifications(project_id, created_at);
+    """)
+    conn.commit()
 
 
 # ─────────────────────────────────────────
@@ -403,7 +682,8 @@ def update_project(project_id: int, **kwargs) -> dict:
     allowed = [
         "name", "description", "design_amount", "construction_amount",
         "execution_budget", "profit_amount", "profit_rate", "status",
-        "grade", "sort_order", "project_code"
+        "grade", "sort_order", "project_code",
+        "timeline_start_month", "timeline_end_month",
     ]
     updates = {k: v for k, v in kwargs.items() if k in allowed and v is not None}
     if not updates:
@@ -439,12 +719,9 @@ def reorder_projects(order: list[dict]) -> dict:
     """프로젝트 순서 일괄 업데이트"""
     conn = get_db()
     try:
-        for i, item in enumerate(order):
-            conn.execute(
-                "UPDATE projects SET sort_order = ? WHERE id = ?",
-                (i, item["id"])
-            )
-        conn.commit()
+        rows = [(i, item["id"]) for i, item in enumerate(order)]
+        with conn:
+            conn.executemany("UPDATE projects SET sort_order = ? WHERE id = ?", rows)
         return {"success": True, "message": f"{len(order)}개 프로젝트 순서 저장"}
     except Exception as e:
         logger.error("프로젝트 순서 저장 실패: %s", e)
@@ -578,7 +855,7 @@ def update_subcontract(sub_id: int, **kwargs) -> dict:
     allowed = [
         "company_name", "trade_id", "account_category",
         "has_estimate", "has_contract", "has_vendor_reg",
-        "estimate_amount", "contract_amount",
+        "estimate_amount", "contract_amount", "changed_contract_amount",
         "payment_1", "payment_2", "payment_3", "payment_4",
         "remaining_amount", "payment_rate",
         "payment_1_confirmed", "payment_2_confirmed",
@@ -684,21 +961,18 @@ def delete_contact(contact_id: int) -> dict:
 # ─────────────────────────────────────────
 
 def save_payment_history(records: list[dict], project_id: int = None) -> dict:
-    """이체완료 내역 일괄 저장"""
+    """이체완료 내역 일괄 저장 (원자적 트랜잭션 + 자동 중복 제거)"""
     conn = get_db()
     try:
         now = datetime.now().isoformat()
-        count = 0
+        rows = []
         for r in records:
-            conn.execute("""
-                INSERT INTO payment_history (
-                    project_id, accounting_unit, scheduled_date, confirmed_date,
-                    fund_category, vendor_code, vendor_name, business_number,
-                    bank_name, account_number, account_holder, description,
-                    amount, department, employee_name, project_name, scraped_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                project_id or r.get("project_id"),
+            pid = project_id or r.get("project_id")
+            gw_code = r.get("gw_project_code", "")
+            if not pid and gw_code:
+                pid = find_project_id_by_gw_code_conn(conn, gw_code)
+            rows.append((
+                pid,
                 r.get("accounting_unit", ""),
                 r.get("scheduled_date", ""),
                 r.get("confirmed_date", ""),
@@ -714,17 +988,81 @@ def save_payment_history(records: list[dict], project_id: int = None) -> dict:
                 r.get("department", ""),
                 r.get("employee_name", ""),
                 r.get("project_name", ""),
+                gw_code,
                 now,
             ))
-            count += 1
-        conn.commit()
-        return {"success": True, "message": f"이체내역 {count}건 저장 완료"}
+
+        with conn:
+            conn.executemany("""
+                INSERT INTO payment_history (
+                    project_id, accounting_unit, scheduled_date, confirmed_date,
+                    fund_category, vendor_code, vendor_name, business_number,
+                    bank_name, account_number, account_holder, description,
+                    amount, department, employee_name, project_name,
+                    gw_project_code, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, rows)
+
+        # 저장 후 자동 중복 제거
+        deleted = 0
+        if project_id:
+            deleted = _deduplicate_payment_history_conn(conn, project_id)
+        return {"success": True, "message": f"이체내역 {len(rows)}건 저장 완료 (중복 {deleted}건 제거)"}
     finally:
         conn.close()
 
 
-def list_payment_history(project_id: int = None, limit: int = 100) -> list[dict]:
-    """이체완료 내역 조회"""
+def _deduplicate_payment_history_conn(conn, project_id: int) -> int:
+    """기존 연결을 재사용해 이체내역 중복 제거 (내부 헬퍼)"""
+    deleted = conn.execute("""
+        DELETE FROM payment_history WHERE id NOT IN (
+            SELECT MIN(id) FROM payment_history
+            WHERE project_id = ?
+            GROUP BY COALESCE(confirmed_date, scheduled_date), amount, description, vendor_name, account_number
+        ) AND project_id = ?
+    """, (project_id, project_id)).rowcount
+    conn.commit()
+    return deleted
+
+
+def deduplicate_payment_history(project_id: int = None) -> int:
+    """
+    이체내역 중복 제거 (확정일+금액+적요+거래처명+계좌번호 기준, 오래된 행 삭제).
+    중복 판단 시 project_id가 NULL인 행도 포함하여 gw_project_code 기준으로 그룹핑.
+    """
+    conn = get_db()
+    try:
+        if project_id:
+            deleted = conn.execute("""
+                DELETE FROM payment_history WHERE id NOT IN (
+                    SELECT MIN(id) FROM payment_history
+                    WHERE project_id = ?
+                    GROUP BY COALESCE(confirmed_date, scheduled_date), amount, description, vendor_name, account_number
+                ) AND project_id = ?
+            """, (project_id, project_id)).rowcount
+        else:
+            # project_id가 NULL인 경우 gw_project_code를 대체 키로 사용
+            deleted = conn.execute("""
+                DELETE FROM payment_history WHERE id NOT IN (
+                    SELECT MIN(id) FROM payment_history
+                    GROUP BY
+                        COALESCE(CAST(project_id AS TEXT), gw_project_code, ''),
+                        COALESCE(confirmed_date, scheduled_date),
+                        amount, description, vendor_name, account_number
+                )
+            """).rowcount
+        conn.commit()
+        return deleted
+    finally:
+        conn.close()
+
+
+def list_payment_history(project_id: int = None, limit: int = 100,
+                         gw_project_code: str = None) -> list[dict]:
+    """
+    이체완료 내역 조회.
+    project_id가 없고 gw_project_code가 있으면 gw_project_code로도 조회.
+    """
     conn = get_db()
     try:
         if project_id:
@@ -732,6 +1070,21 @@ def list_payment_history(project_id: int = None, limit: int = 100) -> list[dict]
                 "SELECT * FROM payment_history WHERE project_id = ? ORDER BY confirmed_date DESC LIMIT ?",
                 (project_id, limit)
             ).fetchall()
+        elif gw_project_code:
+            # gw_project_code 직접 매칭 + project_id 역추적 병행
+            resolved_pid = find_project_id_by_gw_code_conn(conn, gw_project_code)
+            if resolved_pid:
+                rows = conn.execute(
+                    """SELECT * FROM payment_history
+                       WHERE project_id = ? OR gw_project_code = ?
+                       ORDER BY confirmed_date DESC LIMIT ?""",
+                    (resolved_pid, gw_project_code, limit)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM payment_history WHERE gw_project_code = ? ORDER BY confirmed_date DESC LIMIT ?",
+                    (gw_project_code, limit)
+                ).fetchall()
         else:
             rows = conn.execute(
                 "SELECT * FROM payment_history ORDER BY confirmed_date DESC LIMIT ?",
@@ -746,34 +1099,54 @@ def list_payment_history(project_id: int = None, limit: int = 100) -> list[dict]
 # 예실대비현황 (GW 스크래핑 데이터)
 # ─────────────────────────────────────────
 
-def save_budget_actual(records: list[dict], project_id: int = None) -> dict:
-    """예실대비현황 일괄 저장"""
+def save_budget_actual(records: list[dict], project_id: int = None,
+                        gw_project_code: str = "", gisu: int = 0,
+                        replace_project: bool = True) -> dict:
+    """예실대비현황 일괄 저장 (GW RealGrid DataProvider 추출 데이터 포함)"""
     conn = get_db()
     try:
         now = datetime.now().isoformat()
         count = 0
-        for r in records:
-            conn.execute("""
-                INSERT INTO budget_actual (
-                    project_id, project_name, year, budget_code, budget_category,
-                    budget_sub_category, budget_amount, actual_amount,
-                    difference, execution_rate, scraped_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
+        if replace_project and (project_id or gw_project_code):
+            # 같은 프로젝트+기수 데이터는 교체
+            if project_id:
+                conn.execute("DELETE FROM budget_actual WHERE project_id = ? AND gisu = ?",
+                             (project_id, gisu or 0))
+            elif gw_project_code:
+                conn.execute("DELETE FROM budget_actual WHERE gw_project_code = ? AND gisu = ?",
+                             (gw_project_code, gisu or 0))
+        rows = [
+            (
                 project_id or r.get("project_id"),
                 r.get("project_name", ""),
                 r.get("year", 0),
-                r.get("budget_code", ""),
-                r.get("budget_category", ""),
+                r.get("budget_code", r.get("bgtCd", "")),
+                r.get("budget_category", r.get("bgtNm", "")),
                 r.get("budget_sub_category", ""),
-                r.get("budget_amount", 0),
-                r.get("actual_amount", 0),
-                r.get("difference", 0),
-                r.get("execution_rate", 0),
+                r.get("budget_amount", r.get("abgtSumAm", 0)),
+                r.get("actual_amount", r.get("unitAm", 0)),
+                r.get("difference", r.get("subAm", 0)),
+                r.get("execution_rate", r.get("sumRt", 0)),
+                gw_project_code or r.get("gw_project_code", ""),
+                gisu or r.get("gisu", 0),
+                r.get("def_nm", r.get("defNm", "")),
+                r.get("div_fg", r.get("divFg", 0)),
+                1 if r.get("is_leaf", r.get("lastYn") == "Y") else 0,
                 now,
-            ))
-            count += 1
-        conn.commit()
+            )
+            for r in records
+        ]
+        with conn:
+            conn.executemany("""
+                INSERT INTO budget_actual (
+                    project_id, project_name, year, budget_code, budget_category,
+                    budget_sub_category, budget_amount, actual_amount,
+                    difference, execution_rate,
+                    gw_project_code, gisu, def_nm, div_fg, is_leaf,
+                    scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, rows)
+        count = len(rows)
         return {"success": True, "message": f"예실대비 {count}건 저장 완료"}
     finally:
         conn.close()
@@ -842,7 +1215,11 @@ def save_project_overview(project_id: int, data: dict) -> dict:
             "design_contract_date", "design_contract_amount",
             "construction_contract_date", "construction_contract_amount",
             "issue_design", "issue_schedule", "issue_budget",
-            "issue_operation", "issue_defect", "issue_other"
+            "issue_operation", "issue_defect", "issue_other",
+            # 2026-03-27 확장: GW 크롤러 수집 필드
+            "client", "client_contact", "client_phone",
+            "pm_name", "site_manager", "design_manager",
+            "gw_status", "gw_project_type", "gw_last_synced",
         ]
 
         if existing:
@@ -944,16 +1321,18 @@ def save_collections_bulk(project_id: int, items: list[dict]) -> dict:
             if cid:
                 # 기존 업데이트 (category, stage 포함)
                 conn.execute(
-                    "UPDATE collections SET category = ?, stage = ?, amount = ?, collected = ? WHERE id = ? AND project_id = ?",
+                    "UPDATE collections SET category = ?, stage = ?, amount = ?, collected = ?, collection_date = ? WHERE id = ? AND project_id = ?",
                     (item.get("category", ""), item.get("stage", ""),
-                     item.get("amount", 0), item.get("collected", 0), cid, project_id)
+                     item.get("amount", 0), item.get("collected", 0),
+                     item.get("collection_date", ""), cid, project_id)
                 )
             else:
                 # 신규 추가
                 conn.execute(
-                    "INSERT INTO collections (project_id, category, stage, amount, collected) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO collections (project_id, category, stage, amount, collected, collection_date) VALUES (?, ?, ?, ?, ?, ?)",
                     (project_id, item.get("category", ""), item.get("stage", ""),
-                     item.get("amount", 0), item.get("collected", 0))
+                     item.get("amount", 0), item.get("collected", 0),
+                     item.get("collection_date", ""))
                 )
         conn.commit()
         return {"success": True, "message": f"수금현황 {len(items)}건 저장 완료"}
@@ -962,52 +1341,60 @@ def save_collections_bulk(project_id: int, items: list[dict]) -> dict:
 
 
 def get_portfolio_summary() -> list[dict]:
-    """전체 프로젝트 포트폴리오 요약 (비교 뷰용)"""
+    """전체 프로젝트 포트폴리오 요약 (비교 뷰용) — 3쿼리로 N+1 제거"""
     conn = get_db()
     try:
         projects = conn.execute(
             "SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC"
         ).fetchall()
+
+        # 수금 현황 — 프로젝트별 일괄 집계
+        coll_map: dict[int, dict] = {}
+        for row in conn.execute("""
+            SELECT project_id,
+                   COALESCE(SUM(amount), 0) as coll_total,
+                   COALESCE(SUM(CASE WHEN collected THEN amount ELSE 0 END), 0) as coll_collected
+            FROM collections
+            GROUP BY project_id
+        """).fetchall():
+            coll_map[row["project_id"]] = dict(row)
+
+        # 지급 현황 — 프로젝트별 일괄 집계
+        sub_map: dict[int, dict] = {}
+        for row in conn.execute("""
+            SELECT project_id,
+                   COALESCE(SUM(contract_amount), 0) as payment_limit,
+                   COALESCE(SUM(
+                     CASE WHEN payment_1_confirmed THEN payment_1 ELSE 0 END +
+                     CASE WHEN payment_2_confirmed THEN payment_2 ELSE 0 END +
+                     CASE WHEN payment_3_confirmed THEN payment_3 ELSE 0 END +
+                     CASE WHEN payment_4_confirmed THEN payment_4 ELSE 0 END
+                   ), 0) as total_paid
+            FROM subcontracts
+            GROUP BY project_id
+        """).fetchall():
+            sub_map[row["project_id"]] = dict(row)
+
         result = []
         for p in projects:
             p = dict(p)
             pid = p["id"]
             total_order = (p.get("design_amount") or 0) + (p.get("construction_amount") or 0)
-            exec_budget = p.get("execution_budget") or 0
-
-            # 수금 현황
-            coll_rows = conn.execute(
-                "SELECT amount, collected FROM collections WHERE project_id = ?", (pid,)
-            ).fetchall()
-            coll_total = sum(r["amount"] or 0 for r in coll_rows)
-            coll_collected = sum(r["amount"] or 0 for r in coll_rows if r["collected"])
-
-            # 지급 현황
-            sub_row = conn.execute("""
-                SELECT COALESCE(SUM(contract_amount), 0) as payment_limit,
-                       COALESCE(SUM(
-                         CASE WHEN payment_1_confirmed THEN payment_1 ELSE 0 END +
-                         CASE WHEN payment_2_confirmed THEN payment_2 ELSE 0 END +
-                         CASE WHEN payment_3_confirmed THEN payment_3 ELSE 0 END +
-                         CASE WHEN payment_4_confirmed THEN payment_4 ELSE 0 END
-                       ), 0) as total_paid
-                FROM subcontracts WHERE project_id = ?
-            """, (pid,)).fetchone()
-
-            payment_limit = sub_row["payment_limit"]
-            total_paid = sub_row["total_paid"]
-            profit = p.get("profit_amount") or 0
-            profit_rate = p.get("profit_rate") or 0
-
+            coll = coll_map.get(pid, {"coll_total": 0, "coll_collected": 0})
+            sub = sub_map.get(pid, {"payment_limit": 0, "total_paid": 0})
+            coll_total = coll["coll_total"]
+            coll_collected = coll["coll_collected"]
+            payment_limit = sub["payment_limit"]
+            total_paid = sub["total_paid"]
             result.append({
                 "id": pid,
                 "name": p["name"],
                 "grade": p.get("grade") or "-",
                 "category": p.get("category") or "-",
                 "total_order": total_order,
-                "execution_budget": exec_budget,
-                "profit_amount": profit,
-                "profit_rate": profit_rate,
+                "execution_budget": p.get("execution_budget") or 0,
+                "profit_amount": p.get("profit_amount") or 0,
+                "profit_rate": p.get("profit_rate") or 0,
                 "coll_total": coll_total,
                 "coll_collected": coll_collected,
                 "coll_rate": round(coll_collected / coll_total * 100, 1) if coll_total else 0,
@@ -1224,50 +1611,69 @@ def get_insights(project_id: int = None) -> list[dict]:
 
 
 def get_all_projects_full_data() -> list[dict]:
-    """전체 프로젝트 + 하위 데이터 일괄 조회 (인사이트 생성용)"""
+    """전체 프로젝트 + 하위 데이터 일괄 조회 (인사이트 생성용) — 8쿼리로 7N+1 제거"""
     conn = get_db()
     try:
         projects = [dict(r) for r in conn.execute(
             "SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC"
         ).fetchall()]
+        if not projects:
+            return projects
+
+        ids = [p["id"] for p in projects]
+        placeholders = ",".join("?" * len(ids))
+
+        def _group_by_pid(rows) -> dict:
+            groups: dict[int, list] = {}
+            for r in rows:
+                pid = r["project_id"]
+                groups.setdefault(pid, []).append(dict(r))
+            return groups
+
+        # 개요 — 1:1
+        ov_map = {}
+        for r in conn.execute(
+            f"SELECT * FROM project_overview WHERE project_id IN ({placeholders})", ids
+        ).fetchall():
+            ov_map[r["project_id"]] = dict(r)
+
+        # 마일스톤 / 인원 / 하도급 / 수금 / TODO / 자료실
+        milestone_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM project_milestones WHERE project_id IN ({placeholders}) ORDER BY sort_order", ids
+        ).fetchall())
+        member_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM project_members WHERE project_id IN ({placeholders}) ORDER BY sort_order", ids
+        ).fetchall())
+        sub_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM subcontracts WHERE project_id IN ({placeholders})", ids
+        ).fetchall())
+        coll_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM collections WHERE project_id IN ({placeholders})", ids
+        ).fetchall())
+        todo_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM project_todos WHERE project_id IN ({placeholders}) "
+            f"ORDER BY completed ASC, priority DESC", ids
+        ).fetchall())
+        material_map = _group_by_pid(conn.execute(
+            f"SELECT * FROM project_materials WHERE project_id IN ({placeholders}) "
+            f"ORDER BY created_at DESC", ids
+        ).fetchall())
 
         for p in projects:
             pid = p["id"]
-            # 개요
-            ov = conn.execute("SELECT * FROM project_overview WHERE project_id = ?", (pid,)).fetchone()
-            p["overview"] = dict(ov) if ov else {}
-            # 마일스톤
-            p["milestones"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM project_milestones WHERE project_id = ? ORDER BY sort_order", (pid,)
-            ).fetchall()]
-            # 인원
-            p["members"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM project_members WHERE project_id = ? ORDER BY sort_order", (pid,)
-            ).fetchall()]
-            # 하도급
-            p["subcontracts"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM subcontracts WHERE project_id = ?", (pid,)
-            ).fetchall()]
-            # 수금
-            p["collections"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM collections WHERE project_id = ?", (pid,)
-            ).fetchall()]
-            # TODO
-            p["todos"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM project_todos WHERE project_id = ? ORDER BY completed ASC, priority DESC", (pid,)
-            ).fetchall()]
-            # 이슈 추출
-            ov_data = p["overview"]
-            issues = []
-            for key in ["issue_design", "issue_schedule", "issue_budget", "issue_operation", "issue_defect", "issue_other"]:
-                if ov_data.get(key):
-                    issues.append(ov_data[key])
-            p["issues"] = issues
-
-            # 자료실
-            p["materials"] = [dict(r) for r in conn.execute(
-                "SELECT * FROM project_materials WHERE project_id = ? ORDER BY created_at DESC", (pid,)
-            ).fetchall()]
+            ov_data = ov_map.get(pid, {})
+            p["overview"] = ov_data
+            p["milestones"] = milestone_map.get(pid, [])
+            p["members"] = member_map.get(pid, [])
+            p["subcontracts"] = sub_map.get(pid, [])
+            p["collections"] = coll_map.get(pid, [])
+            p["todos"] = todo_map.get(pid, [])
+            p["materials"] = material_map.get(pid, [])
+            p["issues"] = [
+                ov_data[k] for k in
+                ["issue_design", "issue_schedule", "issue_budget", "issue_operation", "issue_defect", "issue_other"]
+                if ov_data.get(k)
+            ]
 
         return projects
     finally:
@@ -1481,6 +1887,110 @@ def remove_project_alias(project_id: int, alias: str) -> dict:
         conn.close()
 
 
+def find_project_id_by_gw_code_conn(conn: sqlite3.Connection, gw_project_code: str) -> int | None:
+    """
+    이미 열린 커넥션으로 GW 사업코드 → project_id 조회.
+    save_payment_history 내부에서 중복 연결 없이 사용하기 위한 헬퍼.
+    우선순위: projects.project_code → project_overview(client 컬럼 없음) → gw_projects_cache
+    """
+    if not gw_project_code:
+        return None
+    # 1순위: projects.project_code 직접 매칭
+    row = conn.execute(
+        "SELECT id FROM projects WHERE project_code = ?", (gw_project_code,)
+    ).fetchone()
+    if row:
+        return row["id"]
+    # 2순위: gw_projects_cache → projects.project_code 참조
+    cache_row = conn.execute(
+        "SELECT code FROM gw_projects_cache WHERE code = ?", (gw_project_code,)
+    ).fetchone()
+    if cache_row:
+        row = conn.execute(
+            "SELECT id FROM projects WHERE project_code = ?", (cache_row["code"],)
+        ).fetchone()
+        if row:
+            return row["id"]
+    return None
+
+
+def find_project_by_gw_code(gw_project_code: str) -> int | None:
+    """
+    GW 사업코드(예: GS-25-0088)로 fund_management.db의 project_id를 반환.
+    우선순위:
+      1. projects.project_code 직접 매칭
+      2. gw_projects_cache 경유 → projects.project_code
+      3. 프로젝트명 정규화(공백 제거, 소문자) 매칭 (gw_projects_cache.name 활용)
+    반환값: project_id(int) 또는 None
+    """
+    if not gw_project_code:
+        return None
+    conn = get_db()
+    try:
+        pid = find_project_id_by_gw_code_conn(conn, gw_project_code)
+        if pid:
+            return pid
+        # 3순위: gw_projects_cache.name → projects.name 정규화 매칭
+        cache_row = conn.execute(
+            "SELECT name FROM gw_projects_cache WHERE code = ?", (gw_project_code,)
+        ).fetchone()
+        if cache_row:
+            gw_name_norm = cache_row["name"].lower().replace(" ", "")
+            all_projects = conn.execute("SELECT id, name FROM projects").fetchall()
+            for p in all_projects:
+                p_norm = p["name"].lower().replace(" ", "")
+                # 완전 포함 관계도 매칭
+                if gw_name_norm == p_norm or gw_name_norm in p_norm or p_norm in gw_name_norm:
+                    return p["id"]
+        return None
+    finally:
+        conn.close()
+
+
+def upsert_project_overview_gw_fields(project_id: int, fields: dict) -> dict:
+    """
+    GW 크롤링 결과를 project_overview 테이블의 GW 전용 컬럼에 저장/업데이트.
+    기존 사용자 입력(project_category, location 등)은 건드리지 않음.
+
+    fields 허용 키:
+        pm_name, site_manager, design_manager,
+        client, client_contact, client_phone,
+        gw_status, gw_project_type, gw_last_synced
+    """
+    allowed = [
+        "pm_name", "site_manager", "design_manager",
+        "client", "client_contact", "client_phone",
+        "gw_status", "gw_project_type", "gw_last_synced",
+    ]
+    updates = {k: v for k, v in fields.items() if k in allowed and v is not None and v != ""}
+    if not updates:
+        return {"success": True, "message": "저장할 GW 필드가 없습니다."}
+
+    conn = get_db()
+    try:
+        existing = conn.execute(
+            "SELECT id FROM project_overview WHERE project_id = ?", (project_id,)
+        ).fetchone()
+        if existing:
+            sets = [f"{k} = ?" for k in updates]
+            sets.append("updated_at = CURRENT_TIMESTAMP")
+            vals = list(updates.values()) + [project_id]
+            conn.execute(
+                f"UPDATE project_overview SET {', '.join(sets)} WHERE project_id = ?", vals
+            )
+        else:
+            cols = ["project_id"] + list(updates.keys())
+            vals = [project_id] + list(updates.values())
+            placeholders = ", ".join(["?"] * len(cols))
+            conn.execute(
+                f"INSERT INTO project_overview ({', '.join(cols)}) VALUES ({placeholders})", vals
+            )
+        conn.commit()
+        return {"success": True, "message": f"GW 필드 저장 완료: {list(updates.keys())}"}
+    finally:
+        conn.close()
+
+
 def find_project_by_alias(search_name: str) -> dict | None:
     """별칭 테이블에서 프로젝트 검색 (부분 일치)"""
     if not search_name:
@@ -1527,48 +2037,53 @@ def get_all_aliases() -> list[dict]:
 # ─────────────────────────────────────────
 
 def save_gw_projects_cache(projects: list[dict]):
-    """GW 프로젝트 목록 캐시 저장 (전체 교체)"""
+    """GW 프로젝트 목록 캐시 저장 (전체 교체, 단일 트랜잭션)"""
     conn = get_db()
     try:
-        conn.execute("DELETE FROM gw_projects_cache")
-        saved = 0
-        for p in projects:
-            code = p.get("code", "").strip()
-            name = p.get("name", "").strip()
-            # 코드가 비어있으면 UNIQUE 제약 위반 가능 → 건너뛰기
-            if not code:
-                continue
-            conn.execute(
+        rows_to_insert = [
+            (p.get("code", "").strip(), p.get("name", "").strip(),
+             p.get("start_date", ""), p.get("end_date", ""))
+            for p in projects
+            if p.get("code", "").strip()  # 코드 없는 항목 제외
+        ]
+        # DELETE → INSERT 원자적 실행 (크래시 시 빈 캐시 방지)
+        with conn:
+            conn.execute("DELETE FROM gw_projects_cache")
+            conn.executemany(
                 "INSERT OR REPLACE INTO gw_projects_cache (code, name, start_date, end_date) VALUES (?, ?, ?, ?)",
-                (code, name, p.get("start_date", ""), p.get("end_date", ""))
+                rows_to_insert,
             )
-            saved += 1
-        conn.commit()
-        logger.info(f"GW 프로젝트 캐시 저장: {saved}개 (입력 {len(projects)}개)")
+        logger.info("GW 프로젝트 캐시 저장: %d개 (입력 %d개)", len(rows_to_insert), len(projects))
     finally:
         conn.close()
 
 
 def search_gw_projects_cache(keyword: str) -> list[dict]:
-    """GW 프로젝트 캐시에서 키워드 검색 (부분 일치, 토큰 기반)"""
+    """GW 프로젝트 캐시에서 키워드 검색 (SQL LIKE 방식, 최대 100건, v2 확장 필드 포함)"""
+    _COLS = "code, name, start_date, end_date, manager, client, department, project_type, status, contract_amount, progress_rate, cached_at"
     conn = get_db()
     try:
-        kw = (keyword or "").strip().lower()
-        tokens = [t for t in kw.split() if t] if kw else []
-
-        rows = conn.execute(
-            "SELECT code, name, start_date, end_date FROM gw_projects_cache ORDER BY name"
-        ).fetchall()
-
-        if not tokens:
+        kw = (keyword or "").strip()
+        if not kw:
+            rows = conn.execute(
+                f"SELECT {_COLS} FROM gw_projects_cache ORDER BY name LIMIT 100"
+            ).fetchall()
             return [dict(r) for r in rows]
 
-        results = []
-        for r in rows:
-            text = (r["code"] + " " + r["name"]).lower()
-            if all(t in text for t in tokens):
-                results.append(dict(r))
-        return results
+        # 다중 토큰 AND 검색 — SQL LIKE로 서버사이드 필터링
+        tokens = kw.split()
+        conditions = " AND ".join(
+            "(LOWER(code) LIKE ? OR LOWER(name) LIKE ?)" for _ in tokens
+        )
+        params = []
+        for t in tokens:
+            like = f"%{t.lower()}%"
+            params.extend([like, like])
+        rows = conn.execute(
+            f"SELECT {_COLS} FROM gw_projects_cache WHERE {conditions} ORDER BY name LIMIT 100",
+            params,
+        ).fetchall()
+        return [dict(r) for r in rows]
     finally:
         conn.close()
 
@@ -1583,3 +2098,688 @@ def get_gw_cache_info() -> dict:
         return {"count": row["cnt"], "last_update": row["last_update"]}
     finally:
         conn.close()
+
+
+# ─────────────────────────────────────────
+# 세금계산서 (gw_tax_invoices)
+# ─────────────────────────────────────────
+
+def save_tax_invoices(records: list[dict], project_id: int = None) -> dict:
+    """세금계산서 발행 내역 일괄 저장 (프로젝트별 전체 교체)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        rows = [
+            (
+                project_id or r.get("project_id"),
+                r.get("issue_date", ""), r.get("invoice_number", ""),
+                r.get("vendor_name", ""), r.get("vendor_biz_number", ""),
+                r.get("supply_amount", 0), r.get("tax_amount", 0),
+                r.get("total_amount", 0), r.get("invoice_type", ""),
+                r.get("status", ""), r.get("description", ""),
+                r.get("project_name", ""), now,
+            )
+            for r in records
+        ]
+        with conn:
+            if project_id:
+                conn.execute("DELETE FROM gw_tax_invoices WHERE project_id = ?", (project_id,))
+            conn.executemany("""
+                INSERT INTO gw_tax_invoices (
+                    project_id, issue_date, invoice_number, vendor_name, vendor_biz_number,
+                    supply_amount, tax_amount, total_amount, invoice_type, status,
+                    description, project_name, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, rows)
+        return {"success": True, "message": f"세금계산서 {len(rows)}건 저장 완료"}
+    finally:
+        conn.close()
+
+
+def list_tax_invoices(project_id: int = None) -> list[dict]:
+    """세금계산서 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM gw_tax_invoices WHERE 1=1"
+        params = []
+        if project_id:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        query += " ORDER BY issue_date DESC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 예산 변경 이력 (gw_budget_changes)
+# ─────────────────────────────────────────
+
+def save_budget_changes(records: list[dict], project_id: int = None) -> dict:
+    """예산 변경 이력 저장 (프로젝트별 전체 교체)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        if project_id:
+            conn.execute("DELETE FROM gw_budget_changes WHERE project_id = ?", (project_id,))
+        count = 0
+        for r in records:
+            pid = project_id or r.get("project_id")
+            conn.execute("""
+                INSERT INTO gw_budget_changes (
+                    project_id, change_date, budget_code, budget_name,
+                    before_amount, change_amount, after_amount,
+                    change_type, reason, approver, approval_date, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                pid, r.get("change_date",""), r.get("budget_code",""),
+                r.get("budget_name",""), r.get("before_amount",0),
+                r.get("change_amount",0), r.get("after_amount",0),
+                r.get("change_type",""), r.get("reason",""),
+                r.get("approver",""), r.get("approval_date",""), now,
+            ))
+            count += 1
+        conn.commit()
+        return {"success": True, "message": f"예산변경이력 {count}건 저장 완료"}
+    finally:
+        conn.close()
+
+
+def list_budget_changes(project_id: int = None) -> list[dict]:
+    """예산 변경 이력 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM gw_budget_changes WHERE 1=1"
+        params = []
+        if project_id:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        query += " ORDER BY change_date DESC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 수금 예정 내역 (gw_collection_schedule)
+# ─────────────────────────────────────────
+
+def save_collection_schedule(records: list[dict], project_id: int = None) -> dict:
+    """수금 예정 내역 저장 (프로젝트별 전체 교체)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        if project_id:
+            conn.execute("DELETE FROM gw_collection_schedule WHERE project_id = ?", (project_id,))
+        count = 0
+        for r in records:
+            pid = project_id or r.get("project_id")
+            conn.execute("""
+                INSERT INTO gw_collection_schedule (
+                    project_id, scheduled_date, category, stage,
+                    expected_amount, collected_amount, status,
+                    invoice_number, description, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                pid, r.get("scheduled_date",""), r.get("category",""),
+                r.get("stage",""), r.get("expected_amount",0),
+                r.get("collected_amount",0), r.get("status",""),
+                r.get("invoice_number",""), r.get("description",""), now,
+            ))
+            count += 1
+        conn.commit()
+        return {"success": True, "message": f"수금예정 {count}건 저장 완료"}
+    finally:
+        conn.close()
+
+
+def add_collection_schedule(project_id: int, **kwargs) -> dict:
+    """수금 예정 항목 단건 추가 (수동 입력용)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        conn.execute("""
+            INSERT INTO gw_collection_schedule (
+                project_id, scheduled_date, category, stage,
+                expected_amount, collected_amount, status,
+                invoice_number, description, scraped_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            project_id,
+            kwargs.get("scheduled_date", ""),
+            kwargs.get("category", ""),
+            kwargs.get("stage", kwargs.get("item_name", "")),
+            kwargs.get("amount", kwargs.get("expected_amount", 0)),
+            kwargs.get("collected_amount", 0),
+            kwargs.get("status", "pending"),
+            kwargs.get("invoice_number", ""),
+            kwargs.get("description", ""),
+            now,
+        ))
+        conn.commit()
+        return {"success": True, "message": "수금 예정 항목 추가 완료"}
+    finally:
+        conn.close()
+
+
+def list_collection_schedule(project_id: int = None, status: str = None) -> list[dict]:
+    """수금 예정 내역 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM gw_collection_schedule WHERE 1=1"
+        params = []
+        if project_id:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+        query += " ORDER BY scheduled_date ASC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 자금집행 승인 (gw_payment_approvals)
+# ─────────────────────────────────────────
+
+def save_payment_approvals(records: list[dict], project_id: int = None) -> dict:
+    """자금집행 승인 현황 저장 (프로젝트별 전체 교체)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        if project_id:
+            conn.execute("DELETE FROM gw_payment_approvals WHERE project_id = ?", (project_id,))
+        count = 0
+        for r in records:
+            pid = project_id or r.get("project_id")
+            conn.execute("""
+                INSERT INTO gw_payment_approvals (
+                    project_id, request_date, approval_date, vendor_name,
+                    amount, supply_amount, tax_amount, fund_category,
+                    budget_code, status, requester, approver,
+                    description, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                pid, r.get("request_date",""), r.get("approval_date",""),
+                r.get("vendor_name",""), r.get("amount",0),
+                r.get("supply_amount",0), r.get("tax_amount",0),
+                r.get("fund_category",""), r.get("budget_code",""),
+                r.get("status",""), r.get("requester",""),
+                r.get("approver",""), r.get("description",""), now,
+            ))
+            count += 1
+        conn.commit()
+        return {"success": True, "message": f"자금집행승인 {count}건 저장 완료"}
+    finally:
+        conn.close()
+
+
+def list_payment_approvals(project_id: int = None, status: str = None) -> list[dict]:
+    """자금집행 승인 현황 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM gw_payment_approvals WHERE 1=1"
+        params = []
+        if project_id:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+        query += " ORDER BY request_date DESC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 리스크 이력 (project_risk_log)
+# ─────────────────────────────────────────
+
+def add_risk(project_id: int, **kwargs) -> dict:
+    """리스크 항목 추가"""
+    conn = get_db()
+    try:
+        conn.execute("""
+            INSERT INTO project_risk_log (
+                project_id, risk_date, risk_type, severity, title,
+                description, impact, mitigation, status, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            project_id,
+            kwargs.get("risk_date", datetime.now().strftime("%Y-%m-%d")),
+            kwargs.get("risk_type", ""),
+            kwargs.get("severity", "medium"),
+            kwargs.get("title", ""),
+            kwargs.get("description", ""),
+            kwargs.get("impact", ""),
+            kwargs.get("mitigation", ""),
+            kwargs.get("status", "open"),
+            kwargs.get("created_by", ""),
+        ))
+        conn.commit()
+        return {"success": True, "message": "리스크 항목 추가 완료"}
+    finally:
+        conn.close()
+
+
+def list_risks(project_id: int, status: str = None) -> list[dict]:
+    """리스크 이력 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM project_risk_log WHERE project_id = ?"
+        params = [project_id]
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+        query += " ORDER BY risk_date DESC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def update_risk(risk_id: int, **kwargs) -> dict:
+    """리스크 항목 수정"""
+    allowed = ["risk_type", "severity", "title", "description",
+               "impact", "mitigation", "resolved_date", "status"]
+    updates = {k: v for k, v in kwargs.items() if k in allowed and v is not None}
+    if not updates:
+        return {"success": False, "message": "수정할 항목이 없습니다."}
+    updates["updated_at"] = datetime.now().isoformat()
+    conn = get_db()
+    try:
+        set_clause = ", ".join(f"{k} = ?" for k in updates)
+        values = list(updates.values()) + [risk_id]
+        conn.execute(f"UPDATE project_risk_log SET {set_clause} WHERE id = ?", values)
+        conn.commit()
+        return {"success": True, "message": "리스크 항목 수정 완료"}
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# GW 계약 현황 (gw_contracts)
+# ─────────────────────────────────────────
+
+def save_gw_contracts(records: list[dict], project_id: int = None) -> dict:
+    """GW 계약 현황 저장 (프로젝트별 전체 교체)"""
+    conn = get_db()
+    try:
+        now = datetime.now().isoformat()
+        if project_id:
+            conn.execute("DELETE FROM gw_contracts WHERE project_id = ?", (project_id,))
+        count = 0
+        for r in records:
+            pid = project_id or r.get("project_id")
+            conn.execute("""
+                INSERT INTO gw_contracts (
+                    project_id, contract_number, contract_date, contract_type,
+                    vendor_name, vendor_biz_number, contract_amount,
+                    supply_amount, tax_amount, start_date, end_date,
+                    status, description, scraped_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                pid, r.get("contract_number",""), r.get("contract_date",""),
+                r.get("contract_type",""), r.get("vendor_name",""),
+                r.get("vendor_biz_number",""), r.get("contract_amount",0),
+                r.get("supply_amount",0), r.get("tax_amount",0),
+                r.get("start_date",""), r.get("end_date",""),
+                r.get("status",""), r.get("description",""), now,
+            ))
+            count += 1
+        conn.commit()
+        return {"success": True, "message": f"계약 {count}건 저장 완료"}
+    finally:
+        conn.close()
+
+
+def list_gw_contracts(project_id: int = None) -> list[dict]:
+    """GW 계약 현황 조회"""
+    conn = get_db()
+    try:
+        query = "SELECT * FROM gw_contracts WHERE 1=1"
+        params = []
+        if project_id:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        query += " ORDER BY contract_date DESC"
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# GW 프로젝트 캐시 — 확장된 저장/조회
+# ─────────────────────────────────────────
+
+def save_gw_projects_cache_v2(projects: list[dict]):
+    """GW 프로젝트 캐시 저장 (확장 필드 포함, 전체 교체). NULL 방어 포함."""
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM gw_projects_cache")
+        saved = 0
+        skipped = 0
+        for p in projects:
+            code = str(p.get("code", "") or "").strip()
+            name = str(p.get("name", "") or "").strip()
+            if not code:
+                skipped += 1
+                continue
+            # NULL/None 방어: 문자열 필드는 빈 문자열, 숫자 필드는 0 기본값
+            try:
+                contract_amount = int(p.get("contract_amount", 0) or 0)
+            except (ValueError, TypeError):
+                contract_amount = 0
+            try:
+                progress_rate = float(p.get("progress_rate", 0) or 0)
+            except (ValueError, TypeError):
+                progress_rate = 0
+            conn.execute("""
+                INSERT OR REPLACE INTO gw_projects_cache
+                (code, name, start_date, end_date, manager, client,
+                 department, project_type, status, contract_amount,
+                 progress_rate, cached_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (
+                code, name,
+                str(p.get("start_date", "") or "").strip(),
+                str(p.get("end_date", "") or "").strip(),
+                str(p.get("manager", "") or "").strip(),
+                str(p.get("client", "") or "").strip(),
+                str(p.get("department", "") or "").strip(),
+                str(p.get("project_type", "") or "").strip(),
+                str(p.get("status", "") or "").strip(),
+                contract_amount,
+                progress_rate,
+            ))
+            saved += 1
+        conn.commit()
+        if skipped > 0:
+            logger.warning(f"GW 프로젝트 캐시(v2): code 없는 항목 {skipped}개 스킵")
+        logger.info(f"GW 프로젝트 캐시(v2) 저장: {saved}개")
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 공정 일정 항목 CRUD
+# ─────────────────────────────────────────
+
+def list_schedule_items(project_id: int) -> list[dict]:
+    """공정 일정 항목 목록 조회"""
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM project_schedule_items WHERE project_id = ? ORDER BY sort_order",
+            (project_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def save_schedule_items(project_id: int, items: list[dict]) -> dict:
+    """공정 일정 항목 전체 교체 저장 (삭제 후 재삽입)"""
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM project_schedule_items WHERE project_id = ?", (project_id,))
+        for i, item in enumerate(items):
+            conn.execute(
+                """INSERT INTO project_schedule_items
+                   (project_id, item_name, start_date, end_date, status, color, notes,
+                    group_name, subtitle, item_type, bar_color, sort_order)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    project_id,
+                    item.get("item_name", ""),
+                    item.get("start_date", ""),
+                    item.get("end_date", ""),
+                    item.get("status", "planned"),
+                    item.get("color", "#3b82f6"),
+                    item.get("notes", ""),
+                    item.get("group_name", ""),
+                    item.get("subtitle", ""),
+                    item.get("item_type", "bar"),
+                    item.get("bar_color", ""),
+                    i,
+                )
+            )
+        conn.commit()
+        return {"success": True, "count": len(items)}
+    except Exception as e:
+        logger.error(f"일정 항목 저장 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 이전 프로젝트 보관
+# ─────────────────────────────────────────
+
+def set_project_archived(project_id: int, is_archived: bool) -> dict:
+    """프로젝트 보관/복원"""
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE projects SET is_archived = ? WHERE id = ?",
+            (1 if is_archived else 0, project_id)
+        )
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"프로젝트 보관 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+# ─────────────────────────────────────────
+# 공종 마스터 (공정표 자동생성용) CRUD
+# ─────────────────────────────────────────
+
+def list_construction_trades() -> list[dict]:
+    """전체 공종 마스터 목록 (sort_order 순)"""
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM construction_trades ORDER BY sort_order, id"
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def add_construction_trade(group_name: str, name: str, **kwargs) -> dict:
+    """공종 추가"""
+    conn = get_db()
+    try:
+        # sort_order 자동 계산: 같은 그룹 내 최대 + 1
+        max_order = conn.execute(
+            "SELECT COALESCE(MAX(sort_order), 0) FROM construction_trades WHERE group_name = ?",
+            (group_name,)
+        ).fetchone()[0]
+
+        conn.execute(
+            """INSERT INTO construction_trades
+               (group_name, group_color, name, item_type, default_days,
+                predecessors, steps, sort_order, is_custom)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                group_name,
+                kwargs.get("group_color", "#6b7280"),
+                name,
+                kwargs.get("item_type", "bar"),
+                kwargs.get("default_days", 0),
+                json.dumps(kwargs.get("predecessors", []), ensure_ascii=False),
+                json.dumps(kwargs.get("steps", []), ensure_ascii=False),
+                kwargs.get("sort_order", max_order + 1),
+                kwargs.get("is_custom", 0),
+            )
+        )
+        conn.commit()
+        trade_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        return {"success": True, "id": trade_id}
+    except sqlite3.IntegrityError:
+        return {"success": False, "message": f"공종 '{name}'이(가) 이미 존재합니다."}
+    except Exception as e:
+        logger.error(f"공종 추가 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+def update_construction_trade(trade_id: int, **kwargs) -> dict:
+    """공종 수정"""
+    conn = get_db()
+    try:
+        sets = []
+        vals = []
+        for key in ("group_name", "group_color", "name", "item_type",
+                     "default_days", "sort_order", "is_custom"):
+            if key in kwargs:
+                sets.append(f"{key} = ?")
+                vals.append(kwargs[key])
+        # JSON 필드
+        for key in ("predecessors", "steps"):
+            if key in kwargs:
+                sets.append(f"{key} = ?")
+                vals.append(json.dumps(kwargs[key], ensure_ascii=False))
+        if not sets:
+            return {"success": False, "message": "수정할 필드가 없습니다."}
+        vals.append(trade_id)
+        conn.execute(
+            f"UPDATE construction_trades SET {', '.join(sets)} WHERE id = ?",
+            vals
+        )
+        conn.commit()
+        return {"success": True}
+    except sqlite3.IntegrityError:
+        return {"success": False, "message": "공종명이 중복됩니다."}
+    except Exception as e:
+        logger.error(f"공종 수정 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+def delete_construction_trade(trade_id: int) -> dict:
+    """공종 삭제"""
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            "DELETE FROM construction_trades WHERE id = ?", (trade_id,)
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"success": False, "message": "존재하지 않는 공종입니다."}
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"공종 삭제 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+def list_construction_presets() -> list[dict]:
+    """공사 유형별 프리셋 목록"""
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM construction_presets ORDER BY id"
+        ).fetchall()
+        result = []
+        for r in rows:
+            d = dict(r)
+            d["trade_names"] = json.loads(d.get("trade_names", "[]"))
+            result.append(d)
+        return result
+    finally:
+        conn.close()
+
+
+def save_construction_preset(preset_name: str, trade_names: list[str],
+                             is_custom: int = 0) -> dict:
+    """프리셋 저장 (upsert)"""
+    conn = get_db()
+    try:
+        trade_names_json = json.dumps(trade_names, ensure_ascii=False)
+        existing = conn.execute(
+            "SELECT id FROM construction_presets WHERE preset_name = ?",
+            (preset_name,)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "UPDATE construction_presets SET trade_names = ?, is_custom = ? WHERE id = ?",
+                (trade_names_json, is_custom, existing["id"])
+            )
+        else:
+            conn.execute(
+                "INSERT INTO construction_presets (preset_name, trade_names, is_custom) VALUES (?, ?, ?)",
+                (preset_name, trade_names_json, is_custom)
+            )
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"프리셋 저장 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+
+
+def seed_construction_trades_from_master() -> dict:
+    """process_map_master.py의 하드코딩 데이터를 DB에 시드 (멱등)"""
+    from src.fund_table.process_map_master import PROCESS_GROUPS, TYPE_PRESETS
+
+    conn = get_db()
+    try:
+        # 이미 데이터가 있으면 건너뜀
+        count = conn.execute("SELECT COUNT(*) FROM construction_trades").fetchone()[0]
+        if count > 0:
+            return {"success": True, "message": f"이미 {count}개 공종이 존재합니다.", "seeded": 0}
+
+        sort_idx = 0
+        for group in PROCESS_GROUPS:
+            group_name = group["group"]
+            group_color = group["color"]
+            for item in group["items"]:
+                conn.execute(
+                    """INSERT OR IGNORE INTO construction_trades
+                       (group_name, group_color, name, item_type, default_days,
+                        predecessors, steps, sort_order, is_custom)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)""",
+                    (
+                        group_name, group_color,
+                        item["name"],
+                        item.get("item_type", "bar"),
+                        item.get("default_days", 0),
+                        json.dumps(item.get("predecessors", []), ensure_ascii=False),
+                        json.dumps(item.get("steps", []), ensure_ascii=False),
+                        sort_idx,
+                    )
+                )
+                sort_idx += 1
+
+        # 프리셋 시드
+        for preset_name, trade_list in TYPE_PRESETS.items():
+            conn.execute(
+                "INSERT OR IGNORE INTO construction_presets (preset_name, trade_names, is_custom) VALUES (?, ?, 0)",
+                (preset_name, json.dumps(trade_list, ensure_ascii=False))
+            )
+
+        conn.commit()
+        return {"success": True, "message": f"{sort_idx}개 공종 + {len(TYPE_PRESETS)}개 프리셋 시드 완료", "seeded": sort_idx}
+    except Exception as e:
+        logger.error(f"공종 시드 실패: {e}", exc_info=True)
+        return {"success": False, "message": str(e)}
+    finally:
+        conn.close()
+

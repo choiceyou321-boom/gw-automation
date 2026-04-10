@@ -486,7 +486,6 @@ AUTOMATION_TOOLS = [
             ),
         ),
         types.FunctionDeclaration(
-<<<<<<< HEAD
             name="add_cc_to_approval_doc",
             description=(
                 "전자결재 기결재 문서에 수신참조(CC)를 추가합니다. "

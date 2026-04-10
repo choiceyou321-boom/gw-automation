@@ -5,6 +5,7 @@ Task #3: 안 읽은 메일 요약 → Notion 자동 저장 + 텔레그램 푸시
 - Notion에 자동 저장
 - 텔레그램으로 요약 푸시 알림
 """
+from __future__ import annotations
 
 import json
 import logging
@@ -85,9 +86,16 @@ def _fetch_via_api(
             "sortType": "S",        # 날짜 내림차순
         }
 
+        # BIZCUBE_AT 쿠키 값을 Bearer 토큰으로 추가 시도 (401 대응)
+        headers = {}
+        bizcube_at = cookie_dict.get("BIZCUBE_AT", "")
+        if bizcube_at:
+            headers["Authorization"] = f"Bearer {bizcube_at}"
+
         with httpx.Client(
             base_url=base_url,
             cookies=cookie_dict,
+            headers=headers,
             timeout=20.0,
             verify=not os.environ.get("GW_SKIP_TLS_VERIFY", "").lower() in ("1", "true"),
         ) as client:
@@ -111,13 +119,6 @@ def _fetch_via_api(
         else:
             mail_list = []
 
-        # API 응답 캡처 저장
-        DATA_DIR.mkdir(exist_ok=True)
-        (DATA_DIR / "mail_apis.json").write_text(
-            json.dumps({"endpoint": endpoint, "req": body, "resp": data}, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-
         if not mail_list:
             logger.info("mail019A01: 안 읽은 메일 없음")
             return []
@@ -135,13 +136,15 @@ def _fetch_via_api(
                 # toYn 필드가 없는 경우 recvType으로 판단 ("T"=To, "C"=CC)
                 recv_type = str(item.get("recvType", "")).upper()
                 is_to = (to_yn == "Y") or (recv_type == "T") or (not cc_yn and not recv_type)
+                if not cc_yn and not recv_type and to_yn != "Y":
+                    logger.debug(f"메타데이터 없는 메일 포함: {item.get('mailTitle', '')[:30]}")
                 if not is_to:
                     logger.debug(f"CC 메일 제외: {item.get('mailTitle', '')[:30]} (toYn={to_yn}, ccYn={cc_yn})")
                     continue
 
             mail = {
                 "subject":   item.get("mailTitle", item.get("subject", "(제목 없음)")),
-                "sender":    item.get("fromName", item.get("senderName", item.get("fromAddr", ""))),
+                "sender":    _extract_sender_from_api(item),
                 "date":      _parse_api_date(item.get("recvDt", item.get("sendDt", item.get("date", "")))),
                 "to_yn":     to_yn,
                 "cc_yn":     cc_yn,
@@ -219,6 +222,52 @@ def _fetch_mail_body_via_api(client_cookies: dict, mail_seq: str) -> str:
     return ""
 
 
+def _extract_sender_from_api(item: dict) -> str:
+    """
+    API 응답 항목에서 발신자 이름을 추출한다.
+    더존 GW는 API 버전마다 필드명이 달라 폴백 체인으로 시도한다.
+    모두 빈값이면 빈 문자열 반환 (format 단계에서 "알수없음"으로 처리됨).
+    """
+    # 더존 GW mail019A01 가능한 발신자 필드명 목록 (우선순위 순)
+    candidate_fields = [
+        "fromName",       # 발신자 이름 (주요 후보)
+        "senderName",     # 발신자 이름 (대체)
+        "fromEmpNm",      # 발신자 사원명
+        "fromNm",         # 발신자명 단축
+        "writeName",      # 작성자명
+        "writerNm",       # 작성자명 단축
+        "senderNm",       # 발신자명 단축
+        "sndrNm",         # 발신자명 약어
+        "fromMailNm",     # 발신자 메일 이름
+        "fromDispNm",     # 발신자 표시명
+        "empNm",          # 사원명
+        "sendNm",         # 발송자명
+        "fromAddr",       # 발신 이메일 주소 (이름 없을 때 주소로 대체)
+        "fromMailAddr",   # 발신 메일 주소
+        "senderAddr",     # 발신자 주소
+        "sndrAddr",       # 발신자 주소 약어
+        "sendAddr",       # 발송 주소
+        "mailFrom",       # 메일 발신 주소
+        "fromEmpAddr",    # 발신 사원 주소
+        "fromEmail",      # 발신 이메일
+    ]
+
+    for field in candidate_fields:
+        val = item.get(field, "")
+        if val and str(val).strip():
+            result = str(val).strip()
+            logger.debug(f"발신자 필드 '{field}' 에서 추출: {result}")
+            return result
+
+    # 모든 필드 실패 시 경고 로그 + 가진 키 덤프
+    available_keys = [k for k in item.keys() if k not in ("raw", "body", "summary")]
+    logger.warning(
+        f"발신자 추출 실패 - 사용 가능한 필드: {available_keys} | "
+        f"샘플 값: { {k: item[k] for k in available_keys[:8]} }"
+    )
+    return ""
+
+
 def _parse_api_date(raw: str) -> str:
     """API 날짜 문자열 파싱 → 'YYYY-MM-DD HH:MM' 형식."""
     if not raw:
@@ -291,14 +340,6 @@ def _fetch_via_dom(
         item.update(recv_info or {})
         mails.append(item)
         collected += 1
-
-    # API 캡처 저장 (분석용)
-    if api_responses:
-        DATA_DIR.mkdir(exist_ok=True)
-        (DATA_DIR / "mail_apis.json").write_text(
-            json.dumps(api_responses[:10], ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        logger.info(f"메일 API {len(api_responses)}개 캡처 저장")
 
     return mails
 
@@ -405,6 +446,10 @@ def _extract_mail_list(page: Page) -> list[dict]:
                     if len(cells) >= 1:
                         item = _parse_mail_row(cells, is_unread)
                         if item:
+                            # DOM에서 발신자 셀을 직접 추출하여 보강
+                            dom_sender = _extract_sender_from_dom_row(row)
+                            if dom_sender:
+                                item["sender"] = dom_sender
                             items.append(item)
                 except Exception:
                     continue
@@ -421,26 +466,91 @@ def _extract_mail_list(page: Page) -> list[dict]:
     return items
 
 
+def _extract_sender_from_dom_row(row) -> str:
+    """
+    DOM 행(tr 또는 .mail-item 등) 내에서 발신자 셀을 직접 추출한다.
+    여러 selector를 폴백 체인으로 시도하며, stale element는 try/except로 방어.
+    빈 문자열이면 다음 후보로 넘어가고, 모두 실패 시 빈 문자열 반환.
+    """
+    # 발신자 셀 selector 폴백 체인 (우선순위 순)
+    sender_selectors = [
+        "[class*='sender']",    # sender 포함 클래스
+        "[class*='from']",      # from 포함 클래스
+        "[class*='name']",      # name 포함 클래스
+        "[class*='writer']",    # writer 포함 클래스
+        "td:nth-child(2)",      # 보통 2번째 셀에 발신자
+        "td:nth-child(3)",      # 3번째 셀
+        "td:nth-child(4)",      # 4번째 셀
+    ]
+
+    for sel in sender_selectors:
+        try:
+            el = row.locator(sel).first
+            if el.count() == 0:
+                continue
+            val = el.inner_text(timeout=1000).strip()
+            if val:
+                return val
+        except Exception:
+            # stale element 또는 timeout 방어
+            continue
+
+    return ""
+
+
 def _parse_mail_row(cells: list[str], is_unread: bool = False) -> dict | None:
-    """메일 행을 딕셔너리로 파싱"""
+    """
+    메일 행 셀 목록을 딕셔너리로 파싱.
+    날짜 패턴 셀 → date, 가장 긴 셀 → subject,
+    나머지 짧은 텍스트 중 이메일 주소가 아닌 첫 번째 → sender.
+    """
     if len(cells) < 1:
         return None
 
     item = {"raw_cells": cells, "is_unread": is_unread}
 
-    for cell in cells:
-        # 날짜
-        if any(sep in cell for sep in ["-", ".", "/"]) and any(c.isdigit() for c in cell) and len(cell) <= 20:
-            item.setdefault("date", cell)
-        # 긴 텍스트 = 제목
-        elif len(cell) > 5 and "subject" not in item:
-            item["subject"] = cell
-        # 짧은 텍스트 = 발신자
-        elif len(cell) <= 20 and "sender" not in item and cell != item.get("subject"):
-            item.setdefault("sender", cell)
+    date_candidates = []
+    name_candidates = []
 
-    if "subject" not in item:
+    for cell in cells:
+        # 날짜 패턴 감지 (구분자 + 숫자, 길이 제한)
+        if (
+            any(sep in cell for sep in ["-", ".", "/", ":"])
+            and any(c.isdigit() for c in cell)
+            and len(cell) <= 20
+        ):
+            date_candidates.append(cell)
+        # 이름 후보: 짧고(≤30) 숫자만으로 이루어지지 않은 텍스트
+        elif len(cell) <= 30 and not cell.isdigit():
+            name_candidates.append(cell)
+
+    # 날짜: 첫 번째 날짜 후보
+    if date_candidates:
+        item["date"] = date_candidates[0]
+
+    # 제목: 가장 긴 셀 (날짜 제외)
+    non_date_cells = [c for c in cells if c not in date_candidates]
+    if non_date_cells:
+        item["subject"] = max(non_date_cells, key=len)
+    else:
         item["subject"] = cells[0]
+
+    # 발신자: 이름 후보 중 제목이 아닌 첫 번째 (이메일 주소 포함도 허용)
+    for candidate in name_candidates:
+        if candidate != item.get("subject"):
+            item["sender"] = candidate
+            break
+
+    # 발신자 미확정 시 fallback: 숫자만 있는 셀도 subject가 아닌 첫 번째 non-date 셀 사용
+    if "sender" not in item and non_date_cells:
+        for c in non_date_cells:
+            if c != item.get("subject"):
+                item["sender"] = c
+                break
+
+    # 여전히 발신자 미확정 시 경고 로그 (디버깅용)
+    if "sender" not in item:
+        logger.warning(f"발신자 추출 실패 - 셀 텍스트 덤프: {cells}")
 
     return item
 
@@ -452,14 +562,17 @@ def _get_mail_body_with_recv(page: Page, mail_item: dict, index: int) -> tuple[s
     recv_info: {"is_to": bool, "to_addr": str, "cc_addr": str}
     """
     recv_info = {}
+    body_text = "(본문 추출 실패)"
     try:
-        # 메일 항목 클릭하여 본문 열기
-        rows = page.locator("table tbody tr, .mail-item, .message-item, .list-item").all()
-        if index < len(rows):
-            rows[index].click()
+        # 매번 새로 rows를 조회 (stale element 방지)
+        row_locator = page.locator("table tbody tr, .mail-item, .message-item, .list-item")
+        row_count = row_locator.count()
+        if index < row_count:
+            # force=True로 visibility 체크 생략, timeout 단축
+            row_locator.nth(index).click(force=True, timeout=5000)
             page.wait_for_load_state("networkidle", timeout=5000)
         else:
-            page.wait_for_timeout(2000)
+            page.wait_for_timeout(1000)
 
         # 수신인/참조 정보 추출 (열린 메일 상세 화면)
         recv_info = _extract_recv_info(page)
@@ -480,26 +593,31 @@ def _get_mail_body_with_recv(page: Page, mail_item: dict, index: int) -> tuple[s
             try:
                 if sel == "iframe":
                     frame = page.frame_locator(sel).first
-                    body_text = frame.locator("body").inner_text(timeout=3000)
-                    if body_text and len(body_text) > 10:
-                        return body_text.strip(), recv_info
+                    text = frame.locator("body").inner_text(timeout=3000)
+                    if text and len(text) > 10:
+                        body_text = text.strip()
+                        break
                 else:
                     el = page.locator(sel).first
                     if el.is_visible(timeout=1000):
-                        body_text = el.inner_text(timeout=3000)
-                        if body_text and len(body_text) > 10:
-                            return body_text.strip(), recv_info
+                        text = el.inner_text(timeout=3000)
+                        if text and len(text) > 10:
+                            body_text = text.strip()
+                            break
             except Exception:
                 continue
 
-        # 뒤로 가기
-        page.go_back()
-        page.wait_for_timeout(1000)
-
     except Exception as e:
         logger.warning(f"본문 추출 실패: {e}")
+    finally:
+        # 항상 목록으로 돌아가기 (stale element 방지의 핵심)
+        try:
+            page.go_back()
+            page.wait_for_timeout(1000)
+        except Exception:
+            pass
 
-    return "(본문 추출 실패)", recv_info
+    return body_text, recv_info
 
 
 def _extract_recv_info(page: Page) -> dict:

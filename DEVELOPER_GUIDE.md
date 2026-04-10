@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-03-22 (GW 자동 동기화 스케줄러, 멀티유저 Lock, PM 시트 임포트, 선급금요청 코드 준비)
+> 마지막 업데이트: 2026-04-10 (세션 XLIV — 공정표 Full CPM 고도화 + 선급금 bank picker 구현 + 코드 리뷰)
 > 새 세션 시작 시 이 문서와 `MEMORY.md`(auto-memory)를 함께 참고.
 
 ---
@@ -187,6 +187,70 @@ Playwright 로그인 → 페이지 이동 → DOM 조작으로 폼 채우기
 - 로그인 후 팝업 5개+ 자동 열림 → URL에 "popup" 포함 시 닫기
 - 세션 캐시: `session_manager.py` 인메모리 (TTL 2시간, 재시작 시 소멸)
 
+### page.evaluate() JS 인젝션 방지 패턴 (세션 XXXIV 확립)
+
+Playwright `page.evaluate()` 내 f-string 보간은 JS 인젝션 위험. 아래 패턴 필수 적용:
+
+```python
+# base.py에 정의된 헬퍼
+from src.approval.base import _js_str  # json.dumps()로 안전한 JS 리터럴 생성
+
+# ✅ 안전: _js_str()로 이스케이프된 문자열 사용
+page.evaluate(f"cols.find(c => c.header === {_js_str(col_name)})")
+
+# ✅ 안전: Playwright 인자 전달 방식 (user HTML 등 긴 문자열)
+page.evaluate("(htmlText) => { el.innerHTML = htmlText; }", html_text)
+
+# ❌ 위험: f-string으로 직접 보간 (따옴표/백틱 탈출 가능)
+page.evaluate(f"el.innerHTML = `{html_text}`")  # 절대 금지
+```
+
+**적용 범위**: grid.py (11개소), expense.py (5개소), vendor.py (3개소)
+
+### Playwright 세션 컨텍스트 매니저 (`handlers.py`)
+
+```python
+@contextmanager
+def _playwright_session(gw_id: str, encrypted_pw: str):
+    """Playwright 세션 생성/정리 — finally에서 browser.close + pw.stop 보장"""
+    pw = sync_playwright().start()
+    try:
+        browser, context, page = login_and_get_context(...)
+        yield browser, context, page
+    finally:
+        if browser: close_session(browser)
+        if pw: pw.stop()
+```
+
+**적용 핸들러**: `handle_submit_draft_approval`, `handle_search_project_code`
+
+### GW 자격 증명 검증 패턴 (세션 XLI)
+
+회원가입 시 Playwright로 실제 GW 로그인을 시도하여 유효성을 검사한다.
+
+```python
+# src/auth/login.py
+async def validate_gw_credentials(gw_id: str, password: str) -> tuple[bool, str]:
+    """GW 로그인 시도 → (성공여부, 에러메시지) 반환. 90초 타임아웃."""
+```
+
+- **세마포어**: `_validation_semaphore = asyncio.Semaphore(1)` — 동시 검증 1개 제한 (Playwright 충돌 방지)
+- **타임아웃**: `asyncio.wait_for(..., timeout=90)` — 90초 초과 시 타임아웃 에러
+- **적용 위치**: `app.py` 웹 회원가입 + `telegram_bot.py` `_register_with_gw_validation()`
+- **에러 변환**: `gw_error_to_user_message(error)` — 내부 에러를 사용자 친화적 한국어 메시지로 변환
+- **관리자 보호**: `ADMIN_GW_IDS` 환경변수 계정은 검증 실패해도 삭제 불가
+- **일괄 검증 CLI**: `scripts/validate_existing_users.py` — 기존 유저 전체 GW 로그인 검증
+- **관리자 페이지 검증 API** (세션 XLII):
+  - `POST /admin/users/{gw_id}/validate` — 개별 유저 GW 검증 (90초 타임아웃)
+  - `POST /admin/validate-all` — 전체 유저 SSE 스트리밍 검증 (관리자 스킵, 3초 간격)
+  - `admin.html`: 유저 테이블에 "GW 검증" 컬럼 + "전체 GW 검증" 버튼 + 프로그레스 바 + "무효 유저 삭제" 버튼
+- **테스트**: `tests/unit/test_gw_validation.py` (11개 테스트)
+
+### 업로드 토큰 TTL (`app.py`)
+- `_upload_tokens` dict에 TTL 1시간 적용
+- `_cleanup_expired_tokens()`: 만료 토큰 삭제 + 연관 임시파일 `unlink()`
+- `/upload` 요청 시마다 자동 실행
+
 ---
 
 ## 5. API 인증 패턴
@@ -218,8 +282,8 @@ Base64(HMAC-SHA256(signKey, oAuthToken + transactionId + timestamp + pathname))
 | 지출결의서 | verified | 255 | 그리드 입력 포함, 22단계 |
 | 거래처등록 | verified | 196 | 팝업 창, dzEditor API |
 | 선급금요청 | verified | 181 | `_save_advance_payment_draft()` 구현 완료 (other_forms.py) |
-| 연장근무 | template_only | 43 | 근태관리 모듈 별도 |
-| 외근신청 | template_only | 41 | 근태관리 모듈 별도 |
+| 연장근무 | code_ready | 43 | `_save_overtime_draft()` 구현 완료 — GW DOM 검증 필요 |
+| 외근신청 | code_ready | 41 | `_save_outside_work_draft()` 구현 완료 — GW DOM 검증 필요 |
 
 ### dzEditor 본문 기입 패턴
 - **DOM 직접 수정 불가** — 저장 시 반영 안 됨
@@ -265,6 +329,71 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 | 20~21 | 회계처리일자 변경 | `accounting_date` |
 | 22 | 검증결과 확인 | 자동 |
 
+### 지출결의서 OBTAlert 처리 패턴 (세션 XXXVI 확립)
+
+**문제**: GW 지출결의서 폼 진입 시 OBTAlert_dimmed 오버레이가 react-reveal 애니메이션으로 지연 등장 (3초 이상 가능)하여 프로젝트코드도움 input 클릭을 차단함.
+
+**근본 원인 분석**:
+1. 폼이 이전 임시저장 문서를 자동 로드 → project input에 이전 값 (예: GS-25-0031) 존재
+2. project input에 값이 있으면 click 시 GW가 picker를 열지 않음
+3. OBTAlert_dimmed가 투명 오버레이로 폼 전체 차단 (pointer-events: all)
+4. invoice modal 선택 후 GW가 "매칭된(매입)계산서가 없습니다." OBTAlert를 invoice modal 내부에 표시
+
+**확립된 해결 패턴**:
+```python
+# _fill_expense_fields 초입: OBTAlert 출현 대기 후 dismiss
+try:
+    page.wait_for_selector('[class*="OBTAlert_dimmed"]', state="attached", timeout=3000)
+except Exception:
+    pass  # 3초 내 미출현 → 그냥 진행
+self._dismiss_obt_alert()
+
+# _fill_project_code: cascade alert + blur-click 패턴
+# 1) 연속 2회 clean 확인으로 OBTAlert 안정화
+consecutive_clean = 0
+for _ in range(10):  # 최대 5초
+    has_obt = page.locator('[class*="OBTAlert_dimmed"]').count() > 0
+    if has_obt:
+        self._dismiss_obt_alert()
+        consecutive_clean = 0
+    else:
+        consecutive_clean += 1
+        if consecutive_clean >= 2: break
+    page.wait_for_timeout(500)
+
+# 2) 기존값 초기화 + blur (fill() 후 focus 유지 상태에서 click은 GW picker 미오픈)
+current_val = proj_input.input_value()
+if current_val:
+    proj_input.fill('')
+    page.keyboard.press('Tab')  # blur
+    page.wait_for_timeout(300)
+
+# 3) 클릭
+proj_input.click(timeout=5000)
+```
+
+**_dismiss_obt_alert 버튼 우선순위** (base.py):
+```javascript
+// '취소'를 '확인' 앞에: "이전 작성 중인 결의서" 알림에서 취소(=새 폼)가 확인(=이전 문서 로드)보다 우선
+const targetTexts = ['저장안함', '취소', '닫기', 'OK', '확인'];
+```
+
+**OBTAlert overlay 완전 제거 확인**:
+```python
+# JS click 후 DOM에서 실제 제거될 때까지 대기
+page.wait_for_selector('[class*="OBTAlert_dimmed"]', state="detached", timeout=5000)
+```
+
+**invoice modal 내 OBTAlert 이슈**:
+- invoice 선택 후 "매칭된(매입)계산서가 없습니다." OBTAlert가 invoice modal 내부에 표시
+- _fill_project_code의 retry loop에서 이 OBTAlert를 감지하여 "확인" 클릭
+- "확인" 클릭이 OBTAlert 닫히나 invoice modal 자체는 계속 열려있어 project input 차단
+- invoice modal 닫기 로직 필요
+
+**미해결 이슈**:
+- invoice modal dataProvider 접근이 expense form grid를 읽음 (invoice modal grid 아님)
+- 실제 탑조명 invoice row를 찾지 못해 "매칭된 없음" 발생
+
 ---
 
 ## 7. 프로젝트 관리 모듈 (`src/fund_table/`)
@@ -286,9 +415,15 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 | `project_materials` | 자재 관리 |
 | `notifications` | 알림 |
 | `payment_history` | GW 이체완료 내역 (스크래핑) |
-| `budget_actual` | GW 예실대비현황 (스크래핑, 연도별 그룹) |
+| `budget_actual` | GW 예실대비현황 (스크래핑, 연도별·계층 구조) — gw_project_code, gisu, def_nm, div_fg, is_leaf 포함 |
 | `gw_projects_cache` | GW 전체 프로젝트 목록 캐시 (code UNIQUE, name, start_date, end_date, cached_at) |
 | `project_aliases` | 프로젝트 별칭 (다양한 이름으로 같은 프로젝트를 찾기 위한 메타데이터) |
+| `project_schedule_items` | 공정 일정 항목 (item_name, start_date, end_date, status, color, notes, group_name, subtitle, item_type, bar_color, sort_order) |
+
+### `projects` 테이블 추가 컬럼
+- `is_archived INTEGER DEFAULT 0` — 이전 프로젝트 보관 여부 (1=보관, 0=활성)
+- `timeline_start_month TEXT DEFAULT ''` — 타임라인 시작월 (YYYY-MM, 프로젝트별 저장)
+- `timeline_end_month TEXT DEFAULT ''` — 타임라인 종료월 (YYYY-MM, 프로젝트별 저장)
 
 ### API 엔드포인트 (`routes.py`)
 
@@ -316,8 +451,69 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 | POST | `/api/fund/gw/search-projects` | GW 프로젝트 키워드 검색 (캐시 우선) |
 | POST | `/api/fund/gw/fetch-project-list` | GW에서 전체 프로젝트 목록 크롤링 → 캐시 저장 |
 | POST | `/api/fund/import-pm-sheet` | PM Official 시트에서 프로젝트 기본정보 일괄 임포트 |
+| GET | `/api/fund/projects/{id}/budget/detail` | 예실대비 계층 구조 조회 (gisu, leaf_only 파라미터) |
+| POST | `/api/fund/projects/{id}/budget/sync-actuals` | 단일 프로젝트 예실 GW 동기화 (budget_crawler 호출) |
+| POST | `/api/fund/gw/sync-all-budget-actuals` | 전체 프로젝트 일괄 동기화 |
+| GET | `/api/fund/gw/project-list` | GW 캐시 프로젝트 목록 (keyword 검색) |
+| GET | `/api/fund/budget/cross-project` | 전체 프로젝트 예실 집계 (집행률 상위 N) |
+| GET/POST | `/api/fund/projects/{id}/schedule` | 공정 일정 항목 조회/저장 |
+| POST | `/api/fund/projects/{id}/archive` | 프로젝트 보관/복원 (is_archived) |
+| POST | `/api/fund/import-schedule-from-pm-sheet` | PM 시트 → 일정 항목 일괄 가져오기 |
+| POST | `/api/fund/import-collections-from-pm-sheet` | PM 시트 → 수금일정 일괄 가져오기 |
+| GET | `/api/fund/projects/{id}/tax-invoices` | 세금계산서 발행 내역 조회 |
+| GET | `/api/fund/projects/{id}/budget-changes` | 예산 변경 이력 조회 |
+| GET | `/api/fund/projects/{id}/collection-schedule` | 수금 예정 내역 조회 |
+| GET | `/api/fund/projects/{id}/payment-approvals` | 자금집행 승인 현황 조회 |
+| GET | `/api/fund/projects/{id}/risks` | 리스크 목록 조회 |
+| GET | `/api/fund/projects/{id}/gw-contracts` | GW 계약 내역 조회 |
 | GET | `/fund` | 프로젝트 관리 웹 페이지 서빙 |
 | GET | `/insights` | AI 인사이트 페이지 서빙 |
+
+### 공정표 자동 생성 시스템 (세션 XLI, XLIV 고도화)
+
+인테리어 시공 공정표를 자동 생성하는 모듈. Process_Map.xlsx 교육자료 기반 9개 그룹·45개 공종 마스터 데이터를 사용한다.
+
+**세션 XLIV Phase A 고도화**:
+- **A-1**: 면적 보정 로그 연속 함수 (기존 5단계 계단 → `math.log2` 기반 연속 곡선, 0.5~2.0 범위)
+- **A-2**: Full CPM — Forward + Backward Pass + Float(여유시간) + 임계경로(CP) 판별
+- **A-3**: 가중 스케일링 — CP 공종 보호 (scale*1.05), 비CP 공종 우선 축소 (scale*0.95)
+- **A-4**: DAG 순환 의존성 검증 — Kahn's algorithm 위상정렬
+- 간트차트 CP 표시: ★ 마커 + 빨간 굵은 글씨 + 빨간 테두리 바
+- 리스트 시트 CP/Float 컬럼 추가
+- 타임라인 뷰 CP 표시: 빨간 테두리 + box-shadow + ★ prefix
+
+**schedule_items 반환 필드** (A-2 추가):
+```
+is_critical: bool    # 임계경로 여부
+total_float: int     # 총 여유시간 (일)
+early_start: int     # 최조 시작시점 (상대일)
+late_start: int      # 최지 시작시점 (상대일)
+```
+
+**summary 반환 필드** (A-2 추가):
+```
+critical_path_count: int   # 임계경로 공종 수
+raw_duration: int          # CPM 역산 원래 총 기간
+scale_factor: float        # 비례 스케일 계수
+```
+
+| 파일 | 용도 |
+|------|------|
+| `src/fund_table/process_map_master.py` | 공종 마스터 데이터 (9그룹·45공종, 선행공종·기본공기 포함) |
+| `src/fund_table/schedule_generator.py` | Full CPM 엔진 (Forward+Backward Pass, Float, CP, DAG 검증, 로그 면적 보정, 가중 스케일링) |
+| `src/fund_table/schedule_export.py` | 엑셀 2시트(간트차트+리스트) + PDF(LibreOffice) 출력, CP 빨간 표시 |
+| `src/fund_table/estimate_parser.py` | 내역서 자동 파싱 (별칭 매칭 + 유사도 매칭으로 공종 자동 추출) |
+
+**API 4개** (`routes.py`):
+
+| Method | 경로 | 기능 |
+|--------|------|------|
+| GET | `/api/fund/process-map/trades` | 공종 마스터 목록 조회 |
+| POST | `/api/fund/process-map/parse-estimate` | 내역서 파싱 (공종 자동 추출) |
+| POST | `/api/fund/process-map/generate` | 공정표 생성 (CPM 엔진) |
+| POST | `/api/fund/process-map/export` | 엑셀/PDF 내보내기 |
+
+**UI**: `/fund` 일정표 탭에 "공정표 자동생성" 버튼 → 모달 → 내보내기 드롭다운
 
 ### 프로젝트 등급
 | 등급 | 색상 | 설명 |
@@ -351,6 +547,22 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 - API: `POST /api/fund/import-pm-sheet`
 - 웹: fund.html "PM 시트 가져오기" 버튼
 
+### PM 시트 → 일정 임포트 (`sheets_import.py` — `import_schedule_from_pm_sheet()`)
+- PM 시트에서 날짜 필드(착공일/준공일/설계착수/설계완료/오픈일) + 마일스톤 → `project_schedule_items`로 변환
+- `overwrite=False`: 이미 일정 항목 있는 프로젝트 건너뜀
+- `_normalize_date(raw)`: YYYY-MM-DD, YYYY.MM.DD, YY.MM.DD 형식 정규화
+- `_infer_schedule_status(start, end)`: 오늘 기준 planned/ongoing/done 자동 판별
+- 색상 자동 배정: 설계=보라, 시공=주황, 오픈=초록, 마일스톤=파랑
+- API: `POST /api/fund/import-schedule-from-pm-sheet`
+- 웹: fund.html "일정 가져오기" 버튼
+
+### PM 시트 → 수금일정 임포트 (`sheets_import.py` — `import_collections_from_pm_sheet()`)
+- PM 시트 전체 프로젝트 워크시트 순회 → 각 프로젝트 DB 매칭 → `_import_collections()` 호출
+- `overwrite=True` 기본 (기존 수금 데이터 덮어쓰기)
+- 시스템 시트(날짜명) 자동 건너뜀
+- API: `POST /api/fund/import-collections-from-pm-sheet`
+- 웹: fund.html "수금일정 가져오기" 버튼
+
 ### GW 자동 동기화 스케줄러 (`scheduler.py`)
 - **APScheduler** `BackgroundScheduler` + `CronTrigger` 사용
 - 환경변수:
@@ -361,6 +573,179 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 - 중복 실행 방지: `threading.Event` 플래그 (`sync_running`)
 - 결과 저장: `notifications` 테이블에 `sync_success` / `sync_error` 타입으로 기록
 - app.py lifespan 이벤트로 시작/종료 관리 (`start_scheduler()` / `stop_scheduler()`)
+
+---
+
+## 7-1. 일정표 탭 & 타임라인 시스템 (세션 XXXVII)
+
+### 공정 일정 데이터 모델 (`project_schedule_items`)
+
+```sql
+CREATE TABLE project_schedule_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    item_name TEXT NOT NULL DEFAULT '',
+    start_date TEXT DEFAULT '',        -- YYYY-MM-DD
+    end_date TEXT DEFAULT '',
+    status TEXT DEFAULT 'planned',     -- planned/ongoing/done/hold
+    color TEXT DEFAULT '#3b82f6',
+    notes TEXT DEFAULT '',
+    group_name TEXT DEFAULT '',        -- 팀/그룹명 (예: 공간팀, 시각팀)
+    subtitle TEXT DEFAULT '',          -- 세부 역할 설명
+    item_type TEXT DEFAULT 'bar',      -- 'bar' | 'milestone' (세로 점선)
+    bar_color TEXT DEFAULT '',         -- 커스텀 색상 (비면 group 색상 팔레트 사용)
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+```
+
+### 타임라인 렌더링 패턴 (`fund.js`)
+
+**3단 헤더**: 월 → 주차(1W, 2W...) → 날짜(MM-DD)
+```javascript
+// 주차 배열 생성 (월요일 기준)
+const weeks = [];
+let wStart = new Date(minD);
+// 월요일로 조정
+const dow = wStart.getDay();
+wStart.setDate(wStart.getDate() - (dow === 0 ? 6 : dow - 1));
+```
+
+**그룹별 렌더링**: `group_name`으로 묶어 같은 행에 다중 바 표시
+```javascript
+// 동일 group_name 항목 → 같은 <tr>에 absolute 바로 렌더링
+// group_name 없으면 'status' 기반 색상 클래스 사용
+const cls = barColor ? '' : (it.group_name ? colorClass : (it.status || 'planned'));
+```
+
+**팀 색상 팔레트**: `.c0`~`.c7` CSS 클래스, 그룹 순서대로 자동 배정
+```
+c0: 주황(#f97316), c1: 청록(#14b8a6), c2: 핑크(#ec4899),
+c3: 회색(#9ca3af), c4: 보라(#8b5cf6), c5: 파랑(#3b82f6),
+c6: 초록(#22c55e), c7: 노랑(#eab308)
+```
+
+**마일스톤**: `item_type='milestone'` → 빨간 점선 세로선 + 레이블
+**오늘 마커**: `today` 기준 좌표 % 계산 → 빨간 실선 + "오늘" 칩
+
+### 이전 프로젝트 폴더 (사이드바)
+- `is_archived=1` → 활성 목록에서 숨김, 사이드바 하단 폴더로 이동
+- 드래그 → `#archivedDropZone`에 drop → `archiveProject(id, true)` 호출
+- 폴더 토글: `toggleArchivedFolder()` — 확장/축소 상태 유지
+- "↩" 버튼 → `archiveProject(id, false)` 복원
+- 보관된 프로젝트 0개 시 폴더 숨김
+
+### 마일스톤 D-Day 배지 (`fund.js`)
+```javascript
+function calcDday(dateStr) { /* 오늘 기준 정수 차이 */ }
+function ddayHtml(dateStr, completed) {
+  // 완료: 초록 "✓완료"
+  // 0: 빨강 "D-Day"
+  // -7~-1: 주황 펄스 애니메이션 "D-N"
+  // 미래: 파랑 "D-N"
+  // 과거(미완료): 빨강 "D+N"
+}
+```
+
+---
+
+## 7-2. /fund 페이지 신규 기능 (세션 XXXVIII, 2026-04-02)
+
+### 타임라인 시작/종료월 저장 (`_saveTlRange`)
+- `projects` 테이블에 `timeline_start_month`, `timeline_end_month` TEXT 컬럼 추가
+- `_saveTlRange(startMonth, endMonth)`: PUT `/api/fund/projects/{id}` 호출 후 `projectsCache` 동기 갱신
+- `loadSchedule()`: 프로젝트 전환 시 `projectsCache`에서 저장된 월 값 복원 (재API 호출 불필요)
+
+### 이전 프로젝트 폴더 CSP 수정 패턴
+- **문제**: `fund.html`에 `script-src 'self'` CSP → 정적 HTML의 `onclick=` 모두 차단
+- **해결**: 정적 HTML의 `onclick` 제거 → JS `addEventListener` + `data-*` 이벤트 위임
+  ```javascript
+  // 정적 헤더에 onclick 대신
+  document.getElementById('archivedFolderHeader')?.addEventListener('click', toggleArchivedFolder);
+  // 동적 생성 버튼에 data-* 속성
+  `<button data-restore-project="${p.id}">↩</button>`
+  // 부모에서 위임
+  archivedList.addEventListener('click', e => {
+    const btn = e.target.closest('[data-restore-project]');
+    if (btn) archiveProject(+btn.dataset.restoreProject, false);
+  });
+  ```
+- 아카이브 폴더: 보관 0개일 때도 폴더 항상 표시 (드롭존 역할) — `archivedProjectList`만 숨김
+
+### 대시보드 경고 카드 패턴
+- `renderDashCollectionAlert(collections)`: 미수금 + `collection_date` 있는 항목 → D-7 이내 필터 → 경고 카드
+- `renderDashBudgetAlert(projectId)`: `GET /budget/detail?leaf_only=true` → 집행률 95% 이상 항목 → 경고 카드
+- 두 함수 모두 `loadDashboard()` 내에서 호출, 데이터 없으면 카드 숨김
+
+### 포트폴리오 수익성 그래프 (`_renderProfitChart`)
+- `renderPortfolio()` 또는 `loadPortfolioView()` 내에서 호출
+- `projectsCache` 배열 기반 (추가 API 없음)
+- 수주액 0인 프로젝트 제외, 이익률 = `profit_amount / (design_amount + construction_amount) * 100`
+- 순수 CSS 막대 그래프: `.pf-profit-chart-section` 컨테이너, `.pf-profit-bar` 바
+
+### 신규 탭: 계약 / 리스크
+- `data-tab="contracts"` → `loadGwContracts(projectId)` → `GET /api/fund/projects/{id}/gw-contracts`
+- `data-tab="risks"` → `loadRisks(projectId)` → `GET /api/fund/projects/{id}/risks`
+- 리스크 탭: 심각도 뱃지(high=빨강, medium=주황, low=초록) + 해결/재오픈 버튼 + 추가 버튼
+- CSP 준수: `panel-risks`에 이벤트 위임
+
+### gw_projects_cache v2 연동
+- `routes.py` fetch-project-list 엔드포인트: `save_gw_projects_cache()` → `save_gw_projects_cache_v2()` 교체
+- `db.py search_gw_projects_cache()`: SELECT에 확장 7개 필드 포함
+- `project_crawler.py`: `_parse_project_list()`, `_try_full_data_view()` v2 확장 필드 전달
+
+### 연장근무/외근신청 양식 (`other_forms.py`)
+- `_save_overtime_draft(data)`: HR 모듈 → 연장근무신청서 → 날짜/시작-종료시각/사유 입력 → 저장
+- `_save_outside_work_draft(data)`: HR 모듈 → 외근신청서 → 외근일/외출-복귀시각/외근지/사유 입력 → 저장
+- `save_form_draft(form_type, data)` 디스패처: `"연장근무"/"overtime"`, `"외근신청"/"outside_work"` 분기
+- **상태**: `code_ready` — GW HR 모듈 DOM 검증 진행 중 (세션 XLII)
+
+### 근태관리 모듈 DOM 분석 (세션 XLII 발견사항)
+
+**네비게이션 경로 (확인됨)**:
+1. `span.module-link.HR` 클릭 → 임직원업무관리 모듈 (`/#/HP/HPM0110/HPM0110`) ✓
+2. LNB `li.nav-item:has-text('근태관리')` 스크롤+클릭 → 근태관리 모듈 (`/#/UF/UFA/UFA0000?specialLnb=Y&moduleCode=UF&menuCode=UFA&pageCode=UFA1000`) ✓
+
+**LNB 구조 (HR 모듈 sideLnbMenu)**:
+```
+마이페이지 > 내정보관리 > 개인인사정보조회 / 인사정보변경신청 / 인증기기 설정
+             업무보고 / 주소록 > 주소록관리 / 노트
+             근태관리 > 근태신청 / 연차관리
+             인사관리 / 급여관리 / 경비청구 / 지출결의·계산서 / 예산관리
+```
+
+**specialLnb 사이드바 (근태관리 모듈, 스크린샷 확인됨)**:
+- 근태신청현황
+- 비출퇴근사유
+- **시간외근무** ← 연장근무 메뉴 (코드의 "연장근무신청서" 키워드 불일치)
+- 휴가관리
+- 학자금 반영현황
+
+**⚠️ 핵심 이슈**: specialLnb 사이드바 메뉴 항목이 **표준 DOM에 노출되지 않음**
+- `document.body.innerText`에 "시간외근무" 텍스트 미포함
+- `querySelectorAll('*')`로 좌표 스캔해도 해당 요소 미발견
+- Shadow DOM/Web Component 아님 — GW SPA 자체 가상 렌더링 추정
+- 좌표 클릭 시 하위 게시판 사이드바로 관통 (z-index 문제)
+
+### 근태관리 UFA URL 권한 문제 (세션 XLIII 최종 확인)
+
+**발견 사항**:
+- `tgjeon` 계정 기준, UFA1010~UFA1060 모든 URL에서 "권한 없는 메뉴" 팝업 후 게시판으로 리다이렉트
+- HR 모듈 LNB에서 `근태관리`는 `nav-item-close` 상태 = 하위 메뉴 없음 (계정 권한 없음)
+- `formId=43` 직접 URL 접근 → GW가 마지막 열린 탭(지출결의서)으로 리다이렉트
+- 좌표 클릭(120, 260~380) URL 변화가 포착되었으나 `menuCode=3000300_00200X` = 게시판 서브메뉴
+- `POST /system/orbit/getMenuOptions` API는 CSRF 보호로 직접 호출 불가
+
+**결론**: 근태관리 권한이 없는 계정으로는 어떤 UFA URL도 동작하지 않음.
+실제 시간외근무 신청 권한이 있는 일반 직원 계정으로 DOM 검증이 필요.
+
+**`_navigate_to_hr_attendance()` 현재 전략** (`src/approval/other_forms.py` line 1471):
+1. HR LNB `근태관리` 펼치기 → "근태신청" / "시간외근무" JS force 클릭
+2. 전자결재 결재작성 → "시간외근무" 양식 검색 후 선택
+3. HP 모듈 HPA0010/HPA1010/HPA1020 URL 직접 시도
+
+**상태**: `code_ready` — 근태 권한이 있는 계정으로 실제 DOM 검증 필요
 
 ---
 
@@ -421,6 +806,22 @@ Step 11:   select_budget_code() — 예산과목 필드 직접 클릭 방식 (fa
 | `add_project_contact` | 거래처 연락처 추가 | 프로젝트 관리 |
 | `get_overdue_items` | 기한 초과/미수금/긴급 TODO 조회 | 프로젝트 관리 |
 | `update_project_milestone` | 마일스톤 완료/추가 | 프로젝트 관리 |
+
+---
+
+## 10-1. 핸들러 시그니처 규칙
+
+모든 핸들러는 동일한 시그니처를 사용해야 함:
+
+```python
+def handle_xxx(params: dict, user_context: dict = None) -> str:
+```
+
+**절대 사용 금지 패턴**:
+- `async def handle_xxx(args: dict, context: dict) -> str:` — agent.py에서 동기 호출하므로 async 불가
+- 두 번째 인자 이름이 `context`이면 `user_context=user_context` 키워드 인자 전달 시 TypeError 발생
+
+**발견 경위 (세션 XXX)**: `handle_compare_projects`, `handle_generate_project_report`, `handle_update_project_milestone` 3개 핸들러가 `async def` + `context: dict` 시그니처를 사용하여 `compare_projects` 호출 시 TypeError 발생 → 수정 완료.
 
 ---
 
@@ -495,9 +896,14 @@ routes.py에서 GW 동기화 시 3단계 순차 실행:
 - 프로젝트 코드에서 연도 추출 (GS-25-XXXX → 2025) → 시작일 자동 설정
 - 메서드: `crawl_budget_by_project()` (단건), `crawl_all_by_project()` (배치)
 
-### budget_crawler.py (상세, 보충)
-- 예실대비현황(상세) 페이지에서 합계 데이터만 추출
+### budget_crawler.py (상세 + RealGrid DataProvider)
+- **시도 0 (최우선)**: `window.Grids.getActiveGrid().getDataProvider().getJsonRow(i)` — RealGrid v1.0 DataProvider 직접 접근
+  - 필드: `lastYn, bottomFg, divFg, defNm, bgtCd, bgtNm, abgtSumAm, unitAm, subAm, sumRt, T0*`
+  - 계층 구조: divFg (1:장, 2:관, 3:항, 4:목), lastYn (말단여부=is_leaf), bottomFg (상위여부)
 - `crawl_budget_summary()`, `crawl_all_summary()` (경량 합계 전용)
+- `crawl_budget_actual()` — 단건 상세 (project_id + project_code)
+- `crawl_all_projects()` — 전체 일괄 상세
+- `_transform_grid_data()`: def_nm/div_fg/is_leaf/gw_project_code → budget_actual 저장
 - `_save_budget_summary_to_db()`: projects.budget_summary TEXT 컬럼에 JSON 저장
 
 ### project_crawler.py (프로젝트 등록정보 + 전체 목록)
@@ -517,6 +923,56 @@ routes.py에서 GW 동기화 시 3단계 순차 실행:
 - 403 → "권한이 없습니다. 페이지를 새로고침하세요."
 - 504 → "서버 응답 시간이 초과되었습니다."
 - 500 → "서버 오류가 발생했습니다."
+
+---
+
+## 12-2. 예실대비 프론트엔드 (fund.js / fund.html / fund.css)
+
+### 계층 구조 테이블 렌더링 패턴
+
+`loadBudget()` 함수에서 `/api/fund/projects/{id}/budget/detail` 응답을 계층 구조로 표시.
+
+```javascript
+const LEVEL_INDENT = { 1: 0, 2: 12, 3: 24, 4: 36 };  // divFg 기반 들여쓰기(px)
+const DIV_BADGES = {
+  '장': '<span class="budget-level-badge lv1">장</span>',
+  '관': '<span class="budget-level-badge lv2">관</span>',
+  '항': '<span class="budget-level-badge lv3">항</span>',
+  '목': '<span class="budget-level-badge lv4">목</span>',
+};
+// rowClass: 장/관 상위 행은 budget-row-parent (배경 강조)
+const rowClass = (divFg === 1 || divFg === 2) && !isLeaf ? 'budget-row-parent' : '';
+```
+
+### 집행액 상위 5 미니차트 (`_renderBudgetTopChart`)
+
+- 컨테이너: `<div id="budgetTopChart">` (fund.html에 추가, table-wrapper 위)
+- 말단 항목(is_leaf=1)만 대상, 집행액 내림차순 상위 5개
+- 집행률에 따라 바 색상 분기:
+  - 95% 이상 → `#ef4444` (빨강, 위험)
+  - 80~95% → `#f97316` (주황, 경고)
+  - 미만 → `#3b82f6` (파랑, 정상)
+
+### CSS 클래스 요약 (fund.css)
+
+| 클래스 | 용도 |
+|--------|------|
+| `.budget-level-badge.lv1` | 장 — 보라 배지 |
+| `.budget-level-badge.lv2` | 관 — 파랑 배지 |
+| `.budget-level-badge.lv3` | 항 — 초록 배지 |
+| `.budget-level-badge.lv4` | 목 — 주황 배지 |
+| `.budget-row-parent > td` | 상위(합계) 행 — 배경색 + 볼드 |
+| `#budgetTopChart` | 미니차트 컨테이너 |
+| `.chart-mini-row` | 각 항목 행 (라벨 + 바 + 값) |
+| `.chart-mini-bar-wrap` | 바 배경 컨테이너 |
+| `.chart-mini-bar` | 실제 진행 바 (너비 = 최대값 대비 비율) |
+| `#pfProfitChartSection` | 포트폴리오 수익성 막대 그래프 컨테이너 |
+| `.pf-profit-row` | 프로젝트 1행 (라벨+바+%) |
+| `.pf-profit-bar` | 이익률 바 (20%이상=초록, 10~20%=파랑, 0~10%=주황, 음수=빨강) |
+| `.dash-alert-danger` | 대시보드 기한 초과 경고 카드 (빨강) |
+| `.dash-alert-warning` | 대시보드 임박 경고 카드 (주황) |
+| `.collection-progress-wrap` | 수금 탭 수금률 진행바 컨테이너 |
+| `.gw-sync-badge` | GW 데이터 신선도 배지 (N일 전 동기화) |
 
 ---
 
@@ -560,6 +1016,102 @@ routes.py에서 GW 동기화 시 3단계 순차 실행:
 | **OBTAutoComplete** | 입력 → 드롭다운 → Tab으로 확정 | `type()` → `wait_for_selector('.autocomplete')` → `press('Tab')` |
 | **OBTDatePicker** | 날짜 input + 캘린더 팝업 | `fill(date)` → `press('Tab')` (캘린더 우회) |
 | **OBTCheckBox** | 커스텀 div 체크박스 | `[class*='Checkbox']`, `[role='checkbox']` 셀렉터 사용 |
+
+---
+
+## 14-1. RealGrid v1.0 API (더존 예산관리 그리드)
+
+더존 BN 모듈(예산관리)의 예실대비현황(NCC0630, NCC0631) 화면은 OBTDataGrid가 아닌 **RealGrid v1.0**을 사용.
+
+### 기본 접근 패턴
+
+```javascript
+// 브라우저 콘솔 / Playwright evaluate()에서 사용
+const Grids = window.Grids;                        // RealGrid 전역 레지스트리
+const grid  = Grids.getActiveGrid();               // 현재 활성 그리드
+const dp    = grid.getDataProvider();              // DataProvider
+const count = dp.getRowCount();                    // 전체 행 수
+const row   = dp.getJsonRow(i);                    // i번째 행 (0-based) → JSON object 반환
+```
+
+### 예실대비현황 데이터 필드 (15개)
+
+| 필드명 | 타입 | 설명 |
+|--------|------|------|
+| `bgtCd` | str | 예산과목 코드 |
+| `bgtNm` | str | 예산과목 명 |
+| `defNm` | str | 구분명 (장/관/항/목) |
+| `divFg` | int | 계층 플래그 (1:장, 2:관, 3:항, 4:목) |
+| `lastYn` | str | 말단 여부 ("Y"/"N") |
+| `bottomFg` | str | 상위 여부 ("Y"/"N") |
+| `abgtSumAm` | int | 예산액 (원) |
+| `unitAm` | int | 집행액 (원) |
+| `subAm` | int | 잔액 (원) |
+| `sumRt` | float | 집행률 (%) |
+| `T0AbgtSumAm` | int | 전기 예산액 |
+| `T0UnitAm` | int | 전기 집행액 |
+| `T0SubAm` | int | 전기 잔액 |
+| `T0SumRt` | float | 전기 집행률 |
+| `T0TotalSumRt` | float | 전기 누계 집행률 |
+
+### budget_crawler.py 시도 0 전체 코드
+
+```javascript
+(() => {
+    try {
+        const Grids = window.Grids;
+        if (!Grids || typeof Grids.getActiveGrid !== 'function') {
+            return { error: 'Grids_not_found' };
+        }
+        const activeGrid = Grids.getActiveGrid();
+        const dp = activeGrid.getDataProvider ? activeGrid.getDataProvider() : null;
+        if (!dp) return { error: 'no_DataProvider' };
+        const rowCount = dp.getRowCount ? dp.getRowCount() : 0;
+        if (rowCount === 0) return { error: 'empty_grid', rowCount: 0 };
+        const rows = [];
+        for (let i = 0; i < rowCount; i++) {
+            const row = dp.getJsonRow ? dp.getJsonRow(i) : null;
+            if (row) rows.push(row);
+        }
+        const cols = rows.length > 0
+            ? Object.keys(rows[0]).map(k => ({ name: k, header: k }))
+            : [];
+        return { source: 'window.Grids.DataProvider', row_count: rows.length, columns: cols, rows: rows };
+    } catch(e) { return { error: 'exception: ' + e.message }; }
+})()
+```
+
+### 화면별 GW URL 및 API
+
+| 화면 | URL | API 엔드포인트 |
+|------|-----|---------------|
+| 예실대비현황(상세) | `/nonprofit/NCC0630/0BN00001` | POST CSRF 보호 |
+| 예실대비현황(사업별) | `/nonprofit/NCC0631/0BN00001` | POST CSRF 보호 |
+| 예산과목원장 | `/nonprofit/NCC0640/0BN00001` | POST CSRF 보호 |
+| 사업코드도움(피커) | `/nonprofit/NPCodePicker/0BN00001` | POST, gisu/helpTy 필요 |
+
+### GW CSRF 제약
+
+- 직접 `fetch()`/`httpx` 호출 시 → `"허용된 쿠키 인증 URL이 아닙니다"` 에러
+- 해결책: Playwright 브라우저 컨텍스트 내에서만 API 접근 가능
+- XHR 인터셉터로 파라미터 캡처 후 → Playwright evaluate()로 동일 요청 재현
+
+### 사업코드피커 API 파라미터 (NPCodePicker)
+
+```json
+{
+  "langKind": "KOR",
+  "coCd": "1000",
+  "empCd": "GS251105",
+  "gisu": "9",
+  "helpTy": "SMGT_CODE",
+  "searchWord": "",
+  "startIndex": 0,
+  "endIndex": 200
+}
+```
+- `gisu`: 회계 연도 인덱스 (2024=8, 2025=9, 2026=10 추정)
+- 총 197개 전체 / 157개 유효 프로젝트 (GS-24-XXXX ~ GS-26-XXXX 패턴)
 
 ---
 

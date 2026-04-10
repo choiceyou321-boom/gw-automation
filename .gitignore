@@ -65,5 +65,8 @@ data/sessions/
 .claude/
 MEMORY.md
 
+# 대용량 PDF
+data/kshia_translation/*.pdf
+
 # 기타
 01-OA/

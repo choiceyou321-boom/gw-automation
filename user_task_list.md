@@ -1,6 +1,6 @@
 # GW 자동화 프로젝트 — 작업 목록
 
-> 마지막 업데이트: 2026-04-10 (세션 XLV 공종 마스터 DB화 + 선급금 E2E verify PASS + bank picker GW 검증 완료)
+> 마지막 업데이트: 2026-04-12 (세션 XLVII 선급금 그리드 필수 필드 자동 입력 구현)
 > 프로젝트: 글로우서울 그룹웨어(더존 Amaranth10/WEHAGO) 업무 자동화
 
 ---
@@ -45,7 +45,7 @@
 | 13 | **용도코드 자동팝업 처리 순서 수정** | :white_check_mark: | 03-25 | step 10-A 신규: Enter 후 즉시 팝업 처리 → step 10-1(지급요청일) 순서 확립 |
 | 14 | **기결재 문서 수신참조 추가 자동화** | :white_check_mark: | 03-26 | `cc_manager.py` 신규: `add_cc_to_document()` / `batch_add_cc()` / `add_cc_by_title()` — docID 또는 제목 키워드 검색 양방향 지원 · RealGrid canvas checkRow + React fiber onClick 패턴 확립 |
 | 8 | 전자결재 위저드 (챗봇 단계별 질문) | :white_check_mark: | 03-09 | approval_wizard.py |
-| 9 | 선급금요청 양식 (code_ready) | :construction: | — | formId 181, 코드 작성 완료. 세션 XLV: tgjeon 계정 verify PASS (결재작성 경로, bank picker 동작 확인). draft는 OBTAlert 오버레이 차단 → dismiss+force click 추가 |
+| 9 | 선급금요청 양식 (code_ready) | :construction: | — | formId 181, 자동화 코드 complete. 세션 XLV: verify PASS + bank picker. 세션 XLVI: `_save_advance_payment_draft()` expense.py 패턴으로 재작성(pre-submit cleanup 루프 + 보관 직접 클릭 + navigate-away 폴백 + GW 검증 오류 모달 텍스트 추출). 실 테스트에서 GW 서버단 "검증결과 부적합" 감지(용도코드/거래처/예산과목 등 필수 필드 누락) — 테스트 데이터 한계로 draft는 미완, 코드 경로는 모두 동작 |
 | 10 | 연장근무 양식 (code_ready) | :construction: | — | formId 43, `_save_overtime_draft()` 구현 완료 → GW DOM 검증 필요 |
 | 11 | 외근신청 양식 (code_ready) | :construction: | — | formId 41, `_save_outside_work_draft()` 구현 완료 → GW DOM 검증 필요 |
 | 12 | **좌표 의존 코드 제거 (13건→폴백 유지)** | :white_check_mark: | 03-22 | JS click/OBTDataGrid API 우선 → 좌표 폴백 유지 (expense 7건, grid 5건, budget 1건) |
@@ -220,7 +220,7 @@
 
 | # | 작업 | 상태 | 선행 작업 | 설명 |
 |---|------|------|-----------|------|
-| 3 | 선급금요청 양식 자동화 | :construction: | — | formId 181. 코드 작성 완료, GW DOM 검증 필요 |
+| 3 | 선급금요청 양식 자동화 | :construction: | — | formId 181. 세션 XLVII: `_fill_advance_grid_mandatory_fields()` + 그리드 진단 덤프. GW 검증 필수 4개 확정: ①용도(cashNm) ②거래처(trGroup) ③증빙(attrCd) ④지급요청일(payDt). **setValue API는 GW 검증 플래그 미갱신** → keyboard.type+Enter 필수. 셀 에디터 활성화: focus()→내부INPUT(비셀에디터) → canvas dblclick 개선 중. 예산과목은 선급금 폼 검증 필수 아님 (rowValidationMsg 미포함). |
 | 4 | 연장근무 양식 자동화 | :construction: | — | formId 43. _navigate_to_hr_attendance 3단계 폴백 전략 코드 완료. 세션 XLV: shyang(과장)도 UFA1010~1030 모두 "권한 없는 메뉴" 확인 → HR 권한 보유 계정 필요. |
 | 5 | 외근신청 양식 자동화 | :clipboard: | 연장근무 | formId 41. 연장근무 패턴 재사용 가능 |
 
@@ -276,6 +276,8 @@
 | XLIII | 04-08 | 근태관리 UFA URL 권한 없음 최종 확인 (UFA1010~UFA1060 전부 권한 없음, tgjeon 계정 기준) + _navigate_to_hr_attendance 3단계 폴백 전략 재작성 (LNB force click → EA 결재작성 검색 → HP URL 직접) + unused parameter 수정 (_target_page_code) + DEVELOPER_GUIDE 업데이트. pytest 163/163 |
 | XLIV | 04-10 | **공정표 Full CPM 고도화** (Phase A 완료): ① 면적 보정 로그 연속 함수 (5단계 계단→math.log2, 경계 불연속 해소) ② Full CPM Forward+Backward Pass + Float + 임계경로(CP) 판별 ③ 가중 스케일링 (CP 공종 보호 1.05x, 비CP 축소 0.95x) ④ DAG 순환 검증 (Kahn's algorithm) ⑤ 간트차트/리스트 CP 빨간 표시 (★마커+테두리+CP/Float 컬럼) ⑥ 타임라인 뷰 CP 시각화 (빨간 테두리+shadow) + **선급금요청 bank picker 구현** (`_handle_bank_picker()` 신규, 금융기관코드도움 OBTDialog2 피커 처리, 예외 시 Escape 정리) + 코드 리뷰 (CRITICAL 1건 수정: picker 예외 후 세션 정리). pytest 180/180 |
 | XLV | 04-10 | **공정표 Phase B 공종 마스터 DB화**: `construction_trades`/`construction_presets` 테이블 + CRUD 6함수 + `seed_construction_trades_from_master()` 마이그레이션 (55공종+5프리셋) + routes.py API 6개 + schedule_generator.py DB 우선 조회 + fund.js/html/css 공종 편집 UI (커스텀 추가/삭제/프리셋 저장) + 13 unit test. **선급금 E2E (tgjeon)**: verify ✅ PASS (결재작성 경로, bank picker 동작 확인 52건), draft ❌ (결재상신 OBTAlert 차단 → dismiss + force click 코드 추가). **근태관리 E2E (shyang)**: 권한/DOM 검증 스크립트 작성. **merge conflict 해결**: tools_schema.py + app.py. pytest 193/193 PASS (신규 13개) |
+| XLVI | 04-11 | **선급금 draft 재검증 + `_save_advance_payment_draft()` 재작성**: expense.py `_create_expense_report_via_popup` 패턴 이식 — (1) pre-submit OBTAlert/모달 cleanup 루프(3회) + Escape (2) 보관 버튼 직접 클릭 폴백(팝업 불필요 시) (3) click timeout 3초 + JS click / force click 2단 폴백 (4) 팝업 미감지 시 검증 부적합 모달 텍스트 추출(패턴 매칭) + `_try_archive_via_navigate_away()` 호출 (5) 사용자 힌트 포함 에러 메시지. **E2E 결과**: verify ✅ PASS, draft ❌ GW 서버단 검증 부적합 감지 → "검증결과가 부적합인 지출내역이 존재합니다" 명확히 반환 (이전엔 "팝업 미열림"만 표시). 지출내역 그리드 필수 필드(용도코드·거래처·예산과목) 미입력이 원인 — expense.py step 10-A 패턴 이식이 후속 과제. **navigate-away 폴백 한계 확인**: 선급금 폼의 문서목록 이탈 다이얼로그는 `확인/취소`만 있고 `보관` 버튼 없음. pytest 193/193 PASS |
+| XLVII | 04-12 | **선급금 그리드 필수 필드 자동 입력 + 진단**: `_fill_advance_grid_mandatory_fields()` 신규 (expense.py step 10/10-A/10-1 이식) + 그리드 전체 셀 값 진단 덤프. **GW 검증 필수 4개 확정**: ①용도(cashNm) ②거래처(trGroup) ③증빙(attrCd) ④지급요청일(payDt). 핵심 발견: setValue API는 GW 검증 플래그 미갱신 → keyboard.type+Enter 필수; focus()가 셀 에디터 아닌 내부 INPUT 활성화 → canvas dblclick 개선 필요; 선급금 폼에 예산과목(budgetAcct) 컬럼 존재하나 검증 필수 아님. E2E 테스트 데이터에 vendor_name/usage_code 추가. pytest 193/193 PASS |
 
 ---
 

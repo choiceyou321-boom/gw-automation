@@ -5,7 +5,7 @@
 import os
 import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeout
-from src.approval.base import GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR, _save_debug
+from src.approval.base import GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR, _save_debug, _js_str
 from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
 
 logger = logging.getLogger("approval_automation")
@@ -837,7 +837,13 @@ class OtherFormsMixin:
                 self._fill_grid_items(items)
                 _save_debug(page, "adv_03b_after_grid")
 
-        # 5. 지급요청일 / 증빙일자 입력
+        # ── 8~11. 그리드 필수 필드 자동 입력 (expense.py step 10/10-A/10-1 패턴 이식) ──
+        # GW 서버 검증 필수: 용도코드 · 예산과목 · 지급요청일
+        # 세션 XLVI 발견: 이 필드들이 비면 "검증결과가 부적합인 지출내역이 존재합니다" 반환
+        if form_type == "요청서":
+            self._fill_advance_grid_mandatory_fields(data)
+
+        # 5. 지급요청일 / 증빙일자 입력 (하단 날짜피커 — 그리드 내 지급요청일과 별개)
         payment_date = data.get("payment_date", "") or data.get("receipt_date", "") or data.get("date", "")
         if payment_date:
             self._fill_receipt_date(payment_date)
@@ -856,13 +862,375 @@ class OtherFormsMixin:
 
         logger.info(f"선급금 {form_type} 필드 채우기 완료")
 
+    # ────────────────────────────────────────────────────────
+    # 선급금 그리드 필수 필드 자동 입력 (expense.py step 10/10-A/10-1 이식)
+    # ────────────────────────────────────────────────────────
+
+    def _fill_advance_grid_mandatory_fields(self, data: dict):
+        """
+        선급금 요청서 지출내역 그리드의 GW 서버 검증 필수 필드 입력.
+
+        expense.py step 10(용도코드) → 10-A(예산과목 자동팝업) → 10-1(지급요청일) 패턴 이식.
+        _fill_grid_items()로 기본 항목(내용/금액/거래처) 입력 후 호출.
+
+        필수 필드:
+        - 용도코드 (usage_code): OBTDataGrid 용도 셀 keyboard.type + Enter
+        - 예산과목 (budget_keyword): 용도코드 Enter 후 자동 팝업 처리
+        - 지급요청일 (payment_date): 그리드 날짜 셀 직접 입력
+
+        Args:
+            data: {
+                "usage_code": "8020",         # 용도코드 (예: 8020=재료비)
+                "budget_keyword": "공사",     # 예산과목 검색 키워드
+                "project": "GS",              # 프로젝트 (예산팝업용)
+                "payment_date": "2026-04-30", # 지급요청일
+            }
+        """
+        page = self.page
+        usage_code = data.get("usage_code", "")
+        budget_keyword = data.get("budget_keyword", "")
+        project = data.get("project", "")
+        payment_date = data.get("payment_date", "") or data.get("payment_request_date", "")
+
+        if not usage_code and not payment_date:
+            logger.info("선급금 그리드 필수 필드: usage_code/payment_date 모두 미지정 — 건너뜀")
+            return
+
+        # ── Step 8: 용도코드 입력 (OBTDataGrid canvas 셀 keyboard.type + Enter) ──
+        if usage_code:
+            try:
+                grid_info = page.evaluate("""() => {
+                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                    if (!el) return null;
+                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                    if (!fk) return null;
+                    let f = el[fk];
+                    for (let i = 0; i < 3 && f; i++) f = f.return;
+                    const iface = f?.stateNode?.state?.interface;
+                    if (!iface || typeof iface.getRowCount !== 'function') return null;
+                    const rowCount = iface.getRowCount();
+                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
+                    return {rowCount, cols};
+                }""")
+
+                if grid_info:
+                    row_count = grid_info["rowCount"]
+                    cols = grid_info["cols"]
+                    logger.info(f"[선급금 그리드] 행 수: {row_count}, 컬럼: {[c['header'] for c in cols[:10]]}")
+
+                    # 그리드 행 렌더링 대기 (최대 3초)
+                    if row_count == 0:
+                        logger.warning("[선급금 그리드] 행 없음 — 렌더링 대기 (최대 3초)")
+                        for _w in range(6):
+                            page.wait_for_timeout(500)
+                            row_count = page.evaluate("""() => {
+                                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                if (!el) return 0;
+                                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                if (!fk) return 0;
+                                let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                                const iface = f?.stateNode?.state?.interface;
+                                return (iface && typeof iface.getRowCount === 'function') ? iface.getRowCount() : 0;
+                            }""")
+                            if row_count > 0:
+                                logger.info(f"[선급금 그리드] 대기 후 행 확인: {row_count}행 ({(_w+1)*0.5:.1f}초)")
+                                break
+
+                    # 용도 컬럼 찾기
+                    usage_col = None
+                    for c in cols:
+                        h = str(c.get("header", ""))
+                        if isinstance(h, dict):
+                            h = h.get("text", "")
+                        if "용도" in h or "usage" in c.get("name", "").lower():
+                            usage_col = c
+                            break
+
+                    if usage_col and row_count > 0:
+                        # 용도 컬럼 인덱스 계산 (canvas 좌표 산출용)
+                        usage_col_idx = next(
+                            (i for i, c in enumerate(cols)
+                             if c.get("name") == usage_col["name"]),
+                            0
+                        )
+
+                        filled_count = 0
+                        for row_idx in range(row_count):
+                            try:
+                                # 1단계: setSelection + focus (셀 선택)
+                                page.evaluate(f"""() => {{
+                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    let f = el[fk];
+                                    for (let i = 0; i < 3; i++) f = f.return;
+                                    const iface = f.stateNode.state.interface;
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }});
+                                    if (typeof iface.focus === 'function') {{
+                                        try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }}); }} catch(e) {{
+                                            try {{ iface.focus(); }} catch(e2) {{}}
+                                        }}
+                                    }}
+                                }}""")
+                                page.wait_for_timeout(400)
+
+                                # 2단계: activeElement가 그리드 셀 에디터인지 확인
+                                # OBTDataGrid 셀 에디터는 className에 'OBTDataGrid' 포함
+                                # cls가 비면 다른 input에 포커스된 것 → canvas dblclick 필요
+                                _active_info = page.evaluate("""() => {
+                                    const el = document.activeElement;
+                                    if (!el) return {tag: 'none', cls: '', inGrid: false};
+                                    const inGrid = !!el.closest('.OBTDataGrid_grid__22Vfl');
+                                    return {tag: el.tagName, cls: (el.className || '').slice(0, 80), inGrid: inGrid};
+                                }""")
+                                _active_tag = _active_info.get("tag", "none")
+                                _active_cls = _active_info.get("cls", "")
+                                _in_grid = _active_info.get("inGrid", False)
+                                logger.info(f"[선급금 그리드] focus 후 activeElement: {_active_tag} cls={_active_cls} inGrid={_in_grid}")
+
+                                # 셀 에디터가 아닌 경우 (INPUT이지만 grid 밖 or INPUT이 아님)
+                                if _active_tag != "INPUT" or not _in_grid:
+                                    # canvas dblclick으로 셀 에디터 강제 활성화
+                                    # 용도 컬럼은 체크박스(~30px) 다음 첫 번째 데이터 컬럼
+                                    # 행 높이: 헤더 ~24px + (row_idx * ~24px) + 12px(행 중앙)
+                                    _cv = page.locator(".OBTDataGrid_grid__22Vfl canvas").first
+                                    _cv_box = _cv.bounding_box()
+                                    if _cv_box:
+                                        _cell_x = 30 + (usage_col_idx * 60) + 30  # 체크박스 + 컬럼 오프셋
+                                        _cell_y = 24 + (row_idx * 24) + 12  # 헤더 + 행 오프셋
+                                        logger.info(f"[선급금 그리드] canvas dblclick 시도: ({_cell_x}, {_cell_y})")
+                                        _cv.dblclick(position={"x": _cell_x, "y": _cell_y})
+                                        page.wait_for_timeout(500)
+
+                                        # dblclick 후 activeElement 재확인
+                                        _active_tag2 = page.evaluate("() => document.activeElement ? document.activeElement.tagName : 'none'")
+                                        _active_cls2 = page.evaluate("() => document.activeElement ? document.activeElement.className.slice(0,60) : ''")
+                                        logger.info(f"[선급금 그리드] dblclick 후 activeElement: {_active_tag2} cls={_active_cls2}")
+
+                                        # 여전히 INPUT이 아니면 single click 폴백 (다른 위치)
+                                        if _active_tag2 != "INPUT":
+                                            _cv.click(position={"x": 52, "y": 36})
+                                            page.wait_for_timeout(400)
+                                            _active_tag3 = page.evaluate("() => document.activeElement ? document.activeElement.tagName : 'none'")
+                                            logger.info(f"[선급금 그리드] click 폴백 후 activeElement: {_active_tag3}")
+
+                                # 3단계: 기존값 클리어
+                                page.keyboard.press("Control+A")
+                                page.wait_for_timeout(100)
+                                page.keyboard.press("Delete")
+                                page.wait_for_timeout(200)
+
+                                # 4단계: 용도코드 타이핑 + Enter (자동완성 트리거)
+                                page.keyboard.type(str(usage_code), delay=50)
+                                page.wait_for_timeout(1000)  # 자동완성 드롭다운 대기
+
+                                # 자동완성 드롭다운 존재 여부 확인
+                                _has_dropdown = page.evaluate("""() => {
+                                    const dd = document.querySelector('[class*="autocomplete"], [class*="AutoComplete"], [class*="dropdown"], [class*="suggest"]');
+                                    return dd ? dd.textContent.slice(0, 100) : null;
+                                }""")
+                                logger.info(f"[선급금 그리드] 자동완성 드롭다운: {_has_dropdown}")
+
+                                page.keyboard.press("Enter")
+                                page.wait_for_timeout(500)
+
+                                # Tab으로 셀 이탈 (값 커밋 보장)
+                                page.keyboard.press("Tab")
+                                page.wait_for_timeout(300)
+
+                                # 5단계: 입력 확인
+                                try:
+                                    _val = page.evaluate(f"""() => {{
+                                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                        let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                                        const iface = f?.stateNode?.state?.interface;
+                                        return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
+                                    }}""")
+                                    logger.info(f"[선급금 그리드] 용도 셀 값: '{_val}'")
+
+                                    # 값이 비었으면 setValue API 직접 시도 (폴백)
+                                    if not _val:
+                                        logger.warning("[선급금 그리드] 용도코드 keyboard 입력 실패 → setValue API 폴백")
+                                        page.evaluate(f"""() => {{
+                                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                            let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                                            const iface = f?.stateNode?.state?.interface;
+                                            if (iface && typeof iface.setValue === 'function') {{
+                                                iface.setValue({row_idx}, {_js_str(usage_col["name"])}, {_js_str(usage_code)});
+                                            }}
+                                            if (iface && typeof iface.commit === 'function') iface.commit();
+                                        }}""")
+                                        page.wait_for_timeout(300)
+                                        _val2 = page.evaluate(f"""() => {{
+                                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                            let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                                            const iface = f?.stateNode?.state?.interface;
+                                            return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
+                                        }}""")
+                                        logger.info(f"[선급금 그리드] setValue 폴백 후 값: '{_val2}'")
+                                except Exception:
+                                    pass
+
+                                filled_count += 1
+                            except Exception as _re:
+                                logger.warning(f"[선급금 그리드] 용도코드 행 {row_idx} 실패: {_re}")
+                                continue
+
+                        logger.info(f"[선급금 그리드] 용도코드 '{usage_code}' 입력: {filled_count}/{row_count}행")
+                        page.wait_for_timeout(500)
+                    elif row_count == 0:
+                        logger.error("[선급금 그리드] 행 없음 — 용도코드 입력 불가")
+                    else:
+                        logger.warning(f"[선급금 그리드] 용도 컬럼 미발견: {[c['header'] for c in cols[:10]]}")
+                else:
+                    logger.warning("[선급금 그리드] OBTDataGrid interface 미발견 — 용도코드 건너뜀")
+
+                _save_debug(page, "adv_08_after_usage_code")
+            except Exception as e:
+                logger.warning(f"[선급금 그리드] 용도코드 입력 실패: {e}")
+
+        # ── Step 9: 예산과목 자동 팝업 처리 (용도코드 Enter 후 트리거) ──
+        _budget_handled = False
+        if usage_code and budget_keyword:
+            try:
+                from src.approval.budget_helpers import handle_auto_triggered_popup
+                _proj_kw = project.split(". ", 1)[-1].split("]")[-1].strip() if project else ""
+                auto_result = handle_auto_triggered_popup(
+                    page=page,
+                    project_keyword=_proj_kw,
+                    budget_keyword=budget_keyword,
+                )
+                if auto_result["success"]:
+                    logger.info(f"[선급금 그리드] 예산과목 자동팝업 완료: {auto_result['budget_code']}. {auto_result['budget_name']}")
+                    _budget_handled = True
+                else:
+                    logger.warning(f"[선급금 그리드] 예산과목 자동팝업 미처리: {auto_result['message']}")
+                _save_debug(page, "adv_09_after_budget_popup")
+            except Exception as e:
+                logger.error(f"[선급금 그리드] 예산과목 자동팝업 예외: {e}")
+
+        # Step 9 폴백: 자동팝업 미처리 시 select_budget_code() 직접 호출
+        if usage_code and budget_keyword and not _budget_handled:
+            try:
+                from src.approval.budget_helpers import select_budget_code
+                _proj_kw = project.split(". ", 1)[-1].split("]")[-1].strip() if project else ""
+                budget_result = select_budget_code(
+                    page=page,
+                    project_keyword=_proj_kw,
+                    budget_keyword=budget_keyword,
+                )
+                if budget_result["success"]:
+                    logger.info(f"[선급금 그리드] 예산과목 폴백 완료: {budget_result['budget_code']}. {budget_result['budget_name']}")
+                else:
+                    logger.warning(f"[선급금 그리드] 예산과목 폴백 실패: {budget_result['message']}")
+                _save_debug(page, "adv_09b_after_budget_fallback")
+            except Exception as e:
+                logger.error(f"[선급금 그리드] 예산과목 폴백 예외: {e}")
+
+        # ── Step 10: 지급요청일 그리드 입력 ──
+        if payment_date and usage_code:
+            try:
+                clean_date = payment_date.replace("-", "")
+                grid_info = page.evaluate("""() => {
+                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                    if (!el) return null;
+                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                    if (!fk) return null;
+                    let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                    const iface = f?.stateNode?.state?.interface;
+                    if (!iface || typeof iface.getRowCount !== 'function') return null;
+                    const rowCount = iface.getRowCount();
+                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
+                    return {rowCount, cols};
+                }""")
+
+                if grid_info:
+                    # 지급요청일 컬럼 찾기
+                    pay_col = None
+                    for c in grid_info["cols"]:
+                        raw_h = c.get("header", "")
+                        if isinstance(raw_h, dict):
+                            raw_h = raw_h.get("text", "")
+                        h = str(raw_h).replace(" ", "")
+                        if "지급요청" in h or "지급일" in h or "payDate" in c.get("name", "").lower():
+                            pay_col = c
+                            break
+
+                    if pay_col and grid_info["rowCount"] > 0:
+                        filled_count = 0
+                        for row_idx in range(grid_info["rowCount"]):
+                            try:
+                                page.evaluate(f"""() => {{
+                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                                    let f = el[fk]; for (let i = 0; i < 3; i++) f = f.return;
+                                    const iface = f.stateNode.state.interface;
+                                    iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }});
+                                    if (typeof iface.focus === 'function') {{
+                                        try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }}); }} catch(e) {{
+                                            try {{ iface.focus(); }} catch(e2) {{}}
+                                        }}
+                                    }}
+                                }}""")
+                                page.wait_for_timeout(300)
+                                page.keyboard.type(clean_date, delay=20)
+                                page.wait_for_timeout(300)
+                                page.keyboard.press("Tab")
+                                page.wait_for_timeout(200)
+                                filled_count += 1
+                            except Exception:
+                                continue
+                        logger.info(f"[선급금 그리드] 지급요청일 '{payment_date}' 입력: {filled_count}/{grid_info['rowCount']}행")
+                    else:
+                        logger.warning(f"[선급금 그리드] 지급요청일 컬럼 미발견: {[c['header'] for c in grid_info.get('cols', [])[:10]]}")
+
+                _save_debug(page, "adv_10_after_payment_date_grid")
+            except Exception as e:
+                logger.warning(f"[선급금 그리드] 지급요청일 그리드 입력 실패: {e}")
+
+        # ── 진단: 전체 그리드 셀 값 덤프 (검증 부적합 원인 추적) ──
+        try:
+            _grid_dump = page.evaluate("""() => {
+                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
+                if (!el) return null;
+                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
+                if (!fk) return null;
+                let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
+                const iface = f?.stateNode?.state?.interface;
+                if (!iface) return null;
+                const rowCount = iface.getRowCount();
+                const cols = iface.getColumns().map(c => c.name);
+                const rows = [];
+                for (let r = 0; r < rowCount; r++) {
+                    const row = {};
+                    for (const cn of cols) {
+                        try { row[cn] = iface.getValue(r, cn); } catch(e) { row[cn] = '?'; }
+                    }
+                    rows.push(row);
+                }
+                return {cols, rows};
+            }""")
+            if _grid_dump:
+                logger.info(f"[선급금 그리드 진단] 컬럼: {_grid_dump['cols']}")
+                for i, row in enumerate(_grid_dump.get("rows", [])):
+                    logger.info(f"[선급금 그리드 진단] 행 {i}: {row}")
+        except Exception as _de:
+            logger.warning(f"[선급금 그리드 진단] 덤프 실패: {_de}")
+
     def _save_advance_payment_draft(self) -> dict:
         """
         선급금 요청서/정산서 임시보관 (draft 모드)
 
-        인라인 폼에는 '보관' 버튼이 없으므로
-        결재상신 클릭 → 팝업 열림 → 팝업에서 '보관' 버튼 클릭 흐름으로 처리.
-        (지출결의서 _create_expense_report_via_popup / 증빙발행 _create_proof_issuance_draft 패턴과 동일)
+        지출결의서 `_create_expense_report_via_popup`의 post-submit 핸들링을 그대로 이식.
+        플로우 우선순위:
+        1. 인라인 폼에 '보관' 버튼이 직접 존재하면 클릭 (팝업 불필요)
+        2. 결재상신 클릭 전 OBTAlert/모달 정리 루프 (최대 3회)
+        3. 결재상신 클릭 → expect_page로 팝업 감지 (force/JS 폴백)
+        4. 팝업 미감지 시 GW 검증 오류 모달 텍스트 추출 +
+           `_try_archive_via_navigate_away()` (문서목록 이탈 → 보관 다이얼로그) 폴백
+        5. 팝업 감지 시 `_save_draft_in_popup()`로 보관 버튼 클릭
 
         호출 시점: create_advance_payment_request/settlement에서 필드 채우기 완료 후.
         """
@@ -873,6 +1241,53 @@ class OtherFormsMixin:
         popup_page = None
 
         try:
+            _save_debug(page, "adv_draft_01_form_ready")
+
+            # ── 0단계: 결재상신 전 OBTAlert/모달 정리 (최대 3회) ──
+            for _cleanup_try in range(3):
+                self._dismiss_obt_alert()
+                self._close_open_modals()
+                page.wait_for_timeout(300)
+                try:
+                    still_blocked = page.evaluate("""() => {
+                        return !!document.querySelector('[class*="OBTAlert"][class*="dimmed"]');
+                    }""")
+                    if not still_blocked:
+                        break
+                    logger.info(f"[선급금 보관] OBTAlert 잔존 (시도 {_cleanup_try+1}) → Escape 시도")
+                    page.keyboard.press("Escape")
+                    page.wait_for_timeout(500)
+                except Exception:
+                    break
+
+            # ── 1-A단계: 인라인 폼에 '보관' 버튼이 직접 있으면 클릭 ──
+            _draft_btn = None
+            for _ds in [
+                "div.topBtn:has-text('보관')",
+                "button:has-text('보관')",
+                "[class*='topBtn']:has-text('보관')",
+                "text=보관",
+            ]:
+                try:
+                    _dloc = page.locator(_ds).first
+                    if _dloc.is_visible(timeout=1500):
+                        _draft_btn = _dloc
+                        logger.info(f"[선급금 보관] 보관 버튼 직접 발견 (팝업 불필요): {_ds}")
+                        break
+                except Exception:
+                    continue
+            if _draft_btn:
+                try:
+                    _draft_btn.scroll_into_view_if_needed()
+                    page.wait_for_timeout(200)
+                    _draft_btn.click()
+                    page.wait_for_timeout(2000)
+                    self._dismiss_obt_alert()
+                    logger.info("[선급금 보관] 보관 직접 클릭 완료 (메인 폼)")
+                    return {"success": True, "message": "선급금 요청서가 임시보관함에 저장되었습니다."}
+                except Exception as _de:
+                    logger.warning(f"[선급금 보관] 보관 직접 클릭 실패: {_de} — 결재상신 경로로 폴백")
+
             # dialog 핸들러: GW가 confirm/alert를 띄울 수 있음
             dialog_messages = []
 
@@ -904,26 +1319,30 @@ class OtherFormsMixin:
 
             if not submit_btn:
                 _save_debug(page, "adv_draft_error_no_submit_btn")
+                try:
+                    page.remove_listener("dialog", _handle_dialog)
+                except Exception:
+                    pass
                 return {"success": False, "message": "결재상신 버튼을 찾을 수 없습니다."}
 
             # ── 2단계: 결재상신 클릭 → 팝업 대기 ──
             logger.info("[선급금 보관 2/3] 결재상신 클릭 → 팝업 대기")
 
-            # OBTAlert/dimmed 오버레이 제거 (클릭 차단 방지)
-            self._dismiss_obt_alert()
-            page.wait_for_timeout(300)
-
-            # expect_page로 팝업 감지 (force=True로 오버레이 우회)
+            # expect_page로 팝업 감지 (force/JS click 폴백)
             try:
                 with self.context.expect_page(timeout=15000) as new_page_info:
                     submit_btn.scroll_into_view_if_needed()
                     page.wait_for_timeout(300)
                     try:
-                        submit_btn.click(timeout=5000)
-                    except Exception:
-                        # 오버레이 차단 시 force 클릭
-                        logger.info("결재상신 일반 클릭 실패 → force 클릭")
-                        submit_btn.click(force=True, timeout=5000)
+                        submit_btn.click(timeout=3000)
+                    except Exception as _ce:
+                        logger.warning(
+                            f"결재상신 click 차단됨({_ce.__class__.__name__}) → JS click 폴백"
+                        )
+                        try:
+                            submit_btn.evaluate("btn => btn.click()")
+                        except Exception:
+                            submit_btn.click(force=True, timeout=5000)
                     logger.info("결재상신 클릭 → 팝업 대기 (expect_page)")
                 popup_page = new_page_info.value
                 logger.info(f"결재상신 팝업 감지: {popup_page.url[:100]}")
@@ -933,8 +1352,14 @@ class OtherFormsMixin:
             # expect_page 실패 시 폴링 폴백
             if not popup_page:
                 pages_before = set(id(p) for p in self.context.pages)
+                # 잔존 OBTDialog 다시 닫기 후 재클릭
+                self._close_open_modals()
+                page.wait_for_timeout(300)
                 try:
-                    submit_btn.click()
+                    try:
+                        submit_btn.click(timeout=3000)
+                    except Exception:
+                        submit_btn.evaluate("btn => btn.click()")
                     logger.info("결재상신 재클릭 → 폴링 대기")
                 except Exception:
                     pass
@@ -953,13 +1378,106 @@ class OtherFormsMixin:
                         break
 
             # dialog 핸들러 제거
-            page.remove_listener("dialog", _handle_dialog)
+            try:
+                page.remove_listener("dialog", _handle_dialog)
+            except Exception:
+                pass
 
             if not popup_page:
                 _save_debug(page, "adv_draft_error_no_popup")
                 # dialog 메시지가 있으면 검증 오류로 판단
                 if dialog_messages:
-                    return {"success": False, "message": f"결재상신 검증 오류: {'; '.join(dialog_messages[:3])}"}
+                    return {
+                        "success": False,
+                        "message": f"결재상신 검증 오류: {'; '.join(dialog_messages[:3])}",
+                    }
+                # 부적합 오류 모달 확인 ("검증결과가 부적합인" 텍스트)
+                try:
+                    error_modal = page.locator("text=부적합").first
+                    if error_modal.is_visible(timeout=2000):
+                        # 오류 내용 추출 -- 다양한 패턴 포함
+                        error_text = page.evaluate("""() => {
+                            const els = document.querySelectorAll('div, span, li, p, td');
+                            const errors = [];
+                            const PATTERNS = ['입력해주세요', '오류 내용', '필수', '부적합', '미입력', '확인하세요'];
+                            for (const el of els) {
+                                const t = el.textContent?.trim() || '';
+                                if (t.length > 3 && t.length < 200 && PATTERNS.some(p => t.includes(p))) {
+                                    errors.push(t.substring(0, 100));
+                                }
+                            }
+                            return [...new Set(errors)].slice(0, 10).join('; ');
+                        }""")
+                        if not error_text:
+                            error_text = page.evaluate("""() => {
+                                const modal = document.querySelector(
+                                    '[class*="modal"], [class*="dialog"], [class*="popup"], [role="dialog"]'
+                                );
+                                return modal ? modal.textContent?.trim().substring(0, 300) : '(오류 내용 추출 실패)';
+                            }""")
+                        logger.warning(f"[선급금 보관] 검증 부적합 감지: {error_text[:200]}")
+                        # 닫기 버튼 클릭
+                        try:
+                            close_btn = page.locator("button:has-text('닫기')").first
+                            if close_btn.is_visible(timeout=1000):
+                                close_btn.click()
+                                page.wait_for_timeout(800)
+                        except Exception:
+                            pass
+                        # 검증 부적합 상태에서도 문서목록 이탈 후 보관 시도
+                        # (선급금 폼은 이탈 시 '확인/취소' 다이얼로그만 떠서 보관 대안이 없음 — 폴백이 무용할 가능성 큼)
+                        logger.info("[선급금 보관] 검증 부적합 → 문서목록 이탈 후 보관 시도")
+                        if self._try_archive_via_navigate_away():
+                            return {
+                                "success": True,
+                                "message": "선급금 요청서가 임시보관함에 저장되었습니다. (navigate-away 폴백)",
+                            }
+                        # GW 서버 검증 실패 — 지출내역 그리드의 필수 필드(용도코드/거래처/예산과목 등) 누락 가능성
+                        return {
+                            "success": False,
+                            "message": (
+                                f"검증 부적합: {error_text[:250]} "
+                                "— 지출내역 그리드의 필수 필드(용도코드·거래처·예산과목 등)를 확인하세요."
+                            ),
+                        }
+                except Exception:
+                    pass
+                # 일반 모달 오류 확인
+                try:
+                    modal_text = page.evaluate("""() => {
+                        let text = '';
+                        document.querySelectorAll('[class*="modal"], [class*="dialog"], [role="dialog"]').forEach(el => {
+                            if (el.offsetParent !== null) {
+                                text = el.textContent?.trim()?.substring(0, 300) || '';
+                            }
+                        });
+                        return text;
+                    }""")
+                    if modal_text:
+                        logger.warning(f"[선급금 보관] 일반 모달 감지: {modal_text[:150]}")
+                        # navigate-away 폴백 시도 (모달이 있든 없든)
+                        try:
+                            close_btn = page.locator("button:has-text('닫기')").first
+                            if close_btn.is_visible(timeout=800):
+                                close_btn.click()
+                                page.wait_for_timeout(500)
+                        except Exception:
+                            pass
+                        if self._try_archive_via_navigate_away():
+                            return {
+                                "success": True,
+                                "message": "선급금 요청서가 임시보관함에 저장되었습니다. (navigate-away 폴백)",
+                            }
+                        return {"success": False, "message": f"결재상신 오류 모달: {modal_text[:150]}"}
+                except Exception:
+                    pass
+                # 모달도 없는 경우: 마지막 수단으로 navigate-away 시도
+                logger.info("[선급금 보관] 팝업/모달 미감지 → navigate-away 최종 폴백")
+                if self._try_archive_via_navigate_away():
+                    return {
+                        "success": True,
+                        "message": "선급금 요청서가 임시보관함에 저장되었습니다. (navigate-away 폴백)",
+                    }
                 return {"success": False, "message": "결재상신 후 팝업이 열리지 않았습니다."}
 
             # 팝업 로드 대기 (SPA 렌더링 완료까지)
@@ -1024,6 +1542,8 @@ class OtherFormsMixin:
                 "bank_name": "은행명",               # 선택
                 "account_number": "계좌번호",        # 선택
                 "account_holder": "예금주",          # 선택
+                "usage_code": "8020",               # 용도코드 (그리드 필수)
+                "budget_keyword": "공사",           # 예산과목 키워드 (그리드 필수)
                 "attachment_path": "/path.pdf",      # 첨부파일 경로 (선택)
                 "save_mode": "verify",               # "verify" | "submit" | "draft"
             }

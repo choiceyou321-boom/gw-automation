@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-04-10 (세션 XLV — 공종 마스터 DB화 + 선급금/근태 E2E 검증 + merge conflict 해결)
+> 마지막 업데이트: 2026-04-12 (세션 XLVII — 선급금 그리드 필수 필드 자동 입력 구현)
 > 새 세션 시작 시 이 문서와 `MEMORY.md`(auto-memory)를 함께 참고.
 
 ---
@@ -281,7 +281,7 @@ Base64(HMAC-SHA256(signKey, oAuthToken + transactionId + timestamp + pathname))
 |------|------|--------|------|
 | 지출결의서 | verified | 255 | 그리드 입력 포함, 22단계 |
 | 거래처등록 | verified | 196 | 팝업 창, dzEditor API |
-| 선급금요청 | verified | 181 | `_save_advance_payment_draft()` 구현 완료 (other_forms.py) |
+| 선급금요청 | code_ready | 181 | 세션 XLVII: `_fill_advance_grid_mandatory_fields()` + 그리드 진단. GW 검증 필수 4개: 용도(cashNm)·거래처(trGroup)·증빙(attrCd)·지급요청일(payDt). **setValue API는 GW 검증 플래그 미갱신** → keyboard.type+Enter 필수. 셀 에디터 활성화 개선 중 (focus()가 내부 INPUT 활성화하나 셀 에디터 아님 → canvas dblclick 필요) |
 | 연장근무 | code_ready | 43 | `_save_overtime_draft()` 구현 완료 — GW DOM 검증 필요 |
 | 외근신청 | code_ready | 41 | `_save_outside_work_draft()` 구현 완료 — GW DOM 검증 필요 |
 

@@ -98,7 +98,8 @@ def select_budget_code(page: Page, project_keyword: str, budget_keyword: str) ->
                             page.keyboard.press("Tab")
                             page.wait_for_timeout(500)
                             logger.info(f"예산과목 직접 입력 폴백: '{_code_str}'")
-                            result["code"] = _code_str
+                            result["budget_code"] = _code_str
+                            result["budget_name"] = ""
                             result["success"] = True
                             return result
                 except Exception as _fe:
@@ -378,9 +379,6 @@ def _fill_modal_project(page: Page, project_keyword: str) -> bool:
     proj_input.type(project_keyword, delay=80)
     logger.info(f"모달 프로젝트 검색어 입력: '{project_keyword}'")
 
-    # 자동완성 드롭다운 대기 (OBT 자동완성 컴포넌트)
-    page.wait_for_timeout(3000)
-
     dropdown_selectors = [
         "ul[class*='autocomplete'] li",
         "div[class*='OBTAutoComplete'] li",
@@ -389,6 +387,12 @@ def _fill_modal_project(page: Page, project_keyword: str) -> bool:
         "div[class*='dropdown'] li",
         "ul li[class*='item']",
     ]
+    # 자동완성 드롭다운 출현까지 최대 3초 polling (이전: 무조건 3000ms 대기).
+    # 6개 셀렉터 중 하나라도 visible 되면 즉시 진행 → 평균 응답 단축.
+    try:
+        page.wait_for_selector(", ".join(dropdown_selectors), state="visible", timeout=3000)
+    except Exception:
+        pass  # 시간 안에 안 나오면 아래 폴백 경로로
     for sel in dropdown_selectors:
         try:
             items = page.locator(sel).all()
@@ -462,20 +466,9 @@ def _fill_modal_budget_keyword(page: Page, budget_keyword: str) -> bool:
         pass
 
     if not sub_popup_visible:
-        # 코드도움 트리거: Enter 키 재시도 (SearchHelp는 Enter로 팝업 열림)
+        # L453에서 이미 Enter+1500ms 대기 후 팝업 미출현 — 동일 Enter 재시도는 의미 없음.
+        # 곧바로 아이콘 셀렉터 폴백으로 진행.
         icon_clicked = False
-        try:
-            budget_input.press("Enter")
-            logger.info("예산과목 코드도움 트리거 재시도 (Enter)")
-            page.wait_for_timeout(1500)
-            try:
-                if page.locator("text=예산과목코드도움").first.is_visible(timeout=2000):
-                    icon_clicked = True
-                    logger.info("Enter 재시도로 서브 팝업 열림")
-            except Exception:
-                pass
-        except Exception:
-            pass
 
         # 방법 1: input 인접 코드도움 아이콘 CSS 셀렉터 탐색
         if not icon_clicked:

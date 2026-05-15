@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  syntax-and-tests:
+    name: 구문 검증 + 단위 테스트
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python ${{ matrix.python-version }} 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          # 테스트에 필요한 최소 의존성 (Playwright 브라우저는 단위 테스트에서 불필요)
+          pip install pytest pytest-asyncio
+          # 핵심 모듈 의존성만 설치 (전체 requirements.txt는 시간/공간 소모 큼)
+          pip install fastapi pydantic python-dotenv cryptography httpx pyjwt
+          pip install google-genai python-telegram-bot
+
+      - name: 구문 검증 (ast.parse)
+        run: |
+          python -c "
+          import ast, pathlib
+          errors = []
+          for f in pathlib.Path('src').rglob('*.py'):
+              try:
+                  ast.parse(f.read_text(encoding='utf-8'))
+              except SyntaxError as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              for e in errors:
+                  print(e)
+              raise SystemExit(1)
+          print(f'OK: {sum(1 for _ in pathlib.Path(\"src\").rglob(\"*.py\"))}개 파일 구문 검증 통과')
+          "
+
+      - name: 단위 테스트 (Playwright 의존 없음)
+        run: |
+          # tests/unit/ 의 순수 함수 테스트만 실행. integration은 GW 접속 필요 → 별도.
+          pytest tests/unit/ -v --tb=short || pytest tests/ -v --tb=short -k "not integration"
+        continue-on-error: true  # 테스트 인프라 정비 중 — failure로 머지 차단하지 않음
+
+  lint:
+    name: 기본 린트 (warning only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: ruff 설치 및 실행
+        run: |
+          pip install ruff
+          # 치명적 오류만 차단, 스타일은 warning
+          ruff check src/ --select=E9,F63,F7,F82 --output-format=github || true

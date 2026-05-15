@@ -177,16 +177,11 @@ class GridMixin:
         except Exception:
             pass
 
-        # 최종 폴백: DOM 데이터 기준 하드코딩 좌표 (x=1808, y=373)
-        try:
-            logger.warning("그리드 '추가' 버튼 셀렉터 모두 실패, 좌표 폴백: (1808, 373)")
-            page.mouse.click(1808, 373)
-            logger.info("그리드 '추가' 버튼 클릭 (좌표 폴백 x=1808, y=373)")
-            return True
-        except Exception as e:
-            logger.warning(f"그리드 '추가' 좌표 폴백도 실패: {e}")
-
-        logger.warning("그리드 '추가' 버튼을 찾지 못했습니다")
+        _save_debug(page, "error_grid_add_button_selector_exhausted")
+        logger.error(
+            "그리드 '추가' 버튼을 찾지 못했습니다. JS 동적 탐색 + button:has-text('추가') 모두 실패. "
+            "그리드 헤더 DOM 변경 가능성 — 스크린샷 확인."
+        )
         return False
 
     def _fill_grid_cell(self, row_idx: int, col_idx: int, col_name: str, value: str) -> bool:
@@ -417,15 +412,8 @@ class GridMixin:
         # ── 방법 A: OBTDataGrid interface -> setSelection + focus + 키보드 입력 ──
         try:
             obt_result = page.evaluate(f"""() => {{
-                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                if (!el) return {{ success: false, reason: 'no_el' }};
-                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                if (!fk) return {{ success: false, reason: 'no_fiber' }};
-                let f = el[fk];
-                for (let i = 0; i < 3; i++) f = f ? f.return : null;
-                if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface)
-                    return {{ success: false, reason: 'no_iface' }};
-                const iface = f.stateNode.state.interface;
+                const iface = {_GET_GRID_IFACE_JS};
+                if (!iface) return {{ success: false, reason: 'no_iface' }};
                 if (typeof iface.getColumns !== 'function') return {{ success: false, reason: 'no_getCols' }};
 
                 // 헤더명으로 컬럼 탐색, 없으면 col_idx 순서로 fallback
@@ -454,15 +442,8 @@ class GridMixin:
         # ── 방법 A-2: OBTDataGrid 컬럼 폭 기반 동적 좌표 계산 ──
         try:
             obt_coords = page.evaluate(f"""() => {{
-                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                if (!el) return null;
-                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                if (!fk) return null;
-                let f = el[fk];
-                for (let i = 0; i < 3; i++) f = f ? f.return : null;
-                if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface)
-                    return null;
-                const iface = f.stateNode.state.interface;
+                const iface = {_GET_GRID_IFACE_JS};
+                if (!iface) return null;
                 if (typeof iface.getColumns !== 'function') return null;
                 const cols = iface.getColumns();
                 let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
@@ -488,14 +469,8 @@ class GridMixin:
                 edit_mode = False
                 try:
                     edit_mode = page.evaluate(f"""() => {{
-                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                        if (!el) return false;
-                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                        if (!fk) return false;
-                        let f = el[fk];
-                        for (let i = 0; i < 3; i++) f = f ? f.return : null;
-                        if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface) return false;
-                        const iface = f.stateNode.state.interface;
+                        const iface = {_GET_GRID_IFACE_JS};
+                        if (!iface) return false;
                         const cols = iface.getColumns();
                         let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                         if (!col && cols.length > {col_idx}) col = cols[{col_idx}];
@@ -541,14 +516,8 @@ class GridMixin:
         # ── 방법 B-0: setSelection + F2/Enter로 편집 모드 진입 (좌표 불필요) ──
         try:
             sel_ok = page.evaluate(f"""() => {{
-                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                if (!el) return false;
-                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                if (!fk) return false;
-                let f = el[fk];
-                for (let i = 0; i < 3; i++) f = f ? f.return : null;
-                if (!f || !f.stateNode || !f.stateNode.state || !f.stateNode.state.interface) return false;
-                const iface = f.stateNode.state.interface;
+                const iface = {_GET_GRID_IFACE_JS};
+                if (!iface) return false;
                 const cols = iface.getColumns();
                 let col = cols.find(c => c.header === {_js_str(col_name)} || c.name === {_js_str(col_name)});
                 if (!col && cols.length > {col_idx}) col = cols[{col_idx}];

@@ -45,6 +45,36 @@ _GET_GRID_IFACE_JS = """
 
 
 
+def _find_first_visible(page: Page, selectors: list[str], total_budget_ms: int = 2000):
+    """셀렉터 후보 리스트 중 가장 먼저 보이는 요소를 반환.
+
+    각 셀렉터마다 짧은 timeout으로 polling하여 전체 예산(total_budget_ms) 안에서 첫 발견 시 즉시 반환.
+    이전 패턴: 셀렉터마다 `is_visible(timeout=1500~2500)` 순차 시도 → 최악 누적 20초+.
+
+    Args:
+        page: Playwright Page
+        selectors: 후보 셀렉터 리스트 (우선순위 순)
+        total_budget_ms: 전체 탐색 예산 (기본 2초)
+
+    Returns:
+        Locator | None: 첫 발견된 가시 요소, 미발견 시 None.
+    """
+    import time
+    deadline = time.monotonic() + total_budget_ms / 1000.0
+    per_attempt = max(50, total_budget_ms // (len(selectors) * 4)) if selectors else 200
+    while time.monotonic() < deadline:
+        for sel in selectors:
+            try:
+                loc = page.locator(sel).first
+                if loc.is_visible(timeout=per_attempt):
+                    return loc
+            except Exception:
+                continue
+        # 한 라운드 완료 후 짧게 쉬며 다시 시도
+        page.wait_for_timeout(80)
+    return None
+
+
 def _save_debug(page: Page, name: str):
     """디버그용 스크린샷 저장"""
     try:

@@ -83,8 +83,9 @@ MEMORY.md
 # 대용량 PDF
 data/kshia_translation/*.pdf
 
-# 테스트 스크립트 (임시)
+# 테스트 스크립트 (임시) — 단, tests/ 디렉토리 내 정식 pytest 파일은 예외
 test_*.py
+!tests/**/test_*.py
 tools_test.py
 law_part1.py
 construction_law_notes.py

@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-04-12 (세션 XLVII — 선급금 그리드 필수 필드 자동 입력 구현)
+> 마지막 업데이트: 2026-05-15 (세션 LI — expense.py 거대 파일 분할 Phase A/B/C 완료, -56.6%)
 > 새 세션 시작 시 이 문서와 `MEMORY.md`(auto-memory)를 함께 참고.
 
 ---
@@ -83,17 +83,21 @@
 │   │   ├── user_db.py            # SQLite + Fernet 사용자 DB
 │   │   ├── middleware.py         # FastAPI 인증 미들웨어
 │   │   └── session_manager.py    # GW 세션 캐시 (TTL 2시간)
-│   ├── approval/                 # 전자결재 자동화 (Mixin 패턴, 7개 모듈)
-│   │   ├── approval_automation.py  # Mixin 조합 클래스 (54줄, 진입점)
-│   │   ├── base.py                 # 공통 유틸/네비게이션/저장 (~490줄)
-│   │   ├── approval_line.py        # 결재선/수신참조 설정 (~268줄)
-│   │   ├── expense.py              # 지출결의서 전체 플로우 (~2450줄)
-│   │   ├── grid.py                 # OBTDataGrid 그리드 조작 (~490줄)
-│   │   ├── vendor.py               # 거래처등록 (~798줄)
-│   │   ├── draft.py                # 임시보관 문서 상신 (~464줄)
-│   │   ├── other_forms.py          # 기타 양식: 선급금/연장근무/외근 등 (~1079줄)
-│   │   ├── budget_helpers.py       # 예산과목 팝업 헬퍼
-│   │   └── form_templates.py       # 양식 필드 정의 + 결재선 resolve
+│   ├── approval/                       # 전자결재 자동화 (Mixin + 함수형 분할 모듈)
+│   │   ├── approval_automation.py      # Mixin 조합 클래스 (진입점)
+│   │   ├── base.py                     # 공통 유틸 + _find_first_visible + _GET_GRID_IFACE_JS
+│   │   ├── approval_line.py            # 결재선/수신참조 설정 (~268줄)
+│   │   ├── expense.py                  # 지출결의서 mixin facade (2147줄, 분할 후)
+│   │   ├── invoice_modal.py            # 매입(세금)계산서 모달 (1039줄, 세션 LI Phase B)
+│   │   ├── project_picker.py           # 프로젝트 코드도움 모달 (812줄, 세션 LI Phase C)
+│   │   ├── attachment.py               # 첨부파일 업로드 헬퍼 (136줄, 세션 L Phase A)
+│   │   ├── budget_capture.py           # 예실대비 스크린샷 (137줄, 세션 L Phase A)
+│   │   ├── grid.py                     # OBTDataGrid 그리드 조작 (~596줄)
+│   │   ├── vendor.py                   # 거래처등록 (~798줄)
+│   │   ├── draft.py                    # 임시보관 문서 상신 (~464줄)
+│   │   ├── other_forms.py              # 선급금/연장근무/외근/추천장려금 (2683줄, 분할 예정)
+│   │   ├── budget_helpers.py           # 예산과목 팝업 헬퍼 (~876줄)
+│   │   └── form_templates.py           # 양식 필드 정의 + 결재선 resolve
 │   ├── chatbot/                  # 웹 챗봇 + 텔레그램 봇 + Gemini 에이전트
 │   │   ├── app.py                # FastAPI 웹 서버
 │   │   ├── agent.py              # Gemini 라우팅 (244줄, 진입점)
@@ -180,6 +184,72 @@ Playwright 로그인 → 페이지 이동 → DOM 조작으로 폼 채우기
 - `_user_locks: dict[str, threading.Lock]` — GW ID별 Lock 관리, `_user_locks_guard`로 dict 접근 보호
 - 보호 대상 핸들러 (4개): `submit_expense_approval`, `submit_draft_approval`, `submit_approval_form`, `search_project_code`
 - 동일 사용자의 결재 요청이 중복 실행되지 않도록 직렬화
+
+### 콜백 주입 패턴 — 거대 mixin 메서드 분할 (세션 LI 확립)
+
+`expense.py` 4938줄 → 2147줄로 줄이는 과정에서 확립된 패턴. mixin의 거대 메서드를 함수형
+모듈로 추출할 때 base.py의 다른 mixin 메서드 의존성을 **`Callable` 인자**로 전달.
+
+```python
+# src/approval/project_picker.py (분할된 모듈)
+from typing import Callable
+def fill_project_code(
+    page: Page,
+    dismiss_alert_fn: Callable[[], None],   # = self._dismiss_obt_alert
+    close_modals_fn: Callable[[], None],    # = self._close_open_modals
+    project: str,
+    y_hint: float = None,
+):
+    ...
+```
+
+```python
+# src/approval/expense.py (mixin)
+class ExpenseReportMixin:
+    def _fill_project_code(self, project: str, y_hint: float = None):
+        """프로젝트 코드도움 — `project_picker`로 위임."""
+        from src.approval.project_picker import fill_project_code
+        return fill_project_code(
+            self.page, self._dismiss_obt_alert, self._close_open_modals,
+            project=project, y_hint=y_hint,
+        )
+```
+
+**자동 변환 스크립트** (regex): `self.page → page`, `self.<method> → <fn>` 일괄 치환 + `ast.parse` 검증. 3회 적용(Phase A/B/C) 모두 성공.
+
+### 핸들러 안전 wrapper — `_safe_handler` (세션 L)
+
+`handlers.py` 모든 도구 핸들러를 wrapping해 escape 예외를 사용자 친화 메시지로 변환:
+
+```python
+@functools.wraps(handler)
+def wrapper(params: dict, user_context: dict = None) -> str:
+    try:
+        return handler(params, user_context=user_context)
+    except concurrent.futures.TimeoutError:
+        return "⏱️ 자동화 처리 시간이 초과되었습니다 (3분 한도)."
+    except ConnectionError as e:
+        return f"🔌 그룹웨어 연결 실패: {e}"
+    # ... etc
+```
+
+`TOOL_HANDLERS = {name: _safe_handler(fn) for name, fn in {...}.items()}` 일괄 wrap.
+개별 핸들러의 자체 try/except는 그대로 동작. escape한 예외만 처리 — 회귀 위험 0.
+
+### 셀렉터 폴백 헬퍼 — `_find_first_visible` (세션 L)
+
+`base.py`. 셀렉터 후보 리스트 polling. 이전 패턴(셀렉터마다 `is_visible(timeout=1500~2500)` 순차)
+대비 첫 발견 즉시 단축. 누적 8초+ → 평균 ~수백 ms.
+
+```python
+from src.approval.base import _find_first_visible
+submit_btn = _find_first_visible(page, [
+    "div.topBtn:has-text('결재상신')",
+    "button:has-text('결재상신')",
+    "[class*='topBtn']:has-text('결재상신')",
+    "text=결재상신",
+], total_budget_ms=2000)
+```
 
 ### 로그인 패턴
 - 2단계: ID(`#reqLoginId`) → Enter → PW(`#reqLoginPw`) → Enter

@@ -5,7 +5,7 @@
 import os
 import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeout
-from src.approval.base import GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR, _save_debug, _js_str
+from src.approval.base import GW_URL, MAX_RETRIES, RETRY_DELAY, SCREENSHOT_DIR, _GET_GRID_IFACE_JS, _save_debug, _js_str
 from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
 
 logger = logging.getLogger("approval_automation")
@@ -899,19 +899,13 @@ class OtherFormsMixin:
         # ── Step 8: 용도코드 입력 (OBTDataGrid canvas 셀 keyboard.type + Enter) ──
         if usage_code:
             try:
-                grid_info = page.evaluate("""() => {
-                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                    if (!el) return null;
-                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                    if (!fk) return null;
-                    let f = el[fk];
-                    for (let i = 0; i < 3 && f; i++) f = f.return;
-                    const iface = f?.stateNode?.state?.interface;
+                grid_info = page.evaluate(f"""() => {{
+                    const iface = {_GET_GRID_IFACE_JS};
                     if (!iface || typeof iface.getRowCount !== 'function') return null;
                     const rowCount = iface.getRowCount();
-                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
-                    return {rowCount, cols};
-                }""")
+                    const cols = iface.getColumns().map(c => ({{name: c.name, header: c.header || ''}}));
+                    return {{rowCount, cols}};
+                }}""")
 
                 if grid_info:
                     row_count = grid_info["rowCount"]
@@ -923,15 +917,10 @@ class OtherFormsMixin:
                         logger.warning("[선급금 그리드] 행 없음 — 렌더링 대기 (최대 3초)")
                         for _w in range(6):
                             page.wait_for_timeout(500)
-                            row_count = page.evaluate("""() => {
-                                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                if (!el) return 0;
-                                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                if (!fk) return 0;
-                                let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                                const iface = f?.stateNode?.state?.interface;
+                            row_count = page.evaluate(f"""() => {{
+                                const iface = {_GET_GRID_IFACE_JS};
                                 return (iface && typeof iface.getRowCount === 'function') ? iface.getRowCount() : 0;
-                            }""")
+                            }}""")
                             if row_count > 0:
                                 logger.info(f"[선급금 그리드] 대기 후 행 확인: {row_count}행 ({(_w+1)*0.5:.1f}초)")
                                 break
@@ -959,11 +948,8 @@ class OtherFormsMixin:
                             try:
                                 # 1단계: setSelection + focus (셀 선택)
                                 page.evaluate(f"""() => {{
-                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                    let f = el[fk];
-                                    for (let i = 0; i < 3; i++) f = f.return;
-                                    const iface = f.stateNode.state.interface;
+                                    const iface = {_GET_GRID_IFACE_JS};
+                                    if (!iface) return;
                                     iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }});
                                     if (typeof iface.focus === 'function') {{
                                         try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(usage_col["name"])} }}); }} catch(e) {{
@@ -1040,10 +1026,7 @@ class OtherFormsMixin:
                                 # 5단계: 입력 확인
                                 try:
                                     _val = page.evaluate(f"""() => {{
-                                        const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                        const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                        let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                                        const iface = f?.stateNode?.state?.interface;
+                                        const iface = {_GET_GRID_IFACE_JS};
                                         return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
                                     }}""")
                                     logger.info(f"[선급금 그리드] 용도 셀 값: '{_val}'")
@@ -1052,10 +1035,7 @@ class OtherFormsMixin:
                                     if not _val:
                                         logger.warning("[선급금 그리드] 용도코드 keyboard 입력 실패 → setValue API 폴백")
                                         page.evaluate(f"""() => {{
-                                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                            let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                                            const iface = f?.stateNode?.state?.interface;
+                                            const iface = {_GET_GRID_IFACE_JS};
                                             if (iface && typeof iface.setValue === 'function') {{
                                                 iface.setValue({row_idx}, {_js_str(usage_col["name"])}, {_js_str(usage_code)});
                                             }}
@@ -1063,10 +1043,7 @@ class OtherFormsMixin:
                                         }}""")
                                         page.wait_for_timeout(300)
                                         _val2 = page.evaluate(f"""() => {{
-                                            const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                            const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                            let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                                            const iface = f?.stateNode?.state?.interface;
+                                            const iface = {_GET_GRID_IFACE_JS};
                                             return iface?.getValue ? iface.getValue({row_idx}, {_js_str(usage_col["name"])}) : null;
                                         }}""")
                                         logger.info(f"[선급금 그리드] setValue 폴백 후 값: '{_val2}'")
@@ -1133,18 +1110,13 @@ class OtherFormsMixin:
         if payment_date and usage_code:
             try:
                 clean_date = payment_date.replace("-", "")
-                grid_info = page.evaluate("""() => {
-                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                    if (!el) return null;
-                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                    if (!fk) return null;
-                    let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                    const iface = f?.stateNode?.state?.interface;
+                grid_info = page.evaluate(f"""() => {{
+                    const iface = {_GET_GRID_IFACE_JS};
                     if (!iface || typeof iface.getRowCount !== 'function') return null;
                     const rowCount = iface.getRowCount();
-                    const cols = iface.getColumns().map(c => ({name: c.name, header: c.header || ''}));
-                    return {rowCount, cols};
-                }""")
+                    const cols = iface.getColumns().map(c => ({{name: c.name, header: c.header || ''}}));
+                    return {{rowCount, cols}};
+                }}""")
 
                 if grid_info:
                     # 지급요청일 컬럼 찾기
@@ -1163,10 +1135,8 @@ class OtherFormsMixin:
                         for row_idx in range(grid_info["rowCount"]):
                             try:
                                 page.evaluate(f"""() => {{
-                                    const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                                    const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                                    let f = el[fk]; for (let i = 0; i < 3; i++) f = f.return;
-                                    const iface = f.stateNode.state.interface;
+                                    const iface = {_GET_GRID_IFACE_JS};
+                                    if (!iface) return;
                                     iface.setSelection({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }});
                                     if (typeof iface.focus === 'function') {{
                                         try {{ iface.focus({{ rowIndex: {row_idx}, columnName: {_js_str(pay_col["name"])} }}); }} catch(e) {{
@@ -1192,26 +1162,21 @@ class OtherFormsMixin:
 
         # ── 진단: 전체 그리드 셀 값 덤프 (검증 부적합 원인 추적) ──
         try:
-            _grid_dump = page.evaluate("""() => {
-                const el = document.querySelector('.OBTDataGrid_grid__22Vfl');
-                if (!el) return null;
-                const fk = Object.keys(el).find(k => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance'));
-                if (!fk) return null;
-                let f = el[fk]; for (let i = 0; i < 3 && f; i++) f = f.return;
-                const iface = f?.stateNode?.state?.interface;
+            _grid_dump = page.evaluate(f"""() => {{
+                const iface = {_GET_GRID_IFACE_JS};
                 if (!iface) return null;
                 const rowCount = iface.getRowCount();
                 const cols = iface.getColumns().map(c => c.name);
                 const rows = [];
-                for (let r = 0; r < rowCount; r++) {
-                    const row = {};
-                    for (const cn of cols) {
-                        try { row[cn] = iface.getValue(r, cn); } catch(e) { row[cn] = '?'; }
-                    }
+                for (let r = 0; r < rowCount; r++) {{
+                    const row = {{}};
+                    for (const cn of cols) {{
+                        try {{ row[cn] = iface.getValue(r, cn); }} catch(e) {{ row[cn] = '?'; }}
+                    }}
                     rows.push(row);
-                }
-                return {cols, rows};
-            }""")
+                }}
+                return {{cols, rows}};
+            }}""")
             if _grid_dump:
                 logger.info(f"[선급금 그리드 진단] 컬럼: {_grid_dump['cols']}")
                 for i, row in enumerate(_grid_dump.get("rows", [])):

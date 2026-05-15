@@ -15,6 +15,8 @@ logger = logging.getLogger("session_manager")
 
 # 캐시 TTL: 2시간
 CACHE_TTL = 2 * 60 * 60
+# 만료 세션 GC 최소 호출 간격 (초). 너무 잦은 풀스캔 방지.
+_GC_INTERVAL = 10 * 60
 
 
 @dataclass
@@ -34,14 +36,52 @@ _cache_lock = threading.Lock()
 _login_locks: dict[str, threading.Lock] = {}
 _login_locks_guard = threading.Lock()
 
+# 마지막 만료 GC 실행 시각 (단순 throttle).
+_last_gc_ts: float = 0.0
+
 
 def _is_valid(session: CachedSession) -> bool:
     """캐시가 아직 유효한지 확인"""
     return (time.time() - session.created_at) < CACHE_TTL
 
 
+def _gc_expired_sessions() -> None:
+    """만료된 캐시 항목 + 매칭되는 lock 항목을 일괄 정리.
+
+    `get_cached_session`은 호출된 gw_id에만 작용하므로, 재로그인 없는 사용자의
+    만료 항목은 영구 잔류한다. 이 함수가 주기적으로 풀스캔하여 누적을 막는다.
+
+    호출자: `get_cached_session`. 빈도는 `_GC_INTERVAL`로 throttle.
+    """
+    global _last_gc_ts
+    now = time.time()
+    if now - _last_gc_ts < _GC_INTERVAL:
+        return
+    _last_gc_ts = now
+
+    with _cache_lock:
+        expired = [gid for gid, sess in _session_cache.items() if not _is_valid(sess)]
+        for gid in expired:
+            del _session_cache[gid]
+    # lock 항목은 캐시와 분리 정리 — 다른 스레드가 보유 중일 수 있어 신중히.
+    # 캐시 항목이 없고, lock도 미획득 상태인 경우에만 제거.
+    with _login_locks_guard:
+        for gid in expired:
+            lock = _login_locks.get(gid)
+            if lock is None:
+                continue
+            if lock.acquire(blocking=False):
+                try:
+                    _login_locks.pop(gid, None)
+                finally:
+                    lock.release()
+    if expired:
+        logger.info(f"세션 GC: 만료 {len(expired)}건 정리")
+
+
 def get_cached_session(gw_id: str) -> CachedSession | None:
     """캐시된 세션 반환. 만료되었으면 None."""
+    _gc_expired_sessions()
     with _cache_lock:
         session = _session_cache.get(gw_id)
         if session and _is_valid(session):

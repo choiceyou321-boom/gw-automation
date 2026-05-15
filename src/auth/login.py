@@ -7,9 +7,25 @@
 import os
 import json
 import logging
+import threading
 from pathlib import Path
 from playwright.sync_api import sync_playwright, Browser, BrowserContext, Page
 from dotenv import load_dotenv
+
+# 동일 사용자(gw_id)에 대한 session_state 파일 동시 쓰기 방지용 per-user lock.
+# 두 스레드가 같은 storage_state(path=...)에 동시 기록하면 파일이 손상될 수 있음.
+_session_file_locks: dict[str, threading.Lock] = {}
+_session_file_locks_guard = threading.Lock()
+
+
+def _get_session_file_lock(user_id: str | None) -> threading.Lock:
+    key = user_id or "__default__"
+    with _session_file_locks_guard:
+        lock = _session_file_locks.get(key)
+        if lock is None:
+            lock = threading.Lock()
+            _session_file_locks[key] = lock
+        return lock
 
 # 프로젝트 루트 경로
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -100,8 +116,9 @@ def login_and_get_context(
     page = context.new_page()
     _do_login(page, login_id=login_id, login_pw=login_pw)
 
-    # 세션 저장
-    context.storage_state(path=str(session_file))
+    # 세션 저장 — 동일 사용자에 대한 동시 쓰기를 per-user lock으로 직렬화 (파일 손상 방지).
+    with _get_session_file_lock(user_id):
+        context.storage_state(path=str(session_file))
     logger.info(f"세션 저장 완료 ({login_id})")
 
     return browser, context, page

@@ -27,9 +27,6 @@ sys.path.insert(0, str(ROOT_DIR))
 # 환경 변수 로드
 load_dotenv(ROOT_DIR / "config" / ".env")
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
 logger = logging.getLogger(__name__)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -1205,4 +1202,9 @@ def main():
 
 
 if __name__ == "__main__":
+    # 스탠드얼론 실행 시에만 root logger 구성. 모듈 import 시에는 caller가 제어.
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
     main()

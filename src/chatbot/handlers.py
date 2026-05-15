@@ -7,10 +7,48 @@ import json
 import logging
 import threading
 import concurrent.futures
+import functools
 from pathlib import Path
 from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_handler(handler):
+    """핸들러 안전 wrapper — 개별 핸들러를 escape한 예외를 사용자 친화 메시지로 변환.
+
+    개별 핸들러가 이미 try/except를 가져도 OK. 데코레이터는 그곳을 빠져나간
+    예외만 처리하므로 기존 동작을 깨지 않는다.
+
+    예외 유형별 메시지:
+      - concurrent.futures.TimeoutError: 처리 시간 초과
+      - ConnectionError: 그룹웨어 연결 실패
+      - PermissionError: 권한 없음
+      - 기타 Exception: 일반 오류 (타입명 + 메시지)
+
+    로깅: 모든 escape 예외를 traceback과 함께 logger.exception으로 기록.
+    """
+    @functools.wraps(handler)
+    def wrapper(params: dict, user_context: dict = None) -> str:
+        name = getattr(handler, "__name__", "handler")
+        try:
+            return handler(params, user_context=user_context)
+        except concurrent.futures.TimeoutError:
+            logger.exception(f"{name} TimeoutError")
+            return "⏱️ 자동화 처리 시간이 초과되었습니다 (3분 한도). 잠시 후 다시 시도하거나 GW에서 직접 확인해 주세요."
+        except ConnectionError as e:
+            logger.exception(f"{name} ConnectionError")
+            return f"🔌 그룹웨어 연결 실패: {e}. 네트워크 또는 GW 상태를 확인하세요."
+        except PermissionError as e:
+            logger.exception(f"{name} PermissionError")
+            return f"⛔ 권한이 없습니다: {e}"
+        except FileNotFoundError as e:
+            logger.exception(f"{name} FileNotFoundError")
+            return f"📁 파일을 찾을 수 없습니다: {e.filename or e}"
+        except Exception as e:
+            logger.exception(f"{name} 예기치 못한 오류")
+            return f"❌ 처리 중 오류가 발생했습니다 ({type(e).__name__}): {e}"
+    return wrapper
 
 # 동시 Playwright 세션 수 제한 (무제한 스레드 생성 방지)
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
@@ -2654,3 +2692,7 @@ TOOL_HANDLERS = {
     "request_overtime": handle_request_overtime,
     "request_outside_work": handle_request_outside_work,
 }
+
+# 모든 핸들러에 안전 wrapper 적용 — escape한 예외를 사용자 친화 메시지로 변환.
+# 개별 핸들러의 자체 try/except는 그대로 동작하며, 그곳을 빠져나간 예외만 처리.
+TOOL_HANDLERS = {name: _safe_handler(fn) for name, fn in TOOL_HANDLERS.items()}

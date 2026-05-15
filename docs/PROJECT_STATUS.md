@@ -1,7 +1,7 @@
 # 프로젝트 현황 (Project Status)
 
 > 글로우서울 그룹웨어(더존 Amaranth10/WEHAGO) 자동화 프로젝트
-> 최종 업데이트: 2026-03-25 (task_list.md 통폐합)
+> 최종 업데이트: 2026-05-15 (세션 XLIX — 코드 실측 + Task 31 Phase 1)
 
 ---
 
@@ -85,10 +85,17 @@
   - `create_computer_use_fallback()` — Playwright 실패 시 진입점
   - MAX_STEPS=20 하드 제한, 스크린샷 자동 저장
 
-#### [ ] Task 31. 잔존 좌표 의존 코드 제거 (8개)
-- **현재 상태**: 11개 중 3개 교체 완료, 8개 남음
-- **대상**: 증빙유형 버튼, 프로젝트코드도움 더블클릭, 세금계산서 모달 체크박스, 기타 mouse.click 5건
-- **목표**: 화면 크기가 바뀌어도 깨지지 않는 안정적 코드
+#### [~] Task 31. 잔존 좌표 의존 코드 제거 (Phase 1 완료, Phase 2 진행 중)
+- **세션 XLIX 실측**: 총 **19건** 발견 (세션 XLVIII의 "8건"은 부정확)
+  - 정적 픽셀 좌표: 3건 (fullscreen 가정)
+  - 동적 계산 좌표: 13건 (bounding_box / JS 결과값)
+  - Computer Use 본질: 3건 (의도된 좌표 사용 — 보존)
+- **Phase 1 완료** (세션 XLIX, 2026-05-15):
+  - `expense.py:4666` (763,857) 증빙일자 — 제거
+  - `expense.py:4774` (1865,246) 첨부 버튼 — 제거
+  - `grid.py:183` (1808,373) 그리드 '추가' — 제거
+- **Phase 2 대상**: 동적 좌표 13건 사례별 검토 (셀렉터 보강 또는 보존)
+- **목표**: 화면 크기 변경에 깨지지 않는 안정적 코드
 
 #### [ ] Task 32. headless 모드 E2E 통합 테스트
 - **현재 상태**: headed 모드에서만 테스트
@@ -157,6 +164,10 @@
 | XIV | 2026-03-10 | T6 프로젝트 더블클릭/세금계산서 검증(Task 11), 예산과목 모달 수정(Task 13), 예산과목 실 GW 검증(Task 19) |
 | XV | 2026-03-17 | 자금관리 등급/카테고리/드래그 정렬, STT 음성 인식, 계약서 자동 생성 |
 | XVI | 2026-03-25 | 자원(UK) 탐색, 4개 양식 상세분석, 근태신청 자동화(Task 30), Computer Use 폴백 에이전트(Task 30-B), DOM 검증 5건 수정 |
+| XLVIII | 2026-05-15 | Claude Code 환경 정비 — 권한 확장, Stop/PreToolUse 훅 작성, 스킬 5종 설치(simplify/security-review/review 포함), gh CLI 인증 |
+| XLIX | 2026-05-15 | 코드 정밀 조사(4 병렬 에이전트) → 줄수/좌표 의존 코드 실측 정정, **Task 31 Phase 1 완료**(정적 좌표 3건 제거: expense.py L4666/L4774, grid.py L183) + 광범위 정비(레거시 727줄 삭제, GRID_IFACE 헬퍼 20곳 치환, BaseCrawler 추출 -773줄, 프롬프트 -57%, session_manager GC, CI 스캐폴딩) |
+| L | 2026-05-15 | `_safe_handler` 데코레이터 + 34개 핸들러 일괄 적용, `_find_first_visible` 헬퍼 시범 적용, **expense.py Phase A 분할**(attachment.py + budget_capture.py 신규 추출 -232줄), **Phase B 분할**(`_select_invoice_in_modal` 1013줄 → invoice_modal.py 추출, expense.py -999줄) |
+| LI | 2026-05-15 | **expense.py Phase C 분할** — `_fill_project_code` 784줄 → project_picker.py 추출 (콜백 2종 주입). expense.py 누적 4938 → 2147 (**-56.6%**) |
 
 ---
 

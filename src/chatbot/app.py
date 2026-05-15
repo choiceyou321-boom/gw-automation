@@ -517,6 +517,16 @@ async def serve_admin_page(request: Request):
 
 
 # ─────────────────────────────────────────
+# 헬스체크 (Docker healthcheck 용)
+# ─────────────────────────────────────────
+
+@app.get("/health")
+async def health_check():
+    """컨테이너 헬스체크 — Dockerfile/docker-compose HEALTHCHECK 대상."""
+    return {"status": "ok"}
+
+
+# ─────────────────────────────────────────
 # 프론트엔드
 # ─────────────────────────────────────────
 

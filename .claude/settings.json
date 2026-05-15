@@ -7,12 +7,42 @@
       "Bash(npm run *)",
       "Bash(npm test)",
       "Bash(git *)",
+      "Bash(pip list)",
+      "Bash(pip show *)",
+      "Bash(pip freeze)",
+      "Bash(docker compose ps)",
+      "Bash(docker compose logs *)",
       "Read",
       "Glob",
       "Grep"
     ],
     "deny": [
       "Bash(rm -rf *)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd D:/TG/gw-automation && if ! git diff --quiet HEAD 2>/dev/null; then output=$(python -m pytest --tb=no -q 2>&1 | tail -5) && python -c \"import json,sys; output=sys.argv[1]; msg='⚠️ pytest 미설치 — 가상환경 활성화 후 pip install pytest' if 'No module' in output else '🧪 pytest 결과\\n'+output; print(json.dumps({'systemMessage': msg}))\" \"$output\" 2>/dev/null; fi || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,subprocess,re; data=json.load(sys.stdin); cmd=data.get('tool_input',{}).get('command',''); matched=re.search(r'git\\s+(commit|push)',cmd); r=subprocess.run(['git','-C','D:/TG/gw-automation','diff','--cached','--name-only'],capture_output=True,text=True) if matched else None; found=r and re.search(r'^config/\\.env$|^\\.env$',r.stdout,re.M); found and print(json.dumps({'continue':False,'stopReason':'⛔ config/.env 가 스테이징에 포함됨!\\ngit rm --cached config/.env 실행 후 다시 시도하세요.'}))\" 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

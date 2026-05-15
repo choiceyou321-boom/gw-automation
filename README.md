@@ -10,49 +10,62 @@
 | 문서 | 내용 |
 |------|------|
 | [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | 개발자 가이드 — 기술 패턴, GW API, 양식 관리, 프로젝트 구조 |
-| [`USER_MANUAL.md`](USER_MANUAL.md) | 사용자 매뉴얼 — 웹 챗봇/텔레그램 봇 사용법 |
-| [`CLAUDE.md`](CLAUDE.md) | Claude Code 프로젝트 지침 (자동 로드) |
+| [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md) | 사용자 매뉴얼 — 웹 챗봇/텔레그램 봇 사용법 |
+| [`docs/GW_PAGES_ANALYSIS.md`](docs/GW_PAGES_ANALYSIS.md) | GW 페이지 분석 — DOM 구조, API 패턴 |
+| [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md) | 프로젝트 현황 스냅샷 |
 
 ---
 
-## 프로젝트 구조
+## 현재 기능 상태
+
+| 기능 | 상태 | 비고 |
+|------|------|------|
+| 회의실 예약/취소/조회 | ✅ 완료 | WEHAGO API (HMAC) |
+| 지출결의서 자동 작성 | ✅ 완료 | Playwright 22단계 |
+| 거래처등록 자동 작성 | ✅ 완료 | dzEditor API |
+| 선급금요청 | 🔧 진행 중 | 그리드 필수 필드 입력 검증 중 |
+| 연장근무/외근신청 | 🔧 진행 중 | HR 권한 계정 필요 |
+| 임시보관 → 상신 | ✅ 완료 | 문서 검색 후 상신 |
+| 메일 요약 | ✅ 완료 | 수신인(To) 본인만 |
+| 계약서 자동 생성 | ✅ 완료 | DOCX 템플릿, 단건/다건 |
+| 프로젝트 자금관리 (`/fund`) | ✅ 완료 | SQLite + REST API + 웹 UI |
+| 예실대비 크롤링 | ✅ 완료 | RealGrid DataProvider |
+| 공정표 자동 생성 (CPM) | ✅ 완료 | 45공종, Full CPM, 엑셀/PDF |
+| GW 자동 동기화 | ✅ 완료 | 매일 08:00 APScheduler |
+| 텔레그램 봇 | ✅ 완료 | 웹 챗봇과 동일 기능 |
+| 음성 인식 (STT) | ✅ 완료 | Google Cloud STT |
+
+---
+
+## 개발자 진입점
 
 ```
-자동화 work/
-├── config/.env                    # 환경변수 (GW계정, API키, 암호화키)
-├── data/
-│   ├── users.db                   # 사용자 DB (SQLite + Fernet 암호화)
-│   ├── fund_management.db         # 프로젝트 관리 DB
-│   └── chatbot/                   # 대화 히스토리 DB + 로그
+gw-automation/
+├── run_chatbot.py          # 서버 실행 진입점
 ├── src/
-│   ├── auth/                      # 인증 모듈
-│   │   ├── login.py               # GW 로그인 (Playwright)
-│   │   ├── user_db.py             # 사용자 DB (SQLite + Fernet)
-│   │   ├── jwt_utils.py           # JWT 토큰
-│   │   └── session_manager.py     # GW 세션 캐시
-│   ├── chatbot/                   # 챗봇 모듈
-│   │   ├── agent.py               # Gemini 라우팅 (244줄)
-│   │   ├── tools_schema.py        # 도구 스키마 정의
-│   │   ├── prompts.py             # 시스템 프롬프트
-│   │   ├── handlers.py            # 16개 핸들러 함수
-│   │   ├── app.py                 # FastAPI 서버
-│   │   ├── chat_db.py             # 대화 히스토리 DB
-│   │   ├── telegram_bot.py        # 텔레그램 봇
-│   │   └── static/                # 웹 프론트엔드 (HTML/CSS/JS)
-│   ├── approval/                  # 전자결재 자동화 (7개 Mixin 모듈)
-│   │   ├── approval_automation.py # Mixin 조합 클래스 (54줄)
-│   │   ├── base.py                # 공통 유틸/네비게이션
-│   │   ├── expense.py             # 지출결의서
-│   │   ├── grid.py                # OBTDataGrid 조작
-│   │   ├── vendor.py              # 거래처등록
-│   │   ├── draft.py               # 임시보관 상신
-│   │   ├── other_forms.py         # 기타 양식
-│   │   └── form_templates.py      # 양식 8개 필드 매핑
-│   └── meeting/                   # 회의실 예약
-│       └── reservation_api.py     # WEHAGO API (httpx + HMAC)
-├── scripts/                       # 탐색/테스트 스크립트
-└── run_chatbot.py                 # 챗봇 실행 진입점
+│   ├── chatbot/
+│   │   ├── agent.py        # Gemini 라우팅 (도구 선택)
+│   │   ├── handlers.py     # 22개 핸들러 함수
+│   │   ├── tools_schema.py # Function Calling 스키마
+│   │   └── prompts.py      # 시스템 프롬프트
+│   ├── approval/
+│   │   ├── approval_automation.py  # 전자결재 진입점 (Mixin 조합)
+│   │   ├── expense.py              # 지출결의서 (2450줄)
+│   │   └── other_forms.py          # 선급금/연장근무/외근 (1079줄)
+│   ├── fund_table/
+│   │   ├── routes.py       # 40+ REST API 엔드포인트
+│   │   └── db.py           # SQLite DB (fund_management.db)
+│   └── meeting/
+│       └── reservation_api.py  # 회의실 API (HMAC)
+├── tests/                  # pytest (193개, 전체 PASS)
+└── DEVELOPER_GUIDE.md      # 기술 패턴 상세
 ```
+
+**새 기능 추가 체크리스트**:
+1. `handlers.py` — 핸들러 함수 추가 (`handle_xxx(params, user_context=None) -> str`)
+2. `tools_schema.py` — Gemini 도구 스키마 추가
+3. `handlers.py` — `TOOL_HANDLERS` dict에 등록
+4. `pytest` 통과 확인
 
 ---
 
@@ -63,70 +76,31 @@
 | **AI** | Google Gemini 2.5 Flash (Function Calling) |
 | **백엔드** | FastAPI (Python) |
 | **브라우저 자동화** | Playwright (sync API) |
-| **DB** | SQLite (사용자 + 대화 히스토리) |
+| **DB** | SQLite (사용자 + 대화 히스토리 + 자금관리) |
 | **인증** | JWT + Fernet 대칭 암호화 |
 | **API 통신** | httpx (회의실 예약 - HMAC 서명) |
 | **프론트엔드** | Vanilla HTML/CSS/JS (다크 테마) |
 | **봇** | python-telegram-bot |
-| **에이전트** | Claude Code (Opus 4.6) |
+| **배포** | Docker + Nginx + HTTPS |
 
 ---
 
 ## 빠른 시작
 
-### 1. 환경 설정
-
 ```bash
-cd "자동화 work"   # 프로젝트 디렉토리로 이동
 pip install -r requirements.txt
 playwright install chromium
-```
 
-### 2. 환경 변수 설정
-
-`config/.env` 파일에 필요한 값 설정:
-
-```env
-ENCRYPTION_KEY=...
-JWT_SECRET=...
-GEMINI_API_KEY=...
-TELEGRAM_TOKEN=...   # 텔레그램 봇 사용 시
-```
-
-### 3. 챗봇 실행
-
-```bash
+# config/.env 파일에 환경변수 설정 후
 python run_chatbot.py
-# http://localhost:51749 에서 접속
+# http://localhost:51749
 ```
-
-### 4. 텔레그램 봇 실행 (선택)
 
 ```bash
-python -m src.chatbot.telegram_bot
+# 테스트 실행
+pytest                    # 전체 (193개)
+pytest tests/unit/        # 단위 테스트만
 ```
-
----
-
-## 주요 기능
-
-### 회의실 예약 (완료)
-- "내일 오후 2시 3번 회의실 예약해줘"
-- WEHAGO API 직접 호출 (HMAC 서명 인증), 예약 생성/취소/조회/빈 시간 검색
-
-### 전자결재 (세션 VI 고도화 완료)
-- "지출결의서 작성해줘" / "거래처등록 신청해줘"
-- Playwright로 GW 양식 자동 작성 → 임시보관 → 사용자 확인 후 상신
-- 양식 현황 (verified 2개 / template_only 6개) → [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md#5-전자결재-양식-관리) 참고
-
-### 메일 요약 (세션 VI 완료)
-- "메일 요약해줘" / "새 메일 있어?"
-- 수신인(To) 본인 메일만 요약 (참조 CC 제외)
-
-### 챗봇 인터페이스
-- 웹 UI (FastAPI + 다크 테마), 텔레그램 봇
-- 파일 첨부 지원 (사업자등록증, 통장사본 → Gemini 직접 분석)
-- 이전 대화 히스토리 조회 (웹 챗봇)
 
 ---
 
@@ -134,7 +108,8 @@ python -m src.chatbot.telegram_bot
 
 - `config/.env` 파일은 절대 커밋하지 않음
 - 전자결재는 "보관"(임시저장) 모드 — 사용자가 직접 확인 후 상신
-- 기술적 상세 사항은 [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) 참고
+- GW 비밀번호는 Fernet 암호화 저장, 평문 절대 커밋 금지
+- 자세한 기술 패턴: [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md)
 
 ---
 

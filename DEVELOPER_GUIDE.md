@@ -135,7 +135,7 @@
 │   └── notion/                   # Notion 연동
 │       └── client.py             # Notion API 클라이언트
 │
-├── tests/                        # pytest 테스트 (94개, 0.72초)
+├── tests/                        # pytest 테스트 (164개, ~0.6초)
 │   ├── conftest.py               # 공유 픽스처 (TEST_JWT_SECRET, monkeypatch)
 │   ├── unit/
 │   │   ├── test_user_db.py       # 사용자 DB (18 tests)
@@ -1258,22 +1258,28 @@ const row   = dp.getJsonRow(i);                    // i번째 행 (0-based) → 
 
 ### 실행 방법
 ```bash
-pytest                    # 전체 실행 (94 tests, ~0.72초)
+pytest                    # 전체 실행 (164 tests, ~0.6초)
 pytest tests/unit/        # 단위 테스트만
 pytest tests/integration/ # 통합 테스트만
 pytest -k "test_fund"     # 특정 키워드 매칭
 ```
 
-### 테스트 구성
+### 테스트 구성 (현재 git 추적 기준선)
 | 파일 | 테스트 수 | 대상 |
 |------|-----------|------|
-| `tests/unit/test_user_db.py` | 18 | Fernet 암호화, 사용자 CRUD, approval_config |
+| `tests/unit/test_user_db.py` | 22 | Fernet 암호화, 사용자 CRUD, approval_config |
 | `tests/unit/test_jwt_utils.py` | 9 | JWT 토큰 생성/검증/만료 |
-| `tests/unit/test_fund_db.py` | 27 | 프로젝트/공종/하도급/연락처/수금/요약 |
+| `tests/unit/test_fund_db.py` | 50 | 프로젝트/공종/하도급/연락처/수금/요약/예실/공정표 |
 | `tests/unit/test_chat_db.py` | 16 | 세션/메시지/미지원요청 |
 | `tests/unit/test_session_manager.py` | 9 | 캐시 TTL/hit/miss/스레드 안전성 |
+| `tests/unit/test_form_templates.py` | 18 | 양식 필드 정의/resolve |
+| `tests/unit/test_handlers_lock.py` | 5 | 멀티유저 per-user Lock |
+| `tests/unit/test_scheduler.py` | 14 | APScheduler cron 동작 |
+| `tests/unit/test_sheets_import.py` | 13 | PM 시트/등급 파싱 |
 | `tests/integration/test_api_auth.py` | 8 | FastAPI 로그인/인증/세션 API |
-| **합계** | **94** | — |
+| **합계** | **164** | — |
+
+> **참고**: 일부 세션 기록(XLV~XLVII)에 "193/193 PASS"가 등장하는 것은 타 본체 로컬에 `test_gw_validation.py`(+11), `test_construction_trades.py`(+13) 등 미커밋 테스트가 추가로 있었기 때문. 이 저장소(origin/master) 기준선은 **164**다. 누락 테스트는 별도 브랜치/스태시 확인 필요.
 
 ### 픽스처 (`tests/conftest.py`)
 - `TEST_JWT_SECRET`, `TEST_FERNET_KEY`: 테스트 전용 키

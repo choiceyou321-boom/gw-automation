@@ -1,6 +1,6 @@
 # 개발자 가이드 (Developer Guide)
 
-> 마지막 업데이트: 2026-05-15 (세션 LI — expense.py 거대 파일 분할 Phase A/B/C 완료, -56.6%)
+> 마지막 업데이트: 2026-05-20 (세션 LII — expense.py Phase D + other_forms.py 4분할 완료, 누적 -70.7%/-79.8%)
 > 새 세션 시작 시 이 문서와 `MEMORY.md`(auto-memory)를 함께 참고.
 
 ---
@@ -87,7 +87,8 @@
 │   │   ├── approval_automation.py      # Mixin 조합 클래스 (진입점)
 │   │   ├── base.py                     # 공통 유틸 + _find_first_visible + _GET_GRID_IFACE_JS
 │   │   ├── approval_line.py            # 결재선/수신참조 설정 (~268줄)
-│   │   ├── expense.py                  # 지출결의서 mixin facade (2147줄, 분할 후)
+│   │   ├── expense.py                  # 지출결의서 mixin facade (1446줄, Phase D 분할 후)
+│   │   ├── expense_fields.py           # 지출결의서 필드 채우기 함수 (771줄, 세션 LII Phase D)
 │   │   ├── invoice_modal.py            # 매입(세금)계산서 모달 (1039줄, 세션 LI Phase B)
 │   │   ├── project_picker.py           # 프로젝트 코드도움 모달 (812줄, 세션 LI Phase C)
 │   │   ├── attachment.py               # 첨부파일 업로드 헬퍼 (136줄, 세션 L Phase A)
@@ -95,7 +96,11 @@
 │   │   ├── grid.py                     # OBTDataGrid 그리드 조작 (~596줄)
 │   │   ├── vendor.py                   # 거래처등록 (~798줄)
 │   │   ├── draft.py                    # 임시보관 문서 상신 (~464줄)
-│   │   ├── other_forms.py              # 선급금/연장근무/외근/추천장려금 (2683줄, 분할 예정)
+│   │   ├── other_forms.py              # 4 mixin 조합 facade + 증빙발행/공통 (541줄, 세션 LII)
+│   │   ├── advance_payment.py          # 선급금 요청서/정산서 mixin (1289줄, 세션 LII)
+│   │   ├── overtime.py                 # 연장근무신청서 mixin + _navigate_to_hr_attendance (496줄, 세션 LII)
+│   │   ├── outside_work.py             # 외근신청서 mixin (367줄, 세션 LII)
+│   │   ├── recommendation.py           # 사내추천비 지급 요청서 mixin (134줄, 세션 LII)
 │   │   ├── budget_helpers.py           # 예산과목 팝업 헬퍼 (~876줄)
 │   │   └── form_templates.py           # 양식 필드 정의 + 결재선 resolve
 │   ├── chatbot/                  # 웹 챗봇 + 텔레그램 봇 + Gemini 에이전트
@@ -215,7 +220,36 @@ class ExpenseReportMixin:
         )
 ```
 
-**자동 변환 스크립트** (regex): `self.page → page`, `self.<method> → <fn>` 일괄 치환 + `ast.parse` 검증. 3회 적용(Phase A/B/C) 모두 성공.
+**자동 변환 스크립트** (regex): `self.page → page`, `self.<method> → <fn>` 일괄 치환 + `ast.parse` 검증. 4회 적용(Phase A/B/C/D) 모두 성공.
+
+**Phase D (세션 LII)**: `expense.py` `_fill_expense_fields` 722줄 → `expense_fields.py` 신규 모듈.
+콜백 13개 주입 (`dismiss_alert_fn` / `fill_project_code_fn` / `fill_field_by_label_fn` /
+`check_field_has_value_fn` / `close_modals_fn` / `click_evidence_type_fn` /
+`select_invoice_fn` / `fill_grid_items_fn` / `fill_receipt_date_fn` /
+`fill_project_code_bottom_fn` / `link_reference_doc_fn` / `upload_attachment_fn` /
+`capture_budget_fn`). 명명 컨벤션은 Phase B/C와 일치(`*_fn` 접미사). expense.py 누적 4938→1446줄(-70.7%).
+
+### 대안 — mixin 클래스 분리 (세션 LII에서 추가 확립)
+
+콜백 주입 패턴이 모든 거대 메서드 분할에 적합한 것은 아니다. 한 모듈 내에 거대한 self 메서드가
+**여럿** 있고 그 메서드들이 **서로 같은 self.* 헬퍼**를 광범위하게 호출하는 경우, 함수 추출 시 콜백 인자가
+15~20개 이상 폭증해 가독성과 호출부 유지보수가 나빠진다.
+
+**적용 사례**: `other_forms.py` 2683줄 → 4개 mixin 클래스 분리 (세션 LII).
+- `advance_payment.py` (1289줄), `overtime.py` (496줄), `outside_work.py` (367줄), `recommendation.py` (134줄)
+- `other_forms.py` 541줄로 축소 → `OtherFormsMixin(AdvancePaymentMixin, OvertimeMixin, OutsideWorkMixin, ReferralBonusMixin)` facade
+- 측정 근거: `_fill_advance_payment_fields` 한 메서드만 self 메서드 의존성 12개 — 콜백 주입 시 인자 수 ≥13개
+- 잔류 메서드 5개: `search_project_codes`, `create_proof_issuance`, `_create_proof_issuance_draft`, `save_form_draft`, `create_form` (4개 양식 디스패처/공통)
+
+**Trade-off**:
+| | 콜백 주입 (함수 모듈) | Mixin 분리 (클래스) |
+|---|---|---|
+| 적합 | 거대 단일 메서드, 외부 의존성 ≤5개 | 다중 거대 메서드, 공유 self.* 많음 |
+| 장점 | 함수형 테스트 가능, 인터페이스 명확 | 인자 폭증 없음, 상태 공유, 기존 호출부 무변경 |
+| 단점 | 외부 의존성 늘면 인자 폭증 | 단독 인스턴스화 어려움 — `_navigate_to_hr_attendance`가 OvertimeMixin에 있고 OutsideWorkMixin이 MRO로 상속받는 등 mixin 간 묵시적 의존성 발생 |
+| 테스트 | 함수 단위로 mock 13개 주입 | 전체 ApprovalAutomation 인스턴스 필요 |
+
+**판단 기준**: 단일 메서드 분할은 콜백 주입 (Phase A~D), 한 파일 내 다중 메서드 분할은 mixin 분리.
 
 ### 핸들러 안전 wrapper — `_safe_handler` (세션 L)
 

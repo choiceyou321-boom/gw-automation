@@ -14,7 +14,7 @@ import pytest
 @pytest.fixture
 def fund_db(tmp_path, monkeypatch):
     """격리된 fund_db 모듈 (임시 DB)"""
-    import src.fund_table.db as mod
+    import src.pm.fund_table.db as mod
     monkeypatch.setattr(mod, "_db_initialized", False)
     monkeypatch.setattr(mod, "DB_PATH", tmp_path / "fund.db")
     monkeypatch.setattr(mod, "DATA_DIR", tmp_path)

@@ -20,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / "config" / ".env")
 
-from src.auth.user_db import list_users, get_decrypted_password, delete_user
-from src.auth.login import validate_gw_credentials
+from src.shared.auth.user_db import list_users, get_decrypted_password, delete_user
+from src.shared.auth.login import validate_gw_credentials
 
 
 def main():
@@ -85,7 +85,7 @@ def main():
                 delete_user(gw_id)
                 # 세션 캐시 무효화
                 try:
-                    from src.auth.session_manager import invalidate_cache
+                    from src.shared.auth.session_manager import invalidate_cache
                     invalidate_cache(gw_id)
                 except Exception:
                     pass

@@ -11,7 +11,7 @@ import pytest
 @pytest.fixture
 def si():
     """sheets_import 모듈 (Google API 호출 없이 유틸 함수만 사용)"""
-    from src.fund_table import sheets_import as mod
+    from src.pm.fund_table import sheets_import as mod
     return mod
 
 

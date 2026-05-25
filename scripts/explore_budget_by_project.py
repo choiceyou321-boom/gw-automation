@@ -151,8 +151,8 @@ def _close_sidebar(page):
 def explore():
     """예실대비현황(사업별) 페이지 탐색 메인 함수"""
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     headless = os.environ.get("HEADLESS", "true").lower() != "false"
     gw_id = os.environ.get("GW_USER_ID")

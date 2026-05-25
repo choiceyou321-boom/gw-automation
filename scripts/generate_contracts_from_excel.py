@@ -11,7 +11,7 @@ import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
-from src.contracts.contract_generator import generate_from_excel
+from src.pm.contracts.contract_generator import generate_from_excel
 
 def main():
     parser = argparse.ArgumentParser(description="Excel → 계약서 일괄 생성")

@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.fund_table.db import get_db
+from src.pm.fund_table.db import get_db
 
 # 로컬 JSON (이미 다운로드됨)
 DATA_316 = os.path.join(os.path.dirname(__file__), '..', 'data', 'pm_sheet_260316.json')

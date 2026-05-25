@@ -68,7 +68,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 @asynccontextmanager
 async def lifespan(app):
     """FastAPI lifespan — 스케줄러 + 텔레그램 봇 시작/종료 관리"""
-    from src.fund_table.scheduler import start_scheduler, stop_scheduler
+    from src.pm.fund_table.scheduler import start_scheduler, stop_scheduler
     from src.chatbot.telegram_bot import start_telegram_bot, stop_telegram_bot
     start_scheduler()
     start_telegram_bot()
@@ -113,9 +113,18 @@ app.add_middleware(CSRFMiddleware)
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# 프로젝트 관리 라우터 등록
-from src.fund_table.routes import router as fund_router
-app.include_router(fund_router)
+# 프로젝트 관리(PM) 라우터 등록 — v4 분리:
+#   /api/pm/*   (신규 권장 경로)
+#   /api/fund/* (기존 호환 alias — fund.js 등 무중단 위해 유지)
+from src.pm.fund_table.routes import router as pm_router, pages_router as pm_pages_router
+app.include_router(pm_router, prefix="/api/pm")
+app.include_router(pm_router, prefix="/api/fund")
+# 페이지 서빙 (/fund, /guide, /insights) — prefix 없이 등록
+app.include_router(pm_pages_router)
+
+# PM 정적 파일 마운트 (fund.css, fund.js 등) — /static/ 경로 호환
+from src.pm.fund_table.routes import PM_STATIC_DIR
+app.mount("/pm-static", StaticFiles(directory=str(PM_STATIC_DIR)), name="pm_static")
 
 # ─────────────────────────────────────────
 # Pydantic 모델
@@ -160,7 +169,7 @@ class ChatResponse(BaseModel):
 # ─────────────────────────────────────────
 # 인증 유틸 (공용 미들웨어 사용)
 # ─────────────────────────────────────────
-from src.auth.middleware import get_current_user, require_auth
+from src.shared.auth.middleware import get_current_user, require_auth
 
 def require_admin(request: Request) -> dict:
     """관리자 인증 필수 (DB is_admin 필드 기준)."""
@@ -178,8 +187,8 @@ def require_admin(request: Request) -> dict:
 async def register(req: RegisterRequest):
     """회원가입 — GW 로그인 검증 후 등록"""
     import asyncio
-    from src.auth.user_db import register as db_register, get_user
-    from src.auth.login import validate_gw_credentials, gw_error_to_user_message
+    from src.shared.auth.user_db import register as db_register, get_user
+    from src.shared.auth.login import validate_gw_credentials, gw_error_to_user_message
 
     if not req.gw_id or not req.gw_pw or not req.name:
         raise HTTPException(status_code=400, detail="아이디, 비밀번호, 이름은 필수입니다.")
@@ -223,8 +232,8 @@ async def register(req: RegisterRequest):
 @app.post("/auth/login")
 async def login(req: LoginRequest, response: Response):
     """로그인 → JWT 쿠키 발급"""
-    from src.auth.user_db import verify_login
-    from src.auth.jwt_utils import create_token
+    from src.shared.auth.user_db import verify_login
+    from src.shared.auth.jwt_utils import create_token
 
     user = verify_login(req.gw_id, req.gw_pw)
     if not user:
@@ -311,7 +320,7 @@ async def update_profile(req: ProfileUpdateRequest, request: Request):
     """프로필 업데이트 (emp_seq, dept_seq 등)"""
     user = require_auth(request)
 
-    from src.auth.user_db import update_profile as db_update
+    from src.shared.auth.user_db import update_profile as db_update
 
     updates = req.model_dump(exclude_none=True)
     if not updates:
@@ -332,7 +341,7 @@ async def update_profile(req: ProfileUpdateRequest, request: Request):
 async def admin_list_users(request: Request):
     """사용자 목록 (관리자 전용)"""
     require_admin(request)
-    from src.auth.user_db import list_users
+    from src.shared.auth.user_db import list_users
     users = list_users()
     return JSONResponse({"users": users})
 
@@ -344,13 +353,13 @@ async def admin_delete_user(gw_id: str, request: Request):
     if gw_id == admin["gw_id"]:
         raise HTTPException(status_code=400, detail="본인 계정은 삭제할 수 없습니다.")
 
-    from src.auth.user_db import delete_user
+    from src.shared.auth.user_db import delete_user
     result = delete_user(gw_id)
     if not result["success"]:
         raise HTTPException(status_code=404, detail=result["message"])
 
     # 삭제된 사용자의 GW 세션 캐시도 제거
-    from src.auth.session_manager import invalidate_cache
+    from src.shared.auth.session_manager import invalidate_cache
     invalidate_cache(gw_id)
 
     return JSONResponse({"message": result["message"]})
@@ -361,7 +370,7 @@ async def admin_update_user_profile(gw_id: str, req: ProfileUpdateRequest, reque
     """다른 사용자의 프로필 업데이트 (관리자 전용)"""
     require_admin(request)
 
-    from src.auth.user_db import update_profile as db_update, get_user
+    from src.shared.auth.user_db import update_profile as db_update, get_user
     if not get_user(gw_id):
         raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
 
@@ -380,7 +389,7 @@ async def admin_toggle_role(gw_id: str, request: Request):
     if gw_id == admin["gw_id"]:
         raise HTTPException(status_code=400, detail="본인의 관리자 권한은 변경할 수 없습니다.")
 
-    from src.auth.user_db import get_user, set_admin
+    from src.shared.auth.user_db import get_user, set_admin
     target = get_user(gw_id)
     if not target:
         raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
@@ -419,8 +428,8 @@ async def admin_validate_user(gw_id: str, request: Request):
     import asyncio
     require_admin(request)
 
-    from src.auth.user_db import get_user, get_decrypted_password
-    from src.auth.login import validate_gw_credentials
+    from src.shared.auth.user_db import get_user, get_decrypted_password
+    from src.shared.auth.login import validate_gw_credentials
 
     user = get_user(gw_id)
     if not user:
@@ -453,8 +462,8 @@ async def admin_validate_all_users(request: Request):
     from starlette.responses import StreamingResponse
 
     async def _stream():
-        from src.auth.user_db import list_users, get_decrypted_password
-        from src.auth.login import validate_gw_credentials
+        from src.shared.auth.user_db import list_users, get_decrypted_password
+        from src.shared.auth.login import validate_gw_credentials
 
         users = list_users()
         counts = {"total": len(users), "valid": 0, "invalid": 0, "error": 0, "skipped": 0}

@@ -33,7 +33,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # 기존 로직 임포트
 from src.chatbot.agent import analyze_and_route
-from src.auth.user_db import verify_login, register as db_register, get_approval_config, set_approval_config
+from src.shared.auth.user_db import verify_login, register as db_register, get_approval_config, set_approval_config
 
 # 텔레그램 유저 ID → { user_context, history }
 tg_sessions: dict[int, dict] = {}
@@ -77,8 +77,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def _register_with_gw_validation(update, context, gw_id, gw_pw, name, position=""):
     """GW 검증 후 회원가입 처리 (레거시/2-step 공통 헬퍼)"""
     import asyncio
-    from src.auth.login import validate_gw_credentials, gw_error_to_user_message
-    from src.auth.user_db import get_user
+    from src.shared.auth.login import validate_gw_credentials, gw_error_to_user_message
+    from src.shared.auth.user_db import get_user
 
     chat_id = update.effective_chat.id
 
@@ -277,7 +277,7 @@ async def mailcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     try:
-        from src.mail.summarizer import run_mail_push_for_user
+        from src.gw.mail.summarizer import run_mail_push_for_user
         gw_id = session.get("gw_id", "")
         chat_id = update.effective_chat.id
 
@@ -595,7 +595,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # ── Vision Dispatch 우선 처리 ──
         try:
-            from src.vision import dispatch_document
+            from src.gw.vision import dispatch_document
             parse_result = await dispatch_document(bytes(photo_bytes), "image/jpeg")
 
             if parse_result.form_type and parse_result.confidence >= 0.7:

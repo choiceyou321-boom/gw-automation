@@ -23,8 +23,11 @@ from src.pm.fund_table import db
 logger = logging.getLogger("fund_routes")
 
 # 정적 파일 경로 (src/chatbot/static/fund.html)
-STATIC_DIR = Path(__file__).parent.parent / "chatbot" / "static"
+# v4 분리 후 경로 깊이 증가: src/pm/fund_table/routes.py → ../../chatbot/static
+STATIC_DIR = Path(__file__).parent.parent.parent / "chatbot" / "static"
 
+# Router: 데코레이터에는 prefix 제외한 경로 사용.
+# app.py에서 prefix="/api/pm" 으로 마운트하고 alias prefix="/api/fund"도 추가 등록.
 router = APIRouter()
 
 
@@ -231,7 +234,7 @@ class OverviewSave(BaseModel):
 # 프로젝트 CRUD 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects")
+@router.get("/projects")
 async def list_projects(request: Request):
     """전체 프로젝트 목록 조회"""
     require_auth(request)
@@ -239,7 +242,7 @@ async def list_projects(request: Request):
     return JSONResponse({"projects": projects})
 
 
-@router.get("/api/fund/portfolio-summary")
+@router.get("/portfolio-summary")
 async def get_portfolio_summary(request: Request):
     """포트폴리오 전체 요약 (프로젝트 비교 뷰용)"""
     require_auth(request)
@@ -247,7 +250,7 @@ async def get_portfolio_summary(request: Request):
     return JSONResponse({"projects": data})
 
 
-@router.post("/api/fund/projects")
+@router.post("/projects")
 async def create_project(req: ProjectCreate, request: Request):
     """프로젝트 생성. project_code가 있으면 백그라운드에서 GW 크롤링 자동 실행."""
     import threading
@@ -291,7 +294,7 @@ async def create_project(req: ProjectCreate, request: Request):
     return JSONResponse(result, status_code=201)
 
 
-@router.put("/api/fund/projects/reorder")
+@router.put("/projects/reorder")
 async def reorder_projects(req: ReorderRequest, request: Request):
     """프로젝트 순서 일괄 업데이트"""
     require_auth(request)
@@ -302,7 +305,7 @@ async def reorder_projects(req: ReorderRequest, request: Request):
     return JSONResponse(result)
 
 
-@router.get("/api/fund/projects/{project_id}")
+@router.get("/projects/{project_id}")
 async def get_project(project_id: int, request: Request):
     """프로젝트 상세 조회 (공종, 하도급 요약 포함)"""
     require_auth(request)
@@ -331,7 +334,7 @@ async def get_project(project_id: int, request: Request):
     })
 
 
-@router.put("/api/fund/projects/{project_id}")
+@router.put("/projects/{project_id}")
 async def update_project(project_id: int, req: ProjectUpdate, request: Request):
     """프로젝트 정보 수정"""
     user = require_auth(request)
@@ -352,7 +355,7 @@ async def update_project(project_id: int, req: ProjectUpdate, request: Request):
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/projects/{project_id}")
+@router.delete("/projects/{project_id}")
 async def delete_project(project_id: int, request: Request):
     """프로젝트 삭제 (하위 데이터 포함)"""
     user = require_auth(request)
@@ -368,7 +371,7 @@ async def delete_project(project_id: int, request: Request):
 # 공종 CRUD 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/trades")
+@router.get("/projects/{project_id}/trades")
 async def list_trades(project_id: int, request: Request):
     """프로젝트의 공종 목록 조회"""
     require_auth(request)
@@ -378,7 +381,7 @@ async def list_trades(project_id: int, request: Request):
     return JSONResponse({"trades": trades})
 
 
-@router.post("/api/fund/projects/{project_id}/trades")
+@router.post("/projects/{project_id}/trades")
 async def add_trade(project_id: int, req: TradeCreate, request: Request):
     """공종 추가"""
     user = require_auth(request)
@@ -391,7 +394,7 @@ async def add_trade(project_id: int, req: TradeCreate, request: Request):
     return JSONResponse(result, status_code=201)
 
 
-@router.put("/api/fund/projects/{project_id}/trades/{trade_id}")
+@router.put("/projects/{project_id}/trades/{trade_id}")
 async def update_trade(project_id: int, trade_id: int, req: TradeUpdate, request: Request):
     """공종 수정"""
     user = require_auth(request)
@@ -405,7 +408,7 @@ async def update_trade(project_id: int, trade_id: int, req: TradeUpdate, request
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/projects/{project_id}/trades/{trade_id}")
+@router.delete("/projects/{project_id}/trades/{trade_id}")
 async def delete_trade(project_id: int, trade_id: int, request: Request):
     """공종 삭제"""
     user = require_auth(request)
@@ -420,7 +423,7 @@ async def delete_trade(project_id: int, trade_id: int, request: Request):
 # 하도급 상세 CRUD 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/subcontracts")
+@router.get("/projects/{project_id}/subcontracts")
 async def list_subcontracts(project_id: int, request: Request):
     """프로젝트의 하도급 목록 조회 (공종명 포함)"""
     require_auth(request)
@@ -430,7 +433,7 @@ async def list_subcontracts(project_id: int, request: Request):
     return JSONResponse({"subcontracts": subcontracts})
 
 
-@router.post("/api/fund/projects/{project_id}/subcontracts")
+@router.post("/projects/{project_id}/subcontracts")
 async def add_subcontract(project_id: int, req: SubcontractCreate, request: Request):
     """하도급 업체 추가"""
     user = require_auth(request)
@@ -444,7 +447,7 @@ async def add_subcontract(project_id: int, req: SubcontractCreate, request: Requ
     return JSONResponse(result, status_code=201)
 
 
-@router.put("/api/fund/projects/{project_id}/subcontracts")
+@router.put("/projects/{project_id}/subcontracts")
 async def save_subcontracts_bulk(project_id: int, request: Request):
     """하도급 일괄 저장 (프론트엔드 saveSubcontracts)"""
     user = require_auth(request)
@@ -483,7 +486,7 @@ async def save_subcontracts_bulk(project_id: int, request: Request):
     return JSONResponse({"success": True, "message": f"하도급 {len(rows)}건 저장 완료"})
 
 
-@router.put("/api/fund/subcontracts/{sub_id}")
+@router.put("/subcontracts/{sub_id}")
 async def update_subcontract(sub_id: int, req: SubcontractUpdate, request: Request):
     """하도급 업체 정보 수정 (개별)"""
     user = require_auth(request)
@@ -505,7 +508,7 @@ async def update_subcontract(sub_id: int, req: SubcontractUpdate, request: Reque
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/subcontracts/{sub_id}")
+@router.delete("/subcontracts/{sub_id}")
 async def delete_subcontract(sub_id: int, request: Request):
     """하도급 업체 삭제"""
     user = require_auth(request)
@@ -528,7 +531,7 @@ async def delete_subcontract(sub_id: int, request: Request):
 # 연락처 CRUD 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/contacts")
+@router.get("/projects/{project_id}/contacts")
 async def list_contacts(project_id: int, request: Request):
     """프로젝트의 연락처 목록 조회"""
     require_auth(request)
@@ -538,7 +541,7 @@ async def list_contacts(project_id: int, request: Request):
     return JSONResponse({"contacts": contacts})
 
 
-@router.post("/api/fund/projects/{project_id}/contacts")
+@router.post("/projects/{project_id}/contacts")
 async def add_contact(project_id: int, req: ContactCreate, request: Request):
     """연락처 추가"""
     user = require_auth(request)
@@ -555,7 +558,7 @@ async def add_contact(project_id: int, req: ContactCreate, request: Request):
     return JSONResponse(result, status_code=201)
 
 
-@router.put("/api/fund/projects/{project_id}/contacts/{contact_id}")
+@router.put("/projects/{project_id}/contacts/{contact_id}")
 async def update_contact(project_id: int, contact_id: int, req: ContactUpdate, request: Request):
     """연락처 수정"""
     user = require_auth(request)
@@ -573,7 +576,7 @@ async def update_contact(project_id: int, contact_id: int, req: ContactUpdate, r
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/projects/{project_id}/contacts/{contact_id}")
+@router.delete("/projects/{project_id}/contacts/{contact_id}")
 async def delete_contact(project_id: int, contact_id: int, request: Request):
     """연락처 삭제"""
     user = require_auth(request)
@@ -588,7 +591,7 @@ async def delete_contact(project_id: int, contact_id: int, request: Request):
 # 프로젝트 개요 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/overview")
+@router.get("/projects/{project_id}/overview")
 async def get_overview(project_id: int, request: Request):
     """프로젝트 개요 조회"""
     require_auth(request)
@@ -598,7 +601,7 @@ async def get_overview(project_id: int, request: Request):
     return JSONResponse({"overview": overview})
 
 
-@router.put("/api/fund/projects/{project_id}/overview")
+@router.put("/projects/{project_id}/overview")
 async def save_overview(project_id: int, req: OverviewSave, request: Request):
     """프로젝트 개요 저장"""
     user = require_auth(request)
@@ -622,7 +625,7 @@ async def save_overview(project_id: int, req: OverviewSave, request: Request):
 # GW 크롤링 엔드포인트
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/projects/{project_id}/crawl-gw")
+@router.post("/projects/{project_id}/crawl-gw")
 async def crawl_gw_project(project_id: int, request: Request):
     """
     GW에서 프로젝트 등록정보 + 예실대비 크롤링.
@@ -707,7 +710,7 @@ async def crawl_gw_project(project_id: int, request: Request):
     })
 
 
-@router.post("/api/fund/crawl-gw-all")
+@router.post("/crawl-gw-all")
 async def crawl_gw_all(request: Request):
     """
     등록된 모든 프로젝트의 GW 정보 일괄 크롤링.
@@ -859,7 +862,7 @@ async def crawl_gw_all(request: Request):
 # 수금현황 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/collections")
+@router.get("/projects/{project_id}/collections")
 async def list_collections(project_id: int, request: Request):
     """수금현황 조회"""
     require_auth(request)
@@ -869,7 +872,7 @@ async def list_collections(project_id: int, request: Request):
     return JSONResponse({"collections": collections})
 
 
-@router.put("/api/fund/projects/{project_id}/collections")
+@router.put("/projects/{project_id}/collections")
 async def save_collections(project_id: int, req: CollectionsBulkSave, request: Request):
     """수금현황 일괄 저장"""
     user = require_auth(request)
@@ -888,7 +891,7 @@ async def save_collections(project_id: int, req: CollectionsBulkSave, request: R
 # GW 프로젝트 검색 (사업코드 자동 조회)
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/gw/search-projects")
+@router.post("/gw/search-projects")
 async def search_gw_projects_api(request: Request):
     """GW 프로젝트 키워드 검색 (캐시 우선, 없으면 안내)"""
     user = require_auth(request)
@@ -914,7 +917,7 @@ async def search_gw_projects_api(request: Request):
     })
 
 
-@router.post("/api/fund/gw/fetch-project-list")
+@router.post("/gw/fetch-project-list")
 async def fetch_gw_project_list(request: Request):
     """GW에서 전체 프로젝트 목록 크롤링 → 캐시 저장"""
     import traceback
@@ -958,7 +961,7 @@ async def fetch_gw_project_list(request: Request):
 # PM 시트 임포트 엔드포인트
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/import-pm-sheet")
+@router.post("/import-pm-sheet")
 async def import_pm_sheet(request: Request):
     """
     PM팀 Official 시트에서 전체 프로젝트 기본정보를 읽어 DB에 반영.
@@ -1018,7 +1021,7 @@ async def import_pm_sheet(request: Request):
 # GW 데이터 조회 엔드포인트 (읽기 전용)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/payments")
+@router.get("/projects/{project_id}/payments")
 async def list_payments(project_id: int, request: Request, limit: int = 500):
     """이체완료 내역 조회"""
     require_auth(request)
@@ -1030,7 +1033,7 @@ async def list_payments(project_id: int, request: Request, limit: int = 500):
     return JSONResponse({"payments": payments})
 
 
-@router.post("/api/fund/projects/{project_id}/payments/import")
+@router.post("/projects/{project_id}/payments/import")
 async def import_payment_excel(project_id: int, request: Request, file: UploadFile = File(...)):
     """엑셀 파일에서 이체내역 임포트 (헤더 자동 감지)"""
     require_auth(request)
@@ -1150,7 +1153,7 @@ async def import_payment_excel(project_id: int, request: Request, file: UploadFi
         raise HTTPException(status_code=500, detail=f"엑셀 파싱 오류: {str(e)}")
 
 
-@router.get("/api/fund/projects/{project_id}/budget")
+@router.get("/projects/{project_id}/budget")
 async def list_budget(project_id: int, request: Request, year: Optional[int] = None):
     """예실대비현황 조회"""
     require_auth(request)
@@ -1160,7 +1163,7 @@ async def list_budget(project_id: int, request: Request, year: Optional[int] = N
     return JSONResponse({"budget": budget})
 
 
-@router.get("/api/fund/projects/{project_id}/summary")
+@router.get("/projects/{project_id}/summary")
 async def get_fund_summary(project_id: int, request: Request):
     """프로젝트 자금현황 요약"""
     require_auth(request)
@@ -1174,7 +1177,7 @@ async def get_fund_summary(project_id: int, request: Request):
 # TODO CRUD
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/todos")
+@router.get("/todos")
 async def list_all_todos(request: Request):
     """전체 TODO 조회"""
     require_auth(request)
@@ -1182,7 +1185,7 @@ async def list_all_todos(request: Request):
     return JSONResponse({"todos": todos})
 
 
-@router.get("/api/fund/projects/{project_id}/todos")
+@router.get("/projects/{project_id}/todos")
 async def list_project_todos(project_id: int, request: Request):
     """프로젝트별 TODO 조회"""
     require_auth(request)
@@ -1197,7 +1200,7 @@ class TodoCreate(BaseModel):
     project_id: Optional[int] = None
 
 
-@router.post("/api/fund/todos")
+@router.post("/todos")
 async def create_todo(request: Request, body: TodoCreate):
     """TODO 생성"""
     require_auth(request)
@@ -1218,7 +1221,7 @@ class TodoUpdate(BaseModel):
     project_id: Optional[int] = None
 
 
-@router.put("/api/fund/todos/{todo_id}")
+@router.put("/todos/{todo_id}")
 async def update_todo(todo_id: int, request: Request, body: TodoUpdate):
     """TODO 수정"""
     user = require_auth(request)
@@ -1237,7 +1240,7 @@ async def update_todo(todo_id: int, request: Request, body: TodoUpdate):
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/todos/{todo_id}")
+@router.delete("/todos/{todo_id}")
 async def delete_todo(todo_id: int, request: Request):
     """TODO 삭제"""
     user = require_auth(request)
@@ -1259,7 +1262,7 @@ async def delete_todo(todo_id: int, request: Request):
 # AI 인사이트 생성
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/insights")
+@router.get("/insights")
 async def get_insights(request: Request):
     """저장된 인사이트 조회"""
     require_auth(request)
@@ -1267,7 +1270,7 @@ async def get_insights(request: Request):
     return JSONResponse({"insights": insights})
 
 
-@router.get("/api/fund/portfolio-analysis")
+@router.get("/portfolio-analysis")
 async def get_portfolio_analysis(request: Request):
     """포트폴리오 분석 결과 조회 (캐시된 인사이트)"""
     require_auth(request)
@@ -1301,7 +1304,7 @@ async def get_portfolio_analysis(request: Request):
         conn.close()
 
 
-@router.post("/api/fund/insights/generate")
+@router.post("/insights/generate")
 async def generate_insights(request: Request):
     """Claude Opus로 전체 프로젝트 인사이트 생성"""
     require_auth(request)
@@ -1609,7 +1612,7 @@ async def serve_insights_page(request: Request):
 # 자료실 (Materials) 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/materials")
+@router.get("/projects/{project_id}/materials")
 async def list_materials(project_id: int, request: Request):
     """프로젝트 자료 목록"""
     require_auth(request)
@@ -1622,7 +1625,7 @@ class MaterialCreate(BaseModel):
     description: str = ""
     content_text: str = ""
 
-@router.post("/api/fund/projects/{project_id}/materials")
+@router.post("/projects/{project_id}/materials")
 async def add_material_text(project_id: int, request: Request, body: MaterialCreate):
     """텍스트/메모 자료 추가"""
     require_auth(request)
@@ -1637,7 +1640,7 @@ async def add_material_text(project_id: int, request: Request, body: MaterialCre
     return JSONResponse(result)
 
 
-@router.post("/api/fund/projects/{project_id}/materials/upload")
+@router.post("/projects/{project_id}/materials/upload")
 async def upload_material_file(project_id: int, request: Request):
     """파일 업로드 자료 추가"""
     require_auth(request)
@@ -1674,7 +1677,7 @@ async def upload_material_file(project_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/materials/{material_id}")
+@router.delete("/materials/{material_id}")
 async def delete_material(material_id: int, request: Request):
     """자료 삭제"""
     require_auth(request)
@@ -1690,7 +1693,7 @@ async def delete_material(material_id: int, request: Request):
 
 _last_notification_check: float = 0.0  # 마지막 알림 체크 시각 (epoch)
 
-@router.get("/api/fund/notifications")
+@router.get("/notifications")
 async def get_notifications(request: Request):
     """알림 목록"""
     import time
@@ -1704,7 +1707,7 @@ async def get_notifications(request: Request):
     return JSONResponse({"notifications": notifications})
 
 
-@router.post("/api/fund/notifications/read-all")
+@router.post("/notifications/read-all")
 async def mark_all_read(request: Request):
     """모든 알림 읽음"""
     require_auth(request)
@@ -1716,7 +1719,7 @@ async def mark_all_read(request: Request):
 # 프로젝트 별칭 (alias) 관리 API
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/aliases")
+@router.get("/projects/{project_id}/aliases")
 async def get_aliases(project_id: int, request: Request):
     """프로젝트 별칭 목록"""
     require_auth(request)
@@ -1724,7 +1727,7 @@ async def get_aliases(project_id: int, request: Request):
     return JSONResponse({"aliases": aliases})
 
 
-@router.post("/api/fund/projects/{project_id}/aliases")
+@router.post("/projects/{project_id}/aliases")
 async def add_alias(project_id: int, request: Request):
     """프로젝트 별칭 추가"""
     require_auth(request)
@@ -1736,7 +1739,7 @@ async def add_alias(project_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/projects/{project_id}/aliases")
+@router.delete("/projects/{project_id}/aliases")
 async def delete_alias(project_id: int, request: Request):
     """프로젝트 별칭 삭제"""
     require_auth(request)
@@ -1748,7 +1751,7 @@ async def delete_alias(project_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.get("/api/fund/aliases")
+@router.get("/aliases")
 async def get_all_project_aliases(request: Request):
     """전체 프로젝트 별칭 목록"""
     require_auth(request)
@@ -1760,7 +1763,7 @@ async def get_all_project_aliases(request: Request):
 # GW 예산 실적 (budget_actual) — 상세 조회 + 동기화
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/budget/detail")
+@router.get("/projects/{project_id}/budget/detail")
 async def list_budget_detail(project_id: int, request: Request,
                               gisu: Optional[int] = None,
                               leaf_only: bool = False):
@@ -1803,7 +1806,7 @@ async def list_budget_detail(project_id: int, request: Request,
     })
 
 
-@router.post("/api/fund/projects/{project_id}/budget/sync-actuals")
+@router.post("/projects/{project_id}/budget/sync-actuals")
 async def sync_budget_actuals(project_id: int, request: Request):
     """단일 프로젝트 예실대비현황 GW 동기화 (RealGrid DataProvider 방식)"""
     user = require_auth(request)
@@ -1835,7 +1838,7 @@ async def sync_budget_actuals(project_id: int, request: Request):
     return JSONResponse({"message": "예실대비현황 GW 동기화 시작됨", **results})
 
 
-@router.post("/api/fund/gw/sync-all-budget-actuals")
+@router.post("/gw/sync-all-budget-actuals")
 async def sync_all_budget_actuals(request: Request):
     """모든 프로젝트 예실대비현황 일괄 GW 동기화 (백그라운드)"""
     user = require_auth(request)
@@ -1856,7 +1859,7 @@ async def sync_all_budget_actuals(request: Request):
     return JSONResponse({"message": "전체 프로젝트 예실대비현황 동기화 시작됨"})
 
 
-@router.get("/api/fund/gw/project-list")
+@router.get("/gw/project-list")
 async def get_gw_project_list(request: Request, keyword: str = ""):
     """GW 전체 프로젝트 목록 반환 (캐시 우선, 없으면 DB 프로젝트 목록)"""
     require_auth(request)
@@ -1872,7 +1875,7 @@ async def get_gw_project_list(request: Request, keyword: str = ""):
     return JSONResponse({"projects": cached, "count": len(cached)})
 
 
-@router.get("/api/fund/budget/cross-project")
+@router.get("/budget/cross-project")
 async def cross_project_budget(request: Request, gisu: Optional[int] = None, top_n: int = 20):
     """전체 프로젝트 예실대비 집계 (집행률 상위 N 반환)"""
     require_auth(request)
@@ -1940,7 +1943,7 @@ class RiskUpdate(BaseModel):
 # 세금계산서 (gw_tax_invoices)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/tax-invoices")
+@router.get("/projects/{project_id}/tax-invoices")
 async def get_tax_invoices(project_id: int, request: Request):
     """프로젝트별 세금계산서 목록 조회"""
     require_auth(request)
@@ -1956,7 +1959,7 @@ async def get_tax_invoices(project_id: int, request: Request):
 # 예산 변경 이력 (gw_budget_changes)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/budget-changes")
+@router.get("/projects/{project_id}/budget-changes")
 async def get_budget_changes(project_id: int, request: Request):
     """프로젝트별 예산 변경 이력 조회"""
     require_auth(request)
@@ -1972,7 +1975,7 @@ async def get_budget_changes(project_id: int, request: Request):
 # 수금 예정 내역 (gw_collection_schedule)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/collection-schedule")
+@router.get("/projects/{project_id}/collection-schedule")
 async def get_collection_schedule(project_id: int, request: Request, status: Optional[str] = None):
     """프로젝트별 수금 예정 내역 조회"""
     require_auth(request)
@@ -1984,7 +1987,7 @@ async def get_collection_schedule(project_id: int, request: Request, status: Opt
         raise HTTPException(status_code=500, detail="수금 예정 조회 중 오류가 발생했습니다.")
 
 
-@router.post("/api/fund/projects/{project_id}/collection-schedule")
+@router.post("/projects/{project_id}/collection-schedule")
 async def create_collection_schedule(project_id: int, req: CollectionScheduleCreate, request: Request):
     """수금 예정 항목 직접 추가 (수동 입력용)"""
     require_auth(request)
@@ -2010,7 +2013,7 @@ async def create_collection_schedule(project_id: int, req: CollectionScheduleCre
 # 자금집행 승인 현황 (gw_payment_approvals)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/payment-approvals")
+@router.get("/projects/{project_id}/payment-approvals")
 async def get_payment_approvals(project_id: int, request: Request, status: Optional[str] = None):
     """프로젝트별 자금집행 승인 현황 조회"""
     require_auth(request)
@@ -2026,7 +2029,7 @@ async def get_payment_approvals(project_id: int, request: Request, status: Optio
 # 리스크 관리 (project_risk_log)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/risks")
+@router.get("/projects/{project_id}/risks")
 async def get_risks(project_id: int, request: Request, status: Optional[str] = None):
     """프로젝트별 리스크 이력 조회"""
     require_auth(request)
@@ -2038,7 +2041,7 @@ async def get_risks(project_id: int, request: Request, status: Optional[str] = N
         raise HTTPException(status_code=500, detail="리스크 조회 중 오류가 발생했습니다.")
 
 
-@router.post("/api/fund/projects/{project_id}/risks")
+@router.post("/projects/{project_id}/risks")
 async def create_risk(project_id: int, req: RiskCreate, request: Request):
     """프로젝트별 리스크 항목 추가"""
     require_auth(request)
@@ -2060,7 +2063,7 @@ async def create_risk(project_id: int, req: RiskCreate, request: Request):
         raise HTTPException(status_code=500, detail="리스크 추가 중 오류가 발생했습니다.")
 
 
-@router.put("/api/fund/risks/{risk_id}")
+@router.put("/risks/{risk_id}")
 async def update_risk(risk_id: int, req: RiskUpdate, request: Request):
     """리스크 항목 수정 (해결 여부, 조치 내용 업데이트)"""
     require_auth(request)
@@ -2087,7 +2090,7 @@ async def update_risk(risk_id: int, req: RiskUpdate, request: Request):
 # GW 계약 현황 (gw_contracts)
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/gw-contracts")
+@router.get("/projects/{project_id}/gw-contracts")
 async def get_gw_contracts(project_id: int, request: Request):
     """프로젝트별 GW 계약 현황 조회"""
     require_auth(request)
@@ -2103,7 +2106,7 @@ async def get_gw_contracts(project_id: int, request: Request):
 # 세금계산서 간편 동기화 (D4 요청)
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/projects/{project_id}/tax-invoices/sync")
+@router.post("/projects/{project_id}/tax-invoices/sync")
 async def sync_tax_invoices_simple(project_id: int, request: Request):
     """
     단일 프로젝트 세금계산서 발행 내역 GW 동기화 (간편 경로).
@@ -2179,7 +2182,7 @@ async def sync_tax_invoices_simple(project_id: int, request: Request):
 # GW 세금계산서 동기화
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/projects/{project_id}/gw/sync-tax-invoices")
+@router.post("/projects/{project_id}/gw/sync-tax-invoices")
 async def sync_tax_invoices(project_id: int, request: Request):
     """단일 프로젝트 세금계산서 발행 내역 GW 동기화 (백그라운드)"""
     require_auth(request)
@@ -2247,7 +2250,7 @@ async def sync_tax_invoices(project_id: int, request: Request):
 # GW 수금 예정 내역 동기화
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/projects/{project_id}/gw/sync-collection-schedule")
+@router.post("/projects/{project_id}/gw/sync-collection-schedule")
 async def sync_collection_schedule(project_id: int, request: Request):
     """단일 프로젝트 수금 예정 내역 GW 동기화 (백그라운드)"""
     require_auth(request)
@@ -2312,7 +2315,7 @@ async def sync_collection_schedule(project_id: int, request: Request):
 # GW 자금집행 승인 현황 동기화
 # ─────────────────────────────────────────
 
-@router.post("/api/fund/projects/{project_id}/gw/sync-payment-approvals")
+@router.post("/projects/{project_id}/gw/sync-payment-approvals")
 async def sync_payment_approvals(project_id: int, request: Request):
     """단일 프로젝트 자금집행 승인 현황 GW 동기화 (백그라운드)"""
     require_auth(request)
@@ -2379,7 +2382,7 @@ async def sync_payment_approvals(project_id: int, request: Request):
 # 일정표 (공정 일정) 엔드포인트
 # ─────────────────────────────────────────
 
-@router.get("/api/fund/projects/{project_id}/schedule")
+@router.get("/projects/{project_id}/schedule")
 async def get_schedule(project_id: int, request: Request):
     """공정 일정 항목 조회"""
     require_auth(request)
@@ -2391,7 +2394,7 @@ async def get_schedule(project_id: int, request: Request):
         raise HTTPException(status_code=500, detail="일정 조회 실패")
 
 
-@router.post("/api/fund/projects/{project_id}/schedule")
+@router.post("/projects/{project_id}/schedule")
 async def save_schedule(project_id: int, request: Request):
     """공정 일정 항목 저장 (전체 교체)"""
     user = require_auth(request)
@@ -2404,7 +2407,7 @@ async def save_schedule(project_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.post("/api/fund/projects/{project_id}/archive")
+@router.post("/projects/{project_id}/archive")
 async def archive_project(project_id: int, request: Request):
     """프로젝트 이전 프로젝트로 이동 (보관) / 복원"""
     user = require_auth(request)
@@ -2417,7 +2420,7 @@ async def archive_project(project_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.post("/api/fund/import-schedule-from-pm-sheet")
+@router.post("/import-schedule-from-pm-sheet")
 async def import_schedule_pm_sheet(request: Request):
     """PM Official 시트에서 프로젝트 일정 데이터를 가져와 일정표에 반영"""
     require_auth(request)
@@ -2433,7 +2436,7 @@ async def import_schedule_pm_sheet(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/api/fund/import-collections-from-pm-sheet")
+@router.post("/import-collections-from-pm-sheet")
 async def import_collections_pm_sheet(request: Request):
     """PM Official 시트에서 모든 프로젝트 수금일정(수금현황) 가져오기"""
     require_auth(request)
@@ -2453,7 +2456,7 @@ async def import_collections_pm_sheet(request: Request):
 # 공정표 자동 생성 & 내보내기 API
 # ────────────────────────────────────────────
 
-@router.get("/api/fund/process-map/trades")
+@router.get("/process-map/trades")
 async def get_process_map_trades(request: Request, type: str = "오피스"):
     """공종 마스터 데이터 조회 (DB 우선, 폴백: 하드코딩)"""
     require_auth(request)
@@ -2501,7 +2504,7 @@ async def get_process_map_trades(request: Request, type: str = "오피스"):
     })
 
 
-@router.post("/api/fund/process-map/trades")
+@router.post("/process-map/trades")
 async def add_process_map_trade(request: Request):
     """공종 추가"""
     require_auth(request)
@@ -2520,7 +2523,7 @@ async def add_process_map_trade(request: Request):
     return JSONResponse(result)
 
 
-@router.put("/api/fund/process-map/trades/{trade_id}")
+@router.put("/process-map/trades/{trade_id}")
 async def update_process_map_trade(trade_id: int, request: Request):
     """공종 수정"""
     require_auth(request)
@@ -2531,7 +2534,7 @@ async def update_process_map_trade(trade_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.delete("/api/fund/process-map/trades/{trade_id}")
+@router.delete("/process-map/trades/{trade_id}")
 async def delete_process_map_trade(trade_id: int, request: Request):
     """공종 삭제"""
     require_auth(request)
@@ -2541,7 +2544,7 @@ async def delete_process_map_trade(trade_id: int, request: Request):
     return JSONResponse(result)
 
 
-@router.get("/api/fund/process-map/presets")
+@router.get("/process-map/presets")
 async def get_process_map_presets(request: Request):
     """프리셋 목록 조회"""
     require_auth(request)
@@ -2549,7 +2552,7 @@ async def get_process_map_presets(request: Request):
     return JSONResponse({"presets": presets})
 
 
-@router.post("/api/fund/process-map/presets")
+@router.post("/process-map/presets")
 async def save_process_map_preset(request: Request):
     """프리셋 저장 (upsert)"""
     require_auth(request)
@@ -2567,7 +2570,7 @@ async def save_process_map_preset(request: Request):
     return JSONResponse(result)
 
 
-@router.post("/api/fund/process-map/parse-estimate")
+@router.post("/process-map/parse-estimate")
 async def parse_estimate(request: Request):
     """내역서 엑셀 파일에서 공종 자동 추출"""
     require_auth(request)
@@ -2601,7 +2604,7 @@ async def parse_estimate(request: Request):
             pass
 
 
-@router.post("/api/fund/projects/{project_id}/generate-schedule")
+@router.post("/projects/{project_id}/generate-schedule")
 async def generate_schedule(project_id: int, request: Request):
     """공정표 자동 생성 → DB 저장 + 엑셀/PDF 생성"""
     user = require_auth(request)
@@ -2681,7 +2684,7 @@ async def generate_schedule(project_id: int, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/api/fund/projects/{project_id}/export-schedule")
+@router.post("/projects/{project_id}/export-schedule")
 async def export_existing_schedule(project_id: int, request: Request):
     """기존 저장된 일정 데이터를 엑셀/PDF로 내보내기"""
     user = require_auth(request)

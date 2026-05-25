@@ -113,9 +113,12 @@ app.add_middleware(CSRFMiddleware)
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# 프로젝트 관리 라우터 등록
-from src.pm.fund_table.routes import router as fund_router
-app.include_router(fund_router)
+# 프로젝트 관리(PM) 라우터 등록 — v4 분리:
+#   /api/pm/*   (신규 권장 경로)
+#   /api/fund/* (기존 호환 alias — fund.js 등 무중단 위해 유지)
+from src.pm.fund_table.routes import router as pm_router
+app.include_router(pm_router, prefix="/api/pm")
+app.include_router(pm_router, prefix="/api/fund")
 
 # ─────────────────────────────────────────
 # Pydantic 모델

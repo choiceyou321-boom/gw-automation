@@ -116,9 +116,15 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 # 프로젝트 관리(PM) 라우터 등록 — v4 분리:
 #   /api/pm/*   (신규 권장 경로)
 #   /api/fund/* (기존 호환 alias — fund.js 등 무중단 위해 유지)
-from src.pm.fund_table.routes import router as pm_router
+from src.pm.fund_table.routes import router as pm_router, pages_router as pm_pages_router
 app.include_router(pm_router, prefix="/api/pm")
 app.include_router(pm_router, prefix="/api/fund")
+# 페이지 서빙 (/fund, /guide, /insights) — prefix 없이 등록
+app.include_router(pm_pages_router)
+
+# PM 정적 파일 마운트 (fund.css, fund.js 등) — /static/ 경로 호환
+from src.pm.fund_table.routes import PM_STATIC_DIR
+app.mount("/pm-static", StaticFiles(directory=str(PM_STATIC_DIR)), name="pm_static")
 
 # ─────────────────────────────────────────
 # Pydantic 모델

@@ -22,13 +22,19 @@ from src.pm.fund_table import db
 
 logger = logging.getLogger("fund_routes")
 
-# 정적 파일 경로 (src/chatbot/static/fund.html)
-# v4 분리 후 경로 깊이 증가: src/pm/fund_table/routes.py → ../../chatbot/static
-STATIC_DIR = Path(__file__).parent.parent.parent / "chatbot" / "static"
+# 정적 파일 경로 (v4 분리: PM 정적 파일은 src/pm/static/, 공통 파일은 src/chatbot/static/)
+PM_STATIC_DIR = Path(__file__).parent.parent / "static"           # src/pm/static
+COMMON_STATIC_DIR = Path(__file__).parent.parent.parent / "chatbot" / "static"  # src/chatbot/static
+# 호환: 기존 STATIC_DIR 변수명 유지 (fund.html 찾는 코드용)
+STATIC_DIR = PM_STATIC_DIR
 
-# Router: 데코레이터에는 prefix 제외한 경로 사용.
+# API Router: 데코레이터에는 prefix 제외한 경로 사용.
 # app.py에서 prefix="/api/pm" 으로 마운트하고 alias prefix="/api/fund"도 추가 등록.
 router = APIRouter()
+
+# Pages Router: prefix 없이 /fund, /guide, /insights 같은 페이지 서빙 전용.
+# v4 분리: PM 정적 파일은 src/pm/static, 공통(guide 등)은 src/chatbot/static.
+pages_router = APIRouter()
 
 
 # 공용 인증 미들웨어 (중복 제거)
@@ -1581,27 +1587,27 @@ def _call_claude_for_insights(projects: list[dict]) -> dict:
 # 프로젝트 관리 웹 페이지 서빙
 # ─────────────────────────────────────────
 
-@router.get("/fund")
+@pages_router.get("/fund")
 async def serve_fund_page(request: Request):
-    """프로젝트 관리표 웹 페이지 서빙"""
+    """프로젝트 관리표 웹 페이지 서빙 (src/pm/static/fund.html)."""
     require_auth(request)
-    fund_html = STATIC_DIR / "fund.html"
+    fund_html = PM_STATIC_DIR / "fund.html"
     if not fund_html.exists():
         raise HTTPException(status_code=404, detail="fund.html을 찾을 수 없습니다.")
     return FileResponse(str(fund_html))
 
 
-@router.get("/guide")
+@pages_router.get("/guide")
 async def serve_guide_page(request: Request):
-    """사용방법 가이드 페이지 서빙"""
+    """사용방법 가이드 페이지 서빙 (src/chatbot/static/guide.html — 공통 자산)."""
     require_auth(request)
-    guide_html = STATIC_DIR / "guide.html"
+    guide_html = COMMON_STATIC_DIR / "guide.html"
     if not guide_html.exists():
         raise HTTPException(status_code=404, detail="guide.html을 찾을 수 없습니다.")
     return FileResponse(str(guide_html))
 
 
-@router.get("/insights")
+@pages_router.get("/insights")
 async def serve_insights_page(request: Request):
     """인사이트 페이지 → fund 페이지로 리다이렉트"""
     from fastapi.responses import RedirectResponse

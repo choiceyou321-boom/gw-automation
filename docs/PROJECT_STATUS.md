@@ -1,7 +1,7 @@
 # 프로젝트 현황 (Project Status)
 
 > 글로우서울 그룹웨어(더존 Amaranth10/WEHAGO) 자동화 프로젝트
-> 최종 업데이트: 2026-05-15 (세션 XLIX — 코드 실측 + Task 31 Phase 1)
+> 최종 업데이트: 2026-05-20 (세션 LII — expense.py Phase D + other_forms.py 4분할)
 
 ---
 
@@ -168,6 +168,7 @@
 | XLIX | 2026-05-15 | 코드 정밀 조사(4 병렬 에이전트) → 줄수/좌표 의존 코드 실측 정정, **Task 31 Phase 1 완료**(정적 좌표 3건 제거: expense.py L4666/L4774, grid.py L183) + 광범위 정비(레거시 727줄 삭제, GRID_IFACE 헬퍼 20곳 치환, BaseCrawler 추출 -773줄, 프롬프트 -57%, session_manager GC, CI 스캐폴딩) |
 | L | 2026-05-15 | `_safe_handler` 데코레이터 + 34개 핸들러 일괄 적용, `_find_first_visible` 헬퍼 시범 적용, **expense.py Phase A 분할**(attachment.py + budget_capture.py 신규 추출 -232줄), **Phase B 분할**(`_select_invoice_in_modal` 1013줄 → invoice_modal.py 추출, expense.py -999줄) |
 | LI | 2026-05-15 | **expense.py Phase C 분할** — `_fill_project_code` 784줄 → project_picker.py 추출 (콜백 2종 주입). expense.py 누적 4938 → 2147 (**-56.6%**) |
+| LII | 2026-05-20 | **expense.py Phase D + other_forms.py 4분할** (병렬 sonnet 2명 + Opus 검토 통합). Phase D: `_fill_expense_fields` 722줄 → expense_fields.py 콜백 13개 주입(expense.py 2147 → 1446, 누적 **-70.7%**). other_forms.py: 2683 → 541(-79.8%) facade + 4 mixin(advance_payment 1289 / overtime 496 / outside_work 367 / recommendation 134). 두 분할 방식 차이 확립: 단일 거대 메서드 = 콜백 주입, 다중 거대 메서드 = mixin 분리(인자 폭증 회피). pytest 164/164 PASS, MRO 정상, dead import 정리. |
 
 ---
 

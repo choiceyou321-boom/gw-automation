@@ -299,7 +299,7 @@ def generate_tool_module(form_name_ko: str, form_snake: str, class_name: str, fi
 자동생성: scripts/feature_generator.py
 """
 from google.genai import types
-from src.approval.forms.{form_snake} import {class_name}Automation
+from src.gw.approval.forms.{form_snake} import {class_name}Automation
 
 
 # ── Gemini FunctionDeclaration ───────────────────────────────────────────────
@@ -379,7 +379,7 @@ docs/{form_snake}_howto.md              ← 이 파일
 ```python
 # 빠른 테스트 방법
 from playwright.sync_api import sync_playwright
-from src.approval.forms.{form_snake} import {class_name}Automation
+from src.gw.approval.forms.{form_snake} import {class_name}Automation
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)

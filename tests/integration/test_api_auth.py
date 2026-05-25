@@ -35,7 +35,7 @@ def chat_db_setup(tmp_path, monkeypatch):
 @pytest.fixture
 def fund_db_setup(tmp_path, monkeypatch):
     """fund_db를 임시 DB로 격리"""
-    import src.fund_table.db as fdb
+    import src.pm.fund_table.db as fdb
     monkeypatch.setattr(fdb, "_db_initialized", False)
     monkeypatch.setattr(fdb, "DB_PATH", tmp_path / "fund.db")
     monkeypatch.setattr(fdb, "DATA_DIR", tmp_path)

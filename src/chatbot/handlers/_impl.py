@@ -107,7 +107,7 @@ def _get_api_for_user(user_context: dict = None):
         from src.shared.auth.session_manager import create_api
         return create_api(user_context["gw_id"])  # session_manager가 _gw_id 주입
     else:
-        from src.meeting.reservation_api import create_api_with_session
+        from src.gw.meeting.reservation_api import create_api_with_session
         api, cleanup = create_api_with_session(headless=True)
         # fallback 경로에서도 재인증 가능하도록 gw_id 주입 시도
         gw_id = (user_context or {}).get("gw_id")
@@ -771,7 +771,7 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                 from playwright.sync_api import sync_playwright
                 from src.shared.auth.login import login_and_get_context, close_session
                 from src.shared.auth.user_db import get_decrypted_password
-                from src.approval.approval_automation import ApprovalAutomation
+                from src.gw.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
                 if not gw_pw:
@@ -789,7 +789,7 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
 
                     automation = ApprovalAutomation(page, context)
                     # 사용자별 결재선 동적 해석
-                    from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
+                    from src.gw.approval.form_templates import resolve_approval_line, resolve_cc_recipients
                     resolved_line = resolve_approval_line(approval_line, "지출결의서", user_context)
                     resolved_cc = resolve_cc_recipients(cc, "지출결의서", user_context)
 
@@ -899,7 +899,7 @@ def handle_submit_draft_approval(params: dict, user_context: dict = None) -> str
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
                 from src.shared.auth.user_db import get_decrypted_password
-                from src.approval.approval_automation import ApprovalAutomation
+                from src.gw.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
                 if not gw_pw:
@@ -939,7 +939,7 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
     - action='confirm': 확인 메시지 반환
     - action='draft': Playwright로 실제 폼 작성
     """
-    from src.approval.form_templates import get_template, get_template_key, get_required_fields
+    from src.gw.approval.form_templates import get_template, get_template_key, get_required_fields
 
     form_type = params.get("form_type", "")
     title = params.get("title", "")
@@ -1097,7 +1097,7 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
                 from playwright.sync_api import sync_playwright
                 from src.shared.auth.login import login_and_get_context, close_session
                 from src.shared.auth.user_db import get_decrypted_password
-                from src.approval.approval_automation import ApprovalAutomation
+                from src.gw.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
                 if not gw_pw:
@@ -1115,7 +1115,7 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
 
                     automation = ApprovalAutomation(page, context)
                     # 사용자별 결재선 동적 해석
-                    from src.approval.form_templates import resolve_approval_line, resolve_cc_recipients
+                    from src.gw.approval.form_templates import resolve_approval_line, resolve_cc_recipients
                     resolved_line = resolve_approval_line(approval_line, form_key, user_context)
                     resolved_cc = resolve_cc_recipients(cc, form_key, user_context)
 
@@ -1181,7 +1181,7 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
                 return {"success": False, "results": [], "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
                 from src.shared.auth.user_db import get_decrypted_password
-                from src.approval.approval_automation import ApprovalAutomation
+                from src.gw.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
                 if not gw_pw:
@@ -1256,7 +1256,7 @@ def handle_start_contract_wizard_fn(params: dict, user_context: dict = None) -> 
     """계약서 단건 작성 마법사 시작."""
     if user_context is None:
         return "로그인 후 이용해주세요."
-    from src.contracts.contract_wizard import ContractWizard
+    from src.pm.contracts.contract_wizard import ContractWizard
     wizard = ContractWizard(user_context=user_context)
     user_context["contract_wizard"] = wizard
     msg, done = wizard.start()
@@ -1276,7 +1276,7 @@ def handle_generate_contracts_from_file(params: dict, user_context: dict = None)
             "입력양식은 `data/계약서_입력양식.xlsx`를 참고하세요."
         )
     try:
-        from src.contracts.contract_generator import generate_from_excel
+        from src.pm.contracts.contract_generator import generate_from_excel
         # data/tmp/ 에 생성 → /download/ 엔드포인트로 제공
         tmp_dir = pathlib.Path(__file__).parent.parent.parent / "data" / "tmp"
         tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -1307,7 +1307,7 @@ def handle_get_mail_summary(params: dict, user_context: dict = None) -> str:
 
 
         def _run_summary():
-            from src.mail.summarizer import run_for_chatbot
+            from src.gw.mail.summarizer import run_for_chatbot
             return run_for_chatbot(user_context=user_context)
 
         future = _executor.submit(_run_summary)
@@ -1361,7 +1361,7 @@ def handle_transcribe_audio(params: dict, user_context: dict = None) -> str:
 
 def handle_get_fund_summary(params: dict, user_context: dict = None) -> str:
     """자금현황 요약 조회 핸들러"""
-    from src.fund_table.db import list_projects, get_fund_summary, get_all_projects_summary
+    from src.pm.fund_table.db import list_projects, get_fund_summary, get_all_projects_summary
 
     project_name = params.get("project_name", "")
 
@@ -1442,7 +1442,7 @@ def _find_project(project_name: str):
     4. 별칭 부분 일치
     5. project_code 일치
     """
-    from src.fund_table.db import list_projects, find_project_by_alias
+    from src.pm.fund_table.db import list_projects, find_project_by_alias
     projects = list_projects()
     if not project_name:
         return None, projects
@@ -1515,7 +1515,7 @@ def _find_project(project_name: str):
 
 def handle_update_project_info(params: dict, user_context: dict = None) -> str:
     """프로젝트 정보 수정 핸들러"""
-    from src.fund_table.db import save_project_overview, get_project_overview
+    from src.pm.fund_table.db import save_project_overview, get_project_overview
 
     project_name = params.get("project_name", "")
     field = params.get("field", "")
@@ -1564,7 +1564,7 @@ def handle_update_project_info(params: dict, user_context: dict = None) -> str:
 
 def handle_add_project_note(params: dict, user_context: dict = None) -> str:
     """프로젝트 메모 추가 핸들러"""
-    from src.fund_table.db import add_material
+    from src.pm.fund_table.db import add_material
 
     project_name = params.get("project_name", "")
     title = params.get("title", "메모")
@@ -1588,7 +1588,7 @@ def handle_add_project_note(params: dict, user_context: dict = None) -> str:
 
 def handle_add_project_subcontract(params: dict, user_context: dict = None) -> str:
     """하도급 업체 추가 핸들러"""
-    from src.fund_table.db import add_subcontract, list_trades, add_trade
+    from src.pm.fund_table.db import add_subcontract, list_trades, add_trade
 
     project_name = params.get("project_name", "")
     company_name = params.get("company_name", "")
@@ -1632,7 +1632,7 @@ def handle_add_project_subcontract(params: dict, user_context: dict = None) -> s
 
 def handle_update_collection_status(params: dict, user_context: dict = None) -> str:
     """수금현황 업데이트 핸들러"""
-    from src.fund_table.db import list_collections, update_collection
+    from src.pm.fund_table.db import list_collections, update_collection
 
     project_name = params.get("project_name", "")
     stage = params.get("stage", "")
@@ -1663,7 +1663,7 @@ def handle_update_collection_status(params: dict, user_context: dict = None) -> 
 
 def handle_add_project_todo(params: dict, user_context: dict = None) -> str:
     """TODO 추가 핸들러"""
-    from src.fund_table.db import create_todo
+    from src.pm.fund_table.db import create_todo
 
     project_name = params.get("project_name", "")
     content = params.get("content", "")
@@ -1693,7 +1693,7 @@ def handle_add_project_todo(params: dict, user_context: dict = None) -> str:
 
 def handle_get_project_detail(params: dict, user_context: dict = None) -> str:
     """프로젝트 상세 정보 조회 핸들러"""
-    from src.fund_table.db import (
+    from src.pm.fund_table.db import (
         get_project_overview, list_collections, list_subcontracts,
         list_todos, list_materials, list_contacts
     )
@@ -1777,7 +1777,7 @@ def handle_get_project_detail(params: dict, user_context: dict = None) -> str:
 
 def handle_add_project_contact(params: dict, user_context: dict = None) -> str:
     """거래처 연락처 추가 핸들러"""
-    from src.fund_table.db import add_contact
+    from src.pm.fund_table.db import add_contact
 
     project_name = params.get("project_name", "")
     company_name = params.get("company_name", "")
@@ -1808,7 +1808,7 @@ def handle_add_project_contact(params: dict, user_context: dict = None) -> str:
 
 def handle_get_overdue_items(params: dict, user_context: dict = None) -> str:
     """기한 초과/미수금/미완료 항목 조회 핸들러"""
-    from src.fund_table.db import get_all_projects_full_data
+    from src.pm.fund_table.db import get_all_projects_full_data
     from datetime import datetime
 
     projects = get_all_projects_full_data()
@@ -1857,7 +1857,7 @@ def handle_get_overdue_items(params: dict, user_context: dict = None) -> str:
 
 def handle_compare_projects(params: dict, user_context: dict = None) -> str:
     """프로젝트 포트폴리오 비교"""
-    from src.fund_table import db as fund_db
+    from src.pm.fund_table import db as fund_db
     data = fund_db.get_portfolio_summary()
     if not data:
         return "등록된 프로젝트가 없습니다. 프로젝트 관리 페이지(/fund)에서 프로젝트를 추가해 주세요."
@@ -1892,7 +1892,7 @@ def handle_compare_projects(params: dict, user_context: dict = None) -> str:
 
 def handle_generate_project_report(params: dict, user_context: dict = None) -> str:
     """프로젝트 종합 보고서 생성"""
-    from src.fund_table import db as fund_db
+    from src.pm.fund_table import db as fund_db
     project_name = params.get("project_name", "")
     project, _ = _find_project(project_name)
     if not project:
@@ -1970,7 +1970,7 @@ def handle_generate_project_report(params: dict, user_context: dict = None) -> s
 
 def handle_update_project_milestone(params: dict, user_context: dict = None) -> str:
     """마일스톤 완료처리 또는 신규추가"""
-    from src.fund_table import db as fund_db
+    from src.pm.fund_table import db as fund_db
     project_name = params.get("project_name", "")
     milestone_name = params.get("milestone_name", "")
     action = params.get("action", "complete")
@@ -2025,7 +2025,7 @@ def handle_request_annual_leave(params: dict, user_context: dict = None) -> str:
             from playwright.sync_api import sync_playwright
             from src.shared.auth.login import login_and_get_context
             from src.shared.auth.user_db import get_decrypted_password
-            from src.approval.approval_automation import ApprovalAutomation
+            from src.gw.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
             if not gw_id:
@@ -2098,7 +2098,7 @@ def handle_request_overtime(params: dict, user_context: dict = None) -> str:
             from playwright.sync_api import sync_playwright
             from src.shared.auth.login import login_and_get_context
             from src.shared.auth.user_db import get_decrypted_password
-            from src.approval.approval_automation import ApprovalAutomation
+            from src.gw.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
             if not gw_id:
@@ -2178,7 +2178,7 @@ def handle_request_outside_work(params: dict, user_context: dict = None) -> str:
             from playwright.sync_api import sync_playwright
             from src.shared.auth.login import login_and_get_context
             from src.shared.auth.user_db import get_decrypted_password
-            from src.approval.approval_automation import ApprovalAutomation
+            from src.gw.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
             if not gw_id:
@@ -2296,7 +2296,7 @@ def handle_add_cc_to_approval_doc(params: dict, user_context: dict = None) -> st
                 from playwright.sync_api import sync_playwright
                 from src.shared.auth.login import login_and_get_context, close_session
                 from src.shared.auth.user_db import get_decrypted_password
-                from src.approval.approval_automation import ApprovalAutomation
+                from src.gw.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
                 if not gw_pw:
@@ -2426,7 +2426,7 @@ def handle_get_project_schedule(params: dict, user_context: dict = None) -> str:
     group_name 별로 뭔어서, 진행상태와 날짜를 함께 보여줍니다.
     """
     import datetime as _dt
-    from src.fund_table.db import list_schedule_items, get_project_overview
+    from src.pm.fund_table.db import list_schedule_items, get_project_overview
 
     project_name = params.get("project_name", "")
     project, all_projects = _find_project(project_name)

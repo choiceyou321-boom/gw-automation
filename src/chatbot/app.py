@@ -68,7 +68,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 @asynccontextmanager
 async def lifespan(app):
     """FastAPI lifespan — 스케줄러 + 텔레그램 봇 시작/종료 관리"""
-    from src.fund_table.scheduler import start_scheduler, stop_scheduler
+    from src.pm.fund_table.scheduler import start_scheduler, stop_scheduler
     from src.chatbot.telegram_bot import start_telegram_bot, stop_telegram_bot
     start_scheduler()
     start_telegram_bot()
@@ -114,7 +114,7 @@ app.add_middleware(CSRFMiddleware)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # 프로젝트 관리 라우터 등록
-from src.fund_table.routes import router as fund_router
+from src.pm.fund_table.routes import router as fund_router
 app.include_router(fund_router)
 
 # ─────────────────────────────────────────

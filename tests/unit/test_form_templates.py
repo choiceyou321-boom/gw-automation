@@ -6,7 +6,7 @@ GW/Playwright 의존 없는 순수 로직만 검증:
 - 필수 필드 목록
 - 결재선/수신참조 resolve 규칙
 """
-from src.approval.form_templates import (
+from src.gw.approval.form_templates import (
     FORM_TEMPLATES,
     APPROVAL_PRESETS,
     DEFAULT_APPROVAL_LINE,

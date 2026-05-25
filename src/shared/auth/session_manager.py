@@ -97,7 +97,7 @@ def _login_and_cache(gw_id: str, gw_pw: str) -> CachedSession:
     """Playwright 로그인 → 쿠키 추출 → 캐시에 저장"""
     from playwright.sync_api import sync_playwright
     from src.shared.auth.login import login_and_get_context, close_session
-    from src.meeting.reservation_api import _extract_auth_cookies
+    from src.gw.meeting.reservation_api import _extract_auth_cookies
 
     logger.info(f"GW 로그인 시작: {gw_id}")
 
@@ -134,7 +134,7 @@ def create_api(gw_id: str, company_info: dict = None):
     반환: (api, cleanup)
     """
     from src.shared.auth.user_db import get_decrypted_password, get_company_info
-    from src.meeting.reservation_api import MeetingRoomAPI
+    from src.gw.meeting.reservation_api import MeetingRoomAPI
 
     # 캐시 확인 (Lock 밖에서 먼저 체크 — 캐시 히트 시 Lock 불필요)
     session = get_cached_session(gw_id)

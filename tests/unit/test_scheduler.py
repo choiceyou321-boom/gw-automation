@@ -17,7 +17,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def reset_scheduler():
     """매 테스트마다 스케줄러 상태 초기화"""
-    import src.fund_table.scheduler as mod
+    import src.pm.fund_table.scheduler as mod
     mod._scheduler = None
     mod.sync_running.clear()
     yield
@@ -28,7 +28,7 @@ def reset_scheduler():
 @pytest.fixture
 def sched():
     """scheduler 모듈"""
-    import src.fund_table.scheduler as mod
+    import src.pm.fund_table.scheduler as mod
     return mod
 
 

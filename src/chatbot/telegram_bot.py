@@ -277,7 +277,7 @@ async def mailcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     try:
-        from src.mail.summarizer import run_mail_push_for_user
+        from src.gw.mail.summarizer import run_mail_push_for_user
         gw_id = session.get("gw_id", "")
         chat_id = update.effective_chat.id
 
@@ -595,7 +595,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # ── Vision Dispatch 우선 처리 ──
         try:
-            from src.vision import dispatch_document
+            from src.gw.vision import dispatch_document
             parse_result = await dispatch_document(bytes(photo_bytes), "image/jpeg")
 
             if parse_result.form_type and parse_result.confidence >= 0.7:

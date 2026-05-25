@@ -13,7 +13,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.fund_table.db import seed_construction_trades_from_master, list_construction_trades, list_construction_presets
+from src.pm.fund_table.db import seed_construction_trades_from_master, list_construction_trades, list_construction_presets
 
 
 def main():

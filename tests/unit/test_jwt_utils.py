@@ -19,7 +19,7 @@ def jwt_mod(monkeypatch):
     # jwt_utils는 import 시점에 JWT_SECRET을 검증하므로
     # conftest에서 이미 환경변수 설정됨
     import importlib
-    import src.auth.jwt_utils as mod
+    import src.shared.auth.jwt_utils as mod
     # 모듈 리로드로 테스트 시크릿 적용
     monkeypatch.setattr(mod, "JWT_SECRET", "test_jwt_secret_key_for_unit_tests_only")
     return mod

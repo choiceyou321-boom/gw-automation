@@ -136,8 +136,8 @@ def crawl_budget_actual(gw_id: str, project_id: int = None, project_code: str = 
         dict: { success, message, data?, error? }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     if not project_code:
         return {"success": False, "error": "project_code가 필요합니다."}
@@ -193,8 +193,8 @@ def crawl_all_projects(gw_id: str):
         dict: { success, results: [{project_id, project_name, status, message}] }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
     from src.fund_table import db
 
     gw_pw = get_decrypted_password(gw_id)
@@ -1181,8 +1181,8 @@ def crawl_budget_summary(gw_id: str, project_id: int = None, project_code: str =
         dict: { success, summary: { income_total, expense_total, total_balance }, error? }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     if not project_code:
         return {"success": False, "error": "project_code가 필요합니다."}
@@ -1280,8 +1280,8 @@ def crawl_all_summary(gw_id: str):
         dict: { success, results: [{project_id, project_name, status, summary}] }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
     from src.fund_table import db
 
     gw_pw = get_decrypted_password(gw_id)
@@ -1563,8 +1563,8 @@ def crawl_budget_changes_for_project(
         list[dict]: 수집된 예산변경이력 레코드 목록
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
     from src.fund_table import db
 
     logger.info(

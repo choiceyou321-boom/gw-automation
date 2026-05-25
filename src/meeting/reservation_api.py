@@ -22,7 +22,7 @@ import httpx
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from src.auth.login import GW_URL, DATA_DIR
+from src.shared.auth.login import GW_URL, DATA_DIR
 
 logger = logging.getLogger("meeting_api")
 
@@ -206,7 +206,7 @@ class MeetingRoomAPI:
             return False
 
         try:
-            from src.auth.session_manager import refresh_session
+            from src.shared.auth.session_manager import refresh_session
 
             # 캐시 무효화 + 재로그인 (session_manager public API 사용)
             new_session = refresh_session(gw_id)
@@ -718,7 +718,7 @@ def create_api_with_session(
             cleanup()
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
+    from src.shared.auth.login import login_and_get_context, close_session
 
     pw = sync_playwright().start()
     browser, context, page = login_and_get_context(

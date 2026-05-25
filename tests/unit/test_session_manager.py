@@ -16,7 +16,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def reset_cache():
     """매 테스트마다 캐시 초기화"""
-    from src.auth.session_manager import _session_cache, _cache_lock
+    from src.shared.auth.session_manager import _session_cache, _cache_lock
     with _cache_lock:
         _session_cache.clear()
     yield
@@ -27,7 +27,7 @@ def reset_cache():
 @pytest.fixture
 def sm():
     """session_manager 모듈"""
-    import src.auth.session_manager as mod
+    import src.shared.auth.session_manager as mod
     return mod
 
 

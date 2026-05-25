@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def user_db_setup(tmp_path, monkeypatch):
     """user_db를 임시 DB로 격리"""
-    import src.auth.user_db as udb
+    import src.shared.auth.user_db as udb
     monkeypatch.setattr(udb, "_db_initialized", False)
     monkeypatch.setattr(udb, "DB_PATH", tmp_path / "users.db")
     monkeypatch.setattr(udb, "DATA_DIR", tmp_path)

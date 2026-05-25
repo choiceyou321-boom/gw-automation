@@ -17,7 +17,7 @@ from playwright.sync_api import Page
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from src.auth.login import login_and_get_context, close_session, GW_URL, DATA_DIR
+from src.shared.auth.login import login_and_get_context, close_session, GW_URL, DATA_DIR
 from src.notion.client import save_mail_summaries
 
 logger = logging.getLogger("mail")
@@ -798,8 +798,8 @@ def run_for_chatbot(user_context: dict = None) -> str:
     - Notion에 저장 (실패해도 계속)
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     gw_id = (user_context or {}).get("gw_id")
     if not gw_id:
@@ -895,7 +895,7 @@ async def run_mail_push_for_user(
     반환: {"success": bool, "count": int, "message": str}
     """
     import asyncio
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.user_db import get_decrypted_password
     from playwright.sync_api import sync_playwright
 
     gw_pw = get_decrypted_password(gw_id)

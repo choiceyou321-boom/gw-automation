@@ -18,7 +18,7 @@ from cryptography.fernet import Fernet
 def user_db(tmp_path, monkeypatch):
     """격리된 user_db 모듈 (임시 DB 사용)"""
     # _db_initialized 리셋
-    import src.auth.user_db as mod
+    import src.shared.auth.user_db as mod
     monkeypatch.setattr(mod, "_db_initialized", False)
     monkeypatch.setattr(mod, "DB_PATH", tmp_path / "users.db")
     monkeypatch.setattr(mod, "DATA_DIR", tmp_path)

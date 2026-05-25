@@ -193,8 +193,8 @@ def crawl_budget_by_project(
         dict: { success, message, data?, error? }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     if not project_code:
         return {"success": False, "error": "project_code가 필요합니다."}
@@ -252,8 +252,8 @@ def crawl_all_by_project(gw_id: str):
         dict: { success, message, results: [{project_id, project_name, status, message}] }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
     from src.fund_table import db
 
     gw_pw = get_decrypted_password(gw_id)

@@ -21,7 +21,7 @@
 """
 from __future__ import annotations
 
-from src.auth.user_db import get_approval_config  # 결재선 DB 조회 (핫패스 동적 import 방지)
+from src.shared.auth.user_db import get_approval_config  # 결재선 DB 조회 (핫패스 동적 import 방지)
 
 # ─────────────────────────────────────────
 # 공통 상수

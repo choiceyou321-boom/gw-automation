@@ -10,8 +10,8 @@ from fastapi import HTTPException, Request
 
 def get_current_user(request: Request) -> dict | None:
     """JWT 쿠키에서 현재 사용자 정보 추출. 미인증이면 None."""
-    from src.auth.jwt_utils import verify_token
-    from src.auth.user_db import get_user
+    from src.shared.auth.jwt_utils import verify_token
+    from src.shared.auth.user_db import get_user
 
     token = request.cookies.get("auth_token")
     if not token:

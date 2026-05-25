@@ -154,8 +154,8 @@ class BaseCrawler:
     def _session_context(self):
         """Playwright 부팅 + 로그인 + cleanup 보장."""
         from playwright.sync_api import sync_playwright
-        from src.auth.login import login_and_get_context, close_session
-        from src.auth.user_db import get_decrypted_password
+        from src.shared.auth.login import login_and_get_context, close_session
+        from src.shared.auth.user_db import get_decrypted_password
 
         gw_pw = get_decrypted_password(self.gw_id)
         if not gw_pw:

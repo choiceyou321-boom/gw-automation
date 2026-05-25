@@ -29,7 +29,7 @@ router = APIRouter()
 
 
 # 공용 인증 미들웨어 (중복 제거)
-from src.auth.middleware import require_auth
+from src.shared.auth.middleware import require_auth
 
 # 관리자 GW ID (소유자 검증 우회용)
 ADMIN_GW_ID = os.environ.get("ADMIN_GW_ID", "")
@@ -2129,8 +2129,8 @@ async def sync_tax_invoices_simple(project_id: int, request: Request):
         try:
             from src.fund_table.tax_invoice_crawler import TaxInvoiceCrawler
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context, close_session
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context, close_session
+            from src.shared.auth.user_db import get_decrypted_password
 
             gw_pw = get_decrypted_password(gw_id)
             if not gw_pw:
@@ -2202,8 +2202,8 @@ async def sync_tax_invoices(project_id: int, request: Request):
         try:
             from src.fund_table.tax_invoice_crawler import TaxInvoiceCrawler
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context, close_session
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context, close_session
+            from src.shared.auth.user_db import get_decrypted_password
 
             gw_pw = get_decrypted_password(gw_id)
             if not gw_pw:
@@ -2268,8 +2268,8 @@ async def sync_collection_schedule(project_id: int, request: Request):
         try:
             from src.fund_table.collection_schedule_crawler import CollectionScheduleCrawler
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context, close_session
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context, close_session
+            from src.shared.auth.user_db import get_decrypted_password
 
             gw_pw = get_decrypted_password(gw_id)
             if not gw_pw:
@@ -2334,8 +2334,8 @@ async def sync_payment_approvals(project_id: int, request: Request):
         try:
             from src.fund_table.payment_approval_crawler import PaymentApprovalCrawler
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context, close_session
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context, close_session
+            from src.shared.auth.user_db import get_decrypted_password
 
             gw_pw = get_decrypted_password(gw_id)
             if not gw_pw:

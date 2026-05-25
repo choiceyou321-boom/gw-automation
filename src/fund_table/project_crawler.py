@@ -875,8 +875,8 @@ def search_gw_projects(gw_id: str, search_name: str = "") -> dict:
         { success, projects: [{code, name}, ...], error? }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     gw_pw = get_decrypted_password(gw_id)
     if not gw_pw:
@@ -1082,8 +1082,8 @@ def crawl_project_info(gw_id: str, project_code: str, project_id: int = None):
         dict: { success, data?, error? }
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
 
     if not project_code:
         return {"success": False, "error": "project_code가 필요합니다."}
@@ -1131,8 +1131,8 @@ def crawl_all_project_info(gw_id: str):
     project_code가 설정된 프로젝트만 대상.
     """
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
-    from src.auth.user_db import get_decrypted_password
+    from src.shared.auth.login import login_and_get_context, close_session
+    from src.shared.auth.user_db import get_decrypted_password
     from src.fund_table import db
 
     gw_pw = get_decrypted_password(gw_id)

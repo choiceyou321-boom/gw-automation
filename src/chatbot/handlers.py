@@ -70,7 +70,7 @@ def _get_user_lock(gw_id: str) -> threading.Lock:
 def _playwright_session(gw_id: str, encrypted_pw: str):
     """Playwright 세션 생성/정리 컨텍스트 매니저"""
     from playwright.sync_api import sync_playwright
-    from src.auth.login import login_and_get_context, close_session
+    from src.shared.auth.login import login_and_get_context, close_session
 
     pw = None
     browser = None
@@ -104,7 +104,7 @@ def _get_api_for_user(user_context: dict = None):
     두 경로 모두 재인증을 위해 api._gw_id 주입 시도.
     """
     if user_context and user_context.get("gw_id"):
-        from src.auth.session_manager import create_api
+        from src.shared.auth.session_manager import create_api
         return create_api(user_context["gw_id"])  # session_manager가 _gw_id 주입
     else:
         from src.meeting.reservation_api import create_api_with_session
@@ -394,7 +394,7 @@ def handle_list_my_reservations(params: dict, user_context: dict = None) -> str:
         # 본인 empSeq 조회 (company_info에서)
         my_emp_seq = ""
         if gw_id:
-            from src.auth.user_db import get_company_info as _get_company_info
+            from src.shared.auth.user_db import get_company_info as _get_company_info
             company_info = _get_company_info(gw_id)
             my_emp_seq = str(company_info.get("empSeq", ""))
 
@@ -460,7 +460,7 @@ def handle_cleanup_test_reservations(params: dict, user_context: dict = None) ->
         # 본인 empSeq 조회
         my_emp_seq = ""
         if gw_id:
-            from src.auth.user_db import get_company_info as _get_company_info
+            from src.shared.auth.user_db import get_company_info as _get_company_info
             company_info = _get_company_info(gw_id)
             my_emp_seq = str(company_info.get("empSeq", ""))
 
@@ -769,8 +769,8 @@ def handle_submit_expense_approval(params: dict, user_context: dict = None) -> s
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
                 from playwright.sync_api import sync_playwright
-                from src.auth.login import login_and_get_context, close_session
-                from src.auth.user_db import get_decrypted_password
+                from src.shared.auth.login import login_and_get_context, close_session
+                from src.shared.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
@@ -898,7 +898,7 @@ def handle_submit_draft_approval(params: dict, user_context: dict = None) -> str
             if not user_lock.acquire(blocking=False):
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
-                from src.auth.user_db import get_decrypted_password
+                from src.shared.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
@@ -1095,8 +1095,8 @@ def handle_submit_approval_form(params: dict, user_context: dict = None) -> str:
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
                 from playwright.sync_api import sync_playwright
-                from src.auth.login import login_and_get_context, close_session
-                from src.auth.user_db import get_decrypted_password
+                from src.shared.auth.login import login_and_get_context, close_session
+                from src.shared.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
@@ -1180,7 +1180,7 @@ def handle_search_project_code(params: dict, user_context: dict = None) -> str:
             if not user_lock.acquire(blocking=False):
                 return {"success": False, "results": [], "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
-                from src.auth.user_db import get_decrypted_password
+                from src.shared.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)
@@ -2023,8 +2023,8 @@ def handle_request_annual_leave(params: dict, user_context: dict = None) -> str:
     try:
         def _run():
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context
+            from src.shared.auth.user_db import get_decrypted_password
             from src.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
@@ -2096,8 +2096,8 @@ def handle_request_overtime(params: dict, user_context: dict = None) -> str:
     try:
         def _run():
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context
+            from src.shared.auth.user_db import get_decrypted_password
             from src.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
@@ -2176,8 +2176,8 @@ def handle_request_outside_work(params: dict, user_context: dict = None) -> str:
     try:
         def _run():
             from playwright.sync_api import sync_playwright
-            from src.auth.login import login_and_get_context
-            from src.auth.user_db import get_decrypted_password
+            from src.shared.auth.login import login_and_get_context
+            from src.shared.auth.user_db import get_decrypted_password
             from src.approval.approval_automation import ApprovalAutomation
 
             gw_id = (user_context or {}).get("gw_id")
@@ -2294,8 +2294,8 @@ def handle_add_cc_to_approval_doc(params: dict, user_context: dict = None) -> st
                 return {"success": False, "message": "이전 전자결재 요청이 진행 중입니다. 완료 후 다시 시도해주세요."}
             try:
                 from playwright.sync_api import sync_playwright
-                from src.auth.login import login_and_get_context, close_session
-                from src.auth.user_db import get_decrypted_password
+                from src.shared.auth.login import login_and_get_context, close_session
+                from src.shared.auth.user_db import get_decrypted_password
                 from src.approval.approval_automation import ApprovalAutomation
 
                 gw_pw = get_decrypted_password(gw_id)

@@ -46,23 +46,31 @@ SIDEBAR_X_RANGE = (0, 60)     # 접힌 좁은 사이드바
 
 
 # ──────────────────────────────────────────────
-# 12 모듈 매핑 (홈 코드 ↔ 내부 코드)
+# 17 모듈 매핑 (홈 코드 ↔ 내부 코드)
+# 사이드바 펼친 상태에서 스크롤하면 전체 17개 노출 (2026-05-26 확인)
 # ──────────────────────────────────────────────
 
 GW_MODULES: dict[str, Module] = {
+    # 핵심 모듈 (자동화 진입 검증됨)
     "SET": Module("SET", "UJ",  "시스템설정"),
     "HR":  Module("HR",  "HP",  "임직원업무관리"),
     "EA":  Module("EA",  "UB",  "전자결재"),
     "ML":  Module("ML",  "UD",  "메일"),
     "CL":  Module("CL",  "UE",  "일정"),
     "RM":  Module("RM",  "UK",  "자원"),
-    # 자동화 클릭 미작동 6종 (내부 코드 추정)
+    # 보조 모듈 (사이드바 노출)
+    "PER":   Module("PER",   "HM?", "인사관리"),
+    "BUDGET":Module("BUDGET","BN",  "예산관리"),
     "BD":  Module("BD",  "UG?", "게시판"),
     "KS":  Module("KS",  "?",   "업무관리"),
     "OF":  Module("OF",  "UO?", "ONEFFICE"),
     "OC":  Module("OC",  "UQ?", "ONECHAMBER"),
     "BPM": Module("BPM", "?",   "프로세스관리"),
     "UT":  Module("UT",  "ext", "오피스케어"),
+    # 신규 확인 (2026-05-26 사이드바 스크롤)
+    "LOG": Module("LOG", "?",   "물류공통관리"),
+    "SAL": Module("SAL", "?",   "영업관리"),
+    "PUR": Module("PUR", "?",   "구매/자재관리"),
 }
 
 

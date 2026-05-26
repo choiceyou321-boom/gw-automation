@@ -657,5 +657,131 @@ AUTOMATION_TOOLS = [
                 required=["work_date", "destination", "purpose"],
             ),
         ),
+        # ─────────────────────────────────────────
+        # Office 도메인 (CRM + 세금계산서) — v4 A 트랙
+        # ─────────────────────────────────────────
+        types.FunctionDeclaration(
+            name="save_contact_from_image",
+            description="명함 사진을 OCR 처리해 CRM에 자동 등록합니다. 사용자가 '명함 등록', '연락처 추가', '이 명함 저장' 등을 요청할 때 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "image_path": types.Schema(type="STRING", description="명함 이미지 파일 경로 (업로드된 파일의 절대 경로)"),
+                    "tags": types.Schema(
+                        type="ARRAY",
+                        description="태그 (예: ['거래처', 'VIP'])",
+                        items=types.Schema(type="STRING"),
+                    ),
+                    "project_codes": types.Schema(
+                        type="ARRAY",
+                        description="연결할 프로젝트 코드 (예: ['GS-25-0088'])",
+                        items=types.Schema(type="STRING"),
+                    ),
+                    "note": types.Schema(type="STRING", description="메모"),
+                },
+                required=["image_path"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="list_contacts",
+            description="CRM에 등록된 연락처 목록을 조회합니다. '내 명함 목록', '거래처 보여줘', '메디빌더 연락처 찾아줘' 등에 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "company": types.Schema(type="STRING", description="회사명 부분 일치 검색"),
+                    "mine_only": types.Schema(type="BOOLEAN", description="본인이 등록한 연락처만 (기본 false)"),
+                    "limit": types.Schema(type="INTEGER", description="최대 건수 (기본 20)"),
+                },
+                required=[],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="issue_tax_invoice",
+            description="전자세금계산서를 발행합니다. '세금계산서 발행', '계산서 끊어줘' 등에 사용합니다. supplier(공급자)/buyer(공급받는자) 사업자정보 + lines(품목) 필수.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "supplier": types.Schema(
+                        type="OBJECT",
+                        description="공급자 정보 (당사)",
+                        properties={
+                            "business_number": types.Schema(type="STRING", description="사업자등록번호 (123-45-67890 또는 1234567890)"),
+                            "company_name": types.Schema(type="STRING", description="상호"),
+                            "ceo_name": types.Schema(type="STRING", description="대표자명"),
+                            "address": types.Schema(type="STRING", description="주소"),
+                            "business_type": types.Schema(type="STRING", description="업태"),
+                            "business_item": types.Schema(type="STRING", description="종목"),
+                            "email": types.Schema(type="STRING"),
+                        },
+                    ),
+                    "buyer": types.Schema(
+                        type="OBJECT",
+                        description="공급받는자 정보 (거래처)",
+                        properties={
+                            "business_number": types.Schema(type="STRING"),
+                            "company_name": types.Schema(type="STRING"),
+                            "ceo_name": types.Schema(type="STRING"),
+                            "email": types.Schema(type="STRING"),
+                        },
+                    ),
+                    "issue_date": types.Schema(type="STRING", description="작성일자 (YYYY-MM-DD, 미입력 시 오늘)"),
+                    "invoice_type": types.Schema(
+                        type="STRING",
+                        description="과세 구분",
+                        enum=["taxable", "zero_rate", "exempt"],
+                    ),
+                    "lines": types.Schema(
+                        type="ARRAY",
+                        description="품목 라인 (item_name + quantity + unit_price 필수)",
+                        items=types.Schema(
+                            type="OBJECT",
+                            properties={
+                                "item_name": types.Schema(type="STRING", description="품목명"),
+                                "unit": types.Schema(type="STRING", description="단위"),
+                                "quantity": types.Schema(type="NUMBER", description="수량"),
+                                "unit_price": types.Schema(type="INTEGER", description="단가(원)"),
+                                "supply_amount": types.Schema(type="INTEGER", description="공급가액(미입력 시 자동계산)"),
+                                "tax_amount": types.Schema(type="INTEGER", description="세액(미입력 시 자동계산)"),
+                                "note": types.Schema(type="STRING"),
+                            },
+                        ),
+                    ),
+                    "purpose": types.Schema(type="STRING", description="영수/청구 구분"),
+                    "remark": types.Schema(type="STRING", description="비고"),
+                    "project_code": types.Schema(type="STRING", description="연결된 프로젝트 (GS-25-XXXX)"),
+                    "document_no": types.Schema(type="STRING", description="내부 문서번호"),
+                },
+                required=["supplier", "buyer", "lines"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="list_tax_invoices",
+            description="발행된 세금계산서 목록을 조회합니다. '세금계산서 내역', '내가 발행한 계산서' 등에 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "mine_only": types.Schema(type="BOOLEAN"),
+                    "project_code": types.Schema(type="STRING"),
+                    "status": types.Schema(
+                        type="STRING",
+                        enum=["draft", "pending", "issued", "sent", "cancelled", "failed"],
+                    ),
+                    "limit": types.Schema(type="INTEGER", description="기본 20"),
+                },
+                required=[],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="cancel_tax_invoice",
+            description="이전에 발행한 세금계산서를 취소합니다. '세금계산서 취소', '계산서 발행 취소' 등에 사용합니다.",
+            parameters=types.Schema(
+                type="OBJECT",
+                properties={
+                    "invoice_id": types.Schema(type="INTEGER", description="취소할 세금계산서 내부 ID"),
+                    "reason": types.Schema(type="STRING", description="취소 사유"),
+                },
+                required=["invoice_id"],
+            ),
+        ),
     ])
 ]

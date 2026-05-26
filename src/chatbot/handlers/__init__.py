@@ -25,4 +25,13 @@ from src.chatbot.handlers._impl import (  # noqa: F401
 )
 
 # 도메인별 분류 모듈도 함께 노출
-from src.chatbot.handlers import pm, gw, shared  # noqa: F401
+from src.chatbot.handlers import pm, gw, shared, office  # noqa: F401
+
+# Office 도메인 핸들러 직접 노출 (호환성을 위해 짧은 import 경로 지원)
+from src.chatbot.handlers.office import (  # noqa: F401
+    handle_save_contact_from_image,
+    handle_list_contacts,
+    handle_issue_tax_invoice,
+    handle_list_tax_invoices,
+    handle_cancel_tax_invoice,
+)

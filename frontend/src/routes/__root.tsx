@@ -23,10 +23,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       })
       return { me }
     } catch {
-      // 미인증 → 기존 vanilla 로그인 페이지로 리다이렉트
-      // (v5는 자체 로그인 UI 없음, 백엔드 /login 재사용)
+      // 미인증 → 챗봇 페이지 '/' 의 로그인 폼으로 (백엔드 별도 /login 없음)
       if (typeof window !== 'undefined') {
-        window.location.href = `/login?next=${encodeURIComponent(location.href)}`
+        window.location.href = `/?next=${encodeURIComponent(location.href)}`
       }
       throw redirect({ to: '/' })
     }

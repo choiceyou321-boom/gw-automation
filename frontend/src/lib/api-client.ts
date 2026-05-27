@@ -65,9 +65,12 @@ async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
 
   const res = await fetch(finalPath, init)
 
-  // 401 → 로그인 페이지로 (백엔드 vanilla)
+  // 401 → 챗봇 페이지 '/' 의 로그인 폼으로 (백엔드는 별도 /login 페이지 없음)
   if (res.status === 401 && typeof window !== 'undefined') {
-    window.location.href = `/login?next=${encodeURIComponent(window.location.href)}`
+    // 이미 '/' 또는 '/?next=...' 에 있으면 무한 루프 방지
+    if (window.location.pathname !== '/') {
+      window.location.href = `/?next=${encodeURIComponent(window.location.href)}`
+    }
     throw new ApiError(401, null, 'Unauthorized')
   }
 

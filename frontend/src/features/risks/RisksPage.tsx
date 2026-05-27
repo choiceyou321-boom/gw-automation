@@ -45,18 +45,18 @@ export function RisksPage() {
     }
 
     // 우선순위 역순 정렬 (high → medium → low)
-    const severityOrder = { high: 0, medium: 1, low: 2 }
+    const severityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
     result.sort(
       (a, b) =>
-        (severityOrder[a.severity] ?? 999) - (severityOrder[b.severity] ?? 999) ||
-        (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        (severityOrder[a.severity ?? ''] ?? 999) - (severityOrder[b.severity ?? ''] ?? 999) ||
+        (new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
     )
 
     return result
   }, [allRisks, selectedProjectId, unsolvedOnly])
 
   // 우선순위별 색상
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: string | undefined) => {
     switch (severity) {
       case 'high':
         return 'bg-destructive/10 border-destructive/30 text-destructive'
@@ -67,7 +67,7 @@ export function RisksPage() {
     }
   }
 
-  const getSeverityBadgeVariant = (severity: string) => {
+  const getSeverityBadgeVariant = (severity: string | undefined): 'destructive' | 'secondary' | 'default' => {
     switch (severity) {
       case 'high':
         return 'destructive'
@@ -153,7 +153,7 @@ export function RisksPage() {
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex-1">
                   <div className="text-xs font-semibold opacity-75">{projectMap.get(risk.project_id) || '-'}</div>
-                  <div className="mt-1 text-sm font-semibold">{risk.risk_type || '리스크'}</div>
+                  <div className="mt-1 text-sm font-semibold">{risk.title || risk.risk_type || '리스크'}</div>
                 </div>
                 <Badge variant={getSeverityBadgeVariant(risk.severity)} className="ml-2 shrink-0 text-xs">
                   {risk.severity === 'high' ? '높음' : risk.severity === 'medium' ? '중간' : '낮음'}
@@ -169,7 +169,7 @@ export function RisksPage() {
                   <span className="font-semibold">작성자:</span> {risk.created_by || '-'}
                 </div>
                 <div>
-                  <span className="font-semibold">작성일:</span> {formatDate(risk.created_at)}
+                  <span className="font-semibold">작성일:</span> {formatDate(risk.created_at || '')}
                 </div>
                 {risk.status && (
                   <div>

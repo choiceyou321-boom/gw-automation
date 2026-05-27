@@ -4,15 +4,23 @@ import { api } from '@/lib/api-client'
 export interface Subcontract {
   id: number
   project_id: number
+  trade_id?: number
   company_name: string
-  trade_name: string
+  trade_name?: string
+  account_category?: string
+  has_estimate?: number
+  has_contract?: number
+  has_vendor_reg?: number
+  estimate_amount?: number
   contract_amount: number
-  progress_1: number
-  progress_2: number
-  progress_3: number
-  progress_4: number
+  payment_1?: number
+  payment_2?: number
+  payment_3?: number
+  payment_4?: number
   remaining_amount: number
-  progress_rate: number
+  payment_rate?: number
+  created_at?: string
+  updated_at?: string
   [k: string]: unknown
 }
 

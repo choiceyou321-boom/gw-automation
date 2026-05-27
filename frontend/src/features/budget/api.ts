@@ -1,14 +1,19 @@
 import { api } from '@/lib/api-client'
 
-/** /api/pm/projects/{id}/budget 응답 1건 */
+/** /api/pm/projects/{id}/budget 응답 1건 (budget_actual 테이블) */
 export interface BudgetItem {
   id?: number
   project_id: number
-  category: string
-  budget: number
-  execution: number
-  execution_rate: number
-  remaining: number
+  project_name?: string
+  year?: number
+  budget_code?: string
+  budget_category?: string
+  budget_sub_category?: string
+  budget_amount: number
+  actual_amount: number
+  difference?: number
+  execution_rate?: number
+  scraped_at?: string
   [k: string]: unknown
 }
 

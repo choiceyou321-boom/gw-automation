@@ -50,7 +50,7 @@ export function BudgetPaymentPage() {
       if (!map.has(projectId)) {
         map.set(projectId, {
           projectId,
-          projectName: projectMap.get(projectId) || '-',
+          projectName: projectMap.get(projectId) || item.project_name || '-',
           totalBudget: 0,
           totalExecution: 0,
           executionRate: 0,
@@ -58,8 +58,8 @@ export function BudgetPaymentPage() {
         })
       }
       const row = map.get(projectId)!
-      row.totalBudget += item.budget ?? 0
-      row.totalExecution += item.execution ?? 0
+      row.totalBudget += item.budget_amount ?? 0
+      row.totalExecution += item.actual_amount ?? 0
     })
 
     // 집행률 계산 및 초과 여부 판별

@@ -52,7 +52,7 @@ const COLUMNS: Column[] = [
     sortable: false,
     align: 'right',
     render: (r) => {
-      const total = (r.progress_1 ?? 0) + (r.progress_2 ?? 0) + (r.progress_3 ?? 0) + (r.progress_4 ?? 0)
+      const total = (r.payment_1 ?? 0) + (r.payment_2 ?? 0) + (r.payment_3 ?? 0) + (r.payment_4 ?? 0)
       return <span className="tabular-nums text-sm">{formatKRW(total)}</span>
     },
   },
@@ -72,7 +72,7 @@ const COLUMNS: Column[] = [
     sortable: false,
     align: 'right',
     render: (r) => {
-      const rate = r.progress_rate ?? 0
+      const rate = r.payment_rate ?? 0
       return (
         <Badge variant={rate >= 90 ? 'success' : rate >= 50 ? 'default' : 'secondary'} className="tabular-nums text-xs">
           {formatPercent(rate, 0)}
@@ -142,7 +142,7 @@ export function VendorsPage() {
     return {
       totalContract: filtered.reduce((sum, s) => sum + (s.contract_amount ?? 0), 0),
       totalProgress: filtered.reduce((sum, s) => {
-        return sum + ((s.progress_1 ?? 0) + (s.progress_2 ?? 0) + (s.progress_3 ?? 0) + (s.progress_4 ?? 0))
+        return sum + ((s.payment_1 ?? 0) + (s.payment_2 ?? 0) + (s.payment_3 ?? 0) + (s.payment_4 ?? 0))
       }, 0),
     }
   }, [filtered])

@@ -1,15 +1,21 @@
 import { api } from '@/lib/api-client'
 
-/** /api/pm/projects/{id}/risks 응답 1건 */
+/** /api/pm/projects/{id}/risks 응답 1건 (project_risk_log 테이블) */
 export interface Risk {
   id: number
   project_id: number
-  risk_type: string
-  severity: 'high' | 'medium' | 'low'
-  description: string
-  created_by: string
+  risk_date?: string
+  risk_type?: string
+  severity?: 'high' | 'medium' | 'low'
+  title: string
+  description?: string
+  impact?: string
+  mitigation?: string
+  resolved_date?: string
+  status?: string
+  created_by?: string
   created_at: string
-  status: string
+  updated_at?: string
   [k: string]: unknown
 }
 

@@ -6,6 +6,7 @@ import { Toaster } from 'sonner'
 
 import './index.css'
 import { routeTree } from './routeTree.gen'
+import { SmartImportFAB } from '@/components/SmartImportFAB'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <Toaster position="top-right" richColors closeButton />
+      <SmartImportFAB />
     </QueryClientProvider>
   </StrictMode>,
 )

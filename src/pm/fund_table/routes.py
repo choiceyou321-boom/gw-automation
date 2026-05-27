@@ -3028,3 +3028,121 @@ async def get_weekly_digest(request: Request):
     require_auth(request)
     digest = db.get_weekly_digest_data()
     return JSONResponse(digest)
+
+
+# ─────────────────────────────────────────
+# v6.5 Smart Import AI
+# ─────────────────────────────────────────
+
+class SmartImportAnalyzeRequest(BaseModel):
+    """Smart Import 분석 요청"""
+    text: str
+    file_b64: Optional[str] = None
+    file_name: Optional[str] = None
+    project_id: Optional[int] = None
+
+
+class SmartImportApplyRequest(BaseModel):
+    """Smart Import 적용 요청"""
+    analysis_id: str
+    user_answers: dict
+    project_id: int
+
+
+class SmartImportCancelRequest(BaseModel):
+    """Smart Import 취소 요청"""
+    analysis_id: str
+
+
+@router.post("/smart-import/analyze")
+async def smart_import_analyze(request: Request, body: SmartImportAnalyzeRequest):
+    """
+    텍스트/파일을 분석해 도메인 타입 자동 분류 및 필드 추출
+    응답:
+    {
+        "analysis_id": "ai-20250528-123456",
+        "detected_type": "estimate|meeting|schedule|...",
+        "confidence": 0.95,
+        "extracted_fields": {...},
+        "missing_fields": [
+            {"field": "company_name", "label": "업체명", "required": true}
+        ],
+        "preview": {...}
+    }
+    """
+    require_auth(request)
+
+    try:
+        from src.pm.smart_import.analyzer import analyze
+
+        # 파일에서 텍스트 추출 (v6.5a: TXT만 지원)
+        text_to_analyze = body.text
+        if body.file_b64 and body.file_name:
+            if body.file_name.endswith(".txt"):
+                import base64
+                text_content = base64.b64decode(body.file_b64).decode("utf-8", errors="ignore")
+                text_to_analyze = f"{body.text}\n\n[첨부파일: {body.file_name}]\n{text_content}"
+            # CSV, Excel 등은 v6.5b 이상에서 지원
+
+        analysis = analyze(text_to_analyze, hint_project_id=body.project_id)
+        return JSONResponse(analysis)
+
+    except Exception as e:
+        logger.error(f"Smart Import 분석 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"분석 실패: {str(e)}")
+
+
+@router.post("/smart-import/apply")
+async def smart_import_apply(request: Request, body: SmartImportApplyRequest):
+    """
+    분석 결과를 프로젝트 DB에 적용
+    응답:
+    {
+        "success": true,
+        "message": "견적서 1건이 추가되었습니다",
+        "created_ids": {"subcontracts": [123]}
+    }
+    """
+    require_auth(request)
+
+    try:
+        from src.pm.smart_import.analyzer import get_analysis
+        from src.pm.smart_import.applier import apply
+
+        # 프로젝트 소유자 검증
+        _check_owner(body.project_id, request.state.user)
+
+        # 분석 결과 조회
+        analysis = get_analysis(body.analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="분석 결과를 찾을 수 없습니다.")
+
+        # DB에 적용
+        result = apply(analysis, body.user_answers, body.project_id)
+
+        return JSONResponse(result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Smart Import 적용 실패: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"적용 실패: {str(e)}")
+
+
+@router.post("/smart-import/cancel")
+async def smart_import_cancel(request: Request, body: SmartImportCancelRequest):
+    """
+    분석 결과 캐시에서 제거
+    응답: {"success": true}
+    """
+    require_auth(request)
+
+    try:
+        from src.pm.smart_import.analyzer import clear_analysis
+
+        success = clear_analysis(body.analysis_id)
+        return JSONResponse({"success": success})
+
+    except Exception as e:
+        logger.error(f"Smart Import 취소 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

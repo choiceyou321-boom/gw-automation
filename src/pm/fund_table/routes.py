@@ -2775,3 +2775,49 @@ async def export_existing_schedule(project_id: int, request: Request):
     except Exception as e:
         logger.error(f"공정표 내보내기 실패: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ─────────────────────────────────────────
+# v5.6+ 신규 endpoint
+# ─────────────────────────────────────────
+
+@router.get("/portfolio/groups")
+async def get_portfolio_groups(request: Request):
+    """
+    포트폴리오 그룹화 (status별)
+    응답: {"active": [...], "completed": [...], "lease": [...], "other": [...]}
+    """
+    require_auth(request)
+    grouped = db.list_projects_grouped_by_status()
+    return JSONResponse(grouped)
+
+
+@router.get("/kanban")
+async def get_kanban_board(request: Request, project_id: int = None):
+    """
+    칸반 보드 (status별 TODO 그룹화)
+    응답: {"backlog": [...], "in_progress": [...], "blocked": [...], "done": [...]}
+    project_id 쿼리 파라미터로 특정 프로젝트 필터 가능
+    """
+    require_auth(request)
+    grouped = db.list_todos_grouped_by_status(project_id=project_id)
+    return JSONResponse(grouped)
+
+
+@router.get("/digest/weekly")
+async def get_weekly_digest(request: Request):
+    """
+    주간 다이제스트 (월요일용 요약 정보)
+    응답:
+    {
+        "generated_at": "2026-05-28T09:00:00",
+        "unread_notifications": 42,
+        "upcoming_milestones": [...],
+        "overdue_milestones": [...],
+        "recent_payments": [...],
+        "new_contracts": [...]
+    }
+    """
+    require_auth(request)
+    digest = db.get_weekly_digest_data()
+    return JSONResponse(digest)

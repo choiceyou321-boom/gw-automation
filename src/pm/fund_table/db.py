@@ -2783,3 +2783,178 @@ def seed_construction_trades_from_master() -> dict:
     finally:
         conn.close()
 
+
+# ─────────────────────────────────────────
+# v5.6+ 신규 endpoint 지원 함수
+# ─────────────────────────────────────────
+
+def list_projects_grouped_by_status() -> dict:
+    """
+    프로젝트를 status별로 그룹화.
+    응답: {"active": [...], "completed": [...], "lease": [...], "other": [...]}
+    """
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT id, name, project_code, status, owner_gw_id FROM projects ORDER BY sort_order ASC, created_at DESC"
+        ).fetchall()
+
+        grouped = {"active": [], "completed": [], "lease": [], "other": []}
+        for row in rows:
+            r = dict(row)
+            status = r.get("status", "").lower() if r.get("status") else ""
+
+            # status별 분류 (status 컬럼이 없으면 기본값으로 active)
+            if status in ("completed", "done", "종료"):
+                grouped["completed"].append(r)
+            elif status in ("lease", "임차", "계약"):
+                grouped["lease"].append(r)
+            elif status in ("active", "진행중", "ongoing", ""):
+                grouped["active"].append(r)
+            else:
+                grouped["other"].append(r)
+
+        return grouped
+    finally:
+        conn.close()
+
+
+def list_todos_grouped_by_status(project_id: int = None) -> dict:
+    """
+    TODO를 status별로 그룹화.
+    응답: {"backlog": [...], "in_progress": [...], "blocked": [...], "done": [...]}
+    project_id가 지정되면 해당 프로젝트만 필터.
+
+    분류 기준:
+    - completed=1 → done
+    - priority='high' → in_progress
+    - category='blocked' → blocked
+    - 나머지 → backlog
+    """
+    conn = get_db()
+    try:
+        if project_id:
+            rows = conn.execute(
+                "SELECT t.*, p.name as project_name FROM project_todos t LEFT JOIN projects p ON t.project_id = p.id WHERE t.project_id = ? ORDER BY t.completed ASC, t.priority DESC, t.created_at DESC",
+                (project_id,)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT t.*, p.name as project_name FROM project_todos t LEFT JOIN projects p ON t.project_id = p.id ORDER BY t.completed ASC, t.priority DESC, t.created_at DESC"
+            ).fetchall()
+
+        grouped = {"backlog": [], "in_progress": [], "blocked": [], "done": []}
+        for row in rows:
+            r = dict(row)
+            # completed 컬럼: 0=완료안함, 1=완료
+            if r.get("completed"):
+                grouped["done"].append(r)
+            # category='blocked' → blocked 카테고리
+            elif r.get("category") == "blocked":
+                grouped["blocked"].append(r)
+            # priority='high' → in_progress
+            elif r.get("priority") == "high":
+                grouped["in_progress"].append(r)
+            else:
+                grouped["backlog"].append(r)
+
+        return grouped
+    finally:
+        conn.close()
+
+
+def get_weekly_digest_data() -> dict:
+    """
+    주간 다이제스트용 데이터 조회.
+    - 미읽음 알림 개수
+    - 7일 내 마감 마일스톤
+    - 초과 마일스톤
+    - 최근 7일 결제 기록
+    - 최근 7일 신규 계약
+    """
+    from datetime import datetime, timedelta
+
+    conn = get_db()
+    try:
+        now = datetime.now()
+        week_ago = now - timedelta(days=7)
+        seven_days_later = now + timedelta(days=7)
+
+        # 미읽음 알림
+        unread_count = conn.execute(
+            "SELECT COUNT(*) as cnt FROM project_notifications WHERE read = 0"
+        ).fetchone()["cnt"]
+
+        # 7일 내 마감 마일스톤 (미완료)
+        upcoming = conn.execute("""
+            SELECT pm.id, pm.name as title, pm.date as due_date, p.name as project_name, pm.project_id
+            FROM project_milestones pm
+            JOIN projects p ON pm.project_id = p.id
+            WHERE pm.completed = 0 AND pm.date != '' AND pm.date >= ? AND pm.date <= ?
+            ORDER BY pm.date ASC
+        """, (now.strftime("%Y-%m-%d"), seven_days_later.strftime("%Y-%m-%d"))).fetchall()
+
+        # 계산: days_left
+        upcoming_list = []
+        for row in upcoming:
+            r = dict(row)
+            try:
+                due = datetime.strptime(r["due_date"], "%Y-%m-%d")
+                days_left = (due - now).days
+                r["days_left"] = days_left
+                upcoming_list.append(r)
+            except (ValueError, TypeError):
+                pass
+
+        # 초과 마일스톤 (미완료 + 과거 날짜)
+        overdue = conn.execute("""
+            SELECT pm.id, pm.name as title, pm.date as due_date, p.name as project_name, pm.project_id
+            FROM project_milestones pm
+            JOIN projects p ON pm.project_id = p.id
+            WHERE pm.completed = 0 AND pm.date != '' AND pm.date < ?
+            ORDER BY pm.date DESC
+            LIMIT 10
+        """, (now.strftime("%Y-%m-%d"),)).fetchall()
+
+        overdue_list = []
+        for row in overdue:
+            r = dict(row)
+            try:
+                due = datetime.strptime(r["due_date"], "%Y-%m-%d")
+                days_overdue = (now - due).days
+                r["days_overdue"] = days_overdue
+                overdue_list.append(r)
+            except (ValueError, TypeError):
+                pass
+
+        # 최근 7일 결제 기록
+        recent_payments = conn.execute("""
+            SELECT * FROM payment_history
+            WHERE confirmed_date != '' AND confirmed_date >= ?
+            ORDER BY confirmed_date DESC
+            LIMIT 20
+        """, (week_ago.strftime("%Y-%m-%d"),)).fetchall()
+
+        # 최근 7일 신규 계약
+        new_contracts = conn.execute("""
+            SELECT s.id, s.company_name, s.project_id, s.estimate_amount, s.contract_amount,
+                   p.name as project_name, t.name as trade_name
+            FROM subcontracts s
+            LEFT JOIN projects p ON s.project_id = p.id
+            LEFT JOIN trades t ON s.trade_id = t.id
+            WHERE s.created_at != '' AND s.created_at >= ?
+            ORDER BY s.created_at DESC
+            LIMIT 20
+        """, (week_ago.isoformat(),)).fetchall()
+
+        return {
+            "generated_at": now.isoformat(),
+            "unread_notifications": unread_count,
+            "upcoming_milestones": [dict(r) for r in upcoming_list],
+            "overdue_milestones": [dict(r) for r in overdue_list],
+            "recent_payments": [dict(r) for r in recent_payments],
+            "new_contracts": [dict(r) for r in new_contracts],
+        }
+    finally:
+        conn.close()
+

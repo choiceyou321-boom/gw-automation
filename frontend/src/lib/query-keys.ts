@@ -40,7 +40,10 @@ export const queryKeys = {
     summary: ['portfolio', 'summary'] as const,
     groups: ['portfolio', 'groups'] as const,
   },
-  insights: (pid: number) => ['insights', pid] as const,
+  insights: {
+    all: ['insights'] as const,
+    byProject: (pid: number) => ['insights', pid] as const,
+  },
   auth: { me: ['auth', 'me'] as const },
   subcontracts: ['subcontracts'] as const,
   risks: ['risks'] as const,

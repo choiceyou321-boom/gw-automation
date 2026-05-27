@@ -5,6 +5,8 @@ import { Link } from '@tanstack/react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import type { PortfolioRow } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -21,6 +23,23 @@ interface Column {
   align?: 'left' | 'right'
   render: (row: PortfolioRow) => React.ReactNode
 }
+
+/** 익스포트용 컬럼 정의 (UI 렌더링과 분리 — 순수 문자열/숫자만) */
+const EXPORT_COLUMNS: ExportColumn<PortfolioRow>[] = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: '프로젝트명' },
+  { key: 'grade', label: '등급' },
+  { key: 'category', label: '구분' },
+  { key: 'total_order', label: '수주액' },
+  { key: 'execution_budget', label: '실행예산' },
+  { key: 'profit_amount', label: '이익액' },
+  { key: 'profit_rate', label: '이익률(%)' },
+  { key: 'coll_total', label: '수금예정' },
+  { key: 'coll_collected', label: '수금완료' },
+  { key: 'coll_rate', label: '수금률(%)' },
+  { key: 'payment_limit', label: '지급한도' },
+  { key: 'total_paid', label: '지급누계' },
+]
 
 const COLUMNS: Column[] = [
   {
@@ -136,20 +155,28 @@ export function OverviewPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">개요</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             전체 프로젝트 {rows.length}건 — 행 클릭 시 상세
           </p>
         </div>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="프로젝트명 검색"
-          className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="프로젝트명 검색"
+            className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <ExportButton
+            rows={filtered}
+            columns={EXPORT_COLUMNS}
+            filenameBase={`프로젝트_개요_${new Date().toISOString().slice(0, 10)}`}
+            title="프로젝트 개요"
+          />
+        </div>
       </header>
 
       {portfolio.isLoading ? (

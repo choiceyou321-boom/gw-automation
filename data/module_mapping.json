@@ -1,0 +1,86 @@
+[
+  {
+    "home_code": "SET",
+    "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+    "inner_module": "UJ",
+    "menu_code": "UJA9010",
+    "page_code": "BZA0020"
+  },
+  {
+    "home_code": "HR",
+    "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+    "inner_module": "HP",
+    "menu_code": "HPG0110",
+    "page_code": "BZA0020"
+  },
+  {
+    "home_code": "EA",
+    "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+    "inner_module": "UB",
+    "menu_code": "UBA",
+    "page_code": "UBA7000"
+  },
+  {
+    "home_code": "ML",
+    "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+    "inner_module": "UD",
+    "menu_code": "UDA",
+    "page_code": "UDA0020"
+  },
+  {
+    "home_code": "CL",
+    "url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+    "inner_module": "UE",
+    "menu_code": "UEA",
+    "page_code": "UEA0000"
+  },
+  {
+    "home_code": "RM",
+    "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+    "inner_module": "UK",
+    "menu_code": "UKA",
+    "page_code": "UKA0000"
+  },
+  {
+    "home_code": "BD",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  },
+  {
+    "home_code": "KS",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  },
+  {
+    "home_code": "OF",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  },
+  {
+    "home_code": "OC",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  },
+  {
+    "home_code": "BPM",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  },
+  {
+    "home_code": "UT",
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "inner_module": null,
+    "menu_code": null,
+    "page_code": null
+  }
+]

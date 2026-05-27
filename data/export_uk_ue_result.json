@@ -1,0 +1,14 @@
+[
+  {
+    "target": "자원예약(RM)",
+    "url_path": "/#/UK/UKA/UKA0000",
+    "saved": null,
+    "error": "no_download_triggered"
+  },
+  {
+    "target": "일정(CL)",
+    "url_path": "/#/UE/UEA/UEA0000",
+    "saved": null,
+    "error": "no_download_triggered"
+  }
+]

@@ -1,0 +1,1414 @@
+{
+  "gw_user": "tgjeon",
+  "crawled_at": "2026-05-25 21:48:40",
+  "hr_top_categories": [
+    "마이페이지",
+    "근태관리",
+    "인사관리",
+    "급여관리",
+    "경비청구",
+    "지출결의/계산서",
+    "개인지출결의서",
+    "예산관리",
+    "법정의무교육"
+  ],
+  "categories": [
+    {
+      "top": "마이페이지",
+      "sub_count": 0,
+      "sub_lnb": []
+    },
+    {
+      "top": "근태관리",
+      "sub_count": 4,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "즐겨찾기설정",
+            "리스트썸네일"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "즐겨찾기설정",
+            "리스트썸네일"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 1,
+          "buttons_sample": [
+            "animation"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차관리",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "인사관리",
+      "sub_count": 18,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 40,
+          "buttons_sample": [
+            "매뉴얼",
+            "활용가이드",
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "대체휴가요청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 40,
+          "buttons_sample": [
+            "매뉴얼",
+            "활용가이드",
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무변경신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청취소",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "사원별근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "급여관리",
+      "sub_count": 9,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차관리",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인연차현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 4,
+          "buttons_sample": [
+            "매뉴얼",
+            "활용가이드",
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "월별연차사용현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "증명서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연말정산",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "경비청구",
+      "sub_count": 21,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "대체휴가요청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무변경신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청취소",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "사원별근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "지출결의/계산서",
+      "sub_count": 11,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차관리",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "증명서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "증명서신청및발급",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연말정산",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인연말정산자료입력",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인근로소득원천징수영수증",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "경비청구작성",
+          "url": "https://gw.glowseoul.co.kr/#/HP/APA0010/APA0010",
+          "page_title": "",
+          "buttons_count": 43,
+          "buttons_sample": [
+            "매뉴얼",
+            "동영상",
+            "해피Q&A",
+            "활용가이드",
+            "메뉴정보기본페이지즐겨찾기",
+            "선택",
+            "카드내역조회",
+            "카드등록",
+            "지출정보등록",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "경비전표처리",
+          "url": "https://gw.glowseoul.co.kr/#/BZ/BZ/BZA0000",
+          "page_title": "",
+          "buttons_count": 7,
+          "buttons_sample": [
+            "프로세스생성",
+            "매뉴얼",
+            "활용가이드",
+            "기본템플릿추가\n수정이력",
+            "기본템플릿추가",
+            "수정이력",
+            "바로가기"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "개인지출결의서",
+      "sub_count": 24,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "즐겨찾기설정",
+            "리스트썸네일"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "대체휴가요청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무변경신청서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청취소",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장신청현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "사원별근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근태집계현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0253/HRD0410",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "상세조회",
+            "조회",
+            "기간별",
+            "일별",
+            "사원별",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    },
+    {
+      "top": "법정의무교육",
+      "sub_count": 14,
+      "sub_lnb": [
+        {
+          "text": "근태신청",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "즐겨찾기설정",
+            "리스트썸네일"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "즐겨찾기설정",
+            "리스트썸네일"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "출장근무시간",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차관리",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD1200/HPD1200",
+          "page_title": "",
+          "buttons_count": 0,
+          "buttons_sample": [],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인연차현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "월별연차사용현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연차현황",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "증명서",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "연말정산",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "조회"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "경비청구작성",
+          "url": "https://gw.glowseoul.co.kr/#/HP/APA0010/APA0010",
+          "page_title": "",
+          "buttons_count": 38,
+          "buttons_sample": [
+            "메뉴정보기본페이지즐겨찾기",
+            "선택",
+            "카드내역조회",
+            "카드등록",
+            "지출정보등록",
+            "이전달",
+            "다음달",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "경비전표처리",
+          "url": "https://gw.glowseoul.co.kr/#/HP/APA0045/ACA3010",
+          "page_title": "",
+          "buttons_count": 10,
+          "buttons_sample": [
+            "매뉴얼",
+            "해피Q&A",
+            "활용가이드",
+            "불러오기\n분개확정/취소\n거래처 자동등록\n기능모음",
+            "불러오기",
+            "분개확정/취소",
+            "거래처 자동등록",
+            "기능모음",
+            "분개확정",
+            "전표발행"
+          ],
+          "export_candidates": [],
+          "download": null
+        },
+        {
+          "text": "개인지출결의서작성",
+          "url": "https://gw.glowseoul.co.kr/#/HP/NPA0020/NPA0020",
+          "page_title": "",
+          "buttons_count": 3,
+          "buttons_sample": [
+            "매뉴얼",
+            "메뉴정보기본페이지즐겨찾기",
+            "선택"
+          ],
+          "export_candidates": [],
+          "download": null
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "phase": "top_click",
+      "top": "예산관리"
+    }
+  ]
+}

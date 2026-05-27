@@ -1,0 +1,92 @@
+{
+  "gw_user": "tgjeon",
+  "crawled_at": "2026-05-25 21:38:34",
+  "home_modules": [
+    {
+      "code": "SET",
+      "text": "시스템설정",
+      "cls": "module-link SET",
+      "x": 0,
+      "y": 50
+    },
+    {
+      "code": "HR",
+      "text": "임직원업무관리",
+      "cls": "module-link HR",
+      "x": 0,
+      "y": 100
+    },
+    {
+      "code": "EA",
+      "text": "전자결재",
+      "cls": "module-link EA",
+      "x": 0,
+      "y": 150
+    },
+    {
+      "code": "ML",
+      "text": "메일",
+      "cls": "module-link ML",
+      "x": 0,
+      "y": 200
+    },
+    {
+      "code": "CL",
+      "text": "일정",
+      "cls": "module-link CL",
+      "x": 0,
+      "y": 250
+    },
+    {
+      "code": "RM",
+      "text": "자원",
+      "cls": "module-link RM",
+      "x": 0,
+      "y": 300
+    },
+    {
+      "code": "BD",
+      "text": "게시판",
+      "cls": "module-link BD",
+      "x": 0,
+      "y": 350
+    },
+    {
+      "code": "KS",
+      "text": "업무관리",
+      "cls": "module-link KS",
+      "x": 0,
+      "y": 400
+    },
+    {
+      "code": "OF",
+      "text": "ONEFFICE",
+      "cls": "module-link OF",
+      "x": 0,
+      "y": 450
+    },
+    {
+      "code": "OC",
+      "text": "ONECHAMBER",
+      "cls": "module-link OC",
+      "x": 0,
+      "y": 500
+    },
+    {
+      "code": "BPM",
+      "text": "프로세스관리",
+      "cls": "module-link BPM",
+      "x": 0,
+      "y": 550
+    },
+    {
+      "code": "UT",
+      "text": "오피스케어",
+      "cls": "module-link UT",
+      "x": 0,
+      "y": 600
+    }
+  ],
+  "menus": [],
+  "errors": []
+}

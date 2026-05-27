@@ -9,11 +9,11 @@ import { fetchPortfolioSummary } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
 
 const STATUS_LEGEND: { key: string; label: string; cls: string }[] = [
-  { key: 'planned', label: '계획', cls: 'bg-slate-400' },
-  { key: 'in_progress', label: '진행', cls: 'bg-blue-500' },
-  { key: 'done', label: '완료', cls: 'bg-emerald-500' },
-  { key: 'blocked', label: '차단', cls: 'bg-amber-500' },
-  { key: 'critical', label: 'CP', cls: 'bg-red-500' },
+  { key: 'planned', label: '계획', cls: 'bg-stone-300' },
+  { key: 'in_progress', label: '진행', cls: 'bg-stone-600' },
+  { key: 'done', label: '완료', cls: 'bg-emerald-600' },
+  { key: 'blocked', label: '차단', cls: 'bg-stone-400' },
+  { key: 'critical', label: 'CP', cls: 'bg-rose-700' },
 ]
 
 export function SchedulePage() {

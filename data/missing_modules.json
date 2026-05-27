@@ -1,0 +1,2146 @@
+{
+  "home": {
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "left_sidebar": [],
+    "module_links": [
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 50,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link HR",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 100,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link EA",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 150,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link ML",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 200,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link CL",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 250,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link RM",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 300,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BD",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 350,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link KS",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 400,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OF",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 450,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OC",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 500,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BPM",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 550,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link UT",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 600,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 50,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link HR",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 100,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link EA",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 150,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link ML",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 200,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link CL",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 250,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link RM",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 300,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BD",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 350,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link KS",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 400,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OF",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 450,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OC",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 500,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BPM",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 550,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link UT",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 600,
+        "visible": false
+      }
+    ],
+    "with_module_code": [],
+    "top_left_icons": [
+      {
+        "tag": "HTML",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "BODY",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "v-box ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "sideWrapIn flex-1",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top_in",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "allM",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "UL",
+        "cls": "fixed_top_ul",
+        "title": "",
+        "x": 0,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabM selected",
+        "title": "",
+        "x": 12,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 17,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabF",
+        "title": "",
+        "x": 60,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 65,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScWrap v-box flex-1",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScroll ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "UL",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 594
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalWrap h-box mode-SD ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "v-box ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "sideWrapIn flex-1",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top_in",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "allM",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "UL",
+        "cls": "fixed_top_ul",
+        "title": "",
+        "x": 0,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabM selected",
+        "title": "",
+        "x": 12,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 17,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabF",
+        "title": "",
+        "x": 60,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 65,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScWrap v-box flex-1",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScroll ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "UL",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 594
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "flex-1 v-box",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalHeaderWrap",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 50
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalHeader h-box w_mode",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 50
+      },
+      {
+        "tag": "DIV",
+        "cls": "header-ci",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 200,
+        "h": 50
+      },
+      {
+        "tag": "H2",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 5,
+        "w": 160,
+        "h": 40
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 5,
+        "w": 160,
+        "h": 40
+      },
+      {
+        "tag": "IMG",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 14,
+        "w": 150,
+        "h": 22
+      },
+      {
+        "tag": "DIV",
+        "cls": "OBTScrollbar_root__1U_ry newPortalContainer flex-1 ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 1920,
+        "h": 1030
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 1920,
+        "h": 1030
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalSearchWrap",
+        "title": "",
+        "x": 0,
+        "y": -848,
+        "w": 1920,
+        "h": 1030
+      }
+    ],
+    "leftbar_icons": []
+  },
+  "app_grid": {
+    "url": "https://gw.glowseoul.co.kr/#/",
+    "left_sidebar": [],
+    "module_links": [
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 50,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link HR",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 100,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link EA",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 150,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link ML",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 200,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link CL",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 250,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link RM",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 300,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BD",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 350,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link KS",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 400,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OF",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 450,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OC",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 500,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BPM",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 550,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link UT",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 600,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "text": "시스템설정",
+        "x": 0,
+        "y": 50,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 50,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link HR",
+        "text": "임직원업무관리",
+        "x": 0,
+        "y": 100,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 100,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link EA",
+        "text": "전자결재",
+        "x": 0,
+        "y": 150,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 150,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link ML",
+        "text": "메일",
+        "x": 0,
+        "y": 200,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 200,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link CL",
+        "text": "일정",
+        "x": 0,
+        "y": 250,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 250,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link RM",
+        "text": "자원",
+        "x": 0,
+        "y": 300,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 300,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BD",
+        "text": "게시판",
+        "x": 0,
+        "y": 350,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 350,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link KS",
+        "text": "업무관리",
+        "x": 0,
+        "y": 400,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 400,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OF",
+        "text": "ONEFFICE",
+        "x": 0,
+        "y": 450,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 450,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link OC",
+        "text": "ONECHAMBER",
+        "x": 0,
+        "y": 500,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 500,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link BPM",
+        "text": "프로세스관리",
+        "x": 0,
+        "y": 550,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 550,
+        "visible": false
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link UT",
+        "text": "오피스케어",
+        "x": 0,
+        "y": 600,
+        "visible": true
+      },
+      {
+        "tag": "DIV",
+        "cls": "module-name",
+        "text": "",
+        "x": 47,
+        "y": 600,
+        "visible": false
+      }
+    ],
+    "with_module_code": [],
+    "top_left_icons": [
+      {
+        "tag": "HTML",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "BODY",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "v-box ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "sideWrapIn flex-1",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top_in",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "allM",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "UL",
+        "cls": "fixed_top_ul",
+        "title": "",
+        "x": 0,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabM selected",
+        "title": "",
+        "x": 12,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 17,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabF",
+        "title": "",
+        "x": 60,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 65,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScWrap v-box flex-1",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScroll ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "UL",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 594
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalWrap h-box mode-SD ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "v-box ",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "sideWrapIn flex-1",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "fixed_top_in",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "allM",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "UL",
+        "cls": "fixed_top_ul",
+        "title": "",
+        "x": 0,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabM selected",
+        "title": "",
+        "x": 12,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 17,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "LI",
+        "cls": "snbTabF",
+        "title": "",
+        "x": 60,
+        "y": 44,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "ico",
+        "title": "",
+        "x": 65,
+        "y": 44,
+        "w": 38,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScWrap v-box flex-1",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "snbScroll ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 990
+      },
+      {
+        "tag": "UL",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 594
+      },
+      {
+        "tag": "LI",
+        "cls": "module-item",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "SPAN",
+        "cls": "module-link SET",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 48,
+        "h": 44
+      },
+      {
+        "tag": "DIV",
+        "cls": "flex-1 v-box",
+        "title": "",
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalHeaderWrap",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 50
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalHeader h-box w_mode",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 1872,
+        "h": 50
+      },
+      {
+        "tag": "DIV",
+        "cls": "header-ci",
+        "title": "",
+        "x": 48,
+        "y": 0,
+        "w": 200,
+        "h": 50
+      },
+      {
+        "tag": "H2",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 5,
+        "w": 160,
+        "h": 40
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 5,
+        "w": 160,
+        "h": 40
+      },
+      {
+        "tag": "IMG",
+        "cls": "",
+        "title": "",
+        "x": 68,
+        "y": 14,
+        "w": 150,
+        "h": 22
+      },
+      {
+        "tag": "DIV",
+        "cls": "OBTScrollbar_root__1U_ry newPortalContainer flex-1 ",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 1920,
+        "h": 1030
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "title": "",
+        "x": 0,
+        "y": 50,
+        "w": 1920,
+        "h": 1030
+      },
+      {
+        "tag": "DIV",
+        "cls": "newPortalSearchWrap",
+        "title": "",
+        "x": 0,
+        "y": -848,
+        "w": 1920,
+        "h": 1030
+      }
+    ],
+    "leftbar_icons": []
+  },
+  "sidebar_tooltips": [
+    {
+      "x": 24,
+      "y": 66,
+      "tooltip": "검색"
+    },
+    {
+      "x": 36,
+      "y": 66,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 72,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 122,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 172,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 222,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 272,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 322,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 372,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 422,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 472,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 522,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 572,
+      "tooltip": "검색"
+    },
+    {
+      "x": 24,
+      "y": 622,
+      "tooltip": "검색"
+    }
+  ]
+}

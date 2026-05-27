@@ -4,12 +4,13 @@ import { cn } from '@/lib/utils'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
+// v6: 무채색 그라데이션 + 의미색 2가지만 (완료/위험)
 const STATUS_COLOR: Record<string, string> = {
-  planned: 'fill-slate-400',
-  in_progress: 'fill-blue-500',
-  done: 'fill-emerald-500',
-  blocked: 'fill-amber-500',
-  critical: 'fill-red-500',
+  planned: 'fill-stone-300',
+  in_progress: 'fill-stone-600',
+  done: 'fill-emerald-600',
+  blocked: 'fill-stone-400',
+  critical: 'fill-rose-700',
 }
 
 function parseDate(s: string): Date | null {

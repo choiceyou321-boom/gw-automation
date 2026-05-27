@@ -17,11 +17,12 @@ import { cn } from '@/lib/utils'
 import { fetchKanban, updateTodo, todoFieldsForStatus } from './api'
 import type { KanbanBoard, KanbanStatus, KanbanTodo } from './api'
 
+// v6: 모든 컬럼 무채색 stone-50 → 컬럼 카운트 배지로만 시각 구분
 const COLUMNS: { key: KanbanStatus; label: string; cls: string }[] = [
-  { key: 'backlog', label: '백로그', cls: 'bg-slate-100 dark:bg-slate-800' },
-  { key: 'in_progress', label: '진행', cls: 'bg-blue-50 dark:bg-blue-950' },
-  { key: 'blocked', label: '차단', cls: 'bg-amber-50 dark:bg-amber-950' },
-  { key: 'done', label: '완료', cls: 'bg-emerald-50 dark:bg-emerald-950' },
+  { key: 'backlog', label: '백로그', cls: 'bg-stone-50' },
+  { key: 'in_progress', label: '진행', cls: 'bg-stone-50' },
+  { key: 'blocked', label: '차단', cls: 'bg-stone-50' },
+  { key: 'done', label: '완료', cls: 'bg-stone-50' },
 ]
 
 interface Props {

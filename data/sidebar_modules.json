@@ -1,0 +1,214 @@
+{
+  "icons": [
+    {
+      "tag": "LI",
+      "cx": 36,
+      "cy": 66,
+      "cls": "snbTabM selected",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 72,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 122,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 172,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 222,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 272,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 322,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 372,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 422,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 472,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 522,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 572,
+      "cls": "module-item",
+      "title": ""
+    },
+    {
+      "tag": "LI",
+      "cx": 24,
+      "cy": 622,
+      "cls": "module-item",
+      "title": ""
+    }
+  ],
+  "results": [
+    {
+      "index": 0,
+      "cx": 36,
+      "cy": 66,
+      "cls": "snbTabM selected",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020"
+    },
+    {
+      "index": 1,
+      "cx": 24,
+      "cy": 72,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020"
+    },
+    {
+      "index": 2,
+      "cx": 24,
+      "cy": 122,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020"
+    },
+    {
+      "index": 3,
+      "cx": 24,
+      "cy": 172,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000"
+    },
+    {
+      "index": 4,
+      "cx": 24,
+      "cy": 222,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020"
+    },
+    {
+      "index": 5,
+      "cx": 24,
+      "cy": 272,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000"
+    },
+    {
+      "index": 6,
+      "cx": 24,
+      "cy": 322,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000"
+    },
+    {
+      "index": 7,
+      "cx": 24,
+      "cy": 372,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    },
+    {
+      "index": 8,
+      "cx": 24,
+      "cy": 422,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    },
+    {
+      "index": 9,
+      "cx": 24,
+      "cy": 472,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    },
+    {
+      "index": 10,
+      "cx": 24,
+      "cy": 522,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    },
+    {
+      "index": 11,
+      "cx": 24,
+      "cy": 572,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    },
+    {
+      "index": 12,
+      "cx": 24,
+      "cy": 622,
+      "cls": "module-item",
+      "url_before": "https://gw.glowseoul.co.kr/#/",
+      "url_after": "https://gw.glowseoul.co.kr/#/",
+      "deepest_frame": "https://gw.glowseoul.co.kr/#/"
+    }
+  ]
+}

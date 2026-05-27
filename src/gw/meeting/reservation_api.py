@@ -20,7 +20,7 @@ from pathlib import Path
 import httpx
 
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
 from src.shared.auth.login import GW_URL, DATA_DIR
 

@@ -16,7 +16,7 @@ from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 
 # 프로젝트 경로
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 CONFIG_DIR = PROJECT_ROOT / "config"
 DATA_DIR = PROJECT_ROOT / "data"
 

@@ -18,7 +18,7 @@ logger = logging.getLogger("attendance_automation")
 GW_URL = os.environ.get("GW_URL", "https://gw.glowseoul.co.kr")
 
 # 스크린샷 저장 디렉토리
-SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 재시도 설정 (approval_automation.py와 동일)

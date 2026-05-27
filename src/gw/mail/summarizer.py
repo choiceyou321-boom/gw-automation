@@ -15,7 +15,7 @@ from pathlib import Path
 from playwright.sync_api import Page
 
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
 from src.shared.auth.login import login_and_get_context, close_session, GW_URL, DATA_DIR
 from src.notion.client import save_mail_summaries

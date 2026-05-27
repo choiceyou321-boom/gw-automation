@@ -1278,7 +1278,7 @@ def handle_generate_contracts_from_file(params: dict, user_context: dict = None)
     try:
         from src.pm.contracts.contract_generator import generate_from_excel
         # data/tmp/ 에 생성 → /download/ 엔드포인트로 제공
-        tmp_dir = pathlib.Path(__file__).parent.parent.parent / "data" / "tmp"
+        tmp_dir = pathlib.Path(__file__).parent.parent.parent.parent / "data" / "tmp"
         tmp_dir.mkdir(parents=True, exist_ok=True)
         gw_id = (user_context or {}).get("gw_id", "")
         from src.chatbot._download_registry import register as register_download

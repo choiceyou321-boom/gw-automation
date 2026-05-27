@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 # .env 로드 (ANTHROPIC_API_KEY 등)
-load_dotenv(Path(__file__).parent.parent.parent / "config" / ".env")
+load_dotenv(Path(__file__).parent.parent.parent.parent / "config" / ".env")
 
 from src.pm.fund_table import db
 
@@ -24,7 +24,7 @@ logger = logging.getLogger("fund_routes")
 
 # 정적 파일 경로 (v4 분리: PM 정적 파일은 src/pm/static/, 공통 파일은 src/chatbot/static/)
 PM_STATIC_DIR = Path(__file__).parent.parent / "static"           # src/pm/static
-COMMON_STATIC_DIR = Path(__file__).parent.parent.parent / "chatbot" / "static"  # src/chatbot/static
+COMMON_STATIC_DIR = Path(__file__).parent.parent.parent.parent / "chatbot" / "static"  # src/chatbot/static
 # 호환: 기존 STATIC_DIR 변수명 유지 (fund.html 찾는 코드용)
 STATIC_DIR = PM_STATIC_DIR
 
@@ -1659,7 +1659,7 @@ async def upload_material_file(project_id: int, request: Request):
         raise HTTPException(status_code=400, detail="파일이 없습니다.")
 
     # 저장 디렉토리
-    materials_dir = Path(__file__).parent.parent.parent / "data" / "materials" / str(project_id)
+    materials_dir = Path(__file__).parent.parent.parent.parent / "data" / "materials" / str(project_id)
     materials_dir.mkdir(parents=True, exist_ok=True)
 
     # 안전한 파일명
@@ -2656,7 +2656,7 @@ async def generate_schedule(project_id: int, request: Request):
         project_name = project.get("name", "") if project else ""
 
         # 4) 엑셀 파일 생성
-        data_tmp = Path(__file__).parent.parent.parent / "data" / "tmp"
+        data_tmp = Path(__file__).parent.parent.parent.parent / "data" / "tmp"
         data_tmp.mkdir(parents=True, exist_ok=True)
         safe_name = project_name.replace("/", "_").replace("\\", "_")[:30] if project_name else "schedule"
         xlsx_filename = f"공정표_{safe_name}_{start_date}.xlsx"
@@ -2744,7 +2744,7 @@ async def export_existing_schedule(project_id: int, request: Request):
         project = db.get_project(project_id) if hasattr(db, 'get_project') else {}
         project_name = project.get("name", "") if project else ""
 
-        data_tmp = Path(__file__).parent.parent.parent / "data" / "tmp"
+        data_tmp = Path(__file__).parent.parent.parent.parent / "data" / "tmp"
         data_tmp.mkdir(parents=True, exist_ok=True)
         safe_name = project_name.replace("/", "_").replace("\\", "_")[:30] if project_name else "schedule"
         xlsx_filename = f"공정표_{safe_name}.xlsx"

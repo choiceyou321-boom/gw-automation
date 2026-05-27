@@ -40,7 +40,7 @@ logger = logging.getLogger("computer_use_agent")
 MAX_STEPS = 20
 
 # 스크린샷 저장 디렉토리 (base.py / attendance.py 와 동일 경로)
-SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 기본 뷰포트 크기 (GW 화면 기준)

@@ -18,7 +18,7 @@ from pathlib import Path
 logger = logging.getLogger("budget_crawler_by_project")
 
 GW_URL = os.environ.get("GW_URL", "https://gw.glowseoul.co.kr")
-SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # OBTDataGrid 데이터 추출 JS — leaf 컬럼까지 재귀 탐색

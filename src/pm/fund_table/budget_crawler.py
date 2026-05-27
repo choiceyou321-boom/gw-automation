@@ -1615,7 +1615,7 @@ def crawl_budget_changes_for_project(
 def _save_screenshot(page, name: str):
     """디버그 스크린샷 저장"""
     from pathlib import Path
-    screenshot_dir = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+    screenshot_dir = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
     screenshot_dir.mkdir(parents=True, exist_ok=True)
     try:
         path = screenshot_dir / f"{name}.png"

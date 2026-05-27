@@ -562,6 +562,18 @@ def _create_tables(conn: sqlite3.Connection):
 
     conn.commit()
 
+    # ── 2026-05-28 마이그레이션: project_insights 확장 (핀/아카이브/추가데이터) ──
+    for col_def in [
+        ("is_pinned",   "INTEGER DEFAULT 0"),  # ⭐ 즐겨찾기 (상단 노출)
+        ("is_archived", "INTEGER DEFAULT 0"),  # 아카이브 여부 (히스토리에서 숨김)
+        ("extra_data",  "TEXT DEFAULT ''"),    # JSON — severity, suggested_action 등 blind spot 메타
+    ]:
+        try:
+            conn.execute(f"SELECT {col_def[0]} FROM project_insights LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute(f"ALTER TABLE project_insights ADD COLUMN {col_def[0]} {col_def[1]}")
+            conn.commit()
+
     # ── project_schedule_items 신규 컬럼 마이그레이션 ─────────────────────
     for col, typedef in [
         ("group_name", "TEXT DEFAULT ''"),
@@ -1604,6 +1616,94 @@ def get_insights(project_id: int = None) -> list[dict]:
         else:
             rows = conn.execute(
                 "SELECT i.*, p.name as project_name FROM project_insights i LEFT JOIN projects p ON i.project_id = p.id ORDER BY i.generated_at DESC"
+            ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def get_insight(insight_id: int) -> dict | None:
+    """단일 인사이트 조회"""
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT i.*, p.name as project_name FROM project_insights i LEFT JOIN projects p ON i.project_id = p.id WHERE i.id = ?",
+            (insight_id,)
+        ).fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def update_insight(insight_id: int, content: str = None, is_pinned: bool = None, is_archived: bool = None, extra_data: str = None) -> dict:
+    """인사이트 수정"""
+    conn = get_db()
+    try:
+        sets = []
+        vals = []
+        if content is not None:
+            sets.append("content = ?")
+            vals.append(content)
+        if is_pinned is not None:
+            sets.append("is_pinned = ?")
+            vals.append(1 if is_pinned else 0)
+        if is_archived is not None:
+            sets.append("is_archived = ?")
+            vals.append(1 if is_archived else 0)
+        if extra_data is not None:
+            sets.append("extra_data = ?")
+            vals.append(extra_data)
+
+        if not sets:
+            return {"success": True}
+
+        vals.append(insight_id)
+        conn.execute(f"UPDATE project_insights SET {', '.join(sets)} WHERE id = ?", vals)
+        conn.commit()
+        return {"success": True}
+    finally:
+        conn.close()
+
+
+def delete_insight(insight_id: int) -> dict:
+    """인사이트 삭제"""
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM project_insights WHERE id = ?", (insight_id,))
+        conn.commit()
+        return {"success": True}
+    finally:
+        conn.close()
+
+
+def toggle_insight_pin(insight_id: int) -> dict:
+    """인사이트 핀 토글"""
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT is_pinned FROM project_insights WHERE id = ?", (insight_id,)).fetchone()
+        if not row:
+            return {"success": False, "error": "인사이트를 찾을 수 없습니다"}
+        new_state = 1 - row["is_pinned"]
+        conn.execute("UPDATE project_insights SET is_pinned = ? WHERE id = ?", (new_state, insight_id))
+        conn.commit()
+        return {"success": True, "is_pinned": bool(new_state)}
+    finally:
+        conn.close()
+
+
+def get_insights_by_type(insight_type: str, project_id: int = None) -> list[dict]:
+    """특정 타입의 인사이트 조회 (blind_spot 등)"""
+    conn = get_db()
+    try:
+        if project_id:
+            rows = conn.execute(
+                "SELECT i.*, p.name as project_name FROM project_insights i LEFT JOIN projects p ON i.project_id = p.id WHERE i.insight_type = ? AND i.project_id = ? ORDER BY i.generated_at DESC",
+                (insight_type, project_id)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT i.*, p.name as project_name FROM project_insights i LEFT JOIN projects p ON i.project_id = p.id WHERE i.insight_type = ? ORDER BY i.generated_at DESC",
+                (insight_type,)
             ).fetchall()
         return [dict(r) for r in rows]
     finally:

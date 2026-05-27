@@ -1310,6 +1310,213 @@ async def get_portfolio_analysis(request: Request):
         conn.close()
 
 
+# ─────────────────────────────────────────
+# 인사이트 관리 (편집/삭제/핀/액션)
+# ─────────────────────────────────────────
+
+@router.get("/insights/{insight_id}")
+async def get_insight(insight_id: int, request: Request):
+    """단일 인사이트 조회"""
+    require_auth(request)
+    insight = db.get_insight(insight_id)
+    if not insight:
+        raise HTTPException(status_code=404, detail="인사이트를 찾을 수 없습니다")
+    return JSONResponse(insight)
+
+
+class InsightUpdate(BaseModel):
+    content: Optional[str] = None
+    is_pinned: Optional[bool] = None
+    is_archived: Optional[bool] = None
+
+
+@router.patch("/insights/{insight_id}")
+async def update_insight(insight_id: int, request: Request, body: InsightUpdate):
+    """인사이트 수정 (본문, 핀 상태 등)"""
+    require_auth(request)
+    result = db.update_insight(
+        insight_id,
+        content=body.content,
+        is_pinned=body.is_pinned,
+        is_archived=body.is_archived,
+    )
+    return JSONResponse(result)
+
+
+@router.delete("/insights/{insight_id}")
+async def delete_insight(insight_id: int, request: Request):
+    """인사이트 삭제"""
+    require_auth(request)
+    result = db.delete_insight(insight_id)
+    return JSONResponse(result)
+
+
+@router.post("/insights/{insight_id}/pin")
+async def toggle_insight_pin(insight_id: int, request: Request):
+    """인사이트 핀 토글 (⭐ 즐겨찾기)"""
+    require_auth(request)
+    result = db.toggle_insight_pin(insight_id)
+    return JSONResponse(result)
+
+
+@router.post("/insights/{insight_id}/to-todo")
+async def insight_to_todo(insight_id: int, request: Request):
+    """
+    인사이트 본문에서 '[ ] 액션:' 형식의 TODO 추출 및 생성
+
+    인사이트 본문 예:
+    "...
+    [ ] 액션: A업체 지급 50,000,000원 확인
+    [ ] 액션: 발주처 2차 중도금 수금 요청
+    ..."
+    """
+    require_auth(request)
+    insight = db.get_insight(insight_id)
+    if not insight:
+        raise HTTPException(status_code=404, detail="인사이트를 찾을 수 없습니다")
+
+    project_id = insight.get("project_id")
+    if not project_id:
+        return JSONResponse({"success": False, "error": "프로젝트 정보가 없습니다"})
+
+    # 본문에서 [ ] 액션: 추출
+    import re
+    content = insight.get("content", "")
+    # 패턴: [ ] 액션: 또는 [ ] 할일: 또는 유사 형식
+    pattern = r'\[\s*\]\s*(?:액션|할일|TODO):\s*(.+?)(?=\n|$)'
+    matches = re.findall(pattern, content, re.IGNORECASE)
+
+    created = []
+    for todo_content in matches:
+        todo_content = todo_content.strip()
+        if todo_content:
+            todo_id = db.add_todo(project_id, todo_content, priority="high")
+            created.append({"id": todo_id, "content": todo_content})
+
+    return JSONResponse({"success": True, "created": created})
+
+
+@router.post("/insights/{insight_id}/to-milestone")
+async def insight_to_milestone(insight_id: int, request: Request):
+    """
+    인사이트 본문에서 '마일스톤:' 형식 추출 및 생성
+    """
+    require_auth(request)
+    insight = db.get_insight(insight_id)
+    if not insight:
+        raise HTTPException(status_code=404, detail="인사이트를 찾을 수 없습니다")
+
+    project_id = insight.get("project_id")
+    if not project_id:
+        return JSONResponse({"success": False, "error": "프로젝트 정보가 없습니다"})
+
+    # 본문에서 마일스톤: 추출
+    import re
+    content = insight.get("content", "")
+    pattern = r'마일스톤:\s*(.+?)(?=\n|$)'
+    matches = re.findall(pattern, content, re.IGNORECASE)
+
+    created = []
+    for ms_name in matches:
+        ms_name = ms_name.strip()
+        if ms_name:
+            conn = db.get_db()
+            try:
+                cursor = conn.execute(
+                    "INSERT INTO project_milestones (project_id, name) VALUES (?, ?)",
+                    (project_id, ms_name),
+                )
+                conn.commit()
+                ms_id = cursor.lastrowid
+                created.append({"id": ms_id, "name": ms_name})
+            finally:
+                conn.close()
+
+    return JSONResponse({"success": True, "created": created})
+
+
+# ─────────────────────────────────────────
+# Blind Spot 감지 및 조회
+# ─────────────────────────────────────────
+
+@router.post("/blind-spots/scan")
+async def scan_blind_spots(request: Request):
+    """
+    즉시 Blind Spot 스캔 실행
+    - detect_overdue_milestones, detect_stale_high_todos, ... 8가지 감지
+    - 결과를 project_insights에 저장 (insight_type='blind_spot')
+    """
+    require_auth(request)
+    import asyncio
+    from . import blind_spot_detector
+
+    try:
+        issues = await asyncio.to_thread(blind_spot_detector.run_all_detectors)
+
+        saved = []
+        for issue in issues:
+            project_id = issue.get("project_id")
+            content = f"""## {issue['issue_type']}
+
+**요약**: {issue['summary']}
+
+**추천 조치**: {issue['suggested_action']}
+
+**심각도**: {issue['severity']}
+"""
+            # extra_data에 상세 정보 저장
+            extra_data_json = json.dumps({
+                "severity": issue.get("severity"),
+                "suggested_action": issue.get("suggested_action"),
+                "details": issue.get("details", {}),
+            })
+
+            result = db.save_insight(
+                project_id=project_id,
+                content=content,
+                insight_type="blind_spot",
+            )
+            # 현재 save_insight에는 extra_data 저장 기능이 없으므로, 직접 UPDATE
+            conn = db.get_db()
+            try:
+                conn.execute(
+                    "UPDATE project_insights SET extra_data = ? WHERE project_id = ? AND insight_type = 'blind_spot' ORDER BY generated_at DESC LIMIT 1",
+                    (extra_data_json, project_id),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+
+            saved.append({
+                "project_id": project_id,
+                "issue_type": issue["issue_type"],
+                "severity": issue["severity"],
+            })
+
+        return JSONResponse({
+            "success": True,
+            "issues_found": len(issues),
+            "saved": saved,
+        })
+    except Exception as e:
+        logger.error(f"Blind Spot 스캔 실패: {e}", exc_info=True)
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@router.get("/blind-spots")
+async def get_blind_spots(request: Request, project_id: Optional[int] = None):
+    """
+    Blind Spot 결과 조회
+    - query param: project_id (선택사항)
+    """
+    require_auth(request)
+    if project_id:
+        insights = db.get_insights_by_type("blind_spot", project_id)
+    else:
+        insights = db.get_insights_by_type("blind_spot")
+    return JSONResponse({"blind_spots": insights})
+
+
 @router.post("/insights/generate")
 async def generate_insights(request: Request):
     """Claude Opus로 전체 프로젝트 인사이트 생성"""

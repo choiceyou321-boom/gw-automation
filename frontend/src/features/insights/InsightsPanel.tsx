@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { fetchInsights, generateInsights } from './api'
 import { InsightCard } from './InsightCard'
 import { queryKeys } from '@/lib/query-keys'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, AlertTriangle } from 'lucide-react'
 
 export function InsightsPanel() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
@@ -51,6 +51,29 @@ export function InsightsPanel() {
     if (!selectedProjectId || !insights.data?.projects[selectedProjectId]) return []
     return insights.data.projects[selectedProjectId].items
   }, [selectedProjectId, insights.data])
+
+  // Blind Spot 스캔
+  const blindSpotMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/pm/blind-spots/scan', {
+        method: 'POST',
+      })
+      if (!res.ok) throw new Error('Blind Spot 스캔 실패')
+      return res.json()
+    },
+    onSuccess: (data) => {
+      toast.success(`${data.issues_found}개의 이슈가 감지되었습니다`)
+      setTimeout(
+        () => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.insights.all })
+        },
+        1000,
+      )
+    },
+    onError: (err) => {
+      toast.error(`Blind Spot 스캔 실패: ${(err as Error).message}`)
+    },
+  })
 
   // 새 인사이트 생성
   const generateMutation = useMutation({
@@ -99,15 +122,27 @@ export function InsightsPanel() {
           <h2 className="text-lg font-semibold">AI 인사이트</h2>
           <p className="text-sm text-muted-foreground">포트폴리오 및 프로젝트별 AI 분석</p>
         </div>
-        <Button
-          onClick={() => generateMutation.mutate()}
-          disabled={generateMutation.isPending}
-          size="sm"
-          className="gap-2"
-        >
-          <Sparkles className="h-4 w-4" />
-          {generateMutation.isPending ? '생성 중...' : '새로 생성'}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => blindSpotMutation.mutate()}
+            disabled={blindSpotMutation.isPending}
+            size="sm"
+            variant="outline"
+            className="gap-2"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            {blindSpotMutation.isPending ? '스캔 중...' : '놓친 것 스캔'}
+          </Button>
+          <Button
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            size="sm"
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            {generateMutation.isPending ? '생성 중...' : '새로 생성'}
+          </Button>
+        </div>
       </div>
 
       {!hasAnyInsights ? (
@@ -118,9 +153,10 @@ export function InsightsPanel() {
         </div>
       ) : (
         <Tabs defaultValue="portfolio" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="portfolio">포트폴리오 인사이트</TabsTrigger>
             <TabsTrigger value="projects">프로젝트별 인사이트</TabsTrigger>
+            <TabsTrigger value="blind-spots">🔔 놓친 것</TabsTrigger>
           </TabsList>
 
           {/* 포트폴리오 탭 */}
@@ -128,7 +164,11 @@ export function InsightsPanel() {
             {portfolioItems.length > 0 ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {portfolioItems.map((insight, idx) => (
-                  <InsightCard key={idx} insight={insight} />
+                  <InsightCard
+                    key={idx}
+                    insight={insight}
+                    onRefresh={() => queryClient.invalidateQueries({ queryKey: queryKeys.insights.all })}
+                  />
                 ))}
               </div>
             ) : (
@@ -144,7 +184,11 @@ export function InsightsPanel() {
               projectInsights.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {projectInsights.map((insight, idx) => (
-                    <InsightCard key={idx} insight={insight} />
+                    <InsightCard
+                      key={idx}
+                      insight={insight}
+                      onRefresh={() => queryClient.invalidateQueries({ queryKey: queryKeys.insights.all })}
+                    />
                   ))}
                 </div>
               ) : (
@@ -154,8 +198,63 @@ export function InsightsPanel() {
               <p className="text-sm text-muted-foreground">프로젝트를 선택하면 인사이트를 확인할 수 있습니다.</p>
             )}
           </TabsContent>
+
+          {/* Blind Spot 탭 */}
+          <TabsContent value="blind-spots" className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              "놓친 것 스캔" 버튼을 눌러 자동 감지 결과를 확인하세요.
+              (임박한 마일스톤, 방치된 고우선 할일, 지연된 수금 등)
+            </p>
+            <BlindSpotSection />
+          </TabsContent>
         </Tabs>
       )}
+    </div>
+  )
+}
+
+function BlindSpotSection() {
+  const queryClient = useQueryClient()
+  const blindSpots = useQuery({
+    queryKey: queryKeys.insights.all,
+    queryFn: async () => {
+      const res = await fetch('/api/pm/blind-spots')
+      if (!res.ok) throw new Error('Blind Spot 조회 실패')
+      return res.json()
+    },
+  })
+
+  if (blindSpots.isLoading) {
+    return <Skeleton className="h-32" />
+  }
+
+  if (blindSpots.isError) {
+    return (
+      <div className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+        로드 실패: {(blindSpots.error as Error).message}
+      </div>
+    )
+  }
+
+  const items = blindSpots.data?.blind_spots ?? []
+
+  if (items.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-muted-foreground p-8 text-center">
+        <p className="text-sm text-muted-foreground">아직 감지된 이슈가 없습니다.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((insight, idx) => (
+        <InsightCard
+          key={idx}
+          insight={insight}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: queryKeys.insights.all })}
+        />
+      ))}
     </div>
   )
 }

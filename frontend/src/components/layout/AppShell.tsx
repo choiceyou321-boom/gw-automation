@@ -1,84 +1,97 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { useMemo } from 'react'
+import { useRouterState, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import {
-  LayoutDashboard,
-  Table2,
-  CalendarDays,
-  KanbanSquare,
-  Wallet,
-  BanknoteArrowDown,
-  ScrollText,
-  Receipt,
-  Users,
-  AlertTriangle,
-  Inbox,
-  Sparkles,
-} from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { ProjectListSidebar } from './ProjectListSidebar'
+import { ProjectTabs } from './ProjectTabs'
+import { fetchPortfolioSummary } from '@/features/projects/api'
+import { queryKeys } from '@/lib/query-keys'
 
-const NAV_ITEMS = [
-  { to: '/', label: '대시보드', Icon: LayoutDashboard },
-  { to: '/overview', label: '개요', Icon: Table2 },
-  { to: '/schedule', label: '일정표', Icon: CalendarDays },
-  { to: '/kanban', label: '칸반', Icon: KanbanSquare },
-  { to: '/collections', label: '수금', Icon: BanknoteArrowDown },
-  { to: '/payments', label: '이체', Icon: Receipt },
-  { to: '/budget-payment', label: '예산집행', Icon: Wallet },
-  { to: '/vendors', label: '하도급', Icon: Users },
-  { to: '/contracts', label: '계약', Icon: ScrollText },
-  { to: '/risks', label: '리스크', Icon: AlertTriangle },
-  { to: '/inbox', label: '알림', Icon: Inbox },
-  { to: '/insights', label: 'AI 인사이트', Icon: Sparkles },
-] as const
+const PROJECT_TAB_PATHS = [
+  '/overview',
+  '/schedule',
+  '/kanban',
+  '/contracts',
+  '/vendors',
+  '/collections',
+  '/payments',
+  '/budget-payment',
+  '/risks',
+]
 
+const NON_PROJECT_PATHS = ['/', '/inbox', '/insights']
+
+/**
+ * v7.0 AppShell — 레거시 /fund 사이드바 정합
+ * 좌측: ProjectListSidebar (포트폴리오·알림·인사이트 + 프로젝트 53건 + 이전 프로젝트)
+ * 상단: 프로젝트 선택된 경우 ProjectTabs (탭 9개)
+ * URL: 프로젝트 탭들은 ?p=$id 쿼리스트링으로 선택 프로젝트 식별
+ */
 export function AppShell({ children }: { children: ReactNode }) {
+  const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const searchObj = useRouterState({ select: (s) => s.location.search }) as Record<
+    string,
+    unknown
+  >
+
+  // URL 쿼리스트링에서 ?p=42 읽기
+  const selectedProjectId = useMemo(() => {
+    const raw = searchObj?.p
+    if (typeof raw === 'number') return raw
+    if (typeof raw === 'string' && raw) return Number(raw) || null
+    return null
+  }, [searchObj])
+
+  const portfolio = useQuery({
+    queryKey: queryKeys.portfolio.summary,
+    queryFn: fetchPortfolioSummary,
+    staleTime: 60 * 1000,
+  })
+
+  const selectedProject = useMemo(
+    () => portfolio.data?.find((p) => p.id === selectedProjectId) ?? null,
+    [portfolio.data, selectedProjectId],
+  )
+
+  function handleSelectProject(id: number | null) {
+    // 현재 path 가 탭 path 면 그대로, 비프로젝트 path 면 /overview 로
+    const isProjectTab = PROJECT_TAB_PATHS.some((p) => pathname.startsWith(p))
+    const target = isProjectTab ? pathname : '/overview'
+    navigate({
+      to: target,
+      search: id ? ({ p: id } as never) : ({} as never),
+    })
+  }
+
+  const showTabs =
+    selectedProjectId !== null &&
+    PROJECT_TAB_PATHS.some((p) => pathname.startsWith(p))
+
+  const isNonProjectView = NON_PROJECT_PATHS.includes(pathname)
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <aside className="flex w-56 flex-col border-r border-stone-200 bg-card">
-        <div className="flex items-center gap-2 px-4 py-4">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-semibold">
-            PM
-          </div>
-          <span className="text-sm font-medium tracking-tight text-stone-900">
-            프로젝트 관리
-          </span>
+      <ProjectListSidebar
+        selectedProjectId={selectedProjectId}
+        onSelectProject={handleSelectProject}
+      />
+      <main className="flex-1 overflow-y-auto bg-background flex flex-col">
+        {showTabs && selectedProjectId !== null && (
+          <ProjectTabs
+            projectId={selectedProjectId}
+            projectName={selectedProject?.name}
+          />
+        )}
+        <div className="p-6 flex-1">
+          {!isNonProjectView && selectedProjectId === null && (
+            <div className="rounded-md border border-dashed border-stone-300 p-8 text-center text-sm text-stone-500">
+              왼쪽 사이드바에서 프로젝트를 선택하세요.
+            </div>
+          )}
+          {(isNonProjectView || selectedProjectId !== null) && children}
         </div>
-        <nav className="flex flex-1 flex-col gap-0.5 px-2 py-1">
-          {NAV_ITEMS.map((item) => {
-            const active =
-              item.to === '/'
-                ? pathname === '/'
-                : pathname.startsWith(item.to)
-            const Icon = item.Icon
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  'group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors',
-                  active
-                    ? 'bg-stone-100 text-stone-900 font-medium'
-                    : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900',
-                )}
-              >
-                <Icon
-                  size={16}
-                  className={cn(
-                    'shrink-0',
-                    active ? 'text-stone-900' : 'text-stone-400 group-hover:text-stone-600',
-                  )}
-                />
-                {item.label}
-              </Link>
-            )
-          })}
-        </nav>
-      </aside>
-      <main className="flex-1 overflow-y-auto bg-background">
-        <div className="p-6">{children}</div>
       </main>
     </div>
   )

@@ -15,6 +15,7 @@ import { Route as RisksRouteImport } from './routes/risks'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as KanbanRouteImport } from './routes/kanban'
+import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as ContractsRouteImport } from './routes/contracts'
 import { Route as CollectionsRouteImport } from './routes/collections'
@@ -50,6 +51,11 @@ const OverviewRoute = OverviewRouteImport.update({
 const KanbanRoute = KanbanRouteImport.update({
   id: '/kanban',
   path: '/kanban',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InboxRoute = InboxRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/collections': typeof CollectionsRoute
   '/contracts': typeof ContractsRoute
   '/inbox': typeof InboxRoute
+  '/insights': typeof InsightsRoute
   '/kanban': typeof KanbanRoute
   '/overview': typeof OverviewRoute
   '/payments': typeof PaymentsRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/collections': typeof CollectionsRoute
   '/contracts': typeof ContractsRoute
   '/inbox': typeof InboxRoute
+  '/insights': typeof InsightsRoute
   '/kanban': typeof KanbanRoute
   '/overview': typeof OverviewRoute
   '/payments': typeof PaymentsRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/collections': typeof CollectionsRoute
   '/contracts': typeof ContractsRoute
   '/inbox': typeof InboxRoute
+  '/insights': typeof InsightsRoute
   '/kanban': typeof KanbanRoute
   '/overview': typeof OverviewRoute
   '/payments': typeof PaymentsRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/contracts'
     | '/inbox'
+    | '/insights'
     | '/kanban'
     | '/overview'
     | '/payments'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/contracts'
     | '/inbox'
+    | '/insights'
     | '/kanban'
     | '/overview'
     | '/payments'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/contracts'
     | '/inbox'
+    | '/insights'
     | '/kanban'
     | '/overview'
     | '/payments'
@@ -177,6 +189,7 @@ export interface RootRouteChildren {
   CollectionsRoute: typeof CollectionsRoute
   ContractsRoute: typeof ContractsRoute
   InboxRoute: typeof InboxRoute
+  InsightsRoute: typeof InsightsRoute
   KanbanRoute: typeof KanbanRoute
   OverviewRoute: typeof OverviewRoute
   PaymentsRoute: typeof PaymentsRoute
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KanbanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inbox': {
       id: '/inbox'
       path: '/inbox'
@@ -281,6 +301,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsRoute: CollectionsRoute,
   ContractsRoute: ContractsRoute,
   InboxRoute: InboxRoute,
+  InsightsRoute: InsightsRoute,
   KanbanRoute: KanbanRoute,
   OverviewRoute: OverviewRoute,
   PaymentsRoute: PaymentsRoute,

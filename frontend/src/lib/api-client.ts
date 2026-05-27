@@ -20,8 +20,18 @@ type ApiOptions = Omit<RequestInit, 'body'> & {
   searchParams?: Record<string, string | number | boolean | undefined>
 }
 
+/** CSRF 미들웨어가 검사하는 mutating 메서드 */
+const CSRF_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+
+/** csrf_token 쿠키 값 추출 (없으면 undefined) */
+function readCsrfCookie(): string | undefined {
+  if (typeof document === 'undefined') return undefined
+  const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/)
+  return m ? decodeURIComponent(m[1]) : undefined
+}
+
 async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
-  const { body, searchParams, headers, ...rest } = options
+  const { body, searchParams, headers, method = 'GET', ...rest } = options
 
   let finalPath = path
   if (searchParams) {
@@ -33,12 +43,21 @@ async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
     if (qs) finalPath += (path.includes('?') ? '&' : '?') + qs
   }
 
+  // CSRF 자동 첨부 — 백엔드 CSRFMiddleware는 mutating 메서드에서 X-CSRF-Token === csrf_token 쿠키 검사
+  const csrfHeaders: Record<string, string> = {}
+  if (CSRF_METHODS.has(method.toUpperCase())) {
+    const tok = readCsrfCookie()
+    if (tok) csrfHeaders['X-CSRF-Token'] = tok
+  }
+
   const init: RequestInit = {
     ...rest,
+    method,
     credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...csrfHeaders,
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,

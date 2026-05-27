@@ -248,7 +248,7 @@ function BlindSpotSection() {
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((insight, idx) => (
+      {items.map((insight: any, idx: number) => (
         <InsightCard
           key={idx}
           insight={insight}

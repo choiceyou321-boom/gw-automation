@@ -1,4 +1,4 @@
-import { useState } from 'react'
+// (useState 미사용 — v6.4에서 도입된 isDeleting 패턴 제거됨)
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -46,7 +46,7 @@ const typeLabel: Record<string, string> = {
 }
 
 export function InsightCard({ insight, onRefresh }: InsightCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
+  // const [isDeleting, setIsDeleting] = useState(false)
   const queryClient = useQueryClient()
   const variant = typeColorMap[insight.insight_type] ?? 'outline'
   const label = typeLabel[insight.insight_type] ?? insight.insight_type
@@ -159,7 +159,6 @@ export function InsightCard({ insight, onRefresh }: InsightCardProps) {
               <DropdownMenuItem
                 onClick={() => {
                   if (confirm('정말 삭제하시겠습니까?')) {
-                    setIsDeleting(true)
                     deleteMutation.mutate()
                   }
                 }}

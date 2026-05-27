@@ -2,10 +2,14 @@ import { api } from '@/lib/api-client'
 
 /** 단일 인사이트 */
 export interface Insight {
-  insight_type: string // 'strategy' | 'warning' | 'opportunity' 등
+  id?: number
+  insight_type: string // 'strategy' | 'warning' | 'opportunity' | 'blind_spot' 등
   content: string // markdown 가능
   generated_at: string // ISO 8601
   project_id?: number
+  is_pinned?: number
+  is_archived?: number
+  extra_data?: string
 }
 
 /** /api/pm/insights 응답 */

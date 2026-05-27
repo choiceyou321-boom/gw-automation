@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { fetchKanban, updateTodo, todoFieldsForStatus } from './api'
+import { AddTodoForm } from './AddTodoForm'
+import { EditTodoSheet } from './EditTodoSheet'
 import type { KanbanBoard, KanbanStatus, KanbanTodo } from './api'
 
 // v6: 모든 컬럼 무채색 stone-50 → 컬럼 카운트 배지로만 시각 구분
@@ -40,6 +42,8 @@ export function KanbanBoardView({ projectId }: Props) {
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const [optimistic, setOptimistic] = useState<KanbanBoard | null>(null)
+  const [editTodo, setEditTodo] = useState<KanbanTodo | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
 
   const current = optimistic ?? board.data ?? null
 
@@ -110,25 +114,38 @@ export function KanbanBoardView({ projectId }: Props) {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {COLUMNS.map((col) => (
-          <Column
-            key={col.key}
-            statusKey={col.key}
-            label={col.label}
-            cls={col.cls}
-            todos={current?.[col.key] ?? []}
-            activeId={activeId}
-          />
-        ))}
-      </div>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {COLUMNS.map((col) => (
+            <Column
+              key={col.key}
+              statusKey={col.key}
+              label={col.label}
+              cls={col.cls}
+              todos={current?.[col.key] ?? []}
+              activeId={activeId}
+              projectId={projectId}
+              onEditTodo={(todo) => {
+                setEditTodo(todo)
+                setEditOpen(true)
+              }}
+            />
+          ))}
+        </div>
+      </DndContext>
+
+      <EditTodoSheet
+        todo={editTodo}
+        isOpen={editOpen}
+        onOpenChange={setEditOpen}
+      />
+    </>
   )
 }
 
@@ -138,12 +155,16 @@ function Column({
   cls,
   todos,
   activeId,
+  projectId,
+  onEditTodo,
 }: {
   statusKey: KanbanStatus
   label: string
   cls: string
   todos: KanbanTodo[]
   activeId: UniqueIdentifier | null
+  projectId?: number
+  onEditTodo: (todo: KanbanTodo) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: statusKey })
   return (
@@ -157,20 +178,36 @@ function Column({
           <Badge variant="outline">{todos.length}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 space-y-2 overflow-y-auto pb-3">
+      <CardContent className="flex-1 space-y-2 overflow-y-auto pb-3 flex flex-col">
         {todos.length === 0 ? (
           <p className="py-6 text-center text-xs text-muted-foreground">비어 있음</p>
         ) : (
           todos.map((t) => (
-            <TodoCard key={t.id} todo={t} dragging={String(t.id) === String(activeId)} />
+            <TodoCard
+              key={t.id}
+              todo={t}
+              dragging={String(t.id) === String(activeId)}
+              onEdit={() => onEditTodo(t)}
+            />
           ))
         )}
+        <div className="mt-auto pt-2">
+          <AddTodoForm status={statusKey} projectId={projectId} />
+        </div>
       </CardContent>
     </Card>
   )
 }
 
-function TodoCard({ todo, dragging }: { todo: KanbanTodo; dragging: boolean }) {
+function TodoCard({
+  todo,
+  dragging,
+  onEdit,
+}: {
+  todo: KanbanTodo
+  dragging: boolean
+  onEdit: () => void
+}) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: todo.id })
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
@@ -181,9 +218,10 @@ function TodoCard({ todo, dragging }: { todo: KanbanTodo; dragging: boolean }) {
       style={style}
       {...listeners}
       {...attributes}
+      onClick={onEdit}
       className={cn(
-        'cursor-grab rounded-md border bg-card p-3 shadow-sm transition-shadow hover:shadow-md',
-        dragging && 'opacity-50',
+        'rounded-md border bg-card p-3 shadow-sm transition-shadow hover:shadow-md',
+        dragging ? 'cursor-grabbing opacity-50' : 'cursor-pointer active:cursor-grab',
       )}
     >
       <p className="text-sm leading-snug">{todo.content}</p>

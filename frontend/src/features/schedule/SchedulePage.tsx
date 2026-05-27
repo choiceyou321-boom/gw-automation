@@ -1,12 +1,17 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { GanttChart } from './GanttChart'
 import { fetchProjectSchedule } from './api'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
+import { AddScheduleItemSheet } from './AddScheduleItemSheet'
+import { EditScheduleItemSheet } from './EditScheduleItemSheet'
+import type { ScheduleItem } from './api'
 
 const STATUS_LEGEND: { key: string; label: string; cls: string }[] = [
   { key: 'planned', label: '계획', cls: 'bg-stone-300' },
@@ -32,6 +37,10 @@ export function SchedulePage() {
     enabled: !!activeId,
   })
 
+  const [addOpen, setAddOpen] = useState(false)
+  const [editItem, setEditItem] = useState<ScheduleItem | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+
   const counts = useMemo(() => {
     const items = schedule.data ?? []
     const c: Record<string, number> = {}
@@ -48,18 +57,29 @@ export function SchedulePage() {
             프로젝트별 공정 간트 차트 (schedule_items)
           </p>
         </div>
-        <select
-          value={activeId ?? ''}
-          onChange={(e) => setProjectId(Number(e.target.value) || null)}
-          className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {projects.isLoading && <option>로딩...</option>}
-          {projects.data?.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            value={activeId ?? ''}
+            onChange={(e) => setProjectId(Number(e.target.value) || null)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {projects.isLoading && <option>로딩...</option>}
+            {projects.data?.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            onClick={() => setAddOpen(true)}
+            disabled={!activeId}
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            <span>항목 추가</span>
+          </Button>
+        </div>
       </header>
 
       {/* 범례 + 카운트 */}
@@ -87,8 +107,29 @@ export function SchedulePage() {
           일정 로드 실패: {(schedule.error as Error).message}
         </div>
       ) : (
-        <GanttChart items={schedule.data ?? []} />
+        <GanttChart
+          items={schedule.data ?? []}
+          onClickItem={(item) => {
+            setEditItem(item)
+            setEditOpen(true)
+          }}
+        />
       )}
+
+      <AddScheduleItemSheet
+        projectId={activeId}
+        existingItems={schedule.data ?? []}
+        isOpen={addOpen}
+        onOpenChange={setAddOpen}
+      />
+
+      <EditScheduleItemSheet
+        projectId={activeId}
+        item={editItem}
+        allItems={schedule.data ?? []}
+        isOpen={editOpen}
+        onOpenChange={setEditOpen}
+      />
     </div>
   )
 }

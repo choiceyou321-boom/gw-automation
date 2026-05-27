@@ -36,9 +36,15 @@ interface GanttChartProps {
   rowHeight?: number
   /** 우측 막대 영역 가로 픽셀 너비 (스크롤) */
   width?: number
+  onClickItem?: (item: ScheduleItem) => void
 }
 
-export function GanttChart({ items, rowHeight = 32, width = 1200 }: GanttChartProps) {
+export function GanttChart({
+  items,
+  rowHeight = 32,
+  width = 1200,
+  onClickItem,
+}: GanttChartProps) {
   const [hover, setHover] = useState<ScheduleItem | null>(null)
 
   const { range, days } = useMemo(() => {
@@ -173,6 +179,7 @@ export function GanttChart({ items, rowHeight = 32, width = 1200 }: GanttChartPr
                 className={cn(colorCls, 'cursor-pointer transition-opacity', hover?.id === it.id ? 'opacity-100' : 'opacity-90')}
                 onMouseEnter={() => setHover(it)}
                 onMouseLeave={() => setHover(null)}
+                onClick={() => onClickItem?.(it)}
               />
               {it.status === 'critical' && (
                 <rect

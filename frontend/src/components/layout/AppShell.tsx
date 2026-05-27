@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { to: '/contracts', label: '계약' },
   { to: '/risks', label: '리스크' },
   { to: '/inbox', label: '알림' },
+  { to: '/insights', label: 'AI 인사이트' },
 ] as const
 
 export function AppShell({ children }: { children: ReactNode }) {

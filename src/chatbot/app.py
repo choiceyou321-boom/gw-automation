@@ -127,12 +127,26 @@ from src.pm.fund_table.routes import PM_STATIC_DIR
 app.mount("/pm-static", StaticFiles(directory=str(PM_STATIC_DIR)), name="pm_static")
 
 # v5 프론트엔드 (/pm-v2) — Vite 빌드 산출물 서빙 + SPA fallback
-# 개발 시에는 Vite 개발서버(:5173)에서 직접 접근하고 이 mount는 무시됨.
-# 운영 빌드: cd frontend && pnpm build → frontend/dist/ 생성 → 아래 mount가 서빙.
+# 개발 시에는 Vite 개발서버(:5174)에서 직접 접근하고 이 라우트는 무시됨.
+# 운영 빌드: cd frontend && pnpm build → frontend/dist/ 생성 → 아래 라우트가 서빙.
 _PM_V2_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
 if _PM_V2_DIST.exists():
-    # SPA fallback — 클라이언트 라우터 경로(예: /pm-v2/schedule)도 index.html 반환
-    app.mount("/pm-v2", StaticFiles(directory=str(_PM_V2_DIST), html=True), name="pm_v2")
+    # SPA fallback 직접 구현 — StaticFiles의 html=True는 nested SPA 경로(/pm-v2/overview 등)를
+    # 404 반환하므로, catch-all 라우트로 (1) 실파일이 있으면 그것 (2) 없으면 index.html
+    from fastapi.responses import FileResponse as _FileResponse
+
+    @app.get("/pm-v2", include_in_schema=False)
+    @app.get("/pm-v2/", include_in_schema=False)
+    async def _pm_v2_root():
+        return _FileResponse(_PM_V2_DIST / "index.html")
+
+    @app.get("/pm-v2/{full_path:path}", include_in_schema=False)
+    async def _pm_v2_spa(full_path: str):
+        # 디렉토리 탈출 차단 — '..' 정규화 후 dist 안에 머무는지 확인
+        target = (_PM_V2_DIST / full_path).resolve()
+        if _PM_V2_DIST.resolve() in target.parents and target.is_file():
+            return _FileResponse(target)
+        return _FileResponse(_PM_V2_DIST / "index.html")
 else:
     logger.info("frontend/dist 미존재 — /pm-v2 미마운트 (pnpm build 필요)")
 

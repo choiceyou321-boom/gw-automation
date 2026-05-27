@@ -42,4 +42,7 @@ export const queryKeys = {
   },
   insights: (pid: number) => ['insights', pid] as const,
   auth: { me: ['auth', 'me'] as const },
+  subcontracts: ['subcontracts'] as const,
+  risks: ['risks'] as const,
+  budgets: ['budgets'] as const,
 } as const

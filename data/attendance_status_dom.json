@@ -1,0 +1,94 @@
+[
+  {
+    "visible_clickables": [
+      {
+        "tag": "SPAN",
+        "text": "99+",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "btnCnt",
+        "id": "",
+        "x": 1731,
+        "y": 10,
+        "w": 25,
+        "h": 14,
+        "data_attrs": "{}"
+      },
+      {
+        "tag": "DIV",
+        "text": "메뉴정보기본페이지즐겨찾기",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "OBTPageContainer_mainButtons__3wk1x",
+        "id": "",
+        "x": 1819,
+        "y": 106,
+        "w": 81,
+        "h": 25,
+        "data_attrs": "{}"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "조회",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H OBTConditionPanel_searchButton__2cpwg",
+        "id": "",
+        "x": 1052,
+        "y": -1339,
+        "w": 63,
+        "h": 27,
+        "data_attrs": "{}"
+      },
+      {
+        "tag": "DIV",
+        "text": "조회",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "OBTButton_wrapper__1_tA2",
+        "id": "",
+        "x": 1063,
+        "y": -1334,
+        "w": 41,
+        "h": 18,
+        "data_attrs": "{}"
+      },
+      {
+        "tag": "SPAN",
+        "text": "조회",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "OBTButton_labelText__1g-UF",
+        "id": "",
+        "x": 1082,
+        "y": -1334,
+        "w": 22,
+        "h": 18,
+        "data_attrs": "{}"
+      },
+      {
+        "tag": "A",
+        "text": "[시공팀] 전성준 차장_대체휴가/05-11~05-15, 05-18~05-22, 05-26~",
+        "title": "",
+        "aria": "",
+        "alt": "",
+        "cls": "",
+        "id": "",
+        "x": 1461,
+        "y": 989,
+        "w": 744,
+        "h": 18,
+        "data_attrs": "{}"
+      }
+    ],
+    "keyword_matches": [],
+    "page_title": "",
+    "url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220",
+    "_frame_url": "https://gw.glowseoul.co.kr/#/HP/HPD0122/HRD0220"
+  }
+]

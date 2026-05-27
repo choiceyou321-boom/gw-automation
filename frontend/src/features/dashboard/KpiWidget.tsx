@@ -8,11 +8,12 @@ interface KpiWidgetProps {
   tone?: 'default' | 'positive' | 'warning' | 'destructive'
 }
 
+// v6: 색 미니멀화 — KPI 숫자는 무채색 기본, 위험만 rose-700
 const TONE_CLASS: Record<NonNullable<KpiWidgetProps['tone']>, string> = {
   default: 'text-foreground',
-  positive: 'text-emerald-600',
-  warning: 'text-amber-600',
-  destructive: 'text-destructive',
+  positive: 'text-foreground',
+  warning: 'text-foreground',
+  destructive: 'text-rose-700',
 }
 
 export function KpiWidget({ title, value, hint, tone = 'default' }: KpiWidgetProps) {

@@ -1,0 +1,195 @@
+{
+  "gw_user": "tgjeon",
+  "crawled_at": "2026-05-25 22:55:34",
+  "modules": [
+    {
+      "text": "시스템설정",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "임직원업무관리",
+      "entry_url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "전자결재",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "메일",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "일정",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": {
+        "saved": "/Users/tg_mac_mini/Documents/자동화 work/data/amaranth_exports/v7_일정_MAIN.xlsx",
+        "size": 16063,
+        "suggested_name": "일정엑셀저장.xlsx",
+        "summary": {
+          "sheets": [
+            "sheet1"
+          ],
+          "row_counts": {
+            "sheet1": 162
+          },
+          "preview": {
+            "sheet1": [
+              [
+                "일정 엑셀다운로드",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ],
+              [
+                "시작시간",
+                "종료시간",
+                "캘린더명",
+                "제목",
+                "내용",
+                "등록자",
+                "참여자",
+                "연락처",
+                "장소"
+              ],
+              [
+                "2026-05-30 11:00",
+                "2026-05-30 13:00",
+                "유대표님 스케줄",
+                "대/외부/강연",
+                "",
+                "최준목",
+                "최준목",
+                "",
+                ""
+              ],
+              [
+                "2026-05-29 11:00",
+                "2026-05-29 12:00",
+                "전사 캘린더(구.구글)",
+                "[DS본부]배정회의 ",
+                "",
+                "강융",
+                "윤성혁,전형준,강융,박준우,정회성,황성윤,박건민,송하나,이병휘,신동관,주수빈",
+                "",
+                ""
+              ],
+              [
+                "2026-05-29 09:30",
+                "2026-05-29 10:30",
+                "전사 캘린더(구.구글)",
+                "피플팀 주간회의(윤대표님 주관)",
+                "",
+                "류만희",
+                "윤성혁,이현기,박건민,이윤수,엄지수,허서영,구현진,최재은,류만희,유희상",
+                "",
+                ""
+              ],
+              [
+                "2026-05-29 09:30",
+                "2026-05-29 10:30",
+                "전사 캘린더(구.구글)",
+                "융바지 / 내부 / b2b 차신혜",
+                "",
+                "이바다",
+                "강융,윤지환,이바다",
+                "",
+                ""
+              ],
+              [
+                "2026-05-28 16:00",
+                "2026-05-28 18:00",
+                "전사 캘린더(구.구글)",
+                "황부,이지영대리 / 외부 / 팀홀튼",
+                "",
+                "이지영",
+                "황성윤,이지영",
+                "",
+                ""
+              ],
+              [
+                "2026-05-28 15:00",
+                "2026-05-28 16:00",
+                "전사 캘린더(구.구글)",
+                "융바자 / 내부 / B2C 박진규",
+                "",
+                "이바다",
+                "강융,윤지환,이바다",
+                "",
+                ""
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "text": "자원",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "게시판",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "업무관리",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "ONEFFICE",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "ONECHAMBER",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "프로세스관리",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    },
+    {
+      "text": "오피스케어",
+      "entry_url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+      "lnb": [],
+      "leaf_visits": [],
+      "main_download": null
+    }
+  ],
+  "errors": []
+}

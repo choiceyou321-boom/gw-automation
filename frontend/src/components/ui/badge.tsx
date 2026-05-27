@@ -9,12 +9,13 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground',
-        outline: 'text-foreground',
-        success: 'border-transparent bg-emerald-600 text-white',
-        warning: 'border-transparent bg-amber-500 text-white',
+        // v6: 무채색 베이스 + 의미색은 light tint(50) + dark text(700) 조합
+        default: 'border-transparent bg-zinc-900 text-white',
+        secondary: 'border-transparent bg-stone-100 text-stone-700',
+        destructive: 'border-transparent bg-rose-50 text-rose-700',
+        outline: 'border-stone-200 text-stone-700',
+        success: 'border-transparent bg-emerald-50 text-emerald-700',
+        warning: 'border-transparent bg-stone-100 text-stone-700',
       },
     },
     defaultVariants: { variant: 'default' },

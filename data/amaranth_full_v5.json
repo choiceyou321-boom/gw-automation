@@ -1,0 +1,3641 @@
+{
+  "gw_user": "tgjeon",
+  "crawled_at": "2026-05-25 22:22:08",
+  "modules": [
+    {
+      "code": "SET",
+      "text": "시스템설정",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item selected",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "tab-item on",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "nav-item step-1 nav-item-open ",
+          "x": 48,
+          "y": 95,
+          "w": 193,
+          "h": 72,
+          "has_child_list": true,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "nav-item step-2 selected",
+          "x": 48,
+          "y": 134,
+          "w": 188,
+          "h": 28,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "시스템통계",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 167,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "보안관리",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 202,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "연동설정",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 237,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "has_excel_btn": false,
+          "has_grid": false,
+          "excel_btn_count": 0,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "has_excel_btn": false,
+          "has_grid": false,
+          "excel_btn_count": 0,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+          "has_excel_btn": false,
+          "has_grid": false,
+          "excel_btn_count": 0,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000",
+          "has_excel_btn": false,
+          "has_grid": false,
+          "excel_btn_count": 0,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+          "has_excel_btn": false,
+          "has_grid": false,
+          "excel_btn_count": 0,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": {
+            "saved": "/Users/tg_mac_mini/Documents/자동화 work/data/amaranth_exports/SET_자원.xlsx",
+            "size": 6900,
+            "summary": {
+              "sheets": [
+                "sheet1"
+              ],
+              "row_count": {
+                "sheet1": 3
+              },
+              "preview": {
+                "sheet1": [
+                  [
+                    "일시",
+                    "종류명",
+                    "자원명",
+                    "예약명",
+                    "예약자",
+                    "사용자",
+                    "내용",
+                    "상태"
+                  ],
+                  [
+                    "2026.05.01(금)~2026.05.31(일)",
+                    "전산장비",
+                    "EGG1",
+                    "이재명-제천 의림지 청수당",
+                    "이재명",
+                    "이재명",
+                    "",
+                    "승인요청"
+                  ],
+                  [
+                    "2026.05.25(월) 10:00~2026.05.25(월) 11:30",
+                    "회의실",
+                    "1번 회의실",
+                    "[회계팀] 주간회의",
+                    "이준범",
+                    "이준범",
+                    "",
+                    "예약완료"
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": {
+            "saved": null,
+            "error": "timeout"
+          }
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UG/UGA/UGA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UO/UOA/OFA1000?specialLnb=Y&moduleCode=UO&menuCode=UOA&pageCode=UOB2100",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/UQ/UQA/UQA0000?specialLnb=Y&moduleCode=UQ&menuCode=UQA&pageCode=UQB1010",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "",
+          "url": "https://gw.glowseoul.co.kr/#/BZ/BZ/BZA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UT/UTA/https://theporterzone.com/solution/a10/login",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UT/UTA/https://theporterzone.com/solution/a10/login",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UT/UTA/https://theporterzone.com/solution/a10/login",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스갤러리",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "HR",
+      "text": "임직원업무관리",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item selected",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "tab-item on",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "nav-item step-1 nav-item-open ",
+          "x": 48,
+          "y": 95,
+          "w": 193,
+          "h": 72,
+          "has_child_list": true,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스갤러리",
+          "cls": "nav-item step-2 selected",
+          "x": 48,
+          "y": 134,
+          "w": 188,
+          "h": 28,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "마이페이지",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 167,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "근태관리",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 202,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "인사관리",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 237,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "급여관리",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 272,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "경비청구",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 307,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "지출결의/계산서",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 342,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "개인지출결의서",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 377,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "예산관리",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 412,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "법정의무교육",
+          "cls": "nav-item step-1 nav-item-close ",
+          "x": 48,
+          "y": 447,
+          "w": 193,
+          "h": 35,
+          "has_child_list": false,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 1,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스갤러리",
+          "page_title": "오피스케어로 이동중이예요",
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "EA",
+      "text": "전자결재",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "ML",
+      "text": "메일",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "CL",
+      "text": "일정",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "RM",
+      "text": "자원",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "BD",
+      "text": "게시판",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "KS",
+      "text": "업무관리",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "OF",
+      "text": "ONEFFICE",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "OC",
+      "text": "ONECHAMBER",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "BPM",
+      "text": "프로세스관리",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    },
+    {
+      "code": "UT",
+      "text": "오피스케어",
+      "lnb_items": [
+        {
+          "text": "시스템설정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 50,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "임직원업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 100,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "전자결재",
+          "cls": "module-item",
+          "x": 0,
+          "y": 150,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "메일",
+          "cls": "module-item",
+          "x": 0,
+          "y": 200,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "일정",
+          "cls": "module-item",
+          "x": 0,
+          "y": 250,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "module-item",
+          "x": 0,
+          "y": 300,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "게시판",
+          "cls": "module-item",
+          "x": 0,
+          "y": 350,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "업무관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 400,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONEFFICE",
+          "cls": "module-item",
+          "x": 0,
+          "y": 450,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "ONECHAMBER",
+          "cls": "module-item",
+          "x": 0,
+          "y": 500,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "프로세스관리",
+          "cls": "module-item",
+          "x": 0,
+          "y": 550,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "오피스케어",
+          "cls": "module-item",
+          "x": 0,
+          "y": 600,
+          "w": 48,
+          "h": 44,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "위로",
+          "cls": "arrow-item up disabled",
+          "x": 0,
+          "y": 1040,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "아래로",
+          "cls": "arrow-item down disabled",
+          "x": 0,
+          "y": 1057,
+          "w": 48,
+          "h": 17,
+          "has_child_list": false,
+          "has_expand_icon": false
+        },
+        {
+          "text": "자원",
+          "cls": "tab-item",
+          "x": 248,
+          "y": 10,
+          "w": 138,
+          "h": 32,
+          "has_child_list": true,
+          "has_expand_icon": false
+        }
+      ],
+      "leaf_visits": [
+        {
+          "lnb_text": "시스템설정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "임직원업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "전자결재",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "메일",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "일정",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "자원",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "게시판",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "업무관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONEFFICE",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "ONECHAMBER",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "프로세스관리",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "오피스케어",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "위로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        },
+        {
+          "lnb_text": "아래로",
+          "page_title": "추천양식",
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "has_excel_btn": true,
+          "has_grid": false,
+          "excel_btn_count": 2,
+          "download": null
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,5237 @@
+{
+  "gw_user": "tgjeon",
+  "crawled_at": "2026-05-25 21:41:32",
+  "home_modules": [
+    {
+      "code": "SET",
+      "text": "시스템설정",
+      "cls": "module-link SET"
+    },
+    {
+      "code": "HR",
+      "text": "임직원업무관리",
+      "cls": "module-link HR"
+    },
+    {
+      "code": "EA",
+      "text": "전자결재",
+      "cls": "module-link EA"
+    },
+    {
+      "code": "ML",
+      "text": "메일",
+      "cls": "module-link ML"
+    },
+    {
+      "code": "CL",
+      "text": "일정",
+      "cls": "module-link CL"
+    },
+    {
+      "code": "RM",
+      "text": "자원",
+      "cls": "module-link RM"
+    },
+    {
+      "code": "BD",
+      "text": "게시판",
+      "cls": "module-link BD"
+    },
+    {
+      "code": "KS",
+      "text": "업무관리",
+      "cls": "module-link KS"
+    },
+    {
+      "code": "OF",
+      "text": "ONEFFICE",
+      "cls": "module-link OF"
+    },
+    {
+      "code": "OC",
+      "text": "ONECHAMBER",
+      "cls": "module-link OC"
+    },
+    {
+      "code": "BPM",
+      "text": "프로세스관리",
+      "cls": "module-link BPM"
+    },
+    {
+      "code": "UT",
+      "text": "오피스케어",
+      "cls": "module-link UT"
+    }
+  ],
+  "modules": [
+    {
+      "code": "SET",
+      "text": "시스템설정",
+      "lnb": [
+        {
+          "text": "프로세스갤러리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "시스템통계",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "보안관리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 3,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            },
+            {
+              "text": "animation",
+              "title": "",
+              "aria": "animation",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "연동설정",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UJ/UJA9010/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "HR",
+      "text": "임직원업무관리",
+      "lnb": [
+        {
+          "text": "프로세스갤러리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "마이페이지",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "근태관리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "인사관리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "급여관리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "경비청구",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "지출결의/계산서",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "개인지출결의서",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "예산관리",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "법정의무교육",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/HP/HPG0110/BZA0020",
+          "page_title": "",
+          "buttons_count": 2,
+          "buttons": [
+            {
+              "text": "즐겨찾기설정",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "리스트썸네일",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK"
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "EA",
+      "text": "전자결재",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+          "page_title": "",
+          "buttons_count": 5,
+          "buttons": [
+            {
+              "text": "결재작성",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "기본페이지즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__VlcMh"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "진행",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "종결",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+          "page_title": "",
+          "buttons_count": 5,
+          "buttons": [
+            {
+              "text": "결재작성",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "기본페이지즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__VlcMh"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "진행",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "종결",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UB/UB/UBA0000?specialLnb=Y&moduleCode=UB&menuCode=UBA&pageCode=UBA7000",
+          "page_title": "",
+          "buttons_count": 5,
+          "buttons": [
+            {
+              "text": "결재작성",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "기본페이지즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__VlcMh"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "진행",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            },
+            {
+              "text": "종결",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__msuN- OBTButton_typedefault__cVS9p OBTButton_themedefault__1Cwgq"
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "ML",
+      "text": "메일",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+          "page_title": "",
+          "buttons_count": 3,
+          "buttons": [
+            {
+              "text": "메일쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "내게쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+          "page_title": "",
+          "buttons_count": 3,
+          "buttons": [
+            {
+              "text": "메일쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "내게쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UD/UDA/UDA0000?specialLnb=Y&moduleCode=UD&menuCode=UDA&pageCode=UDA0020",
+          "page_title": "",
+          "buttons_count": 3,
+          "buttons": [
+            {
+              "text": "메일쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "내게쓰기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "CL",
+      "text": "일정",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+          "page_title": "",
+          "buttons_count": 50,
+          "buttons": [
+            {
+              "text": "일정 등록",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "이전년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "이전달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+          "page_title": "",
+          "buttons_count": 50,
+          "buttons": [
+            {
+              "text": "일정 등록",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "이전년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "이전달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UE/UEA/UEA0000?specialLnb=Y&moduleCode=UE&menuCode=UEA&pageCode=UEA0000",
+          "page_title": "",
+          "buttons_count": 50,
+          "buttons": [
+            {
+              "text": "일정 등록",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "이전년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "이전달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음달",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "다음년",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "RM",
+      "text": "자원",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "page_title": "",
+          "buttons_count": 21,
+          "buttons": [
+            {
+              "text": "자원 예약",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "기간월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK dateBtn mr10"
+            },
+            {
+              "text": "기간",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "조회",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "필터저장",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "회의실",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "인감도장",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "화상회의용품",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "전산장비",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "킥보드",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "prev",
+              "title": "",
+              "aria": "prev",
+              "cls": "fc-prev-button fc-button fc-button-primary"
+            },
+            {
+              "text": "next",
+              "title": "",
+              "aria": "next",
+              "cls": "fc-next-button fc-button fc-button-primary"
+            },
+            {
+              "text": "오늘",
+              "title": "",
+              "aria": "",
+              "cls": "fc-todayCustom-button fc-button fc-button-primary"
+            },
+            {
+              "text": "월간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "주간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineWeek-button fc-button fc-button-primary"
+            },
+            {
+              "text": "일간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineDay-button fc-button fc-button-primary fc-button-active"
+            },
+            {
+              "text": "목록",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceListMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "필터",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "page_title": "",
+          "buttons_count": 21,
+          "buttons": [
+            {
+              "text": "자원 예약",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "기간월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK dateBtn mr10"
+            },
+            {
+              "text": "기간",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "조회",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "필터저장",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "회의실",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "인감도장",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "화상회의용품",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "전산장비",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "킥보드",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "prev",
+              "title": "",
+              "aria": "prev",
+              "cls": "fc-prev-button fc-button fc-button-primary"
+            },
+            {
+              "text": "next",
+              "title": "",
+              "aria": "next",
+              "cls": "fc-next-button fc-button fc-button-primary"
+            },
+            {
+              "text": "오늘",
+              "title": "",
+              "aria": "",
+              "cls": "fc-todayCustom-button fc-button fc-button-primary"
+            },
+            {
+              "text": "월간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "주간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineWeek-button fc-button fc-button-primary"
+            },
+            {
+              "text": "일간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineDay-button fc-button fc-button-primary fc-button-active"
+            },
+            {
+              "text": "목록",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceListMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "필터",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/UK/UKA/UKA0000?specialLnb=Y&moduleCode=UK&menuCode=UKA&pageCode=UKA0000",
+          "page_title": "",
+          "buttons_count": 21,
+          "buttons": [
+            {
+              "text": "자원 예약",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x"
+            },
+            {
+              "text": "기간월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButtonGroup_buttonGroup__3FGIK dateBtn mr10"
+            },
+            {
+              "text": "기간",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "월별",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "조회",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "필터저장",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            },
+            {
+              "text": "전체",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "회의실",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "인감도장",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "화상회의용품",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "전산장비",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "킥보드",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "prev",
+              "title": "",
+              "aria": "prev",
+              "cls": "fc-prev-button fc-button fc-button-primary"
+            },
+            {
+              "text": "next",
+              "title": "",
+              "aria": "next",
+              "cls": "fc-next-button fc-button fc-button-primary"
+            },
+            {
+              "text": "오늘",
+              "title": "",
+              "aria": "",
+              "cls": "fc-todayCustom-button fc-button fc-button-primary"
+            },
+            {
+              "text": "월간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "주간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineWeek-button fc-button fc-button-primary"
+            },
+            {
+              "text": "일간",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceTimelineDay-button fc-button fc-button-primary fc-button-active"
+            },
+            {
+              "text": "목록",
+              "title": "",
+              "aria": "",
+              "cls": "fc-resourceListMonth-button fc-button fc-button-primary"
+            },
+            {
+              "text": "필터",
+              "title": "",
+              "aria": "",
+              "cls": "OBTButton_root__1g4ov OBTButton_typedefault__1V4nr OBTButton_themedefault__Px-_H"
+            }
+          ],
+          "export_candidates": [
+            {
+              "text": "엑셀 다운로드즐겨찾기",
+              "title": "",
+              "aria": "",
+              "cls": "OBTPageContainer_mainButtons__3wk1x",
+              "matched": "엑셀"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "BD",
+      "text": "게시판",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "KS",
+      "text": "업무관리",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "OF",
+      "text": "ONEFFICE",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "OC",
+      "text": "ONECHAMBER",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "BPM",
+      "text": "프로세스관리",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    },
+    {
+      "code": "UT",
+      "text": "오피스케어",
+      "lnb": [
+        {
+          "text": "해당 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "해당 탭 제외 다른 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        },
+        {
+          "text": "모든 탭 닫기",
+          "clicked": true,
+          "url": "https://gw.glowseoul.co.kr/#/",
+          "page_title": "추천양식",
+          "buttons_count": 33,
+          "buttons": [
+            {
+              "text": "26",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "27",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "28",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "29",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "30",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "1",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "2",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "3",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "4",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "5",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "6",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "7",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "8",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "9",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "10",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "11",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "12",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "13",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "14",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "15",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "16",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "17",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "18",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "19",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "20",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "21",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "22",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "23",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "24",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            },
+            {
+              "text": "25",
+              "title": "",
+              "aria": "",
+              "cls": ""
+            }
+          ],
+          "export_candidates": []
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

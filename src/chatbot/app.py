@@ -8,9 +8,8 @@ FastAPI 백엔드
 - PUT  /auth/profile  : 프로필 업데이트
 - POST /chat          : 채팅 메시지 처리 (텍스트 + 파일)
 - POST /upload        : 파일 업로드
-- GET  /              : 프론트엔드 서빙
-- GET  /fund          : 프로젝트 관리 웹 페이지
-- /api/fund/*         : 프로젝트 관리 API
+- GET  /              : 프론트엔드 서빙 (챗봇)
+- /api/pm/*           : 프로젝트 관리 API (챗봇 도구 의존성 — UI 없음, 글로우 PM 별도 리포)
 """
 
 import os
@@ -113,42 +112,22 @@ app.add_middleware(CSRFMiddleware)
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# 프로젝트 관리(PM) 라우터 등록 — v4 분리:
+# 프로젝트 관리(PM) API 라우터만 등록 — v9.1 분리:
+#   UI는 글로우 PM 별도 리포(/Users/tg_mac_mini/Documents/glow-pm)로 이동.
+#   이 리포에는 챗봇 도구(get_project_schedule 등)가 의존하는 fund_table API만 유지.
 #   /api/pm/*   (신규 권장 경로)
-#   /api/fund/* (기존 호환 alias — fund.js 등 무중단 위해 유지)
-from src.pm.fund_table.routes import router as pm_router, pages_router as pm_pages_router
+#   /api/fund/* (기존 호환 alias — 일부 챗봇 도구가 여전히 사용 가능성)
+from src.pm.fund_table.routes import router as pm_router
 app.include_router(pm_router, prefix="/api/pm")
 app.include_router(pm_router, prefix="/api/fund")
-# 페이지 서빙 (/fund, /guide, /insights) — prefix 없이 등록
-app.include_router(pm_pages_router)
 
-# PM 정적 파일 마운트 (fund.css, fund.js 등) — /static/ 경로 호환
-from src.pm.fund_table.routes import PM_STATIC_DIR
-app.mount("/pm-static", StaticFiles(directory=str(PM_STATIC_DIR)), name="pm_static")
+# 가이드 페이지 (/guide) — 챗봇 자산
+from fastapi.responses import FileResponse as _GuideFileResponse
 
-# v5 프론트엔드 (/pm-v2) — Vite 빌드 산출물 서빙 + SPA fallback
-# 개발 시에는 Vite 개발서버(:5174)에서 직접 접근하고 이 라우트는 무시됨.
-# 운영 빌드: cd frontend && pnpm build → frontend/dist/ 생성 → 아래 라우트가 서빙.
-_PM_V2_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
-if _PM_V2_DIST.exists():
-    # SPA fallback 직접 구현 — StaticFiles의 html=True는 nested SPA 경로(/pm-v2/overview 등)를
-    # 404 반환하므로, catch-all 라우트로 (1) 실파일이 있으면 그것 (2) 없으면 index.html
-    from fastapi.responses import FileResponse as _FileResponse
-
-    @app.get("/pm-v2", include_in_schema=False)
-    @app.get("/pm-v2/", include_in_schema=False)
-    async def _pm_v2_root():
-        return _FileResponse(_PM_V2_DIST / "index.html")
-
-    @app.get("/pm-v2/{full_path:path}", include_in_schema=False)
-    async def _pm_v2_spa(full_path: str):
-        # 디렉토리 탈출 차단 — '..' 정규화 후 dist 안에 머무는지 확인
-        target = (_PM_V2_DIST / full_path).resolve()
-        if _PM_V2_DIST.resolve() in target.parents and target.is_file():
-            return _FileResponse(target)
-        return _FileResponse(_PM_V2_DIST / "index.html")
-else:
-    logger.info("frontend/dist 미존재 — /pm-v2 미마운트 (pnpm build 필요)")
+@app.get("/guide", include_in_schema=False)
+async def _serve_guide():
+    """사용방법 가이드 — src/chatbot/static/guide.html"""
+    return _GuideFileResponse(STATIC_DIR / "guide.html")
 
 # ─────────────────────────────────────────
 # Pydantic 모델

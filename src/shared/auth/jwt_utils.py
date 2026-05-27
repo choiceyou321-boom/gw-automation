@@ -12,7 +12,7 @@ from pathlib import Path
 import jwt
 from dotenv import load_dotenv
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 load_dotenv(PROJECT_ROOT / "config" / ".env")
 
 logger = logging.getLogger("jwt_utils")

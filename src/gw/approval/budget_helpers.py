@@ -16,7 +16,7 @@ from pathlib import Path
 from playwright.sync_api import Page
 
 # 스크린샷 저장 경로 (모듈 로드 시 한 번만 계산)
-_SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+_SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
 
 logger = logging.getLogger("budget_helpers")
 

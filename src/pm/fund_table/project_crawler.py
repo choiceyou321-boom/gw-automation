@@ -12,7 +12,7 @@ from pathlib import Path
 logger = logging.getLogger("project_crawler")
 
 GW_URL = os.environ.get("GW_URL", "https://gw.glowseoul.co.kr")
-SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "approval_screenshots"
+SCREENSHOT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "approval_screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 프로젝트 등록정보 추출 JS — 페이지의 입력 필드에서 데이터 추출

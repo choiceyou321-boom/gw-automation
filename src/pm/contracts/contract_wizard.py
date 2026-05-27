@@ -26,7 +26,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_DIR = str(pathlib.Path(__file__).parent.parent.parent / "data" / "tmp")
+OUTPUT_DIR = str(pathlib.Path(__file__).parent.parent.parent.parent / "data" / "tmp")
 
 
 def _is_affirm(text: str) -> bool:

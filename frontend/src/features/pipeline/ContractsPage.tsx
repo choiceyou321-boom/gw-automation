@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { ProjectSelector } from '@/components/ProjectSelector'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchSubcontracts } from './api'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -41,6 +43,26 @@ export function ContractsPage() {
     return { contract, paid, rate: contract ? (paid / contract) * 100 : 0 }
   }, [subs.data])
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<any>[] = [
+    { key: 'trade_name', label: '공종' },
+    { key: 'vendor_name', label: '업체' },
+    { key: 'contract_amount', label: '계약금액' },
+    { key: 'payment_1', label: '1차' },
+    { key: 'payment_2', label: '2차' },
+    { key: 'payment_3', label: '3차' },
+    { key: 'payment_4', label: '4차' },
+    {
+      key: 'rate',
+      label: '진행률',
+      format: (row) => {
+        const paid = sumPayments(row)
+        const total = row.contract_amount ?? 0
+        return total ? ((paid / total) * 100).toFixed(1) : '0'
+      },
+    },
+  ]
+
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between">
@@ -48,7 +70,16 @@ export function ContractsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">하도급 계약</h1>
           <p className="mt-1 text-sm text-muted-foreground">프로젝트별 하도급 + 기성 진행률</p>
         </div>
-        <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        <div className="flex items-center gap-2">
+          <ExportButton
+            rows={subs.data ?? []}
+            columns={exportColumns}
+            filenameBase="contracts"
+            title="하도급 계약"
+            disabled={subs.isLoading}
+          />
+          <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        </div>
       </header>
 
       <div className="grid grid-cols-3 gap-3 text-sm">

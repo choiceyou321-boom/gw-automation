@@ -8,10 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchNotifications, markAllNotificationsRead } from './api'
 import { DigestPanel } from './DigestPanel'
 import { queryKeys } from '@/lib/query-keys'
 import type { NotificationItem } from './api'
+import { formatDate } from '@/lib/format'
 
 const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   milestone: '마일스톤',
@@ -142,6 +145,23 @@ export function InboxPage() {
     }
   }
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<NotificationItem>[] = [
+    { key: 'notification_type', label: '유형' },
+    { key: 'project_name', label: '프로젝트' },
+    { key: 'message', label: '메시지' },
+    {
+      key: 'read',
+      label: '읽음 여부',
+      format: (row) => (row.read ? '읽음' : '미읽음'),
+    },
+    {
+      key: 'created_at',
+      label: '생성일',
+      format: (row) => formatDate(row.created_at),
+    },
+  ]
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
@@ -153,6 +173,13 @@ export function InboxPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <ExportButton
+            rows={allNotifications}
+            columns={exportColumns}
+            filenameBase="inbox"
+            title="알림"
+            disabled={isLoading}
+          />
           <Button
             variant={showDigest ? 'default' : 'outline'}
             size="sm"

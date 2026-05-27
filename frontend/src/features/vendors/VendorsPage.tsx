@@ -1,13 +1,18 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { fetchAllSubcontracts, type Subcontract } from '@/features/vendors/api'
 import { queryKeys } from '@/lib/query-keys'
 import { formatKRW, formatPercent } from '@/lib/format'
+import { SubcontractSheet } from '@/features/vendors/SubcontractSheet'
+import { toast } from 'sonner'
 
 type SortKey = 'project' | 'trade' | 'remaining'
 type SortDir = 'asc' | 'desc'
@@ -83,9 +88,12 @@ const COLUMNS: Column[] = [
 ]
 
 export function VendorsPage() {
+  const queryClient = useQueryClient()
   const [sortKey, setSortKey] = useState<SortKey>('project')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [editingSubcontract, setEditingSubcontract] = useState<Subcontract | null>(null)
 
   // 포트폴리오 조회
   const { data: portfolio = [], isLoading: isLoadingPortfolio } = useQuery({
@@ -156,6 +164,72 @@ export function VendorsPage() {
     }
   }
 
+  const handleAddClick = () => {
+    setEditingSubcontract(null)
+    setIsSheetOpen(true)
+  }
+
+  const handleEditClick = (row: Subcontract) => {
+    setEditingSubcontract(row)
+    setIsSheetOpen(true)
+  }
+
+  const handleSheetClose = () => {
+    setIsSheetOpen(false)
+    setEditingSubcontract(null)
+  }
+
+  const handleSaveSuccess = () => {
+    // 포트폴리오 재조회로 하도급 목록 갱신됨
+    queryClient.invalidateQueries({ queryKey: queryKeys.subcontracts })
+    handleSheetClose()
+    toast.success('저장 완료')
+  }
+
+  const handleDeleteSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.subcontracts })
+    toast.success('삭제 완료')
+  }
+
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<Subcontract>[] = [
+    {
+      key: 'project_id',
+      label: '프로젝트',
+      format: (row) => portfolio.find((p) => p.id === row.project_id)?.name || '-',
+    },
+    {
+      key: 'trade_name',
+      label: '공종',
+      format: (row) => row.trade_name || '-',
+    },
+    {
+      key: 'company_name',
+      label: '업체명',
+      format: (row) => row.company_name || '-',
+    },
+    {
+      key: 'contract_amount',
+      label: '계약금액',
+      format: (row) => row.contract_amount || 0,
+    },
+    {
+      key: 'progress',
+      label: '1~4차 기성합계',
+      format: (row) => (row.payment_1 ?? 0) + (row.payment_2 ?? 0) + (row.payment_3 ?? 0) + (row.payment_4 ?? 0),
+    },
+    {
+      key: 'remaining_amount',
+      label: '잔액',
+      format: (row) => row.remaining_amount || 0,
+    },
+    {
+      key: 'payment_rate',
+      label: '진행률 (%)',
+      format: (row) => row.payment_rate || 0,
+    },
+  ]
+
   if (isLoadingPortfolio) {
     return (
       <div className="space-y-4">
@@ -167,9 +241,24 @@ export function VendorsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">하도급</h1>
-        <p className="mt-2 text-sm text-muted-foreground">프로젝트별 하도급 현황 및 진행률</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">하도급</h1>
+          <p className="mt-2 text-sm text-muted-foreground">프로젝트별 하도급 현황 및 진행률</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ExportButton
+            rows={filtered}
+            columns={exportColumns}
+            filenameBase="vendors"
+            title="하도급 현황"
+            disabled={isLoadingSubcontracts}
+          />
+          <Button size="sm" onClick={handleAddClick} disabled={isLoadingPortfolio}>
+            <Plus size={14} />
+            추가
+          </Button>
+        </div>
       </div>
 
       {/* 필터: 프로젝트 선택 */}
@@ -207,7 +296,7 @@ export function VendorsPage() {
         ) : (
           <>
             {/* 헤더 */}
-            <div className="grid gap-2 border-b bg-muted/50 p-4 text-xs font-semibold md:grid-cols-7">
+            <div className="grid gap-2 border-b bg-muted/50 p-4 text-xs font-semibold md:grid-cols-8">
               {COLUMNS.map((col) => (
                 <div
                   key={col.key}
@@ -220,24 +309,35 @@ export function VendorsPage() {
                   )}
                 </div>
               ))}
+              <div className="text-right">작업</div>
             </div>
 
             {/* 행 */}
             {filtered.map((row, idx) => (
               <div
                 key={row.id || idx}
-                className={`grid gap-2 p-4 text-sm md:grid-cols-7 ${idx !== filtered.length - 1 ? 'border-b' : ''}`}
+                className={`grid gap-2 p-4 text-sm md:grid-cols-8 ${idx !== filtered.length - 1 ? 'border-b' : ''}`}
               >
                 {COLUMNS.map((col) => (
                   <div key={col.key} className={col.align === 'right' ? 'text-right' : ''}>
                     {col.render(row, projectMap)}
                   </div>
                 ))}
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditClick(row)}
+                    className="text-xs"
+                  >
+                    편집
+                  </Button>
+                </div>
               </div>
             ))}
 
             {/* 합계 푸터 */}
-            <div className="grid gap-2 border-t bg-muted/30 p-4 text-xs font-semibold md:grid-cols-7">
+            <div className="grid gap-2 border-t bg-muted/30 p-4 text-xs font-semibold md:grid-cols-8">
               <div>합계</div>
               <div />
               <div />
@@ -245,10 +345,22 @@ export function VendorsPage() {
               <div className="text-right">{formatKRW(totalProgress)}</div>
               <div className="text-right">{formatKRW(totalContract - totalProgress)}</div>
               <div />
+              <div />
             </div>
           </>
         )}
       </div>
+
+      {/* 하도급 추가/편집 Sheet */}
+      <SubcontractSheet
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        projectId={selectedProjectId || undefined}
+        projects={portfolio}
+        subcontract={editingSubcontract || undefined}
+        onSaveSuccess={handleSaveSuccess}
+        onDeleteSuccess={handleDeleteSuccess}
+      />
     </div>
   )
 }

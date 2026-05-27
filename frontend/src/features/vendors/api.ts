@@ -39,3 +39,26 @@ export function fetchAllSubcontracts(projectIds: number[]): Promise<Subcontract[
   return Promise.all(projectIds.map((id) => fetchSubcontracts(id)))
     .then((results) => results.flat())
 }
+
+/** 하도급 업체 추가 */
+export async function createSubcontract(
+  projectId: number,
+  data: Omit<Subcontract, 'id' | 'created_at' | 'updated_at'>
+): Promise<Subcontract> {
+  const res = await api.post<Subcontract>(`/api/pm/projects/${projectId}/subcontracts`, data)
+  return res
+}
+
+/** 하도급 업체 수정 (개별) */
+export async function updateSubcontract(
+  subId: number,
+  data: Partial<Subcontract>
+): Promise<Subcontract> {
+  const res = await api.put<Subcontract>(`/api/pm/subcontracts/${subId}`, data)
+  return res
+}
+
+/** 하도급 업체 삭제 */
+export async function deleteSubcontract(subId: number): Promise<void> {
+  await api.delete(`/api/pm/subcontracts/${subId}`)
+}

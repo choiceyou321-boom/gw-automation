@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { fetchAllRisks } from '@/features/risks/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -87,11 +90,44 @@ export function RisksPage() {
     )
   }
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<any>[] = [
+    {
+      key: 'project_name',
+      label: '프로젝트',
+      format: (row) => projectMap.get((row as any).project_id) || '-',
+    },
+    { key: 'risk_type', label: '리스크 유형' },
+    { key: 'severity', label: '우선순위' },
+    { key: 'description', label: '설명' },
+    { key: 'status', label: '상태' },
+    {
+      key: 'created_at',
+      label: '생성일',
+      format: (row) => formatDate((row as any).created_at),
+    },
+  ]
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">리스크</h1>
-        <p className="mt-2 text-sm text-muted-foreground">프로젝트별 리스크 현황 및 우선순위</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">리스크</h1>
+          <p className="mt-2 text-sm text-muted-foreground">프로젝트별 리스크 현황 및 우선순위</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ExportButton
+            rows={filtered}
+            columns={exportColumns}
+            filenameBase="risks"
+            title="리스크"
+            disabled={isLoadingRisks}
+          />
+          <Button size="sm" disabled={isLoadingPortfolio}>
+            <Plus size={14} />
+            추가
+          </Button>
+        </div>
       </div>
 
       {/* 필터 */}

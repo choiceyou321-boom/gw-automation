@@ -32,8 +32,8 @@ STATIC_DIR = PM_STATIC_DIR
 # app.py에서 prefix="/api/pm" 으로 마운트하고 alias prefix="/api/fund"도 추가 등록.
 router = APIRouter()
 
-# Pages Router: prefix 없이 /fund, /guide, /insights 같은 페이지 서빙 전용.
-# v4 분리: PM 정적 파일은 src/pm/static, 공통(guide 등)은 src/chatbot/static.
+# Pages Router: v9.1에서 제거 (PM UI는 글로우 PM 별도 리포로 이동).
+# 호환 가드용 빈 라우터만 유지 — 외부 import 깨짐 방지.
 pages_router = APIRouter()
 
 
@@ -1791,41 +1791,10 @@ def _call_claude_for_insights(projects: list[dict]) -> dict:
 
 
 # ─────────────────────────────────────────
-# 프로젝트 관리 웹 페이지 서빙
+# 프로젝트 관리 웹 페이지 서빙 — v9.1에서 제거됨
+# UI는 글로우 PM 별도 리포(/Users/tg_mac_mini/Documents/glow-pm)로 분리.
+# 본 리포의 fund_table API는 챗봇 도구 의존성으로 유지.
 # ─────────────────────────────────────────
-
-@pages_router.get("/fund")
-async def serve_fund_page(request: Request):
-    """프로젝트 관리표 웹 페이지 서빙 (src/pm/static/fund.html).
-
-    no-cache 헤더: 옛 HTML이 캐시되어 /static/fund.js (구 경로) 를 요청하는
-    문제 방지. 자산 자체는 ?v= 쿼리스트링으로 갱신.
-    """
-    require_auth(request)
-    fund_html = PM_STATIC_DIR / "fund.html"
-    if not fund_html.exists():
-        raise HTTPException(status_code=404, detail="fund.html을 찾을 수 없습니다.")
-    return FileResponse(
-        str(fund_html),
-        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
-    )
-
-
-@pages_router.get("/guide")
-async def serve_guide_page(request: Request):
-    """사용방법 가이드 페이지 서빙 (src/chatbot/static/guide.html — 공통 자산)."""
-    require_auth(request)
-    guide_html = COMMON_STATIC_DIR / "guide.html"
-    if not guide_html.exists():
-        raise HTTPException(status_code=404, detail="guide.html을 찾을 수 없습니다.")
-    return FileResponse(str(guide_html))
-
-
-@pages_router.get("/insights")
-async def serve_insights_page(request: Request):
-    """인사이트 페이지 → fund 페이지로 리다이렉트"""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/fund")
 
 
 # ─────────────────────────────────────────

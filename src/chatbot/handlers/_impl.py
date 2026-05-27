@@ -1394,7 +1394,7 @@ def handle_get_fund_summary(params: dict, user_context: dict = None) -> str:
             return (
                 f"📊 **{summary['project_name']}**\n\n"
                 f"아직 금액 데이터가 입력되지 않은 프로젝트입니다.\n"
-                f"프로젝트 관리 페이지(/fund)에서 수주액, 실행예산 등을 먼저 입력해주세요."
+                f"글로우 PM (별도 앱)에서 수주액, 실행예산 등을 먼저 입력해주세요."
             )
 
         lines = [f"📊 **{summary['project_name']}** 자금현황 요약\n"]
@@ -1408,13 +1408,13 @@ def handle_get_fund_summary(params: dict, user_context: dict = None) -> str:
             lines.append(f"• 계약총액: {fmt(summary['total_contract'])}")
             lines.append(f"• 기지급액: {fmt(summary['total_paid'])}")
             lines.append(f"• 잔여금액: {fmt(summary['total_remaining'])}")
-        lines.append(f"\n상세 내용은 프로젝트 관리 페이지(/fund)에서 확인하세요.")
+        lines.append(f"\n상세 내용은 글로우 PM (별도 앱)에서 확인하세요.")
         return "\n".join(lines)
     else:
         # 전체 프로젝트 요약
         summaries = get_all_projects_summary()
         if not summaries:
-            return "등록된 프로젝트가 없습니다. 프로젝트 관리 페이지(/fund)에서 프로젝트를 먼저 등록해주세요."
+            return "등록된 프로젝트가 없습니다. 글로우 PM (별도 앱)에서 프로젝트를 먼저 등록해주세요."
 
         lines = ["📊 **전체 프로젝트 자금현황**\n"]
         for s in summaries:
@@ -1424,7 +1424,7 @@ def handle_get_fund_summary(params: dict, user_context: dict = None) -> str:
                 f"기지급 {s['total_paid']:,}원 / "
                 f"잔여 {s['total_remaining']:,}원"
             )
-        lines.append(f"\n총 {len(summaries)}개 프로젝트. 상세는 프로젝트 관리 페이지(/fund)에서 확인하세요.")
+        lines.append(f"\n총 {len(summaries)}개 프로젝트. 상세는 글로우 PM (별도 앱)에서 확인하세요.")
         return "\n".join(lines)
 
 
@@ -1771,7 +1771,7 @@ def handle_get_project_detail(params: dict, user_context: dict = None) -> str:
     if contacts:
         lines.append(f"\n📞 거래처 연락처: {len(contacts)}건")
 
-    lines.append(f"\n상세 내용은 프로젝트 관리 페이지(/fund)에서 확인하세요.")
+    lines.append(f"\n상세 내용은 글로우 PM (별도 앱)에서 확인하세요.")
     return "\n".join(lines)
 
 
@@ -1860,7 +1860,7 @@ def handle_compare_projects(params: dict, user_context: dict = None) -> str:
     from src.pm.fund_table import db as fund_db
     data = fund_db.get_portfolio_summary()
     if not data:
-        return "등록된 프로젝트가 없습니다. 프로젝트 관리 페이지(/fund)에서 프로젝트를 추가해 주세요."
+        return "등록된 프로젝트가 없습니다. 글로우 PM (별도 앱)에서 프로젝트를 추가해 주세요."
 
     lines = ["📊 **포트폴리오 비교 현황**\n"]
 
@@ -1886,7 +1886,7 @@ def handle_compare_projects(params: dict, user_context: dict = None) -> str:
         worst = sorted_by_coll[0]
         lines.append(f"\n⚠️ **{worst['name']}** 수금율이 {worst['coll_rate']:.1f}%로 가장 낮습니다. 수금 독촉이 필요합니다.")
 
-    lines.append("\n상세 정보는 프로젝트 관리 페이지(/fund)에서 확인하세요.")
+    lines.append("\n상세 정보는 글로우 PM (별도 앱)에서 확인하세요.")
     return "\n".join(lines)
 
 

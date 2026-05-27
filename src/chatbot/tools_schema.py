@@ -658,8 +658,18 @@ AUTOMATION_TOOLS = [
             ),
         ),
         # ─────────────────────────────────────────
-        # Office 도메인 (CRM + 세금계산서) — v4 A 트랙
+        # Office 도메인 (CRM + 세금계산서) — v9.1 정리:
+        # 핸들러 미구현 5종(save_contact_from_image/list_contacts/issue_tax_invoice/
+        # list_tax_invoices/cancel_tax_invoice)을 스키마에서 제거.
+        # 백엔드(src/office/crm + src/office/tax_invoice)는 유지 — 향후 핸들러 구현 시 재도입.
         # ─────────────────────────────────────────
+        # (위 5종 제거)
+    ])
+]
+
+
+# 아래는 v9.1 이전 유지 (참고용 deadcode — 핸들러 구현되면 위 list에 다시 합치기)
+_DEFERRED_OFFICE_TOOLS_v9_1 = [
         types.FunctionDeclaration(
             name="save_contact_from_image",
             description="명함 사진을 OCR 처리해 CRM에 자동 등록합니다. 사용자가 '명함 등록', '연락처 추가', '이 명함 저장' 등을 요청할 때 사용합니다.",
@@ -783,5 +793,4 @@ AUTOMATION_TOOLS = [
                 required=["invoice_id"],
             ),
         ),
-    ])
 ]

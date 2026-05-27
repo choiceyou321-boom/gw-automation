@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { fetchAllBudgets } from '@/features/budget/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -124,11 +126,37 @@ export function BudgetPaymentPage() {
     )
   }
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<ProjectBudgetRow>[] = [
+    { key: 'projectName', label: '프로젝트' },
+    { key: 'totalBudget', label: '예산액' },
+    { key: 'totalExecution', label: '실행액' },
+    {
+      key: 'executionRate',
+      label: '집행률 (%)',
+      format: (row) => formatPercent(row.executionRate, 1),
+    },
+    {
+      key: 'isOverBudget',
+      label: '초과 여부',
+      format: (row) => (row.isOverBudget ? '초과' : '정상'),
+    },
+  ]
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">예산집행</h1>
-        <p className="mt-2 text-sm text-muted-foreground">프로젝트별 예산 vs 실행 현황 비교</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">예산집행</h1>
+          <p className="mt-2 text-sm text-muted-foreground">프로젝트별 예산 vs 실행 현황 비교</p>
+        </div>
+        <ExportButton
+          rows={rows}
+          columns={exportColumns}
+          filenameBase="budget-payment"
+          title="예산집행"
+          disabled={isLoadingBudgets}
+        />
       </div>
 
       {/* 요약 카드 */}

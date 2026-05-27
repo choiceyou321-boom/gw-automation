@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { ProjectSelector } from '@/components/ProjectSelector'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchCollections } from './api'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -35,6 +37,22 @@ export function CollectionsPage() {
     return { total, collected, rate: total ? (collected / total) * 100 : 0 }
   }, [cols.data])
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<any>[] = [
+    {
+      key: 'scheduled_date',
+      label: '예정일',
+      format: (row) => formatDate(row.scheduled_date),
+    },
+    { key: 'description', label: '내역' },
+    { key: 'amount', label: '금액' },
+    {
+      key: 'collected',
+      label: '완료 여부',
+      format: (row) => (row.collected ? '완료' : '미완료'),
+    },
+  ]
+
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between">
@@ -42,7 +60,16 @@ export function CollectionsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">수금 현황</h1>
           <p className="mt-1 text-sm text-muted-foreground">프로젝트별 수금 일정 + 완료 여부</p>
         </div>
-        <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        <div className="flex items-center gap-2">
+          <ExportButton
+            rows={cols.data ?? []}
+            columns={exportColumns}
+            filenameBase="collections"
+            title="수금 현황"
+            disabled={cols.isLoading}
+          />
+          <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        </div>
       </header>
 
       <div className="grid grid-cols-3 gap-3 text-sm">

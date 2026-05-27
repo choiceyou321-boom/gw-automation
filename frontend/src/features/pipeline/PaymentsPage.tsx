@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProjectSelector } from '@/components/ProjectSelector'
+import { ExportButton } from '@/components/ExportButton'
+import type { ExportColumn } from '@/lib/export'
 import { fetchPayments } from './api'
 import { fetchPortfolioSummary } from '@/features/projects/api'
 import { queryKeys } from '@/lib/query-keys'
@@ -30,6 +32,18 @@ export function PaymentsPage() {
     return { sum, count: items.length }
   }, [payments.data])
 
+  // 익스포트 컬럼 정의
+  const exportColumns: ExportColumn<any>[] = [
+    {
+      key: 'payment_date',
+      label: '이체일',
+      format: (row) => formatDate((row as any).payment_date),
+    },
+    { key: 'vendor_name', label: '업체명' },
+    { key: 'amount', label: '금액' },
+    { key: 'reference', label: '적요' },
+  ]
+
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between">
@@ -39,7 +53,16 @@ export function PaymentsPage() {
             GW 이체완료 스크래핑 — payment_history
           </p>
         </div>
-        <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        <div className="flex items-center gap-2">
+          <ExportButton
+            rows={payments.data ?? []}
+            columns={exportColumns}
+            filenameBase="payments"
+            title="이체 내역"
+            disabled={payments.isLoading}
+          />
+          <ProjectSelector value={activeId} onChange={setProjectId} includeAll={false} />
+        </div>
       </header>
 
       <div className="grid grid-cols-2 gap-3 text-sm">

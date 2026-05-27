@@ -8,6 +8,7 @@ export interface Me {
   // 백엔드 응답 스키마 확정 시 openapi-typescript로 자동 생성 교체
 }
 
+// 백엔드 FastAPI는 /auth/* (prefix 없음). v5에서는 같은 origin이므로 그대로 호출.
 export function fetchMe(): Promise<Me> {
-  return api.get<Me>('/api/auth/me')
+  return api.get<Me>('/auth/me')
 }

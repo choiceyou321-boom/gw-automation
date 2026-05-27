@@ -24,13 +24,21 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 5174,
     proxy: {
-      // 모든 /api/* 요청을 FastAPI로 위임 → same-origin 효과 (쿠키/JWT 자동 첨부)
-      '/api': {
-        target: 'http://localhost:51749',
-        changeOrigin: false,
-      },
+      // 백엔드 경로 전체를 FastAPI로 위임 → same-origin 효과 (쿠키/JWT 자동 첨부)
+      // /insights 는 v5 라우트와 충돌하므로 제외 (백엔드 /insights 페이지는 사용 안 함)
+      '/api': { target: 'http://localhost:51749', changeOrigin: false },
+      '/auth': { target: 'http://localhost:51749', changeOrigin: false },
+      '/static': { target: 'http://localhost:51749', changeOrigin: false },
+      '/pm-static': { target: 'http://localhost:51749', changeOrigin: false },
+      '/login': { target: 'http://localhost:51749', changeOrigin: false },
+      '/logout': { target: 'http://localhost:51749', changeOrigin: false },
+      '/upload': { target: 'http://localhost:51749', changeOrigin: false },
+      '/chat': { target: 'http://localhost:51749', changeOrigin: false },
+      '/admin': { target: 'http://localhost:51749', changeOrigin: false },
+      '/fund': { target: 'http://localhost:51749', changeOrigin: false },
+      '/guide': { target: 'http://localhost:51749', changeOrigin: false },
     },
   },
   build: {

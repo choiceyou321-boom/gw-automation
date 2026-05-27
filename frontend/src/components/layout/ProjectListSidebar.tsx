@@ -75,11 +75,11 @@ export function ProjectListSidebar({ selectedProjectId, onSelectProject }: Props
     <aside className="flex w-64 flex-col border-r border-stone-200 bg-card">
       {/* 헤더 */}
       <div className="flex items-center gap-2 px-4 py-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-semibold">
-          PM
+        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white text-[10px] font-semibold">
+          GP
         </div>
-        <span className="text-sm font-medium tracking-tight text-stone-900">
-          프로젝트 관리
+        <span className="text-sm font-semibold tracking-tight text-stone-900">
+          글로우 PM
         </span>
       </div>
 

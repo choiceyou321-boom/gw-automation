@@ -13,6 +13,10 @@ data/chatbot/uploads/
 data/fund_management.db
 data/fund_management.db.*
 fund_management.db
+data/tax_invoice.db
+data/tax_invoice.db.*
+data/crm.db
+data/crm.db.*
 
 # 디버그/임시 데이터
 .fuse_hidden*

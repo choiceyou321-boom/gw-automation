@@ -126,6 +126,16 @@ app.include_router(pm_pages_router)
 from src.pm.fund_table.routes import PM_STATIC_DIR
 app.mount("/pm-static", StaticFiles(directory=str(PM_STATIC_DIR)), name="pm_static")
 
+# v5 프론트엔드 (/pm-v2) — Vite 빌드 산출물 서빙 + SPA fallback
+# 개발 시에는 Vite 개발서버(:5173)에서 직접 접근하고 이 mount는 무시됨.
+# 운영 빌드: cd frontend && pnpm build → frontend/dist/ 생성 → 아래 mount가 서빙.
+_PM_V2_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if _PM_V2_DIST.exists():
+    # SPA fallback — 클라이언트 라우터 경로(예: /pm-v2/schedule)도 index.html 반환
+    app.mount("/pm-v2", StaticFiles(directory=str(_PM_V2_DIST), html=True), name="pm_v2")
+else:
+    logger.info("frontend/dist 미존재 — /pm-v2 미마운트 (pnpm build 필요)")
+
 # ─────────────────────────────────────────
 # Pydantic 모델
 # ─────────────────────────────────────────

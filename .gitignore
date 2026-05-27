@@ -96,3 +96,9 @@ EXPENSE_INVOICE_FIX_NOTES.md
 CLAUDE.md
 user_task_list.md
 config/config- 원본/
+
+# v5 프론트엔드
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.tsbuildinfo

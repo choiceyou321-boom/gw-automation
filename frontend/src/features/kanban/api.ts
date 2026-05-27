@@ -53,3 +53,18 @@ export function updateTodo(
 ): Promise<unknown> {
   return api.put(`/api/pm/todos/${todoId}`, patch)
 }
+
+// todo 생성
+export function createTodo(payload: {
+  project_id?: number
+  content: string
+  priority?: string
+  category?: string
+}): Promise<KanbanTodo> {
+  return api.post('/api/pm/todos', payload)
+}
+
+// todo 삭제
+export function deleteTodo(todoId: number): Promise<unknown> {
+  return api.delete(`/api/pm/todos/${todoId}`)
+}

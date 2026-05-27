@@ -17,3 +17,11 @@ export function fetchProjectSchedule(projectId: number): Promise<ScheduleItem[]>
     .get<{ items: ScheduleItem[] }>(`/api/pm/projects/${projectId}/schedule`)
     .then((r) => r.items)
 }
+
+// 일정 항목 전체 저장 (전체 배열 한 번에 전송)
+export function updateProjectSchedule(
+  projectId: number,
+  items: ScheduleItem[],
+): Promise<unknown> {
+  return api.post(`/api/pm/projects/${projectId}/schedule`, { items })
+}
